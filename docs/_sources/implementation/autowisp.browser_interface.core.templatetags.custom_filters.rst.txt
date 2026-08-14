@@ -1,0 +1,7 @@
+autowisp.browser\_interface.core.templatetags.custom\_filters module
+====================================================================
+
+.. automodule:: autowisp.browser_interface.core.templatetags.custom_filters
+   :members:
+   :undoc-members:
+   :show-inheritance:

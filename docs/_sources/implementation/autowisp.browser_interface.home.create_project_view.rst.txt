@@ -1,0 +1,7 @@
+autowisp.browser\_interface.home.create\_project\_view module
+=============================================================
+
+.. automodule:: autowisp.browser_interface.home.create_project_view
+   :members:
+   :undoc-members:
+   :show-inheritance:

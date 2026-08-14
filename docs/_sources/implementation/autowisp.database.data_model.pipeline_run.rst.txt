@@ -1,0 +1,7 @@
+autowisp.database.data\_model.pipeline\_run module
+==================================================
+
+.. automodule:: autowisp.database.data_model.pipeline_run
+   :members:
+   :undoc-members:
+   :show-inheritance:

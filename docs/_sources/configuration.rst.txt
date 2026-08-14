@@ -7,7 +7,7 @@ means. It does not say how AutoWISP decides what a setting *is* for any
 particular image, which is a separate question and occasionally a
 puzzling one -- settings can hold different values for different images,
 some never appear in your configuration at all, and leaving one blank
-does not mean what it looks like it means.
+does not mean what you might think it means.
 
 Settings belong to the project
 ==============================
@@ -70,10 +70,10 @@ what a setting with a single, unconditional value amounts to.
 
 Give a setting more than one value and you are choosing between them by
 condition. When a stage is about to run on an image, AutoWISP evaluates
-the conditions' expressions against that image's header, and a value
+the conditions' expressions against that image's header. A particular value
 applies if everything its condition asks for came out true. The values
-are tried **in the order they are listed** and the first that applies
-wins, so a general fallback belongs last: put it first and nothing after
+are tried **in the order they are listed**. The first that applies
+wins, so a general fallback belongs last. If you put it first, nothing after
 it is ever reached. If no value applies at all, the run stops with an
 error naming the setting, rather than guessing.
 
@@ -95,7 +95,7 @@ you, and the stored value is what applies until you replace it.
 
 For a fair number of settings, the value a stage would have used is
 *nothing at all*. That is a real state in its own right, and not the same
-as an empty box: such a setting is left out of the configuration handed
+as an empty box. Such a setting is left out of the configuration handed
 to the stage, and the stage then decides for itself when it runs.
 :option:`epd-datasets` and :option:`tfa-datasets` are the clearest
 example. Absent, they do not detrend nothing -- they detrend every
@@ -106,7 +106,7 @@ The distinction matters because only one of the two can be typed. The
 editor's value boxes hold text, so clearing one leaves an empty string,
 which is a value like any other rather than an absence. For settings
 where an empty value means nothing sensible, that is an error and not a
-fallback: emptying :option:`tfa-datasets` does not restore the behaviour
+fallback. Emptying :option:`tfa-datasets` does not restore the behaviour
 described above, it stops the step with a complaint that ``''`` cannot be
 made sense of as a dataset to detrend.
 

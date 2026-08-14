@@ -3,5 +3,5 @@ autowisp.processor module
 
 .. automodule:: autowisp.processor
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

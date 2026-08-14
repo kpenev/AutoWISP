@@ -3,5 +3,5 @@ autowisp.fit\_expression.iterative\_fit module
 
 .. automodule:: autowisp.fit_expression.iterative_fit
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

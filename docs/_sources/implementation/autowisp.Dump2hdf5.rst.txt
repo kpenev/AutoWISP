@@ -3,5 +3,5 @@ autowisp.Dump2hdf5 module
 
 .. automodule:: autowisp.Dump2hdf5
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

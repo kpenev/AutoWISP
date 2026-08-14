@@ -3,8 +3,8 @@ autowisp.magnitude\_fitting.tests package
 
 .. automodule:: autowisp.magnitude_fitting.tests
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

@@ -1,0 +1,7 @@
+autowisp.browser\_interface.diagnostics.preview\_calibrated module
+==================================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.preview_calibrated
+   :members:
+   :undoc-members:
+   :show-inheritance:

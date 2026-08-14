@@ -1,0 +1,7 @@
+autowisp.tests.test\_error\_cli module
+======================================
+
+.. automodule:: autowisp.tests.test_error_cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

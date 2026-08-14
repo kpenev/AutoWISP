@@ -1,0 +1,7 @@
+autowisp.tests.test\_source\_finder module
+==========================================
+
+.. automodule:: autowisp.tests.test_source_finder
+   :members:
+   :undoc-members:
+   :show-inheritance:

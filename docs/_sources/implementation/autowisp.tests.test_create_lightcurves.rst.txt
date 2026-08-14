@@ -3,5 +3,5 @@ autowisp.tests.test\_create\_lightcurves module
 
 .. automodule:: autowisp.tests.test_create_lightcurves
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.select\_raw\_view module
+===============================================================
+
+.. automodule:: autowisp.browser_interface.processing.select_raw_view
+   :members:
+   :undoc-members:
+   :show-inheritance:

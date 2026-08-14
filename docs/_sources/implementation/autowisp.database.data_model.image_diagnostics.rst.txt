@@ -1,0 +1,7 @@
+autowisp.database.data\_model.image\_diagnostics module
+=======================================================
+
+.. automodule:: autowisp.database.data_model.image_diagnostics
+   :members:
+   :undoc-members:
+   :show-inheritance:

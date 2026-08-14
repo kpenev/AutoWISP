@@ -3,5 +3,5 @@ autowisp.miscellaneous module
 
 .. automodule:: autowisp.miscellaneous
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

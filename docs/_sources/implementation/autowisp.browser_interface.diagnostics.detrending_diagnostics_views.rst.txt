@@ -1,0 +1,7 @@
+autowisp.browser\_interface.diagnostics.detrending\_diagnostics\_views module
+=============================================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.detrending_diagnostics_views
+   :members:
+   :undoc-members:
+   :show-inheritance:

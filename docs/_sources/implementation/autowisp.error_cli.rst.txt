@@ -1,0 +1,7 @@
+autowisp.error\_cli module
+==========================
+
+.. automodule:: autowisp.error_cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

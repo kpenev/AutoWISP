@@ -1,0 +1,29 @@
+autowisp.browser\_interface.home package
+========================================
+
+.. automodule:: autowisp.browser_interface.home
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.home.migrations
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.home.admin
+   autowisp.browser_interface.home.apps
+   autowisp.browser_interface.home.create_project_view
+   autowisp.browser_interface.home.models
+   autowisp.browser_interface.home.tests
+   autowisp.browser_interface.home.urls
+   autowisp.browser_interface.home.views

@@ -1,0 +1,8 @@
+<map id="inheritance97e2979286" name="inheritance97e2979286">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" target="_top" title="Simple object for storing attributes." alt="" coords="5,5,151,32"/>
+<area shape="rect" id="node2" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="94,80,464,107"/>
+<area shape="rect" id="node4" href="#autowisp.browser_interface.processing.select_raw_view.SelectRawImages" target="_top" title="A view for selecting raw images to add for processing." alt="" coords="50,155,508,181"/>
+<area shape="rect" id="node3" title="Intentionally simple parent class for all views. Only implements" alt="" coords="175,5,384,32"/>
+<area shape="rect" id="node5" title="An HTTP response class with a string as content." alt="" coords="572,80,802,107"/>
+<area shape="rect" id="node6" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="557,5,818,32"/>
+</map>

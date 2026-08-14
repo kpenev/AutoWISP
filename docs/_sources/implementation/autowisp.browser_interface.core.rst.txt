@@ -1,0 +1,31 @@
+autowisp.browser\_interface.core package
+========================================
+
+.. automodule:: autowisp.browser_interface.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.core.migrations
+   autowisp.browser_interface.core.templatetags
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.core.admin
+   autowisp.browser_interface.core.apps
+   autowisp.browser_interface.core.context_processors
+   autowisp.browser_interface.core.models
+   autowisp.browser_interface.core.plot_utils
+   autowisp.browser_interface.core.tests
+   autowisp.browser_interface.core.views
+   autowisp.browser_interface.core.walk_fs_view

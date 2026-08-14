@@ -1,0 +1,7 @@
+autowisp.browser\_interface.start module
+========================================
+
+.. automodule:: autowisp.browser_interface.start
+   :members:
+   :undoc-members:
+   :show-inheritance:

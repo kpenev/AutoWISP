@@ -1,0 +1,953 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.exceptions &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.exceptions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.exceptions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The AutoWISP exception hierarchy.</span>
+
+<span class="sd">Every exception AutoWISP raises on purpose derives from</span>
+<span class="sd">:class:`AutoWISPError`, which carries enough context (the affected</span>
+<span class="sd">artifact(s), the pipeline run, the worker that raised it, a short</span>
+<span class="sd">user-facing message, and an arbitrary ``details`` dict) to power CLI</span>
+<span class="sd">messages, BUI surfacing, and post-mortem debugging from a single source</span>
+<span class="sd">of truth. See ``error_handling_plan.md`` for the full design.</span>
+
+<span class="sd">This module imports only :class:`FrozenRow` from the database package</span>
+<span class="sd">(itself dependency-free), so the hierarchy stays free of a hard</span>
+<span class="sd">SQLAlchemy dependency.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.metadata</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">traceback_module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.frozen_row</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenRow</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: cbd3289b0eb32e12d1bdf639e748bcddb5a8819c $&quot;</span>
+
+
+<span class="c1"># A type-dispatch sanitizer: one return per handled kind reads clearer</span>
+<span class="c1"># than nesting.</span>
+<span class="c1"># pylint: disable=too-many-return-statements</span>
+<div class="viewcode-block" id="sanitize_for_json">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.sanitize_for_json">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sanitize_for_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">max_inline_array_size</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coerce an otherwise-unserializable object to a JSON-friendly form.</span>
+
+<span class="sd">    Intended as the ``default=`` argument to :func:`json.dump`/`json.dumps`</span>
+<span class="sd">    when writing the error sidecar: ``details`` may carry numpy</span>
+<span class="sd">    scalars/arrays, :class:`~pathlib.Path`, :class:`~datetime.datetime`,</span>
+<span class="sd">    sets, and arbitrary objects. This is *total* -- it never raises, so a</span>
+<span class="sd">    pathological value can never turn recording an error into a second</span>
+<span class="sd">    error; the last resort is ``repr()``.</span>
+
+<span class="sd">    Use directly (``default=sanitize_for_json``) for the default</span>
+<span class="sd">    threshold, or ``default=functools.partial(sanitize_for_json,</span>
+<span class="sd">    max_inline_array_size=N)`` to override it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj:    The value ``json`` could not serialize natively.</span>
+
+<span class="sd">        max_inline_array_size(int):    ndarrays with at most this many</span>
+<span class="sd">            elements are dumped in full; larger ones are summarized so a</span>
+<span class="sd">            stray full-frame array cannot write hundreds of MB.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A JSON-serializable stand-in for ``obj``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;=</span> <span class="n">max_inline_array_size</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;__ndarray__&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+                <span class="s2">&quot;head&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[:</span><span class="n">max_inline_array_size</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="c1"># as_posix() so the serialized path is stable across platforms</span>
+        <span class="c1"># (str() would emit backslashes on Windows).</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">set</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;unrepresentable&gt;&quot;</span></div>
+
+
+
+<span class="c1"># --- Environment / resource provenance. -------------------------------</span>
+<span class="c1"># These live here (the leaf error module, alongside ``sanitize_for_json``)</span>
+<span class="c1"># because every layer that records or bundles an error needs them --</span>
+<span class="c1"># ``error_context`` (crashed-worker resources), ``error_persistence``</span>
+<span class="c1"># (crash-time environment in the sidecar), ``crash_report`` (report-time</span>
+<span class="c1"># provenance), and ``run_pipeline`` (the run host) -- and all already</span>
+<span class="c1"># import this module, so this is the one cycle-free home.</span>
+
+
+<div class="viewcode-block" id="get_hostname">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.get_hostname">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_hostname</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This machine&#39;s name, recorded consistently across the pipeline.</span>
+
+<span class="sd">    A single source so the *run* host (``PipelineRun.host``) and the</span>
+<span class="sd">    *report* host (:func:`autowisp.crash_report.collect_provenance`) agree</span>
+<span class="sd">    -- otherwise ``socket.getfqdn()`` in one place and</span>
+<span class="sd">    ``socket.gethostname()`` in another make one box look like two.</span>
+<span class="sd">    ``gethostname`` is preferred: it is fast and returns the clean local</span>
+<span class="sd">    name rather than a reverse-DNS ``*.in-addr.arpa`` form on a</span>
+<span class="sd">    loopback-only host.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="collect_environment">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.collect_environment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_environment</span><span class="p">(</span>
+    <span class="n">packages</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;autowisp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;astrowisp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scipy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sqlalchemy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;astropy&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Platform + key package versions of the *current* process.</span>
+
+<span class="sd">    Recorded into the error sidecar at crash time (by</span>
+<span class="sd">    ``error_persistence``) so a report reflects the environment that</span>
+<span class="sd">    actually produced the failure -- immune to the report being built</span>
+<span class="sd">    later, after packages were upgraded. Report-time provenance records the</span>
+<span class="sd">    same shape for the machine building the report, so comparing the two</span>
+<span class="sd">    reveals drift. Never raises.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        packages(iterable):    Distribution names whose versions to record</span>
+<span class="sd">            (the runtime stack whose combination determines whether a crash</span>
+<span class="sd">            reproduces); those not installed are omitted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    ``platform`` / ``python_version`` / ``packages``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">versions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">versions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">PackageNotFoundError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="k">continue</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">plat</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">platform</span><span class="p">()</span>
+        <span class="n">python_version</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="n">plat</span> <span class="o">=</span> <span class="n">python_version</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;platform&quot;</span><span class="p">:</span> <span class="n">plat</span><span class="p">,</span>
+        <span class="s2">&quot;python_version&quot;</span><span class="p">:</span> <span class="n">python_version</span><span class="p">,</span>
+        <span class="s2">&quot;packages&quot;</span><span class="p">:</span> <span class="n">versions</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="collect_resource_snapshot">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.collect_resource_snapshot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_resource_snapshot</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Best-effort machine-memory snapshot (bytes), for diagnosing OOM.</span>
+
+<span class="sd">    System memory pressure is the tell for an OOM / macOS-jetsam kill: a</span>
+<span class="sd">    ``SIGKILL`` with no native traceback plus a nearly-full machine points</span>
+<span class="sd">    at memory, not a crash. The dead worker&#39;s own peak RSS is gone by the</span>
+<span class="sd">    time the parent looks, but the machine&#39;s RAM ceiling and the parent&#39;s</span>
+<span class="sd">    RSS are strong signal. Cross-OS via ``psutil`` (a hard dependency).</span>
+
+<span class="sd">    Never raises -- a failure yields a partial or empty dict rather than</span>
+<span class="sd">    turning the recording of one error into a second error.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    Any of ``ram_total`` / ``ram_available`` (bytes),</span>
+<span class="sd">            ``ram_percent_used`` (percent), ``process_rss`` (bytes).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">snapshot</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">return</span> <span class="n">snapshot</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">virtual_memory</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span>
+        <span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;ram_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">virtual_memory</span><span class="o">.</span><span class="n">total</span><span class="p">)</span>
+        <span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;ram_available&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">virtual_memory</span><span class="o">.</span><span class="n">available</span><span class="p">)</span>
+        <span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;ram_percent_used&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">virtual_memory</span><span class="o">.</span><span class="n">percent</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;process_rss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">()</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span><span class="o">.</span><span class="n">rss</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">snapshot</span></div>
+
+
+
+<div class="viewcode-block" id="Component">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.Component">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Component</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Which broad part of AutoWISP an error belongs to.&quot;&quot;&quot;</span>
+
+    <span class="n">STEP</span> <span class="o">=</span> <span class="s2">&quot;step&quot;</span>
+    <span class="n">PIPELINE</span> <span class="o">=</span> <span class="s2">&quot;pipeline&quot;</span>
+    <span class="n">BUI</span> <span class="o">=</span> <span class="s2">&quot;bui&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FileKind">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.FileKind">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileKind</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The sort of file a :class:`RelatedFile` points at.&quot;&quot;&quot;</span>
+
+    <span class="n">RAW_IMAGE</span> <span class="o">=</span> <span class="s2">&quot;raw_image&quot;</span>
+    <span class="n">CALIBRATED_IMAGE</span> <span class="o">=</span> <span class="s2">&quot;calibrated_image&quot;</span>
+    <span class="n">MASTER_BIAS</span> <span class="o">=</span> <span class="s2">&quot;master_bias&quot;</span>
+    <span class="n">MASTER_DARK</span> <span class="o">=</span> <span class="s2">&quot;master_dark&quot;</span>
+    <span class="n">MASTER_FLAT</span> <span class="o">=</span> <span class="s2">&quot;master_flat&quot;</span>
+    <span class="n">MASTER_PHOTREF</span> <span class="o">=</span> <span class="s2">&quot;master_photref&quot;</span>
+    <span class="n">DR_FILE</span> <span class="o">=</span> <span class="s2">&quot;dr_file&quot;</span>
+    <span class="n">LIGHTCURVE</span> <span class="o">=</span> <span class="s2">&quot;lightcurve&quot;</span>
+    <span class="n">CATALOG</span> <span class="o">=</span> <span class="s2">&quot;catalog&quot;</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="s2">&quot;config&quot;</span>
+    <span class="n">OUTPUT</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+    <span class="n">OTHER</span> <span class="o">=</span> <span class="s2">&quot;other&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="RelatedFile">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.RelatedFile">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RelatedFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A file the error is about (input, output, or intermediate).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        kind(FileKind):    What sort of file this is.</span>
+
+<span class="sd">        path(Path):    Location of the file.</span>
+
+<span class="sd">        role(str):    How the file relates to the failure, e.g.</span>
+<span class="sd">            ``&quot;input&quot;`` / ``&quot;intermediate&quot;`` / ``&quot;expected_output&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kind</span><span class="p">:</span> <span class="n">FileKind</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="RelatedFile.__post_init__">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.RelatedFile.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Coerce ``path`` to a ``Path`` so call sites never see a raw str.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="c1"># frozen dataclass -&gt; bypass the assignment guard.</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_rebuild_autowisp_error">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions._rebuild_autowisp_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rebuild_autowisp_error</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reconstruct an :class:`AutoWISPError` subclass for unpickling.</span>
+
+<span class="sd">    Bypasses ``__init__`` (so keyword-only arguments on subclasses do not</span>
+<span class="sd">    block unpickling) and restores both ``BaseException.args`` (where the</span>
+<span class="sd">    message lives, in C-level storage outside ``__dict__``) and the</span>
+<span class="sd">    instance ``__dict__`` directly. See :meth:`AutoWISPError.__reduce__`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cls(type):    The concrete exception class to rebuild.</span>
+
+<span class="sd">        args(tuple):    The original ``self.args`` (the message).</span>
+
+<span class="sd">        state(dict):    The instance ``__dict__`` captured at pickle</span>
+<span class="sd">            time.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        AutoWISPError:    The reconstructed exception.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+    <span class="n">obj</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">obj</span></div>
+
+
+
+<div class="viewcode-block" id="AutoWISPError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.AutoWISPError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AutoWISPError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for every AutoWISP-raised exception.</span>
+
+<span class="sd">    Every concrete subclass selects a :class:`Component`.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        component(Component):    Set on each subclass; verified by tests.</span>
+
+<span class="sd">        related_files(tuple):    The :class:`RelatedFile` entries this</span>
+<span class="sd">            error is about.</span>
+
+<span class="sd">        pipeline_run(FrozenRow or None):    Snapshot of the</span>
+<span class="sd">            ``PipelineRun`` row (see :class:`FrozenRow`), set by the</span>
+<span class="sd">            pipeline driver when it wraps a step&#39;s exception, or by</span>
+<span class="sd">            ``wisp-*`` entry points. ``None`` for runs with no DB row.</span>
+
+<span class="sd">        crashed(datetime or None):    When the failure surfaced, filled</span>
+<span class="sd">            in by the top-level handler.</span>
+
+<span class="sd">        subprocess_id(int or None):    PID of the multiprocessing worker</span>
+<span class="sd">            that raised, when the exception travelled out of a Pool;</span>
+<span class="sd">            ``None`` for errors raised in the main process.</span>
+
+<span class="sd">        user_message(str):    Short, free of jargon, suitable for the</span>
+<span class="sd">            BUI.</span>
+
+<span class="sd">        details(dict):    Arbitrary key/value pairs giving extra context</span>
+<span class="sd">            about the failure (e.g. shape mismatches, expected/actual</span>
+<span class="sd">            values, parsed config). Useful to both users and developers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">component</span><span class="p">:</span> <span class="n">Component</span>  <span class="c1"># set on each subclass; verified by tests</span>
+
+    <span class="c1"># The many keyword-only arguments are the whole point: this is the</span>
+    <span class="c1"># single context-carrying constructor for every AutoWISP error.</span>
+    <span class="c1"># pylint: disable=too-many-arguments</span>
+<div class="viewcode-block" id="AutoWISPError.__init__">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.AutoWISPError.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">related_files</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">RelatedFile</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">pipeline_run</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FrozenRow</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">crashed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">subprocess_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">user_message</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store the context attributes (see class ``Attributes``).&quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">related_files</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">related_files</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="o">=</span> <span class="n">pipeline_run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crashed</span> <span class="o">=</span> <span class="n">crashed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess_id</span> <span class="o">=</span> <span class="n">subprocess_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_message</span> <span class="o">=</span> <span class="n">user_message</span> <span class="ow">or</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">details</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">details</span> <span class="ow">or</span> <span class="p">{})</span></div>
+
+
+<div class="viewcode-block" id="AutoWISPError.__reduce__">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.AutoWISPError.__reduce__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pickle by restoring ``__dict__`` rather than re-running</span>
+<span class="sd">        ``__init__``.</span>
+
+<span class="sd">        Subclasses (e.g. :class:`StepError`) accept keyword-only</span>
+<span class="sd">        arguments and carry context attributes that are not part of</span>
+<span class="sd">        ``self.args``, so the default exception unpickler -- which calls</span>
+<span class="sd">        ``cls(*self.args)`` -- would both drop those fields and (for</span>
+<span class="sd">        required kwargs) raise ``TypeError``. Reconstructing through</span>
+<span class="sd">        ``__new__`` + ``__dict__`` keeps every field intact and lets the</span>
+<span class="sd">        exception travel back out of a multiprocessing worker faithfully.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:    ``(callable, args)`` per the pickle protocol.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">_rebuild_autowisp_error</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AutoWISPError.stamp_subprocess">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.AutoWISPError.stamp_subprocess">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stamp_subprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Record the current PID as the raising sub-process.</span>
+
+<span class="sd">        Called by the worker before re-raising out of a multiprocessing</span>
+<span class="sd">        Pool. Idempotent: a value already set in a deeper worker wins.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subprocess_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subprocess_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AutoWISPError.with_pipeline_run">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.AutoWISPError.with_pipeline_run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_pipeline_run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FrozenRow</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">crashed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AutoWISPError&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach a :class:`FrozenRow` snapshot of the ``PipelineRun``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            run(FrozenRow or None):    Row snapshot to attach. Built by</span>
+<span class="sd">                ``snapshot_row`` (parent) or from config primitives</span>
+<span class="sd">                (worker), so host/started are already populated; nothing</span>
+<span class="sd">                is reconstructed here.</span>
+
+<span class="sd">            crashed(datetime or None):    Failure time; defaults to now</span>
+<span class="sd">                if not already set on the exception.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            AutoWISPError:    ``self``, so it can be used inline before</span>
+<span class="sd">                re-raising.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="o">=</span> <span class="n">run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crashed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crashed</span> <span class="ow">or</span> <span class="n">crashed</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="AutoWISPError.to_detail_dict">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.AutoWISPError.to_detail_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_detail_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the heavy, non-column fields for the error sidecar.</span>
+
+<span class="sd">        Complements the queryable columns of the ``Error`` row:</span>
+<span class="sd">        everything here is what does *not* live inline on the row -- the</span>
+<span class="sd">        full technical message, the complete related-file list (a superset</span>
+<span class="sd">        of the artifact FKs), the arbitrary ``details`` dict, and the</span>
+<span class="sd">        formatted traceback (``__cause__`` chain included). The result may</span>
+<span class="sd">        still contain numpy/`Path`/etc. inside ``details``; serialize it</span>
+<span class="sd">        with ``json.dump(..., default=sanitize_for_json)``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:    The sidecar payload (see ``error_handling_plan.md``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;schema_version&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">&quot;related_files&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">related</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">related</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
+                    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="n">related</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">related</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">related_files</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="p">,</span>
+            <span class="s2">&quot;traceback&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">traceback_module</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__traceback__</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StepError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.StepError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StepError</span><span class="p">(</span><span class="n">AutoWISPError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure inside a processing step.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        step_name(str or None):    Name of the step that failed. May be</span>
+<span class="sd">            ``None`` at raise time and filled in from the ambient</span>
+<span class="sd">            context by the capture layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">component</span> <span class="o">=</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">step_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="n">step_name</span></div>
+
+
+
+<div class="viewcode-block" id="PipelineError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.PipelineError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PipelineError</span><span class="p">(</span><span class="n">AutoWISPError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the orchestration layer (not &quot;the algorithm&quot;).&quot;&quot;&quot;</span>
+
+    <span class="n">component</span> <span class="o">=</span> <span class="n">Component</span><span class="o">.</span><span class="n">PIPELINE</span></div>
+
+
+
+<div class="viewcode-block" id="BUIError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.BUIError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BUIError</span><span class="p">(</span><span class="n">AutoWISPError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the Django views/forms/templates of the BUI.&quot;&quot;&quot;</span>
+
+    <span class="n">component</span> <span class="o">=</span> <span class="n">Component</span><span class="o">.</span><span class="n">BUI</span></div>
+
+
+
+<span class="c1"># --- Concrete step-level exceptions, one per pipeline stage. ----------</span>
+
+
+<div class="viewcode-block" id="CalibrationError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.CalibrationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CalibrationError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the calibrate step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="OutsideImageError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.OutsideImageError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutsideImageError</span><span class="p">(</span><span class="n">CalibrationError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempt to access image data outside the bounds of the image.</span>
+
+<span class="sd">    Raised only in the calibration path, so it specializes</span>
+<span class="sd">    :class:`CalibrationError` rather than the generic :class:`StepError`.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="StackToMasterError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.StackToMasterError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StackToMasterError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure stacking calibration frames into a master.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FindStarsError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.FindStarsError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FindStarsError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the find_stars step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="NoSourcesFoundError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.NoSourcesFoundError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoSourcesFoundError</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Source extraction completed but found no sources in a frame.</span>
+
+<span class="sd">    Distinct from a generic :class:`FindStarsError` so the step can mark</span>
+<span class="sd">    just that frame as failed and carry on (a clouded or badly defocused</span>
+<span class="sd">    frame is not a reason to abort the run), while every *other*</span>
+<span class="sd">    find_stars failure still propagates.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SolveAstrometryError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.SolveAstrometryError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolveAstrometryError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the solve_astrometry step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FitStarShapeError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.FitStarShapeError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FitStarShapeError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the fit_star_shape step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="MeasurePhotometryError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.MeasurePhotometryError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MeasurePhotometryError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the measure_aperture_photometry step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FitPSFMapError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.FitPSFMapError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FitPSFMapError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the fit_source_extracted_psf_map step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FitMagnitudesError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.FitMagnitudesError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FitMagnitudesError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the fit_magnitudes step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="CreateLightCurvesError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.CreateLightCurvesError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CreateLightCurvesError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the create_lightcurves step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="EPDError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.EPDError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EPDError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the EPD detrending step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="TFAError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.TFAError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TFAError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure in the TFA detrending step.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="DetrendingStatError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.DetrendingStatError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DetrendingStatError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure computing detrending statistics.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># --- Cross-cutting step &quot;reason&quot; exceptions. --------------------------</span>
+<span class="c1">#</span>
+<span class="c1"># These name *why* a step failed (a bad image, incompatible images, a</span>
+<span class="c1"># non-converging iteration) rather than *which* step. They are raised</span>
+<span class="c1"># from shared low-level modules (fits_utilities, image_utilities,</span>
+<span class="c1"># iterative_rejection_util, ...) reached by many steps, so they specialize</span>
+<span class="c1"># the generic StepError; the step identity is supplied separately by the</span>
+<span class="c1"># ``step_name`` the capture layer stamps from the ambient context.</span>
+
+
+<div class="viewcode-block" id="ImageMismatchError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.ImageMismatchError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImageMismatchError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempt to combine incompatible images in some way.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="BadImageError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.BadImageError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BadImageError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An image does not look like it is expected to.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ConvergenceError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.ConvergenceError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConvergenceError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Some iterative procedure failed to converge.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="WorkerCrashedError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkerCrashedError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A multiprocessing worker died without preserving its exception.</span>
+
+<span class="sd">    Re-raise wrapper used when a worker dies in a way that does not</span>
+<span class="sd">    propagate the original exception (segfault, OOM-killer, ``os._exit``).</span>
+
+<span class="sd">    A :class:`StepError` (component ``step``): although the *parent*</span>
+<span class="sd">    synthesises it -- the worker cannot describe its own death -- the</span>
+<span class="sd">    failure is in the algorithm running inside a step, and the error</span>
+<span class="sd">    belongs to that step. It is a single generic class rather than one of</span>
+<span class="sd">    the per-stage subclasses because the parent has only the ambient step</span>
+<span class="sd">    *name*, not the failing step&#39;s exception type. That ``step_name`` --</span>
+<span class="sd">    stamped from the ambient context like any other ``StepError`` -- is</span>
+<span class="sd">    what lets crash-report log-collection resolve the run/step whose logs</span>
+<span class="sd">    to gather (see :func:`autowisp.error_context._worker_crashed`).</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="CatalogError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.CatalogError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CatalogError</span><span class="p">(</span><span class="n">StepError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A problem with the reference catalog (query or coverage/consistency).</span>
+
+<span class="sd">    A cross-cutting :class:`StepError` -- catalog trouble is not specific to</span>
+<span class="sd">    one stage: a live Gaia query can exhaust its retries, and a cached</span>
+<span class="sd">    catalog can fail to cover the frames or mismatch the required epoch /</span>
+<span class="sd">    magnitude range / field of view during solve_astrometry, find_stars,</span>
+<span class="sd">    fit_star_shape, etc. Raised as one catchable type across all of them</span>
+<span class="sd">    (``step_name`` is stamped from the ambient context), so callers can</span>
+<span class="sd">    ``except CatalogError`` regardless of which step triggered it.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># --- Pipeline-level exceptions. ---------------------------------------</span>
+
+
+<div class="viewcode-block" id="ConfigurationError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.ConfigurationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfigurationError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Invalid or inconsistent pipeline configuration.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="DatabaseError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.DatabaseError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DatabaseError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure interacting with the pipeline database.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="HDF5LayoutError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.HDF5LayoutError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HDF5LayoutError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error caused by invalid specification of HDF5 layout.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ResourceError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.ResourceError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResourceError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insufficient disk / memory / CPU to continue.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="MasterSelectionError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.MasterSelectionError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MasterSelectionError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure selecting the master frame(s) for an image.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PhotrefBindingError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.PhotrefBindingError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhotrefBindingError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure binding a photometric reference.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="DependencyResolutionError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.DependencyResolutionError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DependencyResolutionError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure resolving processing-step dependencies.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># --- BUI-level exceptions. --------------------------------------------</span>
+
+
+<div class="viewcode-block" id="ViewError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.ViewError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ViewError</span><span class="p">(</span><span class="n">BUIError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure rendering or handling a BUI view.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FormValidationError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.FormValidationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FormValidationError</span><span class="p">(</span><span class="n">BUIError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A BUI form failed validation in a way worth recording.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ProjectStateError">
+<a class="viewcode-back" href="../../implementation/autowisp.exceptions.html#autowisp.exceptions.ProjectStateError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProjectStateError</span><span class="p">(</span><span class="n">BUIError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The BUI project is in a state that blocks the requested action.&quot;&quot;&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -3,8 +3,8 @@ autowisp.data\_reduction package
 
 .. automodule:: autowisp.data_reduction
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

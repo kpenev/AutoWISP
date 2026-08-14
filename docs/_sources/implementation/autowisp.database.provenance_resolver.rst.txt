@@ -1,0 +1,7 @@
+autowisp.database.provenance\_resolver module
+=============================================
+
+.. automodule:: autowisp.database.provenance_resolver
+   :members:
+   :undoc-members:
+   :show-inheritance:

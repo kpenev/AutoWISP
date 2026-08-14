@@ -1,0 +1,6 @@
+<map id="inheritanced5e9190792" name="inheritanced5e9190792">
+<area shape="rect" id="node1" title="Test case involving floating point comparisons." alt="" coords="88,80,332,107"/>
+<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="96,155,324,181"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="132,5,288,32"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_provenance_resolver.TestProvenanceResolver" target="_top" title="Unit tests for ``get_or_create_observing_session``." alt="" coords="5,229,415,256"/>
+</map>

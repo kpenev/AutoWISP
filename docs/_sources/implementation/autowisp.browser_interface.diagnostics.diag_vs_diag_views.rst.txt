@@ -1,0 +1,7 @@
+autowisp.browser\_interface.diagnostics.diag\_vs\_diag\_views module
+====================================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.diag_vs_diag_views
+   :members:
+   :undoc-members:
+   :show-inheritance:

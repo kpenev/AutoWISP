@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -170,11 +170,10 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
-<p>On Windows there is a second way in that needs none of what follows –
-no Python, and nothing else to install but Docker. If that appeals, skip
-ahead to <a class="reference internal" href="#a-ready-made-setup-for-windows">A ready-made setup for Windows</a>.</p>
-<p>Otherwise, AutoWISP is a Python program, so Python has to be on your
-computer before you can install it:</p>
+<p>There is a second way to install AutoWISP on Windows that requires no
+Python installation, and nothing else to install but <a class="reference external" href="https://www.docker.com/products/docker-desktop/">Docker for Windows</a>. If that appeals to
+you, skip ahead to: <a class="reference internal" href="#a-ready-made-setup-for-windows">A ready-made setup for Windows</a>.</p>
+<p>Otherwise, you must have the following two bullets on your computer:</p>
 <ul class="simple">
 <li><p><strong>Python 3.11 or newer</strong> – any newer version will do. To find out
 whether you already have it, open a terminal and run <code class="docutils literal notranslate"><span class="pre">python3</span>
@@ -182,14 +181,16 @@ whether you already have it, open a terminal and run <code class="docutils liter
 is not found at all, install a current Python from <a class="reference external" href="https://www.python.org/downloads/">python.org</a>.</p></li>
 <li><p><strong>Linux, macOS or Windows</strong>, on any processor in common use today.</p></li>
 </ul>
-<p>Everything else AutoWISP needs comes with it. Parts of it are written in
+<p>Everything else AutoWISP needs, comes with it. Parts of it are written in
 C++ for speed, but those arrive ready-built, so there is nothing to
 compile and no other software to install first.</p>
 <p>One thing does need attention before you can process any images. AutoWISP
-has to work out where in the sky each of your images points, and for that
-it needs either a program installed alongside it or an account on a free
-web service. <a class="reference internal" href="#plate-solving">Plate solving</a> below explains both; you will have to pick
-one. <a class="reference internal" href="#gaia-archive-access">Gaia archive access</a>, further down, is genuinely optional.</p>
+has to match each of your images to a known location in the night sky.
+That can be done in one of two ways via a free web service, or by a
+program downloaded and installed within AutoWISP. See <a class="reference internal" href="#plate-solving">plate solving</a>
+below for an explanation of both; you will have to pick one. AutoWISP
+also allows for use of the Gaia archive which is optional, see <a class="reference internal" href="#gaia-archive-access">Gaia
+archive access</a>.</p>
 </section>
 <section id="installing-the-released-version">
 <h2>Installing the released version<a class="headerlink" href="#installing-the-released-version" title="Link to this heading"></a></h2>
@@ -199,62 +200,64 @@ type:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">autowisp</span>
 </pre></div>
 </div>
-<p>That downloads AutoWISP together with everything it relies on, which may
+<p>That downloads AutoWISP together with all its dependencies, which may
 take a couple of minutes.</p>
-<p>It is worth, though not necessary, installing AutoWISP into a <em>virtual
-environment</em> first. That is a self-contained folder holding AutoWISP and
-the packages it uses, kept apart from the rest of the Python software on
-your computer so the two cannot interfere with one another:</p>
+<p>It is worth, though not necessary, to first set up a <em>virtual environment</em> for
+installing AutoWISP. That is a self-contained folder holding AutoWISP and the
+packages it uses, kept apart from the rest of the Python software on your
+computer so the two cannot interfere with one another. In an open terminal,
+type:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">autowisp</span><span class="o">-</span><span class="n">env</span>
 <span class="n">source</span> <span class="n">autowisp</span><span class="o">-</span><span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>      <span class="c1"># Windows: autowisp-env\Scripts\activate</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="n">autowisp</span>
 </pre></div>
 </div>
-<p>The middle line is what switches your terminal over to using that folder,
-and it has to be repeated in every new terminal window from which you
-intend to run AutoWISP.</p>
+<p>The first line creates a new virtual environment and names it <code class="docutils literal notranslate"><span class="pre">autowisp-env</span></code>.
+The middle line is what switches your terminal over to using that environment,
+and it has to be executed in every new terminal window before you run AutoWISP.
+The third line actually installs AutoWISP into that environment.</p>
 </section>
 <section id="what-you-just-installed">
 <h2>What you just installed<a class="headerlink" href="#what-you-just-installed" title="Link to this heading"></a></h2>
-<p>The installation gives you three ways in, and most users only need the
-first:</p>
-<p><strong>The browser interface.</strong> <code class="docutils literal notranslate"><span class="pre">wisp-bui</span></code> is the intended way to use
-AutoWISP: it is where you create a project, point it at your images, set
-the configuration described in the rest of this page, start processing,
-and watch it progress. To start it, open a terminal and run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wisp</span><span class="o">-</span><span class="n">bui</span>
+<p>The installation gives you three ways to use AutoWISP, but most users only need
+the first:</p>
+<p><strong>The browser interface.</strong> This is the intended way to use AutoWISP. To start
+the browser user interface (BUI), open a terminal and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">autowisp</span><span class="o">-</span><span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>      <span class="c1"># Windows: autowisp-env\Scripts\activate</span>
+<span class="n">wisp</span><span class="o">-</span><span class="n">bui</span>
 </pre></div>
 </div>
-<p>It works on your computer generating a web-page with which you interact,
-and opens that page in a browser tab for you. Nothing is sent anywhere:
-the page is served by your own computer and only your own computer can
-reach it. Leave the terminal open while you work – closing it, or
-pressing Ctrl-C in it, shuts the interface down. (Should you need the
-page at a particular address, pass <code class="docutils literal notranslate"><span class="pre">--hostname</span> <span class="pre">[&lt;host&gt;:]&lt;port&gt;</span></code>;
-otherwise a free port is picked for you.) Nothing else in this section is
-required to get going.</p>
-<p>The first time you open it, the interface offers to walk you through
-producing your first light curve, and it is worth saying yes. The
-walkthrough is built into the interface rather than written down here: it
-highlights the control to use next and says what it is for, one click at
-a time, from creating a project through to plotting a light curve at the
-end. It works on the same published test images used throughout this
-documentation, and links you to them when you need them, so you can
-follow it before you have data of your own. Your progress is remembered,
-so you can stop part way and pick it up later, and the <strong>Tutorial</strong>
-button on the project list starts it again whenever you want it –
-either continuing where you left off or from the beginning.</p>
-<p><strong>The pipeline.</strong> This is the part that does the real work on your
-images: correcting them for the behaviour of the camera, finding the
-stars, working out where each image points, measuring how bright every
-star is, and gathering those measurements into a brightness history for
-each star. It keeps track of which of those stages have been done for
-which images, does whatever is still outstanding in the order the stages
-depend on one another, and works on several images at once. Because the
-record of what is finished is kept on disk, a run that you stop, or that
-comes to grief part way through, carries on from where it got to rather
-than starting over. Setting processing going in the browser interface is
-what launches it.</p>
+<p>Omit the first line if you did not install AutoWISP in a separate environment.</p>
+<p>Once the BUI opens in your browser, you interact with it to create a project,
+point it at your images, set the configuration described in the rest of this
+page, start processing, and monitor the progress of the analysis.</p>
+<p>The BUI works on your computer generating a web-page with which you interact,
+and opens that page in a browser tab for you. Nothing is sent anywhere: the page
+is served by your own computer and only your own computer can reach it. Leave
+the terminal open while you work – closing it, or pressing Ctrl-C in it, shuts
+the interface down. (Should you need the page at a particular address, pass
+<code class="docutils literal notranslate"><span class="pre">--hostname</span> <span class="pre">[&lt;host&gt;:]&lt;port&gt;</span></code>; otherwise a free port is picked for you.) The
+remaining part of this section is informational to help in your setup and
+understanding.</p>
+<p>The first time you open it, the BUI offers to walk you through producing your
+first light curve, and it is worth saying yes. The walkthrough highlights the
+control to use next and explains its function, one click at a time, from
+creating a project through to plotting a light curve at the end. It walks you
+through processing the same published test images used throughout this
+documentation, and links you to them when you need them, so you can follow it
+before you have data of your own. Your progress is remembered, so you can stop
+part way and pick it up later. The <strong>Tutorial</strong> button on the project list
+restarts the tutorial whenever you want it – either continuing where you left
+off or from the beginning.</p>
+<p><strong>The pipeline.</strong> This is the part that does the real work on your images:
+correcting them for the behavior of the camera, finding the stars, working out
+where each image points, measuring how bright every star is, and gathering those
+measurements into a brightness history for each star. It keeps track of which of
+those stages have been done for which images, completes whatever is still not
+done in the order dictated by how the stages depend on one another. Because the
+record of what is finished is kept on disk, a run that you stop, or that comes
+to grief part way through, carries on from where it got to rather than starting
+over. Setting processing going in the browser interface is what launches it.</p>
 <p><strong>The individual steps.</strong> Each stage of the pipeline is also a command in
 its own right – <code class="docutils literal notranslate"><span class="pre">wisp-calibrate</span></code>, <code class="docutils literal notranslate"><span class="pre">wisp-find-stars</span></code>,
 <code class="docutils literal notranslate"><span class="pre">wisp-solve-astrometry</span></code> and so on. These exist for running a single
@@ -267,31 +270,30 @@ matter; <a class="reference internal" href="wisp_options.html"><span class="doc"
 <section id="a-ready-made-setup-for-windows">
 <h2>A ready-made setup for Windows<a class="headerlink" href="#a-ready-made-setup-for-windows" title="Link to this heading"></a></h2>
 <p>Everything above assumes you install AutoWISP into a Python of your own.
-On Windows there is an alternative that avoids all of it: AutoWISP is
+On Windows there is an alternative that avoids this: AutoWISP is
 also published as a Docker image, <code class="docutils literal notranslate"><span class="pre">kpenev/wisp:latest</span></code>, with AutoWISP
-and the astrometry.net solver already installed inside it, together with
+and the astrometry.net solver already installed inside it. It is accompanied by
 a small launcher program that configures and starts that image for you.
 The one thing you do need is <a class="reference external" href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>, installed and
 running.</p>
 <p>The launcher is distributed through Zenodo, as two files which have to
-stay in the same folder as one another:</p>
+be placed together in the same folder on your computer:</p>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">compose.yaml</span></code></dt><dd><p>A description of how the container should be run: which folders on
-your computer it is allowed to see, and which port it serves the
-browser interface on.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">compose.yaml</span></code></dt><dd><p>This file is a description of how the container should be run: which folders
+on your computer it is allowed to see, and which port it serves the browser
+interface on.</p>
 </dd>
-<dt>the launcher itself</dt><dd><p>A small window that fills that file in for you and starts
-everything.</p>
+<dt>the launcher itself</dt><dd><p>A small executable opens a window used as an easier to understand editor for
+the <code class="docutils literal notranslate"><span class="pre">compose.yaml</span></code> file.</p>
 </dd>
 </dl>
-<p>Run the launcher. The first time, it notices that <code class="docutils literal notranslate"><span class="pre">compose.yaml</span></code> has
-not been filled in yet and asks you to choose a <strong>storage folder</strong> before
-letting you do anything else. This is the choice that matters: it is
-where AutoWISP will keep your images and everything derived from them,
-and it is the only part of your computer the container can see. Pick a
-disk with room on it.</p>
-<p>Choosing it fills in four more folders underneath, creating them if they
-do not exist:</p>
+<p>When you run the launcher for the first time, it notices that <code class="docutils literal notranslate"><span class="pre">compose.yaml</span></code>
+has not been filled in yet and asks you to choose a <strong>storage folder</strong> before
+letting you do anything else. This is the choice that matters. It is where
+AutoWISP will keep your images and everything derived from them, and is the
+only part of your computer the container can see. Pick a disk with room on it.</p>
+<p>Choosing the storage folder fills in four more folders underneath, creating them
+if they do not exist:</p>
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;storage&gt;\tmp</span></code></p></td>
@@ -308,7 +310,7 @@ do not exist:</p>
 </tr>
 </tbody>
 </table>
-<p>Any of these can be pointed elsewhere – the two index folders in
+<p>Any of these paths can be pointed elsewhere – the two index folders in
 particular, if you already have index files and would rather not copy
 them. There is also a box for the port to serve on, in case something
 else on your machine is already using the one picked for you. Each
@@ -319,10 +321,10 @@ can be closed and reopened without losing anything.</p>
 opens it in your browser. The first run has to download the image, so
 expect it to take a while. Leave that terminal open – closing it stops
 AutoWISP.</p>
-<p>The <strong>Check for Update</strong> button stops the container and fetches the
-newest published image. It is worth pressing occasionally: it is what
-takes the place of <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">autowisp</span></code>.</p>
-<p>Two consequences of running in a container are worth knowing:</p>
+<p>The <strong>Check for Update</strong> button stops the container and fetches the newest
+published image. It is worth pressing occasionally. This feature takes the place
+of <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">autowisp</span></code>.</p>
+<p>Two consequences of running in a container are worth noting:</p>
 <ul class="simple">
 <li><p>AutoWISP can only reach the folders listed above. Images kept anywhere
 else are invisible to it, so either put them under the storage folder
@@ -354,29 +356,29 @@ comfortable with <code class="docutils literal notranslate"><span class="pre">gi
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
 </pre></div>
 </div>
-<p>This matters for more than convenience: the <code class="docutils literal notranslate"><span class="pre">wisp-*</span></code> commands are
-installed entry points, so a plain <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code> runs the code as it
-was at install time. Without <code class="docutils literal notranslate"><span class="pre">-e</span></code>, changes to your working copy are not
+<p>This matters for more than convenience: the <code class="docutils literal notranslate"><span class="pre">wisp-*</span></code> commands are installed
+entry points. A plain <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code> runs the code as it was at install time.
+Any changes made to your working copy using pip install Without <code class="docutils literal notranslate"><span class="pre">-e</span></code> are not
 picked up until you reinstall.</p>
 </section>
 <section id="plate-solving">
 <h2>Plate solving<a class="headerlink" href="#plate-solving" title="Link to this heading"></a></h2>
-<p>Before AutoWISP can make anything of an image it has to know precisely
-which patch of sky the image covers and where on the sensor each star
-falls. It works that out by comparing the pattern of stars it has
-detected against a reference map of the whole sky – much as you might
-recognise a constellation. This is called <em>plate solving</em>, and AutoWISP
-leaves the job to a well-established program called <a class="reference external" href="https://astrometry.net">astrometry.net</a>.</p>
+<p>Before AutoWISP can analyze an image it has to know precisely which patch of sky
+the image covers and where on the sensor each star falls. It does this by
+comparing the pattern of stars it has detected against a reference map of the
+whole sky – much as you might recognise a constellation. This is called <em>plate
+solving</em>, and AutoWISP leaves the job to a well-established program called
+<a class="reference external" href="https://astrometry.net">astrometry.net</a>.</p>
 <p>There are two ways of running it: on your own computer, or through the
-astrometry.net web service. <strong>One of the two has to be set up before you
+astrometry.net web service. <strong>One of the two must be set up before you
 can process any images</strong> – there is no arrangement in which neither is
 needed.</p>
-<p>AutoWISP solves on your own computer when both of the following are true,
+<p>AutoWISP plate solves on your own computer when both of the following are true,
 and turns to the web service otherwise:</p>
 <ol class="arabic simple">
-<li><p>the two folders of reference maps you pointed it at (<code class="docutils literal notranslate"><span class="pre">anet-indices</span></code>,
+<li><p>the two folders of reference maps that you specify (<code class="docutils literal notranslate"><span class="pre">anet-indices</span></code>,
 described below) both exist, and</p></li>
-<li><p>the <code class="docutils literal notranslate"><span class="pre">solve-field</span></code> program can be run.</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">solve-field</span></code> program can be run on your computer.</p></li>
 </ol>
 <section id="solving-locally">
 <h3>Solving locally<a class="headerlink" href="#solving-locally" title="Link to this heading"></a></h3>
@@ -402,36 +404,38 @@ ANSVR where it installs itself by default,
 <code class="docutils literal notranslate"><span class="pre">%LOCALAPPDATA%\cygwin_ansvr\bin\bash.exe</span></code>. If you put ANSVR somewhere
 else, say where by setting the <code class="docutils literal notranslate"><span class="pre">ANSVR_BASH</span></code> environment variable.</p>
 <p><strong>The reference maps</strong>, known as <em>index files</em>. These are what the solver
-compares your images against. They are large, so they come separately and
-you download only the ones you need: which those are depends on how much
-sky a single one of your images covers, and the <a class="reference external" href="https://astrometry.net/doc/readme.html">astrometry.net
-documentation</a> explains how the
-sets are numbered and which to choose. Put them in two folders – one for
-the maps covering small areas of sky, one for large – and then tell
-AutoWISP where both folders are.</p>
+compares your images against. They are large, so they come separately and you
+download only the ones you need. Which those are depends on how much sky a
+single one of your images covers. The <a class="reference external" href="https://astrometry.net/doc/readme.html">astrometry.net documentation</a> explains how the sets are numbered
+and which to choose. Put them in two folders – one for the maps covering small
+areas of sky, one for large – and then tell AutoWISP where both folders are.</p>
 <p>Any setting AutoWISP has, this one included, can be given in four
 different ways. Use whichever suits you:</p>
-<p><em>In the browser interface</em>, on the settings page for the
-<code class="docutils literal notranslate"><span class="pre">solve_astrometry</span></code> stage. This is the usual choice: what you enter is
-remembered as part of the project, so it applies to every run without
-having to be given again.</p>
-<p><em>In a configuration file</em> – a plain text file of settings, one per line,
+<ol class="arabic">
+<li><p>In the browser interface*, on the settings page for the <code class="docutils literal notranslate"><span class="pre">solve_astrometry</span></code>
+stage. This is the usual choice: what you enter is remembered as part of the
+project, so it applies to every run within that project without having to be
+given again.</p></li>
+<li><p>In a configuration file* – a plain text file of settings, one per line,
 which you hand to AutoWISP with <code class="docutils literal notranslate"><span class="pre">--config-file</span></code>. A setting is written
 without its leading dashes, and the two folders as a bracketed list:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">anet</span><span class="o">-</span><span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">narrow</span><span class="p">,</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">wide</span><span class="p">]</span>
 </pre></div>
 </div>
-<p><em>As an environment variable</em>, that is, a setting your terminal hands on
-to every program started from it:</p>
+</li>
+<li><p>As an environment variable*, that is, a setting your terminal hands on to
+every program started from it:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">AUTOWISP_ANET_INDICES</span><span class="o">=</span><span class="s2">&quot;[/path/to/narrow, /path/to/wide]&quot;</span>
 </pre></div>
 </div>
 <p>Note the brackets and the comma – the same list form as in the file.</p>
-<p><em>On the command line</em>, when running one of the individual stage
-commands:</p>
+</li>
+<li><p>On the command line*, when running one of the individual stage commands:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wisp</span><span class="o">-</span><span class="n">solve</span><span class="o">-</span><span class="n">astrometry</span> <span class="o">--</span><span class="n">anet</span><span class="o">-</span><span class="n">indices</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">narrow</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">wide</span> <span class="o">...</span>
 </pre></div>
 </div>
+</li>
+</ol>
 <p>One thing to watch for, whichever way you choose: if either folder does
 not exist – and a typo in the path is enough – AutoWISP quietly falls
 back on the web service rather than complaining. What you notice is
@@ -439,20 +443,19 @@ processing that is unaccountably slow, not an error message.</p>
 </section>
 <section id="solving-over-the-web">
 <h3>Solving over the web<a class="headerlink" href="#solving-over-the-web" title="Link to this heading"></a></h3>
-<p>This is what AutoWISP falls back on whenever it cannot solve locally. It
-is not, however, something that works straight away: the service requires
-an account, and AutoWISP signs in before submitting anything, so <strong>a key
-is not optional here</strong>. Create a free account at
-<a class="reference external" href="https://nova.astrometry.net">https://nova.astrometry.net</a>, copy the key shown on your <code class="docutils literal notranslate"><span class="pre">Profile</span></code> page,
-and give it to AutoWISP as <code class="docutils literal notranslate"><span class="pre">--anet-api-key</span></code>, by any of the four means
-described above – for example:</p>
+<p>This is what AutoWISP falls back on whenever it cannot solve locally. It is not,
+however, something that works straight away: the service requires an account,
+and AutoWISP signs in before submitting anything, so <strong>a key is not optional
+here</strong>. Create a free account at <a class="reference external" href="https://nova.astrometry.net">https://nova.astrometry.net</a>, copy the API key
+shown on your <code class="docutils literal notranslate"><span class="pre">Profile</span></code> page, and give it to AutoWISP as <code class="docutils literal notranslate"><span class="pre">--anet-api-key</span></code>,
+by any of the four means described above – for example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wisp</span><span class="o">-</span><span class="n">solve</span><span class="o">-</span><span class="n">astrometry</span> <span class="o">--</span><span class="n">anet</span><span class="o">-</span><span class="n">api</span><span class="o">-</span><span class="n">key</span> <span class="n">YOUR_KEY</span> <span class="o">...</span>
 </pre></div>
 </div>
 <p>Without a valid key the sign-in fails and no image can be solved.</p>
-<p>Bear in mind also that the service takes one image at a time from each
-user, and can spend a minute or more on each, so a single night’s images
-may keep it busy for many hours.</p>
+<p>Bear in mind also that the service takes one image at a time from each user, and
+can spend a minute or more on each, so a single night’s set of images may keep
+it busy for many hours.</p>
 </section>
 </section>
 <section id="gaia-archive-access">
@@ -461,12 +464,12 @@ may keep it busy for many hours.</p>
 to expect in an image and what is already known about them. It looks them
 up, over the internet as it works, in the Gaia catalog – a survey of
 more than a billion stars published by the European Space Agency.</p>
-<p>No account is needed for this: anyone may consult the archive
-anonymously. Anonymous users are, however, held to tighter limits on how
-much a single query may return and how many queries may run at once. If
-you find yourself running into those, register for a free Gaia account
-and give AutoWISP the username and password as <code class="docutils literal notranslate"><span class="pre">--gaia-user</span></code> and
-<code class="docutils literal notranslate"><span class="pre">--gaia-password</span></code>, by any of the four means described above.</p>
+<p>No account is needed for this: anyone may consult the archive anonymously.
+Anonymous users are, however, held to tighter limits on how much a single query
+may return and how many queries may run at once. If you find yourself running
+into these limits, register for a free Gaia account and give AutoWISP the
+username and password as <code class="docutils literal notranslate"><span class="pre">--gaia-user</span></code> and <code class="docutils literal notranslate"><span class="pre">--gaia-password</span></code>, by any of the
+four means described above.</p>
 <p>Each lookup is saved on your computer and reused, so a given patch of sky
 is only ever fetched once, however many of your images cover it.</p>
 </section>
@@ -475,20 +478,20 @@ is only ever fetched once, however many of your images cover it.</p>
 <p>AutoWISP comes with a set of self-checks that put a small set of images
 through every processing stage and confirm the results come out as they
 should. Running them is a good way of satisfying yourself that the
-installation is sound:</p>
+installation is sound. Those can be run by executing the following command in a
+terminal (after activating the environment where AutoWISP was installed if you
+created one):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">autowisp</span><span class="o">.</span><span class="n">tests</span> <span class="n">failed_test</span> <span class="o">-</span><span class="n">vvvv</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">failed_test</span></code> is the name of a folder to put aside the working files of
 any check that fails, so the failure can be looked into afterwards. If
 nothing fails, no such folder is created.</p>
-<p>The images to test on are fetched the first time you run this, so it
-needs a working internet connection, and expect it to take a while.</p>
-<p>It may take a while to run all the tests, so please be patient. In
-particular, if you have not installed a local <code class="docutils literal notranslate"><span class="pre">solve-field</span></code> (see <a class="reference internal" href="#plate-solving">Plate
-solving</a>), the astrometry tests go through the astrometry.net web
-interface, which accepts only one image at a time per user and can take a
-minute or more per image.</p>
+<p>The images for the test are fetched from the internet, so it needs a working
+internet connection, and expect it to take a while.</p>
+<p>It may take a while to run all the tests, so please be patient. This is
+especially true if you have not installed a local <code class="docutils literal notranslate"><span class="pre">solve-field</span></code> (see <a class="reference internal" href="#plate-solving">Plate
+solving</a>).</p>
 </section>
 </section>
 

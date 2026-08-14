@@ -1,0 +1,7 @@
+autowisp.browser\_interface.diagnostics.apps module
+===================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.apps
+   :members:
+   :undoc-members:
+   :show-inheritance:

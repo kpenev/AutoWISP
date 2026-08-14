@@ -3,5 +3,5 @@ autowisp.database.data\_model.input\_master\_types module
 
 .. automodule:: autowisp.database.data_model.input_master_types
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,834 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.crash_report &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.crash_report</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.crash_report</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Build a shareable, scrubbed crash report for a recorded error.</span>
+
+<span class="sd">The report gathers everything needed to diagnose a failure -- the error</span>
+<span class="sd">record and its sidecar, the relevant per-process logs, the configuration</span>
+<span class="sd">in effect, and environment provenance -- into a single zip the user can</span>
+<span class="sd">hand to the maintainers.</span>
+
+<span class="sd">Because logs and configuration can contain credentials (e.g. the Gaia</span>
+<span class="sd">archive user/password threaded through the process configuration), every</span>
+<span class="sd">text artifact is passed through the scrubbing helpers here before it</span>
+<span class="sd">enters the report. Scrubbing is mandatory: nothing is written unscrubbed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">update</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">start_db_session</span><span class="p">,</span>
+    <span class="n">get_project_home</span><span class="p">,</span>
+    <span class="n">set_project_home</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.image_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.lightcurve_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightCurveProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_sidecar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">collect_environment</span><span class="p">,</span>
+    <span class="n">collect_resource_snapshot</span><span class="p">,</span>
+    <span class="n">get_hostname</span><span class="p">,</span>
+    <span class="n">sanitize_for_json</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_code_version_str</span>
+
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Configuration</span><span class="p">,</span>
+    <span class="n">Error</span><span class="p">,</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageProcessingProgress</span><span class="p">,</span>
+    <span class="n">LightCurveProcessingProgress</span><span class="p">,</span>
+    <span class="n">Parameter</span><span class="p">,</span>
+    <span class="n">PipelineRun</span><span class="p">,</span>
+    <span class="n">Step</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 69c60cf6600aa9dc42716c079d9a0543d1f6c1ff $&quot;</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Replacement written in place of a redacted secret value.</span>
+<span class="n">REDACTED</span> <span class="o">=</span> <span class="s2">&quot;***REDACTED***&quot;</span>  <span class="c1"># pylint: disable=invalid-name</span>
+
+<span class="c1"># Substring matched (case-insensitively) against a key to decide it names</span>
+<span class="c1"># a secret. Covers the Gaia credentials this pipeline threads through the</span>
+<span class="c1"># process config plus the usual credential-like names.</span>
+<span class="n">_SECRET</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># pylint: disable=invalid-name</span>
+    <span class="sa">r</span><span class="s2">&quot;gaia[_-]?(?:user|password)&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;|password|passwd|secret|token&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;|api[_-]?key|access[_-]?key|credentials?&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># A `key &lt;:|=&gt; value` assignment whose key names a secret, as it appears</span>
+<span class="c1"># in dict reprs (&#39;gaia_password&#39;: &#39;x&#39;), JSON (&quot;gaia_password&quot;: &quot;x&quot;), and</span>
+<span class="c1"># ini/yaml-style config (gaia-password = x). The value -- quoted, or bare</span>
+<span class="c1"># up to a comma or end of line -- is what gets redacted.</span>
+<span class="n">_SECRET_ASSIGNMENT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">rf</span><span class="s2">&quot;(?i)([&#39;</span><span class="se">\&quot;</span><span class="s2">]?\b(?:</span><span class="si">{</span><span class="n">_SECRET</span><span class="si">}</span><span class="s2">)\b[&#39;</span><span class="se">\&quot;</span><span class="s2">]?\s*[:=]\s*)&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot;(&#39;[^&#39;]*&#39;|</span><span class="se">\&quot;</span><span class="s2">[^</span><span class="se">\&quot;</span><span class="s2">]*</span><span class="se">\&quot;</span><span class="s2">|[^\n,]*)&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Matches a secret name anywhere in a mapping key.</span>
+<span class="n">_SECRET_KEY</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;(?i)(?:</span><span class="si">{</span><span class="n">_SECRET</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="scrub_text">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.scrub_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scrub_text</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Redact secret values from a blob of text (a log or config file).</span>
+
+<span class="sd">    Replaces the value of any ``key: value`` / ``key = value`` assignment</span>
+<span class="sd">    whose key names a secret with :data:`REDACTED`, leaving the key (and</span>
+<span class="sd">    everything else) intact. Best-effort and never raises.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        text(str):    The text to scrub.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str:    The text with secret values redacted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span>
+    <span class="k">return</span> <span class="n">_SECRET_ASSIGNMENT</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span> <span class="o">+</span> <span class="n">REDACTED</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="scrub_mapping">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.scrub_mapping">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scrub_mapping</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a copy of ``mapping`` with secret-keyed values redacted.</span>
+
+<span class="sd">    Recurses into nested dictionaries. A value is redacted when its key</span>
+<span class="sd">    name matches a secret (e.g. ``gaia_password``, ``api_key``); other</span>
+<span class="sd">    values are copied through unchanged.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mapping(dict):    The mapping to scrub.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    A scrubbed copy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">scrubbed</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_SECRET_KEY</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="n">scrubbed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">REDACTED</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">scrubbed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scrub_mapping</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scrubbed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">scrubbed</span></div>
+
+
+
+<div class="viewcode-block" id="scrub_config_values">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.scrub_config_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scrub_config_values</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Redact secret configuration values in a database, in place.</span>
+
+<span class="sd">    The project configuration stores credentials as ordinary rows (e.g. a</span>
+<span class="sd">    ``gaia-password`` parameter), which a binary database file or SQL dump</span>
+<span class="sd">    cannot be text-scrubbed for. This redacts the ``Configuration`` value</span>
+<span class="sd">    of every parameter whose name names a secret.</span>
+
+<span class="sd">    Intended for a *copy* of the project database destined for a crash</span>
+<span class="sd">    report -- never the live database -- since it mutates the rows.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    A session connected to the database copy to scrub.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int:    The number of configuration values redacted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">secret_param_ids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">param_id</span>
+        <span class="k">for</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">_SECRET_KEY</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">secret_param_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">Configuration</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">Configuration</span><span class="o">.</span><span class="n">parameter_id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="n">secret_param_ids</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">REDACTED</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">rowcount</span> <span class="ow">or</span> <span class="mi">0</span></div>
+
+
+
+<span class="c1"># --- Locating the logs and processing record for an error. ------------</span>
+
+
+<div class="viewcode-block" id="find_error_progress">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.find_error_progress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_error_progress</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the processing-progress row an error belongs to, or None.</span>
+
+<span class="sd">    Resolves a step error to its processing record via run + step (and the</span>
+<span class="sd">    image&#39;s type, when the error names an image), so the BUI can link the</span>
+<span class="sd">    error to the matching log-review page. Handles both image steps</span>
+<span class="sd">    (``ImageProcessingProgress``) and lightcurve steps</span>
+<span class="sd">    (``LightCurveProcessingProgress``, which record in a different table);</span>
+<span class="sd">    a step only writes one, so whichever has a row for the run+step wins.</span>
+<span class="sd">    A pipeline/BUI error -- or a step with no recorded progress -- yields</span>
+<span class="sd">    ``None`` rather than a wrong match.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        error_row:    The ``Error`` row.</span>
+
+<span class="sd">        db_session:    Optional active session; one is opened if omitted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ImageProcessingProgress, LightCurveProcessingProgress, or None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">find_error_progress</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">own_session</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">error_row</span><span class="o">.</span><span class="n">pipeline_run_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># pylint: disable=no-member</span>
+    <span class="n">step_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">step_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">ImageProcessingProgress</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">ImageProcessingProgress</span><span class="o">.</span><span class="n">run_id</span> <span class="o">==</span> <span class="n">error_row</span><span class="o">.</span><span class="n">pipeline_run_id</span><span class="p">,</span>
+        <span class="n">ImageProcessingProgress</span><span class="o">.</span><span class="n">step_id</span> <span class="o">==</span> <span class="n">step_id</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">error_row</span><span class="o">.</span><span class="n">image_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">image_type_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">error_row</span><span class="o">.</span><span class="n">image_id</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">image_type_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">ImageProcessingProgress</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">image_type_id</span>
+            <span class="p">)</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+        <span class="n">query</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">ImageProcessingProgress</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">progress</span>
+
+    <span class="c1"># Lightcurve steps (create_lightcurves, epd, tfa, ...) record here.</span>
+    <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">LightCurveProcessingProgress</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">LightCurveProcessingProgress</span><span class="o">.</span><span class="n">run_id</span> <span class="o">==</span> <span class="n">error_row</span><span class="o">.</span><span class="n">pipeline_run_id</span><span class="p">,</span>
+            <span class="n">LightCurveProcessingProgress</span><span class="o">.</span><span class="n">step_id</span> <span class="o">==</span> <span class="n">step_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">LightCurveProcessingProgress</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+
+    <span class="c1"># pylint: enable=no-member</span>
+
+
+<div class="viewcode-block" id="select_error_logs">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.select_error_logs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">select_error_logs</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the per-process log files relevant to an error.</span>
+
+<span class="sd">    Reuses the pipeline&#39;s own log-locating machinery</span>
+<span class="sd">    (``ProcessingManager.find_processing_outputs``, on whichever manager</span>
+<span class="sd">    matches the resolved progress row), so the configured</span>
+<span class="sd">    ``logging_fname`` / ``std_out_err_fname`` naming is honored rather than</span>
+<span class="sd">    assumed. Only the logs for the error&#39;s run and step are returned (the</span>
+<span class="sd">    main-process log/outerr and the run&#39;s worker logs), not the whole log</span>
+<span class="sd">    directory. Best-effort: returns the existing files it finds, or an</span>
+<span class="sd">    empty list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        error_row:    The ``Error`` row.</span>
+
+<span class="sd">        db_session:    Optional active session; one is opened if omitted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[str]:    Absolute paths of the matching log files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">select_error_logs</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">own_session</span><span class="p">)</span>
+
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">find_error_progress</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">manager_class</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">LightCurveProcessingManager</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">LightCurveProcessingProgress</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">ImageProcessingManager</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">main_logs</span><span class="p">,</span> <span class="n">worker_logs</span> <span class="o">=</span> <span class="n">manager_class</span><span class="p">(</span>
+            <span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">find_processing_outputs</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Could not locate logs for error </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">candidates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">main_logs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">worker_logs</span><span class="p">:</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)}</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># --- Environment provenance. ------------------------------------------</span>
+
+
+<div class="viewcode-block" id="collect_provenance">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.collect_provenance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_provenance</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return environment provenance for a crash report.</span>
+
+<span class="sd">    Captures the machine and software *building the report* -- hostname,</span>
+<span class="sd">    OS, Python and key package versions, code version, and the machine&#39;s</span>
+<span class="sd">    memory (the box&#39;s RAM ceiling, for judging an OOM death). Uses the same</span>
+<span class="sd">    ``get_hostname`` / ``collect_environment`` / ``collect_resource_snapshot``</span>
+<span class="sd">    helpers the crash-time capture uses, so the report-time environment is</span>
+<span class="sd">    directly comparable with the *crash-time* environment recorded in the</span>
+<span class="sd">    sidecar -- a difference between the two is the tell that packages were</span>
+<span class="sd">    upgraded (or the box changed) between the failure and the report. The</span>
+<span class="sd">    failed run&#39;s own host / code version live on its ``PipelineRun`` row.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    Provenance fields, all JSON-serializable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;report_generated&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;hostname&quot;</span><span class="p">:</span> <span class="n">get_hostname</span><span class="p">(),</span>
+        <span class="s2">&quot;code_version&quot;</span><span class="p">:</span> <span class="n">get_code_version_str</span><span class="p">(),</span>
+        <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="n">collect_resource_snapshot</span><span class="p">(),</span>
+        <span class="o">**</span><span class="n">collect_environment</span><span class="p">(),</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="c1"># --- Assembling the report. -------------------------------------------</span>
+
+
+<div class="viewcode-block" id="_error_record">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report._error_record">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_error_record</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The inline error fields plus its run&#39;s host/PID/code version.&quot;&quot;&quot;</span>
+
+    <span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+        <span class="s2">&quot;step_name&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+        <span class="s2">&quot;exception_class&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span>
+        <span class="s2">&quot;user_message&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span>
+        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+        <span class="s2">&quot;subprocess_id&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span>
+        <span class="s2">&quot;pipeline_run_id&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">pipeline_run_id</span><span class="p">,</span>
+        <span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span>
+        <span class="s2">&quot;master_file_id&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">master_file_id</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">error_row</span><span class="o">.</span><span class="n">pipeline_run_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PipelineRun</span><span class="p">,</span> <span class="n">error_row</span><span class="o">.</span><span class="n">pipeline_run_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;run_host&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">host</span>
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;run_process_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">process_id</span>
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;run_code_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">code_version</span>
+    <span class="k">return</span> <span class="n">record</span></div>
+
+
+
+<div class="viewcode-block" id="_read_log_scrubbed">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report._read_log_scrubbed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_log_scrubbed</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">max_log_bytes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a log&#39;s scrubbed text, head+tail truncated past the cap.&quot;&quot;&quot;</span>
+
+    <span class="n">size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_file</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="n">max_log_bytes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">scrub_text</span><span class="p">(</span><span class="n">log_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="n">max_log_bytes</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">log_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">half</span><span class="p">)</span>
+        <span class="n">log_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="n">half</span><span class="p">)</span>
+        <span class="n">tail</span> <span class="o">=</span> <span class="n">log_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">omitted</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">half</span>
+    <span class="k">return</span> <span class="n">scrub_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">... [</span><span class="si">{</span><span class="n">omitted</span><span class="si">}</span><span class="s2"> bytes omitted; log truncated] ...</span><span class="se">\n\n</span><span class="si">{</span><span class="n">tail</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_add_scrubbed_database">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report._add_scrubbed_database">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_scrubbed_database</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">manifest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a copy of the SQLite project database with secrets redacted.&quot;&quot;&quot;</span>
+
+    <span class="n">src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_project_home</span><span class="p">(),</span> <span class="s2">&quot;autowisp.db&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+        <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;database&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;no SQLite database found&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">work_dir</span><span class="p">:</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s2">&quot;autowisp.db&quot;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">copy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">Session</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span> <span class="k">as</span> <span class="n">scrub_session</span><span class="p">:</span>
+                <span class="n">scrub_config_values</span><span class="p">(</span><span class="n">scrub_session</span><span class="p">)</span>
+                <span class="n">scrub_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+        <span class="n">zip_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span> <span class="s2">&quot;database/autowisp.db&quot;</span><span class="p">)</span>
+    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;collected&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;database/autowisp.db&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build_crash_report">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.build_crash_report">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_crash_report</span><span class="p">(</span>
+    <span class="n">error_id</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">max_log_bytes</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assemble a scrubbed crash-report zip for one error.</span>
+
+<span class="sd">    Collects the error record, its detail sidecar, the per-process logs</span>
+<span class="sd">    for its run/step, a credential-scrubbed copy of the SQLite project</span>
+<span class="sd">    database, and environment provenance, plus a ``manifest.json``</span>
+<span class="sd">    describing what was gathered. Every text artifact is scrubbed; the</span>
+<span class="sd">    database is scrubbed in the copy. Read-only with respect to live</span>
+<span class="sd">    pipeline state. Collection is best-effort: a source that cannot be</span>
+<span class="sd">    read is noted as a gap in the manifest rather than failing the report.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        error_id(int):    The error to report on.</span>
+
+<span class="sd">        out_path(str or Path or None):    Destination zip; defaults to</span>
+<span class="sd">            ``crash_report_error_&lt;id&gt;.zip`` in the current directory.</span>
+
+<span class="sd">        max_log_bytes(int):    Per-log size cap; larger logs are head+tail</span>
+<span class="sd">            truncated. Raise it for a more thorough (larger) report.</span>
+
+<span class="sd">        db_session:    Optional active session; one is opened if omitted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path:    The path to the written zip.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError:    If no error has the given id.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">build_crash_report</span><span class="p">(</span>
+                <span class="n">error_id</span><span class="p">,</span>
+                <span class="n">out_path</span><span class="p">,</span>
+                <span class="n">max_log_bytes</span><span class="o">=</span><span class="n">max_log_bytes</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="o">=</span><span class="n">own_session</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="n">error_row</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">error_row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No recorded error with id </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+        <span class="n">out_path</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;crash_report_error_</span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;schema_version&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;error_id&quot;</span><span class="p">:</span> <span class="n">error_id</span><span class="p">,</span>
+        <span class="s2">&quot;generated&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;collected&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;gaps&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_json</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="n">zip_file</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">sanitize_for_json</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;collected&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_file</span><span class="p">:</span>
+        <span class="c1"># Error record.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">add_json</span><span class="p">(</span><span class="s2">&quot;error.json&quot;</span><span class="p">,</span> <span class="n">_error_record</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;error.json&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Detail sidecar (scrubbed).</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sidecar</span> <span class="o">=</span> <span class="n">load_sidecar</span><span class="p">(</span><span class="n">error_row</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sidecar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;sidecar.json&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;no sidecar&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">zip_file</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span>
+                    <span class="s2">&quot;sidecar.json&quot;</span><span class="p">,</span>
+                    <span class="n">scrub_text</span><span class="p">(</span>
+                        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">sidecar</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">sanitize_for_json</span><span class="p">)</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;collected&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;sidecar.json&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;sidecar.json&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Per-process logs (scrubbed, truncated).</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">log_paths</span> <span class="o">=</span> <span class="n">select_error_logs</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">log_paths</span><span class="p">:</span>
+                <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;logs&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;no matching logs found&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">log_paths</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">arcname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;logs/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">zip_file</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span>
+                        <span class="n">arcname</span><span class="p">,</span> <span class="n">_read_log_scrubbed</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">max_log_bytes</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;collected&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arcname</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;logs/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)}</span>
+                    <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;logs&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+
+        <span class="c1"># Scrubbed database copy.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_add_scrubbed_database</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">manifest</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;database&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Environment provenance.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">add_json</span><span class="p">(</span><span class="s2">&quot;provenance.json&quot;</span><span class="p">,</span> <span class="n">collect_provenance</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="s2">&quot;provenance.json&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Manifest last, so it records every gap seen above.</span>
+        <span class="n">zip_file</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span>
+            <span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">sanitize_for_json</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out_path</span></div>
+
+
+
+<div class="viewcode-block" id="latest_error_id">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.latest_error_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">latest_error_id</span><span class="p">(</span><span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the id of the most recently recorded error, or None.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    Optional active session; one is opened if omitted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int or None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">latest_error_id</span><span class="p">(</span><span class="n">own_session</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">Error</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">Error</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">desc</span><span class="p">()</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="crash_report_main">
+<a class="viewcode-back" href="../../implementation/autowisp.crash_report.html#autowisp.crash_report.crash_report_main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">crash_report_main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI entry point for ``wisp-crash-report``.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;wisp-crash-report&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Bundle a recorded error into a single, credential-scrubbed &quot;</span>
+            <span class="s2">&quot;zip (error record, sidecar, logs, a database copy, and &quot;</span>
+            <span class="s2">&quot;provenance) to share with the maintainers.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;project_home&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the project home directory.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;error_id&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The id of the error to report on (see the BUI error log). &quot;</span>
+        <span class="s2">&quot;Omit and pass --last for the most recent error.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--last&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Report on the most recently recorded error.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--out&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output zip path (default: crash_report_error_&lt;id&gt;.zip).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--max-log-bytes&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Per-log size cap before head+tail truncation; raise for a &quot;</span>
+        <span class="s2">&quot;more thorough report (default: 524288).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_home</span><span class="p">)</span>
+
+    <span class="n">error_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">error_id</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">last</span><span class="p">:</span>
+        <span class="n">error_id</span> <span class="o">=</span> <span class="n">latest_error_id</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">error_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no errors are recorded for this project&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">error_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;provide an error_id or use --last&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">build_crash_report</span><span class="p">(</span>
+            <span class="n">error_id</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="n">max_log_bytes</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_log_bytes</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote crash report for error </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

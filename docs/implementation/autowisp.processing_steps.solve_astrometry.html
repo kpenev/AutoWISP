@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -172,7 +172,7 @@
 <span id="autowisp-processing-steps-solve-astrometry-module"></span><h1>autowisp.processing_steps.solve_astrometry module<a class="headerlink" href="#module-autowisp.processing_steps.solve_astrometry" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-34c745970ca6160c1bd471ff707337f0cfcd104b.png" alt="Inheritance diagram of AltAz, Component, DataReductionFile, EarthLocation, Evaluator, ExitStack, FileKind, ManualStepArgumentParser, Observatory, ObservingSession, Process, RelatedFile, SkyCoord, Target, Time, Transformation, WorkerCrashedError" usemap="#inheritancea94b3886ef" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b78a9f9040acc5158596e4c0cd5af3cfcb2ed5ed.png" alt="Inheritance diagram of AltAz, Component, DataReductionFile, EarthLocation, Evaluator, ExitStack, FileKind, ManualStepArgumentParser, Observatory, ObservingSession, Process, RelatedFile, SkyCoord, Target, Time, Transformation, WorkerCrashedError" usemap="#inheritancea94b3886ef" class="inheritance graphviz" /></div>
 <map id="inheritancea94b3886ef" name="inheritancea94b3886ef">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="394,453,468,480"/>
 <area shape="rect" id="node25" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="152,528,339,555"/>
@@ -187,7 +187,13 @@
 <area shape="rect" id="node23" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="1944,379,2363,405"/>
 <area shape="rect" id="node24" href="autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target" target="_top" title="The table describing the target." alt="" coords="2386,379,2665,405"/>
 <area shape="rect" id="node20" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="2172,229,2525,256"/>
+<area shape="rect" id="node27" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="2519,5,2754,32"/>
+<area shape="rect" id="node32" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="2537,80,2736,107"/>
+<area shape="rect" id="node28" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="2760,80,2971,107"/>
 <area shape="rect" id="node29" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="2936,5,3027,32"/>
+<area shape="rect" id="node30" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="2995,80,3187,107"/>
+<area shape="rect" id="node31" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="3063,5,3274,32"/>
+<area shape="rect" id="node33" href="autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError" target="_top" title="A multiprocessing worker died without preserving its exception." alt="" coords="2505,155,2768,181"/>
 <area shape="rect" id="node35" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="642,155,1058,181"/>
 <area shape="rect" id="node37" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
 <area shape="rect" id="node41" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>

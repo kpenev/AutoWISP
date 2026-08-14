@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.views module
+===================================================
+
+.. automodule:: autowisp.browser_interface.processing.views
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+autowisp.browser\_interface.error\_capture\_middleware module
+=============================================================
+
+.. automodule:: autowisp.browser_interface.error_capture_middleware
+   :members:
+   :undoc-members:
+   :show-inheritance:

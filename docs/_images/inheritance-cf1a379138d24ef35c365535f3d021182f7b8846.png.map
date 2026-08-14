@@ -1,0 +1,28 @@
+<map id="inheritance594d46a462" name="inheritance594d46a462">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1271,304,1601,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="5,379,366,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="390,379,653,405"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="677,379,958,405"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="982,379,1379,405"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="1402,379,1982,405"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.pipeline_run.html#autowisp.database.data_model.pipeline_run.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="2006,379,2354,405"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="2378,379,2780,405"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="2804,379,3172,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1052,229,1431,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1454,229,1808,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1499,155,1763,181"/>
+<area shape="rect" id="node13" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="1766,80,2160,107"/>
+<area shape="rect" id="node14" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="2026,5,2342,32"/>
+<area shape="rect" id="node15" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="2184,80,2627,107"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="2663,5,2764,32"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="2651,80,2776,107"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="2800,80,2928,107"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="2810,5,2918,32"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="2955,80,3045,107"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="2942,5,3059,32"/>
+<area shape="rect" id="node22" title="represents an event target, that is, something we can listen on" alt="" coords="3083,5,3325,32"/>
+<area shape="rect" id="node26" title="Manages persistence operations for ORM&#45;mapped objects." alt="" coords="3098,80,3310,107"/>
+<area shape="rect" id="node23" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1077,155,1406,181"/>
+<area shape="rect" id="node24" title="define a class as inspectable." alt="" coords="1521,80,1741,107"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1578,5,1684,32"/>
+</map>

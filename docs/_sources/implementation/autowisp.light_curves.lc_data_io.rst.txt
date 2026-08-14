@@ -3,5 +3,5 @@ autowisp.light\_curves.lc\_data\_io module
 
 .. automodule:: autowisp.light_curves.lc_data_io
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

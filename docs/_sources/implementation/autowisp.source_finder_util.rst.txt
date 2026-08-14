@@ -3,5 +3,5 @@ autowisp.source\_finder\_util module
 
 .. automodule:: autowisp.source_finder_util
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

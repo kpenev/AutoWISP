@@ -1,0 +1,4 @@
+<map id="inheritance28a734c4dc" name="inheritance28a734c4dc">
+<area shape="rect" id="node1" href="#autowisp.tests.test_exception_hierarchy.TestCatalogRetryExhaustion" target="_top" title="A Gaia query that exhausts its retries surfaces as CatalogError." alt="" coords="5,80,431,107"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="140,5,296,32"/>
+</map>

@@ -1,0 +1,7 @@
+autowisp.tests.update\_hdf5\_contents module
+============================================
+
+.. automodule:: autowisp.tests.update_hdf5_contents
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+autowisp.database.data\_model.error module
+==========================================
+
+.. automodule:: autowisp.database.data_model.error
+   :members:
+   :undoc-members:
+   :show-inheritance:

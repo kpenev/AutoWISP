@@ -1,0 +1,55 @@
+<map id="inheritancea94b3886ef" name="inheritancea94b3886ef">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="394,453,468,480"/>
+<area shape="rect" id="node25" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="152,528,339,555"/>
+<area shape="rect" id="node43" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractContextManager" target="_top" title="An abstract base class for context managers." alt="" coords="380,528,607,555"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="765,5,934,32"/>
+<area shape="rect" id="node36" title="Drop&#45;in replacement for argparse.ArgumentParser that adds support for" alt="" coords="748,80,952,107"/>
+<area shape="rect" id="node3" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="985,5,1157,32"/>
+<area shape="rect" id="node26" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="976,80,1166,107"/>
+<area shape="rect" id="node4" title="The base class for coordinate frames." alt="" coords="819,229,1152,256"/>
+<area shape="rect" id="node6" title="A coordinate or frame in the Altitude&#45;Azimuth system (Horizontal" alt="" coords="842,304,1129,331"/>
+<area shape="rect" id="node5" title="Like ShapedLikeNDArray, but for classes that can work with masked data." alt="" coords="1146,155,1495,181"/>
+<area shape="rect" id="node9" title="High&#45;level object providing a flexible interface for celestial coordinate" alt="" coords="1176,229,1464,256"/>
+<area shape="rect" id="node11" title="Base time class from which Time and TimeDelta inherit." alt="" coords="1488,229,1672,256"/>
+<area shape="rect" id="node7" title="Location on the Earth." alt="" coords="1519,155,1770,181"/>
+<area shape="rect" id="node8" title="A `~astropy.units.Quantity` represents a number with some associated unit." alt="" coords="1546,80,1743,107"/>
+<area shape="rect" id="node10" title="Represent and manipulate times and dates for astronomy." alt="" coords="1503,304,1658,331"/>
+<area shape="rect" id="node12" title="ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)" alt="" coords="1591,5,1698,32"/>
+<area shape="rect" id="node13" title="Mixin class to provide shape&#45;changing methods." alt="" coords="1190,80,1450,107"/>
+<area shape="rect" id="node14" title="Mixin class to provide shape&#45;changing methods." alt="" coords="1181,5,1460,32"/>
+<area shape="rect" id="node15" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="1840,5,2156,32"/>
+<area shape="rect" id="node16" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="19,677,406,704"/>
+<area shape="rect" id="node17" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="7,603,418,629"/>
+<area shape="rect" id="node18" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1988,304,2319,331"/>
+<area shape="rect" id="node22" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1497,379,1920,405"/>
+<area shape="rect" id="node23" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="1944,379,2363,405"/>
+<area shape="rect" id="node24" href="autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target" target="_top" title="The table describing the target." alt="" coords="2386,379,2665,405"/>
+<area shape="rect" id="node19" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1770,229,2148,256"/>
+<area shape="rect" id="node20" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="2172,229,2525,256"/>
+<area shape="rect" id="node21" title="Base class used for declarative class definitions." alt="" coords="2216,155,2480,181"/>
+<area shape="rect" id="node27" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="2519,5,2754,32"/>
+<area shape="rect" id="node32" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="2537,80,2736,107"/>
+<area shape="rect" id="node28" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="2760,80,2971,107"/>
+<area shape="rect" id="node29" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="2936,5,3027,32"/>
+<area shape="rect" id="node30" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="2995,80,3187,107"/>
+<area shape="rect" id="node31" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="3063,5,3274,32"/>
+<area shape="rect" id="node33" href="autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError" target="_top" title="A multiprocessing worker died without preserving its exception." alt="" coords="2505,155,2768,181"/>
+<area shape="rect" id="node34" title="Represents an HDF5 file." alt="" coords="184,453,307,480"/>
+<area shape="rect" id="node35" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="642,155,1058,181"/>
+<area shape="rect" id="node37" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
+<area shape="rect" id="node41" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
+<area shape="rect" id="node38" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
+<area shape="rect" id="node39" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="393,5,549,32"/>
+<area shape="rect" id="node40" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="572,5,740,32"/>
+<area shape="rect" id="node42" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
+<area shape="rect" id="node47" title="Wraps a Group, AttributeManager or DimensionManager object to provide" alt="" coords="488,229,678,256"/>
+<area shape="rect" id="node48" title="Wraps a Group or AttributeManager object to provide a mutable" alt="" coords="243,304,478,331"/>
+<area shape="rect" id="node44" href="https://docs.python.org/3/library/contextlib.html#contextlib.ExitStack" target="_top" title="Context manager for dynamic management of a stack of exit callbacks." alt="" coords="442,603,580,629"/>
+<area shape="rect" id="node45" title="Mixin class that allows sharing information between objects which" alt="" coords="5,229,233,256"/>
+<area shape="rect" id="node46" title="Base class for high&#45;level interface objects." alt="" coords="50,304,210,331"/>
+<area shape="rect" id="node49" title="Represents an HDF5 group." alt="" coords="174,379,318,405"/>
+<area shape="rect" id="node51" title="Process objects represent activity that is run in a separate process" alt="" coords="3304,5,3548,32"/>
+<area shape="rect" id="node52" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1794,155,2124,181"/>
+<area shape="rect" id="node53" title="define a class as inspectable." alt="" coords="2238,80,2458,107"/>
+<area shape="rect" id="node54" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2296,5,2401,32"/>
+</map>

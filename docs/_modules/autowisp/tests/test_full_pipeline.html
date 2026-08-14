@@ -1,0 +1,484 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_full_pipeline &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_full_pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_full_pipeline</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;End-to-end pipeline test driven by :mod:`autowisp.run_pipeline`.</span>
+
+<span class="sd">Mirrors what the BUI does when a user creates a new project: builds the</span>
+<span class="sd">project&#39;s SQLite database from ``test_data/test.cfg`` and</span>
+<span class="sd">``test_data/master_config.json`` via the same helpers the BUI uses</span>
+<span class="sd">(``parse_config_overwrites`` + ``master_config_json_to_settings`` +</span>
+<span class="sd">``apply_master_config`` + ``initialize_database``), imports the survey</span>
+<span class="sd">JSON, registers every raw image, runs the full pipeline (calibration</span>
+<span class="sd">through TFA / detrending statistics), and compares the generated</span>
+<span class="sd">artifacts to the expected outputs in ``test_data/``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Namespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.image_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_database</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize_database</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">stack_to_master</span><span class="p">,</span> <span class="n">stack_to_master_flat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.photref_selection</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">bind_images_to_photref</span><span class="p">,</span>
+    <span class="n">compute_photref_candidates</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">apply_master_config</span><span class="p">,</span>
+    <span class="n">import_json_to_survey</span><span class="p">,</span>
+    <span class="n">master_config_json_to_settings</span><span class="p">,</span>
+    <span class="n">parse_config_overwrites</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.fits_test_case</span><span class="w"> </span><span class="kn">import</span> <span class="n">FITSTestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.h5_test_case</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5TestCase</span>
+
+
+<div class="viewcode-block" id="TestFullPipeline">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_full_pipeline.html#autowisp.tests.test_full_pipeline.TestFullPipeline">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestFullPipeline</span><span class="p">(</span><span class="n">H5TestCase</span><span class="p">,</span> <span class="n">FITSTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the full pipeline end-to-end and check every output.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestFullPipeline.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_full_pipeline.html#autowisp.tests.test_full_pipeline.TestFullPipeline.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bring up a project the same way the BUI does on creation.</span>
+
+<span class="sd">        ``AutoWISPTestCase.setUp`` already handles the processing-dir</span>
+<span class="sd">        creation, ``test.cfg`` copy, ``set_project_home``, and survey</span>
+<span class="sd">        import (against a minimal schema). On top of that we run a full</span>
+<span class="sd">        ``initialize_database(drop_all_tables=True)`` -- mirroring the</span>
+<span class="sd">        BUI&#39;s project-creation flow -- and re-import the survey since</span>
+<span class="sd">        that drops the provenance rows the base class just imported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">&quot;test.cfg&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">:</span>
+            <span class="n">overwrite_default_config</span> <span class="o">=</span> <span class="n">parse_config_overwrites</span><span class="p">(</span><span class="n">cfg_file</span><span class="p">)</span>
+        <span class="c1"># The per-step CLI uses different ``--outlier-threshold``</span>
+        <span class="c1"># defaults for ``wisp-stack-to-master`` and</span>
+        <span class="c1"># ``wisp-stack-to-master-flat``, but the pipeline registers a</span>
+        <span class="c1"># single ``outlier-threshold`` parameter so the per-step</span>
+        <span class="c1"># asymmetry is lost by default. Replicate it with two</span>
+        <span class="c1"># mutually-exclusive conditional entries pulled straight from</span>
+        <span class="c1"># each step&#39;s ``parse_command_line`` default -- so any change to</span>
+        <span class="c1"># those defaults flows into the pipeline test automatically.</span>
+        <span class="c1"># The ``(None, ...)`` row is dropped by</span>
+        <span class="c1"># :func:`_overwrite_default_config`, which is what we want here:</span>
+        <span class="c1"># every image type matches exactly one of the two conditions,</span>
+        <span class="c1"># so there is no ambiguity.</span>
+        <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;outlier-threshold&quot;</span><span class="p">,</span> <span class="s2">&quot;min-valid-values&quot;</span><span class="p">,</span> <span class="s2">&quot;max-iter&quot;</span><span class="p">]:</span>
+            <span class="n">non_flat_value</span> <span class="o">=</span> <span class="n">stack_to_master</span><span class="o">.</span><span class="n">parse_command_line</span><span class="p">([])[</span>
+                <span class="s2">&quot;argument_defaults&quot;</span>
+            <span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
+            <span class="n">flat_value</span> <span class="o">=</span> <span class="n">stack_to_master_flat</span><span class="o">.</span><span class="n">parse_command_line</span><span class="p">([])[</span>
+                <span class="s2">&quot;argument_defaults&quot;</span>
+            <span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
+            <span class="n">overwrite_default_config</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">((</span><span class="s1">&#39;IMAGETYP.strip() != &quot;flat&quot;&#39;</span><span class="p">,),</span> <span class="nb">str</span><span class="p">(</span><span class="n">non_flat_value</span><span class="p">)),</span>
+                <span class="p">((</span><span class="s1">&#39;IMAGETYP.strip() == &quot;flat&quot;&#39;</span><span class="p">,),</span> <span class="nb">str</span><span class="p">(</span><span class="n">flat_value</span><span class="p">)),</span>
+            <span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">&quot;master_config.json&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">master_json</span><span class="p">:</span>
+            <span class="n">master_settings</span> <span class="o">=</span> <span class="n">master_config_json_to_settings</span><span class="p">(</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">master_json</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">step_dependencies</span><span class="p">,</span> <span class="n">master_info</span> <span class="o">=</span> <span class="n">apply_master_config</span><span class="p">(</span><span class="n">master_settings</span><span class="p">)</span>
+
+        <span class="n">initialize_database</span><span class="p">(</span>
+            <span class="n">Namespace</span><span class="p">(</span><span class="n">drop_hdf5_structure_tables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_all_tables</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">step_dependencies</span><span class="p">,</span>
+            <span class="n">master_info</span><span class="p">,</span>
+            <span class="n">overwrite_default_config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">&quot;survey_instruments.json&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">survey_json</span><span class="p">:</span>
+            <span class="n">import_json_to_survey</span><span class="p">(</span><span class="n">survey_json</span><span class="p">)</span>
+
+        <span class="c1"># The DR file the test will register as the single photometric</span>
+        <span class="c1"># reference comes from test.cfg, so adjusting the test or adding</span>
+        <span class="c1"># new fixtures only requires editing the config file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span>
+            <span class="n">overwrite_default_config</span><span class="p">[</span><span class="s2">&quot;single-photref-dr-fname&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFullPipeline.test_full_pipeline">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_full_pipeline.html#autowisp.tests.test_full_pipeline.TestFullPipeline.test_full_pipeline">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_full_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the full pipeline and compare every output to expected.</span>
+
+<span class="sd">        The pipeline runs in two passes. On the first pass it does as</span>
+<span class="sd">        much as it can; ``fit_magnitudes`` and the downstream lightcurve</span>
+<span class="sd">        steps stay pending because no ``single_photref`` master has been</span>
+<span class="sd">        registered yet. Between the passes the test registers the</span>
+<span class="sd">        single photometric reference DR file via the same helpers the</span>
+<span class="sd">        BUI uses, after which the second pass picks up</span>
+<span class="sd">        ``fit_magnitudes`` and everything beyond.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">raw_image_dirs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">&quot;RAW&quot;</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">add_raw_images</span> <span class="ow">in</span> <span class="p">(</span><span class="n">raw_image_dirs</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">run_pipeline</span><span class="o">.</span><span class="n">main</span><span class="p">(</span>
+                <span class="n">Namespace</span><span class="p">(</span>
+                    <span class="n">project_home</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span>
+                    <span class="n">add_raw_images</span><span class="o">=</span><span class="n">add_raw_images</span><span class="p">,</span>
+                    <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">step_imtypes</span><span class="o">=</span><span class="p">[],</span>
+                    <span class="n">detached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">add_raw_images</span><span class="p">:</span>
+                <span class="c1"># Register the photref between the two passes -- the</span>
+                <span class="c1"># second pass will then resume from ``fit_magnitudes``.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_register_photref</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">imtype</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_dir_fits_match</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;CAL&quot;</span><span class="p">,</span> <span class="n">imtype</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">master_basename</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;zero_R.fits&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dark_R.fits&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flat_R.fits&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assert_fits_match</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="s2">&quot;MASTERS&quot;</span><span class="p">,</span> <span class="n">master_basename</span><span class="p">),</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="s2">&quot;MASTERS&quot;</span><span class="p">,</span> <span class="n">master_basename</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">stats_basename</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;epd_statistics.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;tfa_statistics.txt&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assert_detrending_stats_match</span><span class="p">(</span><span class="n">stats_basename</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_h5_dir_match</span><span class="p">(</span><span class="s2">&quot;DR&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_h5_dir_match</span><span class="p">(</span><span class="s2">&quot;LC&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFullPipeline._register_photref">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_full_pipeline.html#autowisp.tests.test_full_pipeline.TestFullPipeline._register_photref">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_register_photref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mimic the BUI&#39;s ``record_photref_selection`` for the test photref.</span>
+
+<span class="sd">        Calls :func:`compute_photref_candidates` to obtain the same</span>
+<span class="sd">        per-condition batches the BUI would surface to the user, finds</span>
+<span class="sd">        the batch containing the test&#39;s chosen photref DR file (set in</span>
+<span class="sd">        ``setUp`` from ``test.cfg``), registers the file as a</span>
+<span class="sd">        ``single_photref`` master, and binds every eligible image in</span>
+<span class="sd">        the batch via :func:`bind_images_to_photref`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">processing</span> <span class="o">=</span> <span class="n">ImageProcessingManager</span><span class="p">(</span><span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">compute_photref_candidates</span><span class="p">(</span><span class="n">processing</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+
+        <span class="n">photref_batch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;candidates&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">candidate</span><span class="p">[</span><span class="s2">&quot;groups&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">):</span>
+                    <span class="n">photref_batch</span> <span class="o">=</span> <span class="n">batch</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">photref_batch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span>
+            <span class="n">photref_batch</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;No candidate batch contains photref &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">processing</span><span class="o">.</span><span class="n">add_masters</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;single_photref&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span><span class="p">,</span>
+                <span class="s2">&quot;preference_order&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;disable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">bind_images_to_photref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_photref_dr_path</span><span class="p">,</span> <span class="n">photref_batch</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFullPipeline._assert_dir_fits_match">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_full_pipeline.html#autowisp.tests.test_full_pipeline.TestFullPipeline._assert_dir_fits_match">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_dir_fits_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relative_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assert every ``*.fits*`` in ``relative_dir`` matches expected.&quot;&quot;&quot;</span>
+
+        <span class="n">generated</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="n">relative_dir</span><span class="p">,</span> <span class="s2">&quot;*.fits*&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="n">relative_dir</span><span class="p">,</span> <span class="s2">&quot;*.fits*&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">generated</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s2">&quot;FITS file list mismatch under </span><span class="si">{</span><span class="n">relative_dir</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">gen_fname</span><span class="p">,</span> <span class="n">exp_fname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">generated</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assert_fits_match</span><span class="p">(</span><span class="n">exp_fname</span><span class="p">,</span> <span class="n">gen_fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFullPipeline._assert_detrending_stats_match">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_full_pipeline.html#autowisp.tests.test_full_pipeline.TestFullPipeline._assert_detrending_stats_match">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_detrending_stats_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare an ``epd`` / ``tfa`` statistics file via pandas.</span>
+
+<span class="sd">        Matches the comparison rule used by</span>
+<span class="sd">        :class:`autowisp.tests.test_detrending_stat.TestDetrendingStat`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">generated</span><span class="p">,</span> <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s2">&quot;MASTERS&quot;</span><span class="p">,</span> <span class="n">basename</span><span class="p">),</span>
+                <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span>
+                <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;ID&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertApproxPandas</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">generated</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFullPipeline._assert_h5_dir_match">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_full_pipeline.html#autowisp.tests.test_full_pipeline.TestFullPipeline._assert_h5_dir_match">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_h5_dir_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relative_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assert every ``*.h5`` file under ``relative_dir`` matches.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">ignore</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ending</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;/EPD/FitProperties/Filter&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;/TFA/FitProperties/PointsFilterExpression&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ending</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">generated</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="n">relative_dir</span><span class="p">,</span> <span class="s2">&quot;*.h5&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="n">relative_dir</span><span class="p">,</span> <span class="s2">&quot;*.h5&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">generated</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s2">&quot;HDF5 file list mismatch under </span><span class="si">{</span><span class="n">relative_dir</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">gen_fname</span><span class="p">,</span> <span class="n">exp_fname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">generated</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assert_groups_match</span><span class="p">(</span><span class="n">gen_fname</span><span class="p">,</span> <span class="n">exp_fname</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="n">ignore</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assert_groups_match</span><span class="p">(</span><span class="n">exp_fname</span><span class="p">,</span> <span class="n">gen_fname</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="n">ignore</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

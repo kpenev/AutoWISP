@@ -3,8 +3,8 @@ autowisp.fit\_expression package
 
 .. automodule:: autowisp.fit_expression
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

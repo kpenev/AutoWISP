@@ -1,0 +1,7 @@
+<map id="inheritance77d4b2263b" name="inheritance77d4b2263b">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="5,80,376,107"/>
+<area shape="rect" id="node2" title="Intentionally simple parent class for all views. Only implements" alt="" coords="86,5,295,32"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="380,5,614,32"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="400,80,595,107"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="396,155,598,181"/>
+</map>

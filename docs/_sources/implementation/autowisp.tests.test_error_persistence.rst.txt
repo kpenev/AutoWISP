@@ -1,0 +1,7 @@
+autowisp.tests.test\_error\_persistence module
+==============================================
+
+.. automodule:: autowisp.tests.test_error_persistence
+   :members:
+   :undoc-members:
+   :show-inheritance:

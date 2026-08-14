@@ -1,0 +1,7 @@
+autowisp.tests.test\_provenance\_resolver module
+================================================
+
+.. automodule:: autowisp.tests.test_provenance_resolver
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,18 @@
+autowisp.browser\_interface.django\_project package
+===================================================
+
+.. automodule:: autowisp.browser_interface.django_project
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.django_project.asgi
+   autowisp.browser_interface.django_project.settings
+   autowisp.browser_interface.django_project.urls
+   autowisp.browser_interface.django_project.wsgi

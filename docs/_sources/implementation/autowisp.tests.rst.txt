@@ -3,8 +3,8 @@ autowisp.tests package
 
 .. automodule:: autowisp.tests
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -12,18 +12,37 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   autowisp.tests.error_fixtures
    autowisp.tests.fits_test_case
+   autowisp.tests.generate_catalog_test_data
    autowisp.tests.get_test_data
    autowisp.tests.h5_test_case
    autowisp.tests.test_calibrate
+   autowisp.tests.test_catalog
+   autowisp.tests.test_crash_report
    autowisp.tests.test_create_lightcurves
+   autowisp.tests.test_database_migration
    autowisp.tests.test_detrending_stat
    autowisp.tests.test_epd
+   autowisp.tests.test_error_capture_middleware
+   autowisp.tests.test_error_cli
+   autowisp.tests.test_error_context
+   autowisp.tests.test_error_persistence
+   autowisp.tests.test_error_render
+   autowisp.tests.test_exception_hierarchy
    autowisp.tests.test_find_stars
    autowisp.tests.test_fit_magnitudes
    autowisp.tests.test_fit_source_extracted_psf_map
    autowisp.tests.test_fit_star_shape
+   autowisp.tests.test_full_pipeline
+   autowisp.tests.test_lc_filter
    autowisp.tests.test_measure_aperture_photometry
+   autowisp.tests.test_parse_config_overwrites
+   autowisp.tests.test_provenance_resolver
+   autowisp.tests.test_related_files
    autowisp.tests.test_solve_astrometry
+   autowisp.tests.test_source_finder
    autowisp.tests.test_stack_to_master
    autowisp.tests.test_tfa
+   autowisp.tests.test_tfa_num_templates
+   autowisp.tests.update_hdf5_contents

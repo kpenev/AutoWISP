@@ -1,0 +1,20 @@
+<map id="inheritancee3acadf79d" name="inheritancee3acadf79d">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="5,80,269,107"/>
+<area shape="rect" id="node2" title="Formatter for generating usage messages and argument help strings." alt="" coords="58,5,216,32"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="310,5,479,32"/>
+<area shape="rect" id="node15" title="Drop&#45;in replacement for argparse.ArgumentParser that adds support for" alt="" coords="292,80,496,107"/>
+<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="270,304,601,331"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.pipeline_run.html#autowisp.database.data_model.pipeline_run.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="262,379,610,405"/>
+<area shape="rect" id="node5" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="52,229,430,256"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="454,229,807,256"/>
+<area shape="rect" id="node7" title="Base class used for declarative class definitions." alt="" coords="498,155,762,181"/>
+<area shape="rect" id="node9" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="765,80,1160,107"/>
+<area shape="rect" id="node10" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="1026,5,1342,32"/>
+<area shape="rect" id="node11" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="1184,80,1626,107"/>
+<area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1642,5,1877,32"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1650,80,1869,107"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.ResourceError" target="_top" title="Insufficient disk / memory / CPU to continue." alt="" coords="1646,155,1874,181"/>
+<area shape="rect" id="node16" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="76,155,406,181"/>
+<area shape="rect" id="node17" title="define a class as inspectable." alt="" coords="520,80,740,107"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="578,5,683,32"/>
+</map>

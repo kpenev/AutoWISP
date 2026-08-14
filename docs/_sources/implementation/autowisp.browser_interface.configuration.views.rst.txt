@@ -1,0 +1,7 @@
+autowisp.browser\_interface.configuration.views module
+======================================================
+
+.. automodule:: autowisp.browser_interface.configuration.views
+   :members:
+   :undoc-members:
+   :show-inheritance:

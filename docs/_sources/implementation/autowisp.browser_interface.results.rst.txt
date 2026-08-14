@@ -1,0 +1,29 @@
+autowisp.browser\_interface.results package
+===========================================
+
+.. automodule:: autowisp.browser_interface.results
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.results.migrations
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.results.admin
+   autowisp.browser_interface.results.apps
+   autowisp.browser_interface.results.lightcurve_views
+   autowisp.browser_interface.results.models
+   autowisp.browser_interface.results.tests
+   autowisp.browser_interface.results.urls
+   autowisp.browser_interface.results.views

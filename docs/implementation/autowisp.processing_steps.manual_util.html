@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -172,11 +172,14 @@
 <span id="autowisp-processing-steps-manual-util-module"></span><h1>autowisp.processing_steps.manual_util module<a class="headerlink" href="#module-autowisp.processing_steps.manual_util" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-a374a255686d5f0b39cd4059764cdf533f042300.png" alt="Inheritance diagram of ArgumentParser, ConfigurationError, DefaultsFormatter, ManualStepArgumentParser, WISPGaia" usemap="#inheritance379d919fe4" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-349fd077a4ea948c19e2b21f484aa5dd9b08956c.png" alt="Inheritance diagram of ArgumentParser, ConfigurationError, DefaultsFormatter, ManualStepArgumentParser, WISPGaia" usemap="#inheritance379d919fe4" class="inheritance graphviz" /></div>
 <map id="inheritance379d919fe4" name="inheritance379d919fe4">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="5,80,269,107"/>
 <area shape="rect" id="node3" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="310,5,479,32"/>
 <area shape="rect" id="node7" href="autowisp.catalog.html#autowisp.catalog.WISPGaia" target="_top" title="Extend queries with condition and sorting." alt="" coords="635,229,820,256"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="861,5,1096,32"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="869,80,1088,107"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="854,155,1103,181"/>
 <area shape="rect" id="node11" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="186,155,602,181"/>
 </map><p>Collection of functions used by many processing steps.</p>
 </section>
@@ -241,7 +244,7 @@ as a dictionary (True) or attributes of a namespace (False).</p></li>
 <p>These let a manual step resolve a FITS header to the survey-database
 rows (<code class="docutils literal notranslate"><span class="pre">Camera</span></code>, <code class="docutils literal notranslate"><span class="pre">Telescope</span></code>, <code class="docutils literal notranslate"><span class="pre">Mount</span></code>, <code class="docutils literal notranslate"><span class="pre">Observatory</span></code>, <code class="docutils literal notranslate"><span class="pre">Observer</span></code>,
 <code class="docutils literal notranslate"><span class="pre">Target</span></code>) via
-<code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.database.provenance_resolver.get_or_create_observing_session()</span></code>,
+<a class="reference internal" href="autowisp.database.provenance_resolver.html#autowisp.database.provenance_resolver.get_or_create_observing_session" title="autowisp.database.provenance_resolver.get_or_create_observing_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.database.provenance_resolver.get_or_create_observing_session()</span></code></a>,
 so that the <code class="docutils literal notranslate"><span class="pre">/Provenance</span></code> group can be written to the DR file
 without requiring <code class="docutils literal notranslate"><span class="pre">wisp-add-images-to-db</span></code> to have been run.</p>
 <p>Flag names and defaults intentionally mirror
@@ -269,7 +272,7 @@ and calling <code class="docutils literal notranslate"><span class="pre">sys.exi
 <code class="docutils literal notranslate"><span class="pre">SystemExit</span></code> would escape the error-handling machinery (it is a
 <code class="docutils literal notranslate"><span class="pre">BaseException</span></code>, not caught by <code class="docutils literal notranslate"><span class="pre">capture_errors</span></code> /
 <code class="docutils literal notranslate"><span class="pre">run_pipeline.main</span></code>) and silently end a detached run, so there we
-raise a recordable <code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurationError</span></code>
+raise a recordable <a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" title="autowisp.exceptions.ConfigurationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a>
 instead. Interactive CLI parsing keeps argparse’s helpful
 usage-and-exit behaviour.</p>
 <dl class="field-list simple">
@@ -334,7 +337,7 @@ non-positive number is also treated as <code class="docutils literal notranslate
 is no interactive user to read an argparse usage message and the
 process may be a detached pipeline run. A parse failure then becomes a
 catchable, recordable
-<code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurationError</span></code> instead of
+<a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" title="autowisp.exceptions.ConfigurationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a> instead of
 <code class="docutils literal notranslate"><span class="pre">SystemExit</span></code>. Nestable; restores the previous mode on exit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Yields<span class="colon">:</span></dt>

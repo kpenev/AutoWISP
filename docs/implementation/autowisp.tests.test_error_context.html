@@ -1,0 +1,844 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_error_context module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.tests.test_error_persistence module" href="autowisp.tests.test_error_persistence.html" />
+    <link rel="prev" title="autowisp.tests.test_error_cli module" href="autowisp.tests.test_error_cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.tests.html">autowisp.tests package</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_error_context module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.tests.test_error_context.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.tests.test_error_context">
+<span id="autowisp-tests-test-error-context-module"></span><h1>autowisp.tests.test_error_context module<a class="headerlink" href="#module-autowisp.tests.test_error_context" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-7ccb332c77e1dd6eb422df5ed62aaa3c55bd8d1f.png" alt="Inheritance diagram of Component, ErrorContext, FileKind, FindStarsError, FrozenRow, MeasurePhotometryError, PipelineError, Process, RelatedFile, SolveAstrometryError, StackToMasterError, StepError, TestAmbientAccessors, TestCaptureErrors, TestErrorContextDataclass, TestErrorContextManager, TestExitSignalDecode, TestFromConfig, TestNestingGuard, TestPoolPropagation, TestProcessQueuePropagation, TestResourceSnapshot, TestWorkerEntry, ViewError, WorkerCrashedError, _ContextTestCase" usemap="#inheritance9632c6ff7e" class="inheritance graphviz" /></div>
+<map id="inheritance9632c6ff7e" name="inheritance9632c6ff7e">
+<area shape="rect" id="node1" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="114,5,383,32"/>
+<area shape="rect" id="node2" href="autowisp.error_context.html#autowisp.error_context.ErrorContext" target="_top" title="Immutable bundle of the ambient context attached to errors." alt="" coords="406,5,638,32"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="662,5,896,32"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="311,80,506,107"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="680,80,879,107"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="904,80,1122,107"/>
+<area shape="rect" id="node15" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="5,155,207,181"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1146,80,1357,107"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1318,5,1409,32"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1381,80,1572,107"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="230,155,459,181"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.MeasurePhotometryError" target="_top" title="Failure in the measure_aperture_photometry step." alt="" coords="483,155,772,181"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.SolveAstrometryError" target="_top" title="Failure in the solve_astrometry step." alt="" coords="797,155,1066,181"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.StackToMasterError" target="_top" title="Failure stacking calibration frames into a master." alt="" coords="1090,155,1351,181"/>
+<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError" target="_top" title="A multiprocessing worker died without preserving its exception." alt="" coords="1375,155,1637,181"/>
+<area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1433,5,1643,32"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_error_context.TestAmbientAccessors" target="_top" title="get/set helpers and in_worker()." alt="" coords="1668,5,2022,32"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_error_context.TestCaptureErrors" target="_top" title="The capture_errors decorator stamps + optionally wraps." alt="" coords="2046,5,2371,32"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_error_context.TestErrorContextDataclass" target="_top" title="The ErrorContext bundle itself." alt="" coords="2396,5,2773,32"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_error_context.TestErrorContextManager" target="_top" title="The error_context() scoping context manager." alt="" coords="2798,5,3166,32"/>
+<area shape="rect" id="node21" href="#autowisp.tests.test_error_context.TestExitSignalDecode" target="_top" title="decode_exit_signals is portable and drops clean/running exits." alt="" coords="2906,80,3255,107"/>
+<area shape="rect" id="node27" href="#autowisp.tests.test_error_context.TestResourceSnapshot" target="_top" title="collect_resource_snapshot is best&#45;effort and never raises." alt="" coords="3279,80,3634,107"/>
+<area shape="rect" id="node23" href="#autowisp.tests.test_error_context.TestFromConfig" target="_top" title="ErrorContext.from_config rebuilds context from a config dict." alt="" coords="3371,5,3684,32"/>
+<area shape="rect" id="node24" href="#autowisp.tests.test_error_context.TestNestingGuard" target="_top" title="A worker may not launch nested workers (resource control)." alt="" coords="3708,5,4032,32"/>
+<area shape="rect" id="node25" href="#autowisp.tests.test_error_context.TestPoolPropagation" target="_top" title="Errors raised in real Pool workers cross back stamped." alt="" coords="4056,5,4396,32"/>
+<area shape="rect" id="node26" href="#autowisp.tests.test_error_context.TestProcessQueuePropagation" target="_top" title="Process + Queue workers return stamped errors over a queue." alt="" coords="4420,5,4819,32"/>
+<area shape="rect" id="node28" href="#autowisp.tests.test_error_context.TestWorkerEntry" target="_top" title="worker_entry stamps subprocess_id and stays picklable." alt="" coords="4842,5,5159,32"/>
+</map><p>Unit tests for the ambient error context and capture layer.</p>
+<p>The in-process tests need no pipeline fixtures or database; the
+cross-process tests spin up a real <code class="docutils literal notranslate"><span class="pre">multiprocessing.Pool</span></code> (through
+<code class="docutils literal notranslate"><span class="pre">run_pool</span></code>) and let its worker bootstrap with the real
+<code class="docutils literal notranslate"><span class="pre">setup_process_map</span></code>, which initialises a throwaway project home in a
+temporary directory. Each test starts from a clean ambient context (reset
+in <code class="docutils literal notranslate"><span class="pre">setUp</span></code>).</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestAmbientAccessors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestAmbientAccessors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestAmbientAccessors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestAmbientAccessors" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-132cb4bd55ea2b0521a3666fb0c8ff76f903ddd4.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestAmbientAccessors" usemap="#inheritance517fab8fba" class="inheritance graphviz" /></div>
+<map id="inheritance517fab8fba" name="inheritance517fab8fba">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestAmbientAccessors" target="_top" title="get/set helpers and in_worker()." alt="" coords="5,5,360,32"/>
+</map><p>get/set helpers and in_worker().</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestAmbientAccessors.test_set_and_get">
+<span class="sig-name descname"><span class="pre">test_set_and_get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestAmbientAccessors.test_set_and_get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestAmbientAccessors.test_set_and_get" title="Link to this definition"></a></dt>
+<dd><p>set_error_context installs a bundle get_error_context returns.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestAmbientAccessors.test_set_pipeline_run_keeps_rest">
+<span class="sig-name descname"><span class="pre">test_set_pipeline_run_keeps_rest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestAmbientAccessors.test_set_pipeline_run_keeps_rest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestAmbientAccessors.test_set_pipeline_run_keeps_rest" title="Link to this definition"></a></dt>
+<dd><p>set_pipeline_run swaps only the run, preserving other fields.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestCaptureErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-97c849d7f0ddbd89c8c4c6848ba130de15c039ba.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestCaptureErrors" usemap="#inheritance54faabaf6d" class="inheritance graphviz" /></div>
+<map id="inheritance54faabaf6d" name="inheritance54faabaf6d">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestCaptureErrors" target="_top" title="The capture_errors decorator stamps + optionally wraps." alt="" coords="5,5,331,32"/>
+</map><p>The capture_errors decorator stamps + optionally wraps.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_bare_value_error_wrapped_to_step_subclass">
+<span class="sig-name descname"><span class="pre">test_bare_value_error_wrapped_to_step_subclass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_bare_value_error_wrapped_to_step_subclass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_bare_value_error_wrapped_to_step_subclass" title="Link to this definition"></a></dt>
+<dd><p>A bare ValueError becomes the ambient step’s StepError type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_existing_autowisp_error_passes_through_stamped">
+<span class="sig-name descname"><span class="pre">test_existing_autowisp_error_passes_through_stamped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_existing_autowisp_error_passes_through_stamped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_existing_autowisp_error_passes_through_stamped" title="Link to this definition"></a></dt>
+<dd><p>An AutoWISPError keeps its type and gets stamped from context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_no_run_leaves_pipeline_run_none">
+<span class="sig-name descname"><span class="pre">test_no_run_leaves_pipeline_run_none</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_no_run_leaves_pipeline_run_none"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_no_run_leaves_pipeline_run_none" title="Link to this definition"></a></dt>
+<dd><p>With no run in context, pipeline_run/crashed stay unset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_pipeline_and_bui_wrapping">
+<span class="sig-name descname"><span class="pre">test_pipeline_and_bui_wrapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_pipeline_and_bui_wrapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_pipeline_and_bui_wrapping" title="Link to this definition"></a></dt>
+<dd><p>Component selects the wrapper class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_preset_step_name_not_overwritten">
+<span class="sig-name descname"><span class="pre">test_preset_step_name_not_overwritten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_preset_step_name_not_overwritten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_preset_step_name_not_overwritten" title="Link to this definition"></a></dt>
+<dd><p>A step name set at the raise site survives stamping.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_success_returns_value">
+<span class="sig-name descname"><span class="pre">test_success_returns_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_success_returns_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_success_returns_value" title="Link to this definition"></a></dt>
+<dd><p>The happy path returns the wrapped callable’s result.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_unknown_step_falls_back_to_base_steperror">
+<span class="sig-name descname"><span class="pre">test_unknown_step_falls_back_to_base_steperror</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_unknown_step_falls_back_to_base_steperror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_unknown_step_falls_back_to_base_steperror" title="Link to this definition"></a></dt>
+<dd><p>An unmapped step name yields a plain StepError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestCaptureErrors.test_wrap_unknown_false_passes_through">
+<span class="sig-name descname"><span class="pre">test_wrap_unknown_false_passes_through</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestCaptureErrors.test_wrap_unknown_false_passes_through"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestCaptureErrors.test_wrap_unknown_false_passes_through" title="Link to this definition"></a></dt>
+<dd><p>With wrap_unknown=False the original exception is untouched.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestErrorContextDataclass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestErrorContextDataclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestErrorContextDataclass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestErrorContextDataclass" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-db9aa28e8aefcd2220de4d07e27f3662600259e7.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestErrorContextDataclass" usemap="#inheritancefcc70a19c4" class="inheritance graphviz" /></div>
+<map id="inheritancefcc70a19c4" name="inheritancefcc70a19c4">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestErrorContextDataclass" target="_top" title="The ErrorContext bundle itself." alt="" coords="5,5,383,32"/>
+</map><p>The ErrorContext bundle itself.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestErrorContextDataclass.test_defaults">
+<span class="sig-name descname"><span class="pre">test_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestErrorContextDataclass.test_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestErrorContextDataclass.test_defaults" title="Link to this definition"></a></dt>
+<dd><p>A bare ErrorContext has empty/None fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestErrorContextDataclass.test_frozen">
+<span class="sig-name descname"><span class="pre">test_frozen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestErrorContextDataclass.test_frozen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestErrorContextDataclass.test_frozen" title="Link to this definition"></a></dt>
+<dd><p>ErrorContext is immutable.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestErrorContextManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestErrorContextManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestErrorContextManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestErrorContextManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-c0237c993f726a3249ff82de70e1059884a68be9.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestErrorContextManager" usemap="#inheritance68d873fbf6" class="inheritance graphviz" /></div>
+<map id="inheritance68d873fbf6" name="inheritance68d873fbf6">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestErrorContextManager" target="_top" title="The error_context() scoping context manager." alt="" coords="5,5,374,32"/>
+</map><p>The error_context() scoping context manager.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestErrorContextManager.test_keeps_pipeline_run_and_worker_flag">
+<span class="sig-name descname"><span class="pre">test_keeps_pipeline_run_and_worker_flag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestErrorContextManager.test_keeps_pipeline_run_and_worker_flag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestErrorContextManager.test_keeps_pipeline_run_and_worker_flag" title="Link to this definition"></a></dt>
+<dd><p>The block inherits run + in_worker from the current context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestErrorContextManager.test_nesting_innermost_step_wins_and_files_accumulate">
+<span class="sig-name descname"><span class="pre">test_nesting_innermost_step_wins_and_files_accumulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestErrorContextManager.test_nesting_innermost_step_wins_and_files_accumulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestErrorContextManager.test_nesting_innermost_step_wins_and_files_accumulate" title="Link to this definition"></a></dt>
+<dd><p>Inner step overrides; related files from both levels stack.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestErrorContextManager.test_scopes_and_restores">
+<span class="sig-name descname"><span class="pre">test_scopes_and_restores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestErrorContextManager.test_scopes_and_restores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestErrorContextManager.test_scopes_and_restores" title="Link to this definition"></a></dt>
+<dd><p>Step + files apply inside the block and are removed after.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestExitSignalDecode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestExitSignalDecode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestExitSignalDecode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestExitSignalDecode" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-a13546c2f25e0568ca00d4d1d888c9e57c9c0133.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestExitSignalDecode" usemap="#inheritance1798c7448a" class="inheritance graphviz" /></div>
+<map id="inheritance1798c7448a" name="inheritance1798c7448a">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestExitSignalDecode" target="_top" title="decode_exit_signals is portable and drops clean/running exits." alt="" coords="5,80,354,107"/>
+</map><p>decode_exit_signals is portable and drops clean/running exits.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestExitSignalDecode.test_drops_running_and_clean">
+<span class="sig-name descname"><span class="pre">test_drops_running_and_clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestExitSignalDecode.test_drops_running_and_clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestExitSignalDecode.test_drops_running_and_clean" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">None</span></code> (running) and <code class="docutils literal notranslate"><span class="pre">0</span></code> (clean) contribute nothing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestExitSignalDecode.test_posix_signals_and_plain_codes">
+<span class="sig-name descname"><span class="pre">test_posix_signals_and_plain_codes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestExitSignalDecode.test_posix_signals_and_plain_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestExitSignalDecode.test_posix_signals_and_plain_codes" title="Link to this definition"></a></dt>
+<dd><p>POSIX: negative codes decode to their signal; positive don’t.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestExitSignalDecode.test_windows_status_not_signal">
+<span class="sig-name descname"><span class="pre">test_windows_status_not_signal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestExitSignalDecode.test_windows_status_not_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestExitSignalDecode.test_windows_status_not_signal" title="Link to this definition"></a></dt>
+<dd><p>Windows: an abnormal code is an NTSTATUS, never a POSIX signal.</p>
+<p>Both the unsigned and signed spellings of an access violation map
+to the conventional hex status; a plain small code stays bare.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestFromConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestFromConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestFromConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestFromConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-839e0c95dc19106b6b5e1f4375cc6e10b8d9fbea.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestFromConfig" usemap="#inheritance10abe4a9db" class="inheritance graphviz" /></div>
+<map id="inheritance10abe4a9db" name="inheritance10abe4a9db">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestFromConfig" target="_top" title="ErrorContext.from_config rebuilds context from a config dict." alt="" coords="5,5,318,32"/>
+</map><p>ErrorContext.from_config rebuilds context from a config dict.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestFromConfig.test_code_version_fallback">
+<span class="sig-name descname"><span class="pre">test_code_version_fallback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestFromConfig.test_code_version_fallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestFromConfig.test_code_version_fallback" title="Link to this definition"></a></dt>
+<dd><p>A missing code_version falls back to get_code_version_str().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestFromConfig.test_empty_config">
+<span class="sig-name descname"><span class="pre">test_empty_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestFromConfig.test_empty_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestFromConfig.test_empty_config" title="Link to this definition"></a></dt>
+<dd><p>No run keys -&gt; no snapshot, no step, main process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestFromConfig.test_full_config">
+<span class="sig-name descname"><span class="pre">test_full_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestFromConfig.test_full_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestFromConfig.test_full_config" title="Link to this definition"></a></dt>
+<dd><p>Run keys produce a populated pipeline-run snapshot.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestFromConfig.test_in_worker_from_parent_pid">
+<span class="sig-name descname"><span class="pre">test_in_worker_from_parent_pid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestFromConfig.test_in_worker_from_parent_pid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestFromConfig.test_in_worker_from_parent_pid" title="Link to this definition"></a></dt>
+<dd><p>in_worker is True iff a truthy parent_pid is present.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestFromConfig.test_sentinel_step_names_become_none">
+<span class="sig-name descname"><span class="pre">test_sentinel_step_names_become_none</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestFromConfig.test_sentinel_step_names_become_none"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestFromConfig.test_sentinel_step_names_become_none" title="Link to this definition"></a></dt>
+<dd><p>Bootstrap sentinels are not treated as real step names.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestNestingGuard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestNestingGuard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestNestingGuard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestNestingGuard" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-8cf328a8d046bcd7dcb479537585b3deaece6a07.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestNestingGuard" usemap="#inheritance5fe4c37620" class="inheritance graphviz" /></div>
+<map id="inheritance5fe4c37620" name="inheritance5fe4c37620">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestNestingGuard" target="_top" title="A worker may not launch nested workers (resource control)." alt="" coords="5,5,330,32"/>
+</map><p>A worker may not launch nested workers (resource control).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestNestingGuard.test_forbid_nested_workers_only_inside_worker">
+<span class="sig-name descname"><span class="pre">test_forbid_nested_workers_only_inside_worker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestNestingGuard.test_forbid_nested_workers_only_inside_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestNestingGuard.test_forbid_nested_workers_only_inside_worker" title="Link to this definition"></a></dt>
+<dd><p>The guard is a no-op in the main process, raises in a worker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestNestingGuard.test_nested_run_pool_blocked_end_to_end">
+<span class="sig-name descname"><span class="pre">test_nested_run_pool_blocked_end_to_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestNestingGuard.test_nested_run_pool_blocked_end_to_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestNestingGuard.test_nested_run_pool_blocked_end_to_end" title="Link to this definition"></a></dt>
+<dd><p>A real worker that calls run_pool is refused, not allowed to nest.</p>
+<p>Goes through the full chain: the outer <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> spawns a real
+worker via <code class="docutils literal notranslate"><span class="pre">setup_process_map</span></code> (which sets <code class="docutils literal notranslate"><span class="pre">in_worker</span></code>), the
+worker calls <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> again, and the inner guard raises a
+<code class="docutils literal notranslate"><span class="pre">PipelineError</span></code> that propagates back stamped with the worker PID
+– so an accidental N^2 launch fails loudly instead of spawning.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestPoolPropagation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-e951a96e6c9e0c2499bee2b2769fbedfe426293b.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestPoolPropagation" usemap="#inheritance4615eff784" class="inheritance graphviz" /></div>
+<map id="inheritance4615eff784" name="inheritance4615eff784">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestPoolPropagation" target="_top" title="Errors raised in real Pool workers cross back stamped." alt="" coords="5,5,345,32"/>
+</map><p>Errors raised in real Pool workers cross back stamped.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_bare_exception_wrapped_to_mapped_step_error">
+<span class="sig-name descname"><span class="pre">test_bare_exception_wrapped_to_mapped_step_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_bare_exception_wrapped_to_mapped_step_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_bare_exception_wrapped_to_mapped_step_error" title="Link to this definition"></a></dt>
+<dd><p>A worker’s bare exception returns as the step’s StepError subclass.</p>
+<p>The worker raises a plain <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>; <code class="docutils literal notranslate"><span class="pre">_wrap</span></code> maps the
+ambient step name to its concrete subclass, so the parent receives
+a <code class="docutils literal notranslate"><span class="pre">MeasurePhotometryError</span></code>. The original is not kept as a live
+<code class="docutils literal notranslate"><span class="pre">__cause__</span></code> across the Pool (our pickling carries only the
+fields, and multiprocessing replaces <code class="docutils literal notranslate"><span class="pre">__cause__</span></code> with its
+<code class="docutils literal notranslate"><span class="pre">RemoteTraceback</span></code>); the durable record is the formatted traceback
+in <code class="docutils literal notranslate"><span class="pre">details</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_faulthandler_dumps_native_traceback">
+<span class="sig-name descname"><span class="pre">test_faulthandler_dumps_native_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_faulthandler_dumps_native_traceback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_faulthandler_dumps_native_traceback" title="Link to this definition"></a></dt>
+<dd><p>A segfaulting worker leaves a native dump in its own log.</p>
+<p>Proves the <code class="docutils literal notranslate"><span class="pre">faulthandler</span></code> armed in <code class="docutils literal notranslate"><span class="pre">setup_process_map</span></code> turns an
+otherwise-silent SIGSEGV into a collectable C-level traceback –
+which is what distinguishes the faulted worker from the innocents
+the executor merely terminates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_step_error_propagates_with_context">
+<span class="sig-name descname"><span class="pre">test_step_error_propagates_with_context</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_step_error_propagates_with_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_step_error_propagates_with_context" title="Link to this definition"></a></dt>
+<dd><p>A worker StepError returns same-typed, stamped, with traceback.</p>
+<p>Exercises the full <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> round trip: the worker bootstraps
+its context from <code class="docutils literal notranslate"><span class="pre">config</span></code> (via the real <code class="docutils literal notranslate"><span class="pre">setup_process_map</span></code>),
+raises a <code class="docutils literal notranslate"><span class="pre">FindStarsError</span></code>, and the parent receives the <em>same</em>
+type carrying the worker’s <code class="docutils literal notranslate"><span class="pre">subprocess_id</span></code> (a different PID), the
+step name and pipeline-run snapshot rebuilt in the worker, and the
+worker traceback both in <code class="docutils literal notranslate"><span class="pre">details</span></code> and as the Pool’s
+<code class="docutils literal notranslate"><span class="pre">RemoteTraceback</span></code> cause.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_carries_scoped_config">
+<span class="sig-name descname"><span class="pre">test_worker_crashed_carries_scoped_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_crashed_carries_scoped_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_carries_scoped_config" title="Link to this definition"></a></dt>
+<dd><p>A crash carries the <em>failing step’s</em> config, scoped by the manager.</p>
+<p>The parent’s own context holds the base <code class="docutils literal notranslate"><span class="pre">add_images_to_db</span></code> config,
+so the failing step’s config must come from the
+<code class="docutils literal notranslate"><span class="pre">error_context(config=...)</span></code> the manager scopes at dispatch (here
+simulated around <code class="docutils literal notranslate"><span class="pre">run_pool</span></code>) – not from the parent context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_carries_step_name">
+<span class="sig-name descname"><span class="pre">test_worker_crashed_carries_step_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_crashed_carries_step_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_carries_step_name" title="Link to this definition"></a></dt>
+<dd><p>The synthesised WorkerCrashedError records the ambient step.</p>
+<p>Regression for the “no matching logs found” crash-report gap: the
+step name must reach the queryable <code class="docutils literal notranslate"><span class="pre">step_name</span></code> attribute (which
+the persistence layer writes to <code class="docutils literal notranslate"><span class="pre">error.step_name</span></code> and
+crash-report log-collection resolves the run/step logs from), not
+only the free-text message. The parent stamps it from its ambient
+context – in the pipeline it is inside
+<code class="docutils literal notranslate"><span class="pre">error_context(step_name=...)</span></code> when it launches the pool.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_dedups_shared_related_file">
+<span class="sig-name descname"><span class="pre">test_worker_crashed_dedups_shared_related_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_crashed_dedups_shared_related_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_dedups_shared_related_file" title="Link to this definition"></a></dt>
+<dd><p>A batch-constant file appears once across many in-flight items.</p>
+<p>Two workers in flight against the same reference -&gt; the reference
+is promoted once, not once per crashed input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_names_inflight_input">
+<span class="sig-name descname"><span class="pre">test_worker_crashed_names_inflight_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_crashed_names_inflight_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_names_inflight_input" title="Link to this definition"></a></dt>
+<dd><p>A silent death records the in-flight item(s), not a head sample.</p>
+<p>The wrapped worker writes its item into the shared in-flight map
+before running; a hard <code class="docutils literal notranslate"><span class="pre">os._exit</span></code> leaves it there, so
+<code class="docutils literal notranslate"><span class="pre">_worker_crashed</span></code> can name the culprit in
+<code class="docutils literal notranslate"><span class="pre">details[&quot;crashed_inputs&quot;]</span></code> (bounded by the worker count).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_promotes_related_files">
+<span class="sig-name descname"><span class="pre">test_worker_crashed_promotes_related_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_crashed_promotes_related_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_promotes_related_files" title="Link to this definition"></a></dt>
+<dd><p>A silent death promotes the in-flight item to a related file.</p>
+<p>So a <code class="docutils literal notranslate"><span class="pre">WorkerCrashedError</span></code> links straight to the offending file
+(rendered / FK-resolved), not only a <code class="docutils literal notranslate"><span class="pre">details</span></code> string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_records_exit_signal">
+<span class="sig-name descname"><span class="pre">test_worker_crashed_records_exit_signal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_crashed_records_exit_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_records_exit_signal" title="Link to this definition"></a></dt>
+<dd><p>A native crash records the decoded killing signal.</p>
+<p>The tell for OOM/jetsam (<code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code>) vs. a native crash
+(<code class="docutils literal notranslate"><span class="pre">SIGSEGV</span></code>); here a segfault is expected to surface as
+<code class="docutils literal notranslate"><span class="pre">SIGSEGV</span></code>. (On Windows the code is an NTSTATUS, not a signal –
+that path is covered by <code class="docutils literal notranslate"><span class="pre">TestExitSignalDecode</span></code>.)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_records_resources">
+<span class="sig-name descname"><span class="pre">test_worker_crashed_records_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_crashed_records_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_records_resources" title="Link to this definition"></a></dt>
+<dd><p>A crash records a memory snapshot + the worker count.</p>
+<p><code class="docutils literal notranslate"><span class="pre">N</span></code> workers vs. total RAM is what makes an OOM/jetsam death easy
+to judge (paired with a SIGKILL and no native dump from items 4-5).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_config">
+<span class="sig-name descname"><span class="pre">test_worker_error_carries_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_error_carries_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_config" title="Link to this definition"></a></dt>
+<dd><p>A worker error carries its process config (via from_config).</p>
+<p>The resolved config lives only at runtime, so recording it is the
+only way a report shows the settings the step actually ran with.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_reference_files">
+<span class="sig-name descname"><span class="pre">test_worker_error_carries_reference_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_error_carries_reference_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_reference_files" title="Link to this definition"></a></dt>
+<dd><p>A multi-file classifier attaches item <em>and</em> batch constants.</p>
+<p>Mirrors the detrending call site: the classifier returns the light
+curve plus the single photometric reference, so an error carries
+both.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_related_file">
+<span class="sig-name descname"><span class="pre">test_worker_error_carries_related_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_error_carries_related_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_related_file" title="Link to this definition"></a></dt>
+<dd><p>A worker error carries the item it was processing as a file.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">related_files</span></code> classifier scopes the item as the ambient
+related file inside the worker, so an error raised for it (here a
+<code class="docutils literal notranslate"><span class="pre">FindStarsError</span></code>) crosses back carrying that file – the datum a
+config-vs-file-content failure most needs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestPoolPropagation.test_worker_hard_exit_raises_worker_crashed">
+<span class="sig-name descname"><span class="pre">test_worker_hard_exit_raises_worker_crashed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestPoolPropagation.test_worker_hard_exit_raises_worker_crashed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_hard_exit_raises_worker_crashed" title="Link to this definition"></a></dt>
+<dd><p>A worker that hard-exits surfaces as WorkerCrashedError, no hang.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code> reports the death as <code class="docutils literal notranslate"><span class="pre">BrokenProcessPool</span></code>
+(a bare <code class="docutils literal notranslate"><span class="pre">multiprocessing.Pool</span></code> would hang here), which
+<code class="docutils literal notranslate"><span class="pre">run_pool</span></code> converts into a <code class="docutils literal notranslate"><span class="pre">WorkerCrashedError</span></code> describing the
+in-flight inputs instead of blocking the pipeline forever.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestProcessQueuePropagation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestProcessQueuePropagation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestProcessQueuePropagation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestProcessQueuePropagation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-4c5f680326277f6e524e5b1e18a0ee29b8584f16.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestProcessQueuePropagation" usemap="#inheritancead8386db9d" class="inheritance graphviz" /></div>
+<map id="inheritancead8386db9d" name="inheritancead8386db9d">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestProcessQueuePropagation" target="_top" title="Process + Queue workers return stamped errors over a queue." alt="" coords="5,5,405,32"/>
+</map><p>Process + Queue workers return stamped errors over a queue.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestProcessQueuePropagation.test_all_workers_dead_raises_worker_crashed">
+<span class="sig-name descname"><span class="pre">test_all_workers_dead_raises_worker_crashed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestProcessQueuePropagation.test_all_workers_dead_raises_worker_crashed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestProcessQueuePropagation.test_all_workers_dead_raises_worker_crashed" title="Link to this definition"></a></dt>
+<dd><p>A worker that hard-exits is detected by the parent, not a hang.</p>
+<p><code class="docutils literal notranslate"><span class="pre">manage_astrometry</span></code> polls <code class="docutils literal notranslate"><span class="pre">is_alive()</span></code> while waiting on the
+result queue; when every worker has died without queuing a result
+it raises a <code class="docutils literal notranslate"><span class="pre">WorkerCrashedError</span></code> recording the OS exit codes
+(normalised to the same <code class="docutils literal notranslate"><span class="pre">exit_signal</span></code> shape as Scheme A), instead
+of blocking forever.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestProcessQueuePropagation.test_queue_worker_error_round_trips">
+<span class="sig-name descname"><span class="pre">test_queue_worker_error_round_trips</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestProcessQueuePropagation.test_queue_worker_error_round_trips"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestProcessQueuePropagation.test_queue_worker_error_round_trips" title="Link to this definition"></a></dt>
+<dd><p>A failed queue worker yields a stamped error the parent re-raises.</p>
+<p>Mirrors <code class="docutils literal notranslate"><span class="pre">solve_astrometry</span></code>: a <code class="docutils literal notranslate"><span class="pre">Process</span></code> worker bootstraps its
+context, fails with a bare <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, and puts
+<code class="docutils literal notranslate"><span class="pre">capture_for_queue(...)</span></code> on the queue. The object pulled off is
+the step’s mapped <code class="docutils literal notranslate"><span class="pre">AutoWISPError</span></code> (here <code class="docutils literal notranslate"><span class="pre">SolveAstrometryError</span></code>)
+carrying the worker <code class="docutils literal notranslate"><span class="pre">subprocess_id</span></code>, the run snapshot, and the
+traceback in <code class="docutils literal notranslate"><span class="pre">details</span></code>; <code class="docutils literal notranslate"><span class="pre">reraise_from_worker</span></code> then raises it.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestResourceSnapshot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestResourceSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestResourceSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestResourceSnapshot" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-05f5ec4c73d3b350856e132b0759ebd16b3dbae3.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestResourceSnapshot" usemap="#inheritance4f6c17700a" class="inheritance graphviz" /></div>
+<map id="inheritance4f6c17700a" name="inheritance4f6c17700a">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestResourceSnapshot" target="_top" title="collect_resource_snapshot is best&#45;effort and never raises." alt="" coords="5,80,361,107"/>
+</map><p>collect_resource_snapshot is best-effort and never raises.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestResourceSnapshot.test_empty_when_psutil_unavailable">
+<span class="sig-name descname"><span class="pre">test_empty_when_psutil_unavailable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestResourceSnapshot.test_empty_when_psutil_unavailable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestResourceSnapshot.test_empty_when_psutil_unavailable" title="Link to this definition"></a></dt>
+<dd><p>A missing psutil degrades to an empty dict, never a raise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestResourceSnapshot.test_memory_fields_present_and_sane">
+<span class="sig-name descname"><span class="pre">test_memory_fields_present_and_sane</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestResourceSnapshot.test_memory_fields_present_and_sane"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestResourceSnapshot.test_memory_fields_present_and_sane" title="Link to this definition"></a></dt>
+<dd><p>psutil is a hard dependency, so the memory fields are present.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">TestWorkerEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_context._ContextTestCase" title="autowisp.tests.test_error_context._ContextTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_ContextTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-c93c0752d3cccaf56aeb118a91646a4906745ca1.png" alt="Inheritance diagram of autowisp.tests.test_error_context.TestWorkerEntry" usemap="#inheritance3936e9918f" class="inheritance graphviz" /></div>
+<map id="inheritance3936e9918f" name="inheritance3936e9918f">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_context.TestWorkerEntry" target="_top" title="worker_entry stamps subprocess_id and stays picklable." alt="" coords="5,5,322,32"/>
+</map><p>worker_entry stamps subprocess_id and stays picklable.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_autowisp_error_passes_through_stamped">
+<span class="sig-name descname"><span class="pre">test_autowisp_error_passes_through_stamped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_autowisp_error_passes_through_stamped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_autowisp_error_passes_through_stamped" title="Link to this definition"></a></dt>
+<dd><p>An AutoWISPError keeps its type and gains subprocess_id.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_bare_exception_wrapped_to_step_subclass">
+<span class="sig-name descname"><span class="pre">test_bare_exception_wrapped_to_step_subclass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_bare_exception_wrapped_to_step_subclass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_bare_exception_wrapped_to_step_subclass" title="Link to this definition"></a></dt>
+<dd><p>A bare worker exception becomes the mapped, picklable StepError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_inflight_map_cleared_on_error">
+<span class="sig-name descname"><span class="pre">test_inflight_map_cleared_on_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_inflight_map_cleared_on_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_inflight_map_cleared_on_error" title="Link to this definition"></a></dt>
+<dd><p>A failing task still clears its in-flight entry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_inflight_map_tracks_then_clears_item">
+<span class="sig-name descname"><span class="pre">test_inflight_map_tracks_then_clears_item</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_inflight_map_tracks_then_clears_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_inflight_map_tracks_then_clears_item" title="Link to this definition"></a></dt>
+<dd><p>The item is in the in-flight map while running, gone after.</p>
+<p>(A plain dict stands in for the <code class="docutils literal notranslate"><span class="pre">Manager().dict()</span></code> proxy; the
+write/clear logic is the same.)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_callable_returning_many">
+<span class="sig-name descname"><span class="pre">test_resolve_related_files_callable_returning_many</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_resolve_related_files_callable_returning_many"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_callable_returning_many" title="Link to this definition"></a></dt>
+<dd><p>A classifier may return several files (item + batch constants).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_from_kind_and_callable">
+<span class="sig-name descname"><span class="pre">test_resolve_related_files_from_kind_and_callable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_resolve_related_files_from_kind_and_callable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_from_kind_and_callable" title="Link to this definition"></a></dt>
+<dd><p>A FileKind wraps a path item; a callable is used as given.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_is_total">
+<span class="sig-name descname"><span class="pre">test_resolve_related_files_is_total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_resolve_related_files_is_total"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_is_total" title="Link to this definition"></a></dt>
+<dd><p>No classifier, no item, or a bad classifier -&gt; empty, no raise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_subprocess_id_not_overwritten_by_later_stamp">
+<span class="sig-name descname"><span class="pre">test_subprocess_id_not_overwritten_by_later_stamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_subprocess_id_not_overwritten_by_later_stamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_subprocess_id_not_overwritten_by_later_stamp" title="Link to this definition"></a></dt>
+<dd><p>An already-stamped subprocess_id survives a second boundary.</p>
+<p>Models an exception stamped by one <code class="docutils literal notranslate"><span class="pre">except</span></code> that then passes
+through another on its way out of the <em>same</em> worker: the second
+stamp is a no-op (<code class="docutils literal notranslate"><span class="pre">stamp_subprocess</span></code> is idempotent), so the first
+PID wins rather than being overwritten.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context.TestWorkerEntry.test_success_returns_value">
+<span class="sig-name descname"><span class="pre">test_success_returns_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#TestWorkerEntry.test_success_returns_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context.TestWorkerEntry.test_success_returns_value" title="Link to this definition"></a></dt>
+<dd><p>worker_entry is transparent on the happy path.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._ContextTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_ContextTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_ContextTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._ContextTestCase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Base resetting the ambient context to empty before each test.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._ContextTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_ContextTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._ContextTestCase.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._dr_file">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_dr_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/x.h5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'input'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_dr_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._dr_file" title="Link to this definition"></a></dt>
+<dd><p>A small RelatedFile for related-files assertions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._hard_exit_worker">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_hard_exit_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_hard_exit_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._hard_exit_worker" title="Link to this definition"></a></dt>
+<dd><p>Module-level Pool worker that hard-exits without an exception.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._instant_exit">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_instant_exit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_instant_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._instant_exit" title="Link to this definition"></a></dt>
+<dd><p>Module-level Process target that hard-exits without an exception.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._lc_with_reference">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_lc_with_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_lc_with_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._lc_with_reference" title="Link to this definition"></a></dt>
+<dd><p>A <code class="docutils literal notranslate"><span class="pre">related_files</span></code> classifier: the item plus a batch-constant ref.</p>
+<p>Module-level (so it is picklable to workers) and returns <em>multiple</em>
+files – the per-item lightcurve and the single photometric reference
+the whole batch shares – exactly the shape the detrending call site
+builds via <code class="docutils literal notranslate"><span class="pre">functools.partial</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._nested_run_pool_worker">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_nested_run_pool_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_nested_run_pool_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._nested_run_pool_worker" title="Link to this definition"></a></dt>
+<dd><p>Worker that (illegally) tries to launch its own pool.</p>
+<p>Used to prove the no-nested-workers guard end-to-end: this runs inside
+a real worker (so <code class="docutils literal notranslate"><span class="pre">setup_process_map</span></code> has set <code class="docutils literal notranslate"><span class="pre">in_worker</span></code>), and the
+inner <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> must refuse before spawning anything.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._noop">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_noop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_noop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._noop" title="Link to this definition"></a></dt>
+<dd><p>Do-nothing stand-in for the per-image mark_start / mark_end hooks.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._pool_config">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_pool_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_home</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'find_stars'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_pool_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._pool_config" title="Link to this definition"></a></dt>
+<dd><p>Minimal per-process config for <code class="docutils literal notranslate"><span class="pre">run_pool</span></code>’s bootstrap.</p>
+<p><code class="docutils literal notranslate"><span class="pre">setup_process_map</span></code> runs in each worker; pointing it at a temporary
+<code class="docutils literal notranslate"><span class="pre">project_home</span></code> keeps its side effects (a throwaway SQLite DB and the
+per-worker log / stdout-stderr files) inside the temp dir.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._process_queue_worker">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_process_queue_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_process_queue_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._process_queue_worker" title="Link to this definition"></a></dt>
+<dd><p>Process worker that bootstraps, fails, and queues the stamped error.</p>
+<p>Mirrors <code class="docutils literal notranslate"><span class="pre">solve_astrometry.astrometry_process</span></code>: bootstrap the ambient
+context from <code class="docutils literal notranslate"><span class="pre">config</span></code>, catch the failure, and put the result of
+<code class="docutils literal notranslate"><span class="pre">capture_for_queue</span></code> (a stamped, picklable error) on the queue rather
+than raising out of the process.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._raise_find_stars_error">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_raise_find_stars_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_raise_find_stars_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._raise_find_stars_error" title="Link to this definition"></a></dt>
+<dd><p>Module-level Pool worker that raises a StepError.</p>
+<p>Must be top-level (not a closure/lambda) so <code class="docutils literal notranslate"><span class="pre">Pool.map</span></code> can pickle
+it to the worker.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._raise_value_error">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_raise_value_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_raise_value_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._raise_value_error" title="Link to this definition"></a></dt>
+<dd><p>Module-level Pool worker that raises a bare (non-AutoWISP) error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_context._segfault_worker">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_context.</span></span><span class="sig-name descname"><span class="pre">_segfault_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_context.html#_segfault_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_context._segfault_worker" title="Link to this definition"></a></dt>
+<dd><p>Module-level Pool worker that crashes with a real SIGSEGV.</p>
+<p>Used to prove <code class="docutils literal notranslate"><span class="pre">faulthandler</span></code> (armed in <code class="docutils literal notranslate"><span class="pre">setup_process_map</span></code>) dumps a
+native traceback into the worker’s own redirected log before it dies.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.tests.test_error_cli.html" class="btn btn-neutral float-left" title="autowisp.tests.test_error_cli module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_error_persistence.html" class="btn btn-neutral float-right" title="autowisp.tests.test_error_persistence module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

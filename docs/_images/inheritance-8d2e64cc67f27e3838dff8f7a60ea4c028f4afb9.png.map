@@ -1,0 +1,12 @@
+<map id="inheritancecc9baa953e" name="inheritancecc9baa953e">
+<area shape="rect" id="node1" title="High&#45;level object providing a flexible interface for celestial coordinate" alt="" coords="36,229,324,256"/>
+<area shape="rect" id="node2" title="Like ShapedLikeNDArray, but for classes that can work with masked data." alt="" coords="5,155,355,181"/>
+<area shape="rect" id="node3" title="Mixin class to provide shape&#45;changing methods." alt="" coords="50,80,310,107"/>
+<area shape="rect" id="node4" title="Mixin class to provide shape&#45;changing methods." alt="" coords="40,5,320,32"/>
+<area shape="rect" id="node5" title="Base class for the interval classes, which, when called with an" alt="" coords="385,80,647,107"/>
+<area shape="rect" id="node7" title="Interval based on IRAF&#39;s zscale." alt="" coords="379,155,653,181"/>
+<area shape="rect" id="node6" title="A transformation object." alt="" coords="370,5,662,32"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="686,5,920,32"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="703,80,902,107"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.BadImageError" target="_top" title="An image does not look like it is expected to." alt="" coords="687,155,918,181"/>
+</map>

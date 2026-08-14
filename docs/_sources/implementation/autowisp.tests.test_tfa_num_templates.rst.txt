@@ -1,0 +1,7 @@
+autowisp.tests.test\_tfa\_num\_templates module
+===============================================
+
+.. automodule:: autowisp.tests.test_tfa_num_templates
+   :members:
+   :undoc-members:
+   :show-inheritance:

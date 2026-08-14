@@ -1,0 +1,7 @@
+autowisp.browser\_interface.results.urls module
+===============================================
+
+.. automodule:: autowisp.browser_interface.results.urls
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,720 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.update_hdf5_contents &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.update_hdf5_contents</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.update_hdf5_contents</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Bring HDF5 files in one directory closer to matching files in another.</span>
+
+<span class="sd">Usage:</span>
+<span class="sd">    python update_hdf5_contents.py source_dir dest_dir spec_file [options]</span>
+
+<span class="sd">The spec file lists items to apply, one per line. Each line starts with ``+``</span>
+<span class="sd">to copy from source to destination or ``-`` to delete from destination:</span>
+
+<span class="sd">    # comments and blank lines are ignored</span>
+<span class="sd">    + dataset /Group/Subgroup/DatasetName</span>
+<span class="sd">    - dataset /Group/StaleDataset</span>
+<span class="sd">    + attribute /Group/Subgroup AttributeName</span>
+<span class="sd">    - attribute /Group/Subgroup StaleAttribute</span>
+
+<span class="sd">The ``-`` form only touches the destination; ``source_dir`` is not consulted.</span>
+<span class="sd">Operations are applied in spec-file order, so a ``-`` followed by a ``+`` for</span>
+<span class="sd">the same path replaces it cleanly even with ``--on-conflict=error``.</span>
+
+<span class="sd">Path and attribute-name tokens are interpreted as Python ``re`` regular</span>
+<span class="sd">expressions, anchored end-to-end (i.e. matched with :func:`re.fullmatch`).</span>
+<span class="sd">For ``+`` operations the regexes are resolved against the source file; for</span>
+<span class="sd">``-`` operations they are resolved against the destination file. A line that</span>
+<span class="sd">matches zero items is treated like a missing source / destination (governed</span>
+<span class="sd">by ``--missing-source`` / ``--missing-dest``). Note that HDF5 paths starting</span>
+<span class="sd">with a literal ``.`` will be matched by the regex metacharacter ``.``; escape</span>
+<span class="sd">special characters with ``\\`` if a strict literal match is required.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Spec file parsing</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="UpdateSpec">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.UpdateSpec">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UpdateSpec</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parsed ordered list of HDF5 operations (copy and/or delete).&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UpdateSpec.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.UpdateSpec.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an empty spec with no operations.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Each entry is one of:</span>
+        <span class="c1">#   (&#39;+&#39;, &#39;dataset&#39;,   dataset_path)</span>
+        <span class="c1">#   (&#39;-&#39;, &#39;dataset&#39;,   dataset_path)</span>
+        <span class="c1">#   (&#39;+&#39;, &#39;attribute&#39;, obj_path, attr_name)</span>
+        <span class="c1">#   (&#39;-&#39;, &#39;attribute&#39;, obj_path, attr_name)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="UpdateSpec.from_file">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.UpdateSpec.from_file">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">spec_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse ``spec_path`` and return the populated :class:`UpdateSpec`.</span>
+
+<span class="sd">        Each non-blank, non-comment line must be either</span>
+<span class="sd">        ``&lt;action&gt; dataset &lt;hdf5_path&gt;`` or</span>
+<span class="sd">        ``&lt;action&gt; attribute &lt;hdf5_path&gt; &lt;attr_name&gt;``, where ``&lt;action&gt;`` is</span>
+<span class="sd">        ``+`` (copy from source) or ``-`` (delete from destination). Raises</span>
+<span class="sd">        :class:`ValueError` on malformed lines.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">spec_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">raw</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fobj</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: line must start with &#39;+&#39; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;(copy) or &#39;-&#39; (delete); got &#39;</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: expected &#39;&lt;+/-&gt; &lt;kind&gt; &lt;path&gt; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;[&lt;attr_name&gt;]&#39;&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">kind</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;dataset&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: &#39;dataset&#39; expects exactly &quot;</span>
+                            <span class="s2">&quot;one path&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: &#39;attribute&#39; expects &quot;</span>
+                            <span class="s2">&quot;object_path and attribute_name&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: unknown kind &#39;</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;expected &#39;dataset&#39; or &#39;attribute&#39;&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">spec</span></div>
+</div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Regex resolution against an HDF5 file</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="_all_dataset_paths">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._all_dataset_paths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_dataset_paths</span><span class="p">(</span><span class="n">h5_root</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return every dataset path in ``h5_root`` (absolute, ``/...``).&quot;&quot;&quot;</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_visit</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="n">h5_root</span><span class="o">.</span><span class="n">visititems</span><span class="p">(</span><span class="n">_visit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">paths</span></div>
+
+
+
+<div class="viewcode-block" id="_all_object_paths">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._all_object_paths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_object_paths</span><span class="p">(</span><span class="n">h5_root</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return every object path in ``h5_root`` (groups + datasets) and ``/``.&quot;&quot;&quot;</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;/&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_visit</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_obj</span><span class="p">):</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="n">h5_root</span><span class="o">.</span><span class="n">visititems</span><span class="p">(</span><span class="n">_visit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">paths</span></div>
+
+
+
+<div class="viewcode-block" id="_resolve_dataset_paths">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._resolve_dataset_paths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_dataset_paths</span><span class="p">(</span><span class="n">h5_root</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(dataset_path,)`` tuples in ``h5_root`` matching the regex.</span>
+
+<span class="sd">    Tuples (rather than bare strings) are returned so callers can unpack the</span>
+<span class="sd">    result uniformly with the ``(obj_path, attr_name)`` pairs returned by</span>
+<span class="sd">    :func:`_resolve_attribute_targets`. Matching uses :func:`re.fullmatch`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">compiled</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">p</span><span class="p">,)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_all_dataset_paths</span><span class="p">(</span><span class="n">h5_root</span><span class="p">)</span> <span class="k">if</span> <span class="n">compiled</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="_resolve_attribute_targets">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._resolve_attribute_targets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_attribute_targets</span><span class="p">(</span><span class="n">h5_root</span><span class="p">,</span> <span class="n">obj_pattern</span><span class="p">,</span> <span class="n">attr_pattern</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(obj_path, attr_name)`` pairs in ``h5_root`` matching regexes.</span>
+
+<span class="sd">    Both patterns are matched with :func:`re.fullmatch`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obj_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">obj_pattern</span><span class="p">)</span>
+    <span class="n">attr_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">attr_pattern</span><span class="p">)</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">obj_path</span> <span class="ow">in</span> <span class="n">_all_object_paths</span><span class="p">(</span><span class="n">h5_root</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj_re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">obj_path</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">h5_root</span><span class="p">[</span><span class="n">obj_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">attr_re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">attr_name</span><span class="p">):</span>
+                <span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">obj_path</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">targets</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Per-item copy / delete helpers</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="_copy_dataset">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._copy_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_copy_dataset</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
+    <span class="n">src</span><span class="p">,</span>
+    <span class="n">dst</span><span class="p">,</span>
+    <span class="n">dataset_path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">on_conflict</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">missing_source</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy a single dataset from ``src`` to ``dst``.</span>
+
+<span class="sd">    ``on_conflict`` (``&#39;skip&#39;``/``&#39;overwrite&#39;``/``&#39;error&#39;``) controls behavior</span>
+<span class="sd">    when ``dataset_path`` already exists in ``dst``; ``missing_source``</span>
+<span class="sd">    (``&#39;skip&#39;``/``&#39;error&#39;``) controls behavior when it is absent from ``src``.</span>
+<span class="sd">    If ``dry_run`` is true, log the intended action without modifying ``dst``.</span>
+<span class="sd">    Missing parent groups in the destination are created on demand.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;dataset &#39;</span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2">&#39; in &#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">dst</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">missing_source</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Source missing </span><span class="si">%s</span><span class="s2"> — skipping&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">on_conflict</span> <span class="o">==</span> <span class="s2">&quot;skip&quot;</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Already exists </span><span class="si">%s</span><span class="s2"> — skipping&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">on_conflict</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Destination already has </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># overwrite: remove first so copy() can create it fresh</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overwriting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">dst</span><span class="p">[</span><span class="n">dataset_path</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Copying </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="c1"># Ensure parent groups exist in destination</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">dataset_path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">src</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">dataset_path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_copy_attribute">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._copy_attribute">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_copy_attribute</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
+    <span class="n">src</span><span class="p">,</span>
+    <span class="n">dst</span><span class="p">,</span>
+    <span class="n">obj_path</span><span class="p">,</span>
+    <span class="n">attr_name</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">on_conflict</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">missing_source</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy an attribute ``attr_name`` on ``obj_path`` from ``src`` to ``dst``.</span>
+
+<span class="sd">    Semantics for ``on_conflict``, ``missing_source``, and ``dry_run`` match</span>
+<span class="sd">    :func:`_copy_dataset`. The destination object is created as a group if it</span>
+<span class="sd">    does not yet exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;attribute &#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39; on &#39;</span><span class="si">{</span><span class="n">obj_path</span><span class="si">}</span><span class="s2">&#39; in &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">dst</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">obj_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src</span> <span class="ow">or</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src</span><span class="p">[</span><span class="n">obj_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">missing_source</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Source missing </span><span class="si">%s</span><span class="s2"> — skipping&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">obj_path</span> <span class="ow">in</span> <span class="n">dst</span> <span class="ow">and</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">[</span><span class="n">obj_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">on_conflict</span> <span class="o">==</span> <span class="s2">&quot;skip&quot;</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Already exists </span><span class="si">%s</span><span class="s2"> — skipping&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">on_conflict</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Destination already has </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overwriting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Copying </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">obj_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="n">obj_path</span><span class="p">)</span>
+        <span class="n">dst</span><span class="p">[</span><span class="n">obj_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="n">obj_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_delete_dataset">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._delete_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_delete_dataset</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">missing_dest</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete ``dataset_path`` from ``dst``.</span>
+
+<span class="sd">    ``missing_dest`` (``&#39;skip&#39;``/``&#39;error&#39;``) controls behavior when the</span>
+<span class="sd">    dataset is absent. If ``dry_run`` is true, log the intended action without</span>
+<span class="sd">    modifying ``dst``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;dataset &#39;</span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2">&#39; in &#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">dst</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">missing_dest</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Destination missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Destination missing </span><span class="si">%s</span><span class="s2"> — nothing to delete&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Deleting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">dst</span><span class="p">[</span><span class="n">dataset_path</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_delete_attribute">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._delete_attribute">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_delete_attribute</span><span class="p">(</span>
+    <span class="n">dst</span><span class="p">,</span> <span class="n">obj_path</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">missing_dest</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete attribute ``attr_name`` on ``obj_path`` in ``dst``.</span>
+
+<span class="sd">    Semantics for ``missing_dest`` and ``dry_run`` match</span>
+<span class="sd">    :func:`_delete_dataset`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;attribute &#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39; on &#39;</span><span class="si">{</span><span class="n">obj_path</span><span class="si">}</span><span class="s2">&#39; in &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">dst</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">obj_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span> <span class="ow">or</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">[</span><span class="n">obj_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">missing_dest</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Destination missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Destination missing </span><span class="si">%s</span><span class="s2"> — nothing to delete&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Deleting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">dst</span><span class="p">[</span><span class="n">obj_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Main</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="parse_args">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.parse_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command-line arguments for the update tool.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;source_dir&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing the source HDF5 files. Only consulted for &quot;</span>
+        <span class="s2">&quot;&#39;+&#39; (copy) operations.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;dest_dir&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing the destination HDF5 files (must already &quot;</span>
+        <span class="s2">&quot;exist).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;spec_file&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Text file listing &#39;+&#39; (copy) and &#39;-&#39; (delete) operations.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--on-conflict&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Action when an item already exists in the destination file for &quot;</span>
+        <span class="s2">&quot;a &#39;+&#39; (copy) operation. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--missing-source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Action when an item is absent from the source file for a &#39;+&#39; &quot;</span>
+        <span class="s2">&quot;(copy) operation. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--missing-dest&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Action when an item to delete is absent from the destination &quot;</span>
+        <span class="s2">&quot;file for a &#39;-&#39; (delete) operation. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--pattern&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;*.h5&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Glob pattern for HDF5 filenames. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--dry-run&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print what would be copied without writing anything.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_report_empty_match">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._report_empty_match">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_report_empty_match</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">missing_policy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise or warn that a regex matched zero items, per ``missing_policy``.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">missing_policy</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No </span><span class="si">%s</span><span class="s2"> — skipping&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_apply_operations">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._apply_operations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_operations</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply every operation in ``spec`` to the (``src``, ``dst``) pair.</span>
+
+<span class="sd">    The path / attribute-name tokens in each op are treated as Python regular</span>
+<span class="sd">    expressions and resolved against ``src`` for ``+`` ops and ``dst`` for</span>
+<span class="sd">    ``-`` ops. If a regex matches zero items, ``--missing-source`` /</span>
+<span class="sd">    ``--missing-dest`` controls whether that is an error or a warning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
+        <span class="n">action</span><span class="p">,</span> <span class="n">kind</span> <span class="o">=</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">resolver</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_resolve_dataset_paths</span>
+            <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;dataset&quot;</span>
+            <span class="k">else</span> <span class="n">_resolve_attribute_targets</span>
+        <span class="p">)</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">resolver</span><span class="p">(</span><span class="n">src</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span> <span class="k">else</span> <span class="n">dst</span><span class="p">,</span> <span class="o">*</span><span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="n">_report_empty_match</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;source&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">action</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;+&#39;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;destination&#39;</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">s matching r&#39;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot; / r&#39;</span><span class="si">{</span><span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;attribute&quot;</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;in &quot;</span>
+                <span class="o">+</span> <span class="p">(</span>
+                    <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span>
+                    <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">dst</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">),</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">missing_source</span> <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span> <span class="k">else</span> <span class="n">args</span><span class="o">.</span><span class="n">missing_dest</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
+            <span class="n">copy</span> <span class="o">=</span> <span class="n">_copy_dataset</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;dataset&quot;</span> <span class="k">else</span> <span class="n">_copy_attribute</span>
+            <span class="k">for</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">copy</span><span class="p">(</span>
+                    <span class="n">src</span><span class="p">,</span>
+                    <span class="n">dst</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">tgt</span><span class="p">,</span>
+                    <span class="n">on_conflict</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">on_conflict</span><span class="p">,</span>
+                    <span class="n">missing_source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">missing_source</span><span class="p">,</span>
+                    <span class="n">dry_run</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># action == &quot;-&quot;</span>
+            <span class="n">delete</span> <span class="o">=</span> <span class="n">_delete_dataset</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;dataset&quot;</span> <span class="k">else</span> <span class="n">_delete_attribute</span>
+            <span class="k">for</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">delete</span><span class="p">(</span>
+                    <span class="n">dst</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">tgt</span><span class="p">,</span>
+                    <span class="n">missing_dest</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">missing_dest</span><span class="p">,</span>
+                    <span class="n">dry_run</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point: apply the spec-listed operations to matching HDF5 files.</span>
+
+<span class="sd">    Pairs files in ``source_dir`` with same-named files in ``dest_dir`` (via</span>
+<span class="sd">    ``--pattern``), then applies every operation in the spec -- in file order</span>
+<span class="sd">    -- to each pair. ``+`` lines copy from source to destination; ``-`` lines</span>
+<span class="sd">    delete from destination only. Errors are collected and reported at the</span>
+<span class="sd">    end; the process exits non-zero if any pair failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">UpdateSpec</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">spec_file</span><span class="p">)</span>
+    <span class="n">source_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">source_dir</span><span class="p">)</span>
+    <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dest_dir</span><span class="p">)</span>
+
+    <span class="n">src_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">source_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pattern</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src_files</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;No files matching &#39;</span><span class="si">%s</span><span class="s2">&#39; found in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span> <span class="n">source_dir</span>
+        <span class="p">)</span>
+
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">src_path</span> <span class="ow">in</span> <span class="n">src_files</span><span class="p">:</span>
+        <span class="n">dst_path</span> <span class="o">=</span> <span class="n">dest_dir</span> <span class="o">/</span> <span class="n">src_path</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dst_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No matching destination for &#39;</span><span class="si">%s</span><span class="s2">&#39; — skipping&quot;</span><span class="p">,</span> <span class="n">src_path</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dry-run] Would process: </span><span class="si">{</span><span class="n">src_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="p">(</span>
+                <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">,</span>
+                <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dst_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dry_run</span> <span class="k">else</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dst</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="n">_apply_operations</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">src_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

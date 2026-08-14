@@ -3,5 +3,5 @@ autowisp.database.image\_processing module
 
 .. automodule:: autowisp.database.image_processing
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

@@ -3,8 +3,8 @@ autowisp.light\_curves package
 
 .. automodule:: autowisp.light_curves
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

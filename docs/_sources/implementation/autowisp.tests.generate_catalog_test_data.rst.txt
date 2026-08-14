@@ -1,0 +1,7 @@
+autowisp.tests.generate\_catalog\_test\_data module
+===================================================
+
+.. automodule:: autowisp.tests.generate_catalog_test_data
+   :members:
+   :undoc-members:
+   :show-inheritance:

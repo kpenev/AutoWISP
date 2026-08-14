@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_related_files module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.tests.test_solve_astrometry module" href="autowisp.tests.test_solve_astrometry.html" />
+    <link rel="prev" title="autowisp.tests.test_provenance_resolver module" href="autowisp.tests.test_provenance_resolver.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.tests.html">autowisp.tests package</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_related_files module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.tests.test_related_files.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.tests.test_related_files">
+<span id="autowisp-tests-test-related-files-module"></span><h1>autowisp.tests.test_related_files module<a class="headerlink" href="#module-autowisp.tests.test_related_files" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-e4bd2ed11ab6706ef51b7efd177f50e0e453425e.png" alt="Inheritance diagram of AutoWISPError, Component, DataReductionFile, ExitStack, FileKind, LightCurveFile, MagicMock, Path, SimpleNamespace, TemporaryDirectory, TestCatalogScopes, TestHDF5ProductsAttachThemselves, TestMainProcessScopes, TestWorkerPoolClassifiers, _StampedFilesMixin, _StubRaise" usemap="#inheritance90b9395c73" class="inheritance graphviz" /></div>
+<map id="inheritance90b9395c73" name="inheritance90b9395c73">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="571,453,646,480"/>
+<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="330,528,516,555"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractContextManager" target="_top" title="An abstract base class for context managers." alt="" coords="558,528,784,555"/>
+<area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
+<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
+<area shape="rect" id="node10" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="947,5,1182,32"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1032,80,1243,107"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1205,5,1297,32"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1267,80,1459,107"/>
+<area shape="rect" id="node11" href="#autowisp.tests.test_related_files.TestCatalogScopes" target="_top" title="The catalog is named by the step that *uses* it, not by the query." alt="" coords="1483,80,1811,107"/>
+<area shape="rect" id="node13" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" target="_top" title="DR and lightcurve files scope themselves while open." alt="" coords="1835,80,2270,107"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_related_files.TestMainProcessScopes" target="_top" title="The main&#45;process steps, exercised through their real dispatch." alt="" coords="2293,80,2652,107"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" target="_top" title="The ``run_pool`` sites, checked through the call that wires them up." alt="" coords="2675,80,3043,107"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="568,80,739,107"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="573,155,734,181"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="406,5,552,32"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="576,5,731,32"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="755,5,923,32"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="439,229,647,256"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/contextlib.html#contextlib.ExitStack" target="_top" title="Context manager for dynamic management of a stack of exit callbacks." alt="" coords="619,603,758,629"/>
+<area shape="rect" id="node29" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="3067,80,3158,107"/>
+<area shape="rect" id="node30" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="3054,5,3171,32"/>
+<area shape="rect" id="node31" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="3196,5,3381,32"/>
+<area shape="rect" id="node32" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="3405,5,3572,32"/>
+<area shape="rect" id="node38" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.NonCallableMock" target="_top" title="A non&#45;callable version of `Mock`" alt="" coords="3559,80,3767,107"/>
+<area shape="rect" id="node37" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock" target="_top" title="Create a new `Mock` object. `Mock` takes several optional arguments" alt="" coords="3559,155,3695,181"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.MagicMock" target="_top" title="MagicMock is a subclass of Mock with default implementations" alt="" coords="3631,229,3802,256"/>
+</map><p>Unit tests for the per-step <code class="docutils literal notranslate"><span class="pre">related_files</span></code> classifiers (item 9).</p>
+<p>Each parallel/step site turns its work item (plus any batch-constant
+auxiliary inputs) into <code class="xref py py-class docutils literal notranslate"><span class="pre">RelatedFile</span></code> entries, so an error carries
+the artifact(s) it was about. Every test here drives the <strong>real</strong> step or
+call site rather than a helper in isolation, in one of two ways matching
+how the site works:</p>
+<ul class="simple">
+<li><p>main-process steps scope the context themselves, so the first call
+inside the scope is stubbed to <em>raise</em> and the assertion is on the
+related files the capture boundary stamps onto the escaping error –
+never on the ambient context read from inside the scope, which proves
+only that the scope exists, not that anything reaches the error;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_pool</span></code> sites hand a classifier to the pool for the workers to
+apply, so <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> is intercepted and the classifier it was given is
+applied to a sample item.</p></li>
+</ul>
+<p>The generic scoping machinery (worker transport, crash promotion, dedup)
+is covered in <code class="docutils literal notranslate"><span class="pre">test_error_context.py</span></code>.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestCatalogScopes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestCatalogScopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestCatalogScopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="autowisp.tests.test_related_files._StampedFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">_StampedFilesMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-e638658768a1ccd709fc5cd0addf53132fc6a849.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestCatalogScopes" usemap="#inheritancee243d85713" class="inheritance graphviz" /></div>
+<map id="inheritancee243d85713" name="inheritancee243d85713">
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestCatalogScopes" target="_top" title="The catalog is named by the step that *uses* it, not by the query." alt="" coords="5,80,333,107"/>
+</map><p>The catalog is named by the step that <em>uses</em> it, not by the query.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ensure_catalog</span></code> resolves the <code class="docutils literal notranslate"><span class="pre">{checksum}</span></code> filename and returns,
+long before its caller is done with it, so each consumer scopes the
+returned name around its own work. These stub the query and fail the
+work below it, which is what would break if a scope were ever moved
+back down into <code class="docutils literal notranslate"><span class="pre">ensure_catalog</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestCatalogScopes._catalog_pair">
+<span class="sig-name descname"><span class="pre">_catalog_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestCatalogScopes._catalog_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes._catalog_pair" title="Link to this definition"></a></dt>
+<dd><p>The expected entry for the stubbed catalog.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestCatalogScopes.catalog_fname">
+<span class="sig-name descname"><span class="pre">catalog_fname</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/MASTERS/Gaia/abc123.fits'</span></em><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes.catalog_fname" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestCatalogScopes.test_fit_star_shape_names_the_catalog_it_fits_against">
+<span class="sig-name descname"><span class="pre">test_fit_star_shape_names_the_catalog_it_fits_against</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestCatalogScopes.test_fit_star_shape_names_the_catalog_it_fits_against"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes.test_fit_star_shape_names_the_catalog_it_fits_against" title="Link to this definition"></a></dt>
+<dd><p>The catalog covers the whole frame-set fit, not just the query.</p>
+<p><code class="docutils literal notranslate"><span class="pre">fit_frame_set</span></code> takes its own argument list rather than the
+manager’s, and derives DR names from real FITS headers before it
+reaches the catalog, so those two steps are stubbed out. The
+failure is injected <em>after</em> the source-list creator is built,
+which is exactly what a scope left inside <code class="docutils literal notranslate"><span class="pre">ensure_catalog</span></code> (or
+inside <code class="docutils literal notranslate"><span class="pre">create_source_list_creator</span></code>) would fail to report.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestHDF5ProductsAttachThemselves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="autowisp.tests.test_related_files._StampedFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">_StampedFilesMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-c7e3fa476efff78c0acc642d5c7e030ef0f7199e.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" usemap="#inheritance854c960272" class="inheritance graphviz" /></div>
+<map id="inheritance854c960272" name="inheritance854c960272">
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" target="_top" title="DR and lightcurve files scope themselves while open." alt="" coords="5,80,440,107"/>
+</map><p>DR and lightcurve files scope themselves while open.</p>
+<p>This is what replaced the per-step DR/LC scopes: every pipeline HDF5
+product opened through a <code class="docutils literal notranslate"><span class="pre">with</span></code> block attaches itself, so a step that
+simply opens one needs no scoping code of its own.</p>
+<p>Unlike the rest of the module these use real products, which needs a
+throwaway project home for the layout lookup.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves._dr_pair">
+<span class="sig-name descname"><span class="pre">_dr_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves._dr_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves._dr_pair" title="Link to this definition"></a></dt>
+<dd><p>The expected entry for the fixture DR file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.setUpClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.setUpClass" title="Link to this definition"></a></dt>
+<dd><p>Create a project home holding one (empty) DR file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.tearDownClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.tearDownClass" title="Link to this definition"></a></dt>
+<dd><p>Remove the throwaway project home.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_in_memory_product_attaches_nothing">
+<span class="sig-name descname"><span class="pre">test_in_memory_product_attaches_nothing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.test_in_memory_product_attaches_nothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_in_memory_product_attaches_nothing" title="Link to this definition"></a></dt>
+<dd><p>The nameless in-memory products have no file to report.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_merit_step_names_the_dr_it_failed_on">
+<span class="sig-name descname"><span class="pre">test_merit_step_names_the_dr_it_failed_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.test_merit_step_names_the_dr_it_failed_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_merit_step_names_the_dr_it_failed_on" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">calculate_photref_merit</span></code> reports the DR it was scoring.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_nested_products_all_attach">
+<span class="sig-name descname"><span class="pre">test_nested_products_all_attach</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.test_nested_products_all_attach"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_nested_products_all_attach" title="Link to this definition"></a></dt>
+<dd><p>A lightcurve opened inside a DR block adds to it, not replaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_open_for_reading_attaches_as_input">
+<span class="sig-name descname"><span class="pre">test_open_for_reading_attaches_as_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.test_open_for_reading_attaches_as_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_open_for_reading_attaches_as_input" title="Link to this definition"></a></dt>
+<dd><p>A DR opened <code class="docutils literal notranslate"><span class="pre">&quot;r&quot;</span></code> is reported, as an input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_psf_map_step_names_the_dr_it_failed_on">
+<span class="sig-name descname"><span class="pre">test_psf_map_step_names_the_dr_it_failed_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.test_psf_map_step_names_the_dr_it_failed_on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_psf_map_step_names_the_dr_it_failed_on" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">fit_source_extracted_psf_map</span></code> reports the DR it was reading.</p>
+<p>Nothing is stubbed: the step is handed a DR that lacks the
+datasets it needs and fails on its own <em>inside</em> the block that
+opened it. That is what makes this catch a later refactor which
+narrows the <code class="docutils literal notranslate"><span class="pre">with</span></code> so the work no longer happens while the file
+is open – a regression the hook’s own tests cannot see.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestMainProcessScopes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestMainProcessScopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="autowisp.tests.test_related_files._StampedFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">_StampedFilesMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-c95adaba3489cf7adb8d225ea6fcdecf6b850196.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestMainProcessScopes" usemap="#inheritance8e2bf97535" class="inheritance graphviz" /></div>
+<map id="inheritance8e2bf97535" name="inheritance8e2bf97535">
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestMainProcessScopes" target="_top" title="The main&#45;process steps, exercised through their real dispatch." alt="" coords="5,80,364,107"/>
+</map><p>The main-process steps, exercised through their real dispatch.</p>
+<p>These build their <code class="docutils literal notranslate"><span class="pre">RelatedFile</span></code> entries at the scope rather than in a
+classifier, so each test runs the actual step with the first call
+<em>inside</em> the scope stubbed to raise – which also stops the step before
+it reaches any database, FITS or HDF5 access.</p>
+<p>The assertion is on the <strong>stamped exception</strong>, not on the live ambient
+context. That distinction is the whole point: the scope’s <code class="docutils literal notranslate"><span class="pre">with</span></code>
+unwinds (resetting the ContextVar) before any enclosing <code class="docutils literal notranslate"><span class="pre">except</span></code>
+runs, so a test that reads the context from inside the scope passes
+even when nothing ever reaches the error. What the pipeline actually
+depends on is what <code class="docutils literal notranslate"><span class="pre">capture_errors</span></code> – the boundary at
+<code class="docutils literal notranslate"><span class="pre">ProcessingManager._run_step</span></code> – ends up putting on the error.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestMainProcessScopes.test_add_images_to_db_scopes_the_raw_image">
+<span class="sig-name descname"><span class="pre">test_add_images_to_db_scopes_the_raw_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes.test_add_images_to_db_scopes_the_raw_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes.test_add_images_to_db_scopes_the_raw_image" title="Link to this definition"></a></dt>
+<dd><p>The raw image is in scope before any DB work begins.</p>
+<p>The odd one out: this step takes no progress callbacks, so it
+cannot use <code class="docutils literal notranslate"><span class="pre">_stamped_step_files</span></code> and fails through a patch
+instead. <code class="docutils literal notranslate"><span class="pre">Evaluator</span></code> is the first call inside the scope and runs
+<em>before</em> <code class="docutils literal notranslate"><span class="pre">start_db_session</span></code>, so stubbing it also keeps the test
+away from the database entirely.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestMainProcessScopes.test_calibrate_scopes_the_raw_image_and_masters">
+<span class="sig-name descname"><span class="pre">test_calibrate_scopes_the_raw_image_and_masters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes.test_calibrate_scopes_the_raw_image_and_masters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes.test_calibrate_scopes_the_raw_image_and_masters" title="Link to this definition"></a></dt>
+<dd><p>Channel-keyed master dicts contribute one entry per channel.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Calibrator</span></code> is built before the loop and its constructor opens
+the masters, so it is stubbed out; everything from the scope down
+is the real step.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestMainProcessScopes.test_calibrate_without_masters_scopes_only_the_image">
+<span class="sig-name descname"><span class="pre">test_calibrate_without_masters_scopes_only_the_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes.test_calibrate_without_masters_scopes_only_the_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes.test_calibrate_without_masters_scopes_only_the_image" title="Link to this definition"></a></dt>
+<dd><p>With no masters configured, only the raw image is attached.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestMainProcessScopes.test_stack_to_master_flat_scopes_both_masters">
+<span class="sig-name descname"><span class="pre">test_stack_to_master_flat_scopes_both_masters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes.test_stack_to_master_flat_scopes_both_masters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes.test_stack_to_master_flat_scopes_both_masters" title="Link to this definition"></a></dt>
+<dd><p>The flat stacker attaches the high <em>and</em> low masters it writes.</p>
+<p>The step consumes a large, interdependent configuration, so this
+uses the step’s own parser defaults rather than a hand-built dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestMainProcessScopes.test_stack_to_master_scopes_frames_and_master">
+<span class="sig-name descname"><span class="pre">test_stack_to_master_scopes_frames_and_master</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes.test_stack_to_master_scopes_frames_and_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes.test_stack_to_master_scopes_frames_and_master" title="Link to this definition"></a></dt>
+<dd><p>Stacking scopes every input frame plus the master it writes.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mark_start</span></code> is injected by the manager and is the first call
+inside the scope, so failing through it needs no patching of the
+step itself – only <code class="docutils literal notranslate"><span class="pre">get_master_fname</span></code>, which would otherwise
+open the first frame to build the name.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestWorkerPoolClassifiers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-a93d46bd41a944a3c053399ea9d272699281386f.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestWorkerPoolClassifiers" usemap="#inheritance5f59365904" class="inheritance graphviz" /></div>
+<map id="inheritance5f59365904" name="inheritance5f59365904">
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" target="_top" title="The ``run_pool`` sites, checked through the call that wires them up." alt="" coords="5,80,373,107"/>
+</map><p>The <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> sites, checked through the call that wires them up.</p>
+<p>These steps do not scope the context themselves: they hand <code class="docutils literal notranslate"><span class="pre">run_pool</span></code>
+a classifier and <code class="docutils literal notranslate"><span class="pre">_WorkerEntry</span></code> applies it inside each worker. That
+mechanism – including transport back to the parent, crash promotion
+and dedup – is covered in <code class="docutils literal notranslate"><span class="pre">test_error_context.py</span></code>, so what is left
+to check per step is <em>which</em> classifier it passes and what that
+classifier makes of an item. Each test therefore runs the real call
+site with <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> intercepted, then applies the classifier it was
+handed.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers._captured_classifier">
+<span class="sig-name descname"><span class="pre">_captured_classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers._captured_classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers._captured_classifier" title="Link to this definition"></a></dt>
+<dd><p>Run <code class="docutils literal notranslate"><span class="pre">run</span></code>, returning the <code class="docutils literal notranslate"><span class="pre">related_files</span></code> its pool was given.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers._detrending_classifier">
+<span class="sig-name descname"><span class="pre">_detrending_classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers._detrending_classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers._detrending_classifier" title="Link to this definition"></a></dt>
+<dd><p>The classifier <code class="docutils literal notranslate"><span class="pre">apply_parallel_correction</span></code> passes for a run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers._magfit_classifier">
+<span class="sig-name descname"><span class="pre">_magfit_classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_photref_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers._magfit_classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers._magfit_classifier" title="Link to this definition"></a></dt>
+<dd><p>The classifier <code class="docutils literal notranslate"><span class="pre">single_iteration</span></code> passes for a magfit run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_detrending_passes_lightcurve_and_photref">
+<span class="sig-name descname"><span class="pre">test_detrending_passes_lightcurve_and_photref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers.test_detrending_passes_lightcurve_and_photref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_detrending_passes_lightcurve_and_photref" title="Link to this definition"></a></dt>
+<dd><p>epd/tfa attach the light curve plus the single photref.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_detrending_without_photref_passes_only_the_lightcurve">
+<span class="sig-name descname"><span class="pre">test_detrending_without_photref_passes_only_the_lightcurve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers.test_detrending_without_photref_passes_only_the_lightcurve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_detrending_without_photref_passes_only_the_lightcurve" title="Link to this definition"></a></dt>
+<dd><p>With no single photref configured, only the LC is attached.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_fit_star_shape_passes_the_frame_set">
+<span class="sig-name descname"><span class="pre">test_fit_star_shape_passes_the_frame_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers.test_fit_star_shape_passes_the_frame_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_fit_star_shape_passes_the_frame_set" title="Link to this definition"></a></dt>
+<dd><p>Every frame of a simultaneous-fit set is attached, not just one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_magfit_passes_dr_and_both_photrefs">
+<span class="sig-name descname"><span class="pre">test_magfit_passes_dr_and_both_photrefs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers.test_magfit_passes_dr_and_both_photrefs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_magfit_passes_dr_and_both_photrefs" title="Link to this definition"></a></dt>
+<dd><p>fit_magnitudes attaches the DR plus the single/master photref.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_magfit_without_master_photref">
+<span class="sig-name descname"><span class="pre">test_magfit_without_master_photref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers.test_magfit_without_master_photref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_magfit_without_master_photref" title="Link to this definition"></a></dt>
+<dd><p>Before a master photref exists it is simply omitted.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files._StampedFilesMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">_StampedFilesMixin</span></span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Run something behind a capture boundary and inspect the error.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files._StampedFilesMixin._raise_stub">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_raise_stub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin._raise_stub"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin._raise_stub" title="Link to this definition"></a></dt>
+<dd><p>Stand in for the first call inside a scope; always raises.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files._StampedFilesMixin._stamped_files">
+<span class="sig-name descname"><span class="pre">_stamped_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin._stamped_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin._stamped_files" title="Link to this definition"></a></dt>
+<dd><p>Return the related files on the error escaping <code class="docutils literal notranslate"><span class="pre">run</span></code>.</p>
+<p>Wraps <code class="docutils literal notranslate"><span class="pre">run</span></code> in the same capture boundary the manager applies to
+a step, so this reproduces the real path: the code raises, its
+scopes unwind, and the boundary stamps whatever survived.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files._StampedFilesMixin._stamped_step_files">
+<span class="sig-name descname"><span class="pre">_stamped_step_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">patches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin._stamped_step_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin._stamped_step_files" title="Link to this definition"></a></dt>
+<dd><p>Fail <code class="docutils literal notranslate"><span class="pre">step</span></code> inside its scope; return the files it reports.</p>
+<p>Covers the steps sharing the manager’s calling convention
+<code class="docutils literal notranslate"><span class="pre">(collection,</span> <span class="pre">start_status,</span> <span class="pre">configuration,</span> <span class="pre">mark_start,</span> <span class="pre">mark_end)</span></code>:
+<code class="docutils literal notranslate"><span class="pre">mark_start</span></code> is the first call inside the scope, so passing the
+raising stub for it fails the step exactly there, with no need to
+patch the step itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> (<em>callable</em>) – The step function to run.</p></li>
+<li><p><strong>collection</strong> – The images / DR files to hand it.</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><em>None</em>) – Its configuration; empty if omitted.</p></li>
+<li><p><strong>patches</strong> – Attributes of the step’s <em>own</em> module to replace
+for the duration – the objects built before the loop that
+would otherwise reach real files (a <code class="docutils literal notranslate"><span class="pre">Calibrator</span></code>, a
+master-filename resolver).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(kind,</span> <span class="pre">path)</span></code> pairs from the stamped error.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files._StubRaise">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">_StubRaise</span></span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StubRaise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StubRaise" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Raised by a stubbed per-item call to stop the step right there.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.test_related_files._pairs">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">related</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._pairs" title="Link to this definition"></a></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">(kind,</span> <span class="pre">posix</span> <span class="pre">path)</span></code> entries, for comparison in a test.</p>
+<p>Always compared with <code class="docutils literal notranslate"><span class="pre">assertCountEqual</span></code>: the order in which related
+files appear carries no meaning (nothing downstream depends on it –
+the renderer just lists them and the artifact-FK lookup is an SQL
+<code class="docutils literal notranslate"><span class="pre">IN</span></code>), so pinning it would over-constrain the implementation.
+Counting rather than a set still catches a missing entry, an
+unexpected extra one, and an accidental duplicate.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.tests.test_provenance_resolver.html" class="btn btn-neutral float-left" title="autowisp.tests.test_provenance_resolver module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_solve_astrometry.html" class="btn btn-neutral float-right" title="autowisp.tests.test_solve_astrometry module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

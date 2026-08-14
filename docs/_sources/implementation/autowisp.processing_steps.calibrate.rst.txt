@@ -3,5 +3,5 @@ autowisp.processing\_steps.calibrate module
 
 .. automodule:: autowisp.processing_steps.calibrate
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

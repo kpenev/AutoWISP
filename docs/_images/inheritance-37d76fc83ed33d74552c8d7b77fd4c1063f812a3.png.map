@@ -1,8 +1,0 @@
-<map id="inheritance0425d027e5" name="inheritance0425d027e5">
-<area shape="rect" id="node1" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="15,5,250,32"/>
-<area shape="rect" id="node3" title="Failure inside a processing step." alt="" coords="33,80,232,107"/>
-<area shape="rect" id="node2" title="Failure in the fit_magnitudes step." alt="" coords="5,155,260,181"/>
-<area shape="rect" id="node4" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="274,5,541,32"/>
-<area shape="rect" id="node5" href="#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="564,5,1082,32"/>
-<area shape="rect" id="node6" href="https://docs.python.org/3/library/subprocess.html#subprocess.Popen" target="_top" title="Execute a child program in a new process." alt="" coords="1106,5,1236,32"/>
-</map>

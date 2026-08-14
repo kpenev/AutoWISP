@@ -1,0 +1,7 @@
+autowisp.database.photref\_selection module
+===========================================
+
+.. automodule:: autowisp.database.photref_selection
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -22,7 +22,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.evaluator module" href="autowisp.evaluator.html" />
+    <link rel="next" title="autowisp.crash_report module" href="autowisp.crash_report.html" />
     <link rel="prev" title="autowisp.bui_util module" href="autowisp.bui_util.html" /> 
 </head>
 
@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -171,7 +171,7 @@
 <span id="autowisp-catalog-module"></span><h1>autowisp.catalog module<a class="headerlink" href="#module-autowisp.catalog" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-23aeabd4857f44d1876e4d85502a1f8121647e19.png" alt="Inheritance diagram of CatalogError, DataReductionFile, Evaluator, GaiaClass, SkyCoord, Transformation, WISPGaia, nullcontext" usemap="#inheritance596e3e9fbe" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-db2d368739a1c613e1a02f362901e2ce6f9fe9b4.png" alt="Inheritance diagram of CatalogError, DataReductionFile, Evaluator, GaiaClass, SkyCoord, Transformation, WISPGaia, nullcontext" usemap="#inheritance596e3e9fbe" class="inheritance graphviz" /></div>
 <map id="inheritance596e3e9fbe" name="inheritance596e3e9fbe">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="452,453,527,480"/>
 <area shape="rect" id="node14" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="147,528,334,555"/>
@@ -182,6 +182,9 @@
 <area shape="rect" id="node10" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="1517,5,1833,32"/>
 <area shape="rect" id="node12" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="47,677,434,704"/>
 <area shape="rect" id="node13" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="35,603,446,629"/>
+<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1858,5,2092,32"/>
+<area shape="rect" id="node18" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1875,80,2075,107"/>
+<area shape="rect" id="node17" href="autowisp.exceptions.html#autowisp.exceptions.CatalogError" target="_top" title="A problem with the reference catalog (query or coverage/consistency)." alt="" coords="1866,155,2084,181"/>
 <area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
 <area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
 <area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
@@ -531,7 +534,7 @@ of the (possibly platform dependent) integer dtype of the catalog index.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.bui_util.html" class="btn btn-neutral float-left" title="autowisp.bui_util module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.evaluator.html" class="btn btn-neutral float-right" title="autowisp.evaluator module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.crash_report.html" class="btn btn-neutral float-right" title="autowisp.crash_report module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

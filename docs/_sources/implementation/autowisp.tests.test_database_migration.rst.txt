@@ -1,0 +1,7 @@
+autowisp.tests.test\_database\_migration module
+===============================================
+
+.. automodule:: autowisp.tests.test_database_migration
+   :members:
+   :undoc-members:
+   :show-inheritance:

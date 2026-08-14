@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.error_persistence module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.error_render module" href="autowisp.error_render.html" />
+    <link rel="prev" title="autowisp.error_context module" href="autowisp.error_context.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.error_persistence module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.error_persistence.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.error_persistence">
+<span id="autowisp-error-persistence-module"></span><h1>autowisp.error_persistence module<a class="headerlink" href="#module-autowisp.error_persistence" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-7a49986a399b41c52783db8e9c93b7804d5f37e5.png" alt="Inheritance diagram of Component, Error, Image, MasterFile, datetime, timedelta, timezone" usemap="#inheritance74ccf85ca9" class="inheritance graphviz" /></div>
+<map id="inheritance74ccf85ca9" name="inheritance74ccf85ca9">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="268,304,598,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="5,379,269,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="293,379,573,405"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="597,379,938,405"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="451,229,804,256"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="762,80,973,107"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="822,5,913,32"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="1010,5,1110,32"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="997,80,1122,107"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="1134,5,1262,32"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="1276,80,1404,107"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="1286,5,1393,32"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="575,5,680,32"/>
+</map><p>Persist AutoWISP errors as a queryable row plus a JSON sidecar.</p>
+<p>Each persisted error becomes a small, queryable
+<a class="reference internal" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" title="autowisp.database.data_model.error.Error"><code class="xref py py-class docutils literal notranslate"><span class="pre">Error</span></code></a> row (the fields list
+views and aggregate queries need) plus a per-error JSON sidecar holding
+the heavy remainder (full message, complete related-file list,
+<code class="docutils literal notranslate"><span class="pre">details</span></code>, traceback). The split keeps the SQLite file small while
+still capturing rich context.</p>
+<p>Two hard rules: persisting an error <strong>never raises</strong> (recording a
+failure must not cause a second one), and <strong>only the main process</strong>
+writes – a worker’s exception is already marshalled back to the main
+process before the top-level handler calls <a class="reference internal" href="#autowisp.error_persistence.persist_error" title="autowisp.error_persistence.persist_error"><code class="xref py py-func docutils literal notranslate"><span class="pre">persist_error()</span></code></a>.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence._build_error_row">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_build_error_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_build_error_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._build_error_row" title="Link to this definition"></a></dt>
+<dd><p>Build the inline <code class="docutils literal notranslate"><span class="pre">Error</span></code> row (without <code class="docutils literal notranslate"><span class="pre">sidecar_path</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence._error_bucket">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_error_bucket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_error_bucket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._error_bucket" title="Link to this definition"></a></dt>
+<dd><p>Return the sidecar sub-directory name for <code class="docutils literal notranslate"><span class="pre">exc</span></code>.</p>
+<p>Bucketing by run keeps directories small and makes “drop everything
+from run 88” a single <code class="docutils literal notranslate"><span class="pre">rmtree</span></code>. Errors with no run go to <code class="docutils literal notranslate"><span class="pre">bui</span></code> or
+<code class="docutils literal notranslate"><span class="pre">cli</span></code> by component.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence._iter_sidecar_files">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_iter_sidecar_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">errors_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_iter_sidecar_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._iter_sidecar_files" title="Link to this definition"></a></dt>
+<dd><p>Yield <code class="docutils literal notranslate"><span class="pre">(absolute_path,</span> <span class="pre">basename)</span></code> for every file under errors_dir.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence._resolve_artifact_fks">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_resolve_artifact_fks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">related_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_resolve_artifact_fks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._resolve_artifact_fks" title="Link to this definition"></a></dt>
+<dd><p>Map related files to known artifact rows (best-effort).</p>
+<p>Resolves only artifacts that are genuine database rows with a stored
+path: a related file whose path matches <code class="docutils literal notranslate"><span class="pre">Image.raw_fname</span></code> gives the
+image, one matching <code class="docutils literal notranslate"><span class="pre">MasterFile.filename</span></code> gives the master. DR
+files, calibrated images, and lightcurves are HDF5 files with no row,
+so they are not linked here – they remain in the sidecar’s
+related-file list by path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>related_files</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" title="autowisp.exceptions.RelatedFile"><em>RelatedFile</em></a><em>]</em>) – The error’s related
+files.</p></li>
+<li><p><strong>db_session</strong> – Active database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(image_id,</span> <span class="pre">master_file_id)</span></code>, each <code class="docutils literal notranslate"><span class="pre">None</span></code> if no</dt><dd><p>related file maps to such a row.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence._row_age">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_row_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_row_age"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._row_age" title="Link to this definition"></a></dt>
+<dd><p>The time an error row is dated by: its crash time, else write time.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence._safe_unlink">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_safe_unlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_safe_unlink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._safe_unlink" title="Link to this definition"></a></dt>
+<dd><p>Remove <code class="docutils literal notranslate"><span class="pre">path</span></code> if present, swallowing OS errors. Returns success.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence._write_sidecar">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_write_sidecar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gzip_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_write_sidecar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._write_sidecar" title="Link to this definition"></a></dt>
+<dd><p>Atomically write the sidecar JSON and return its relative path.</p>
+<p>The payload is written to a <code class="docutils literal notranslate"><span class="pre">.tmp</span></code> file and then <code class="docutils literal notranslate"><span class="pre">os.replace``d</span>
+<span class="pre">into</span> <span class="pre">place,</span> <span class="pre">so</span> <span class="pre">a</span> <span class="pre">reader</span> <span class="pre">never</span> <span class="pre">sees</span> <span class="pre">a</span> <span class="pre">half-written</span> <span class="pre">file.</span> <span class="pre">Payloads</span> <span class="pre">above</span>
+<span class="pre">``gzip_threshold</span></code> bytes are gzipped (the stored filename records
+which).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>exc</strong> (<a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" title="autowisp.exceptions.AutoWISPError"><em>AutoWISPError</em></a>) – The error to serialize.</p></li>
+<li><p><strong>error_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The row id; names the file.</p></li>
+<li><p><strong>bucket</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The sub-directory (see <a class="reference internal" href="#autowisp.error_persistence._error_bucket" title="autowisp.error_persistence._error_bucket"><code class="xref py py-func docutils literal notranslate"><span class="pre">_error_bucket()</span></code></a>).</p></li>
+<li><p><strong>gzip_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Byte size above which the payload is
+gzipped.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The sidecar path relative to the project home.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence.cleanup_errors">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">cleanup_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">older_than</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#cleanup_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.cleanup_errors" title="Link to this definition"></a></dt>
+<dd><p>Prune persisted errors: aged rows, orphan files, dangling rows.</p>
+<p>Three passes, all best-effort:</p>
+<ol class="arabic simple">
+<li><p><strong>Aged rows</strong> – when <code class="docutils literal notranslate"><span class="pre">older_than</span></code> is given, delete every
+<code class="docutils literal notranslate"><span class="pre">Error</span></code> row dated (crash time, else row write time) before the
+cutoff, along with its sidecar.</p></li>
+<li><p><strong>Dangling rows</strong> – a surviving row whose <code class="docutils literal notranslate"><span class="pre">sidecar_path</span></code> points
+at a missing file has the path cleared (the row stays valid as
+inline-only).</p></li>
+<li><p><strong>Orphan files</strong> – any file under <code class="docutils literal notranslate"><span class="pre">&lt;project_home&gt;/errors</span></code> that
+is not the sidecar of a surviving row (leftovers from write-path
+crashes, including <code class="docutils literal notranslate"><span class="pre">.tmp</span></code> files) is removed.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>older_than</strong> (<em>timedelta</em><em> or </em><em>None</em>) – Retention cutoff; <code class="docutils literal notranslate"><span class="pre">None</span></code> skips
+the aged-row pass and only sweeps orphans/dangling rows.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Counts <a href="#id1"><span class="problematic" id="id2">``</span></a>{“removed_rows”, “removed_files”,</dt><dd><p>”cleared_dangling”}``.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence.cleanup_main">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">cleanup_main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#cleanup_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.cleanup_main" title="Link to this definition"></a></dt>
+<dd><p>CLI entry point for <code class="docutils literal notranslate"><span class="pre">wisp-cleanup-errors</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence.delete_all_error_sidecars">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">delete_all_error_sidecars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#delete_all_error_sidecars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.delete_all_error_sidecars" title="Link to this definition"></a></dt>
+<dd><p>Delete the sidecar file of every recorded error.</p>
+<p>Used when a project is deleted: removes exactly the files error
+persistence wrote (one per <code class="docutils literal notranslate"><span class="pre">Error</span></code> row), leaving any unrelated files
+under the <code class="docutils literal notranslate"><span class="pre">errors</span></code> directory untouched. The emptied directories are
+cleaned up by the caller’s directory pruning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>db_session</strong> – Optional active session; one is opened if omitted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence.delete_error">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">delete_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#delete_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.delete_error" title="Link to this definition"></a></dt>
+<dd><p>Delete an error record entirely: its row and its sidecar file.</p>
+<p>A no-op if the row does not exist. Safe to call from a user action.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The id of the error to delete.</p></li>
+<li><p><strong>db_session</strong> – Optional active session; one is opened if omitted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if a row was deleted, False if none was found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence.load_sidecar">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">load_sidecar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#load_sidecar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.load_sidecar" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed sidecar detail for an <code class="docutils literal notranslate"><span class="pre">Error</span></code> row, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>The lazy read path: list views use only the inline columns; this is
+called only when drilling into one error. A missing or unreadable
+sidecar degrades to <code class="docutils literal notranslate"><span class="pre">None</span></code> (“detail unavailable”), never raises.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>error_row</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" title="autowisp.database.data_model.Error"><em>Error</em></a>) – The row whose sidecar to load.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed sidecar payload, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence.parse_duration">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">parse_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#parse_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.parse_duration" title="Link to this definition"></a></dt>
+<dd><p>Parse a compact duration like <code class="docutils literal notranslate"><span class="pre">30d</span></code> / <code class="docutils literal notranslate"><span class="pre">12h</span></code> / <code class="docutils literal notranslate"><span class="pre">2w</span></code> to timedelta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – An integer followed by a unit (<code class="docutils literal notranslate"><span class="pre">s</span></code>/<code class="docutils literal notranslate"><span class="pre">m</span></code>/<code class="docutils literal notranslate"><span class="pre">h</span></code>/
+<code class="docutils literal notranslate"><span class="pre">d</span></code>/<code class="docutils literal notranslate"><span class="pre">w</span></code>).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed duration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>timedelta</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">text</span></code> is not a recognized duration.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_persistence.persist_error">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">persist_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_gzip_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#persist_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.persist_error" title="Link to this definition"></a></dt>
+<dd><p>Persist <code class="docutils literal notranslate"><span class="pre">exc</span></code> as an <code class="docutils literal notranslate"><span class="pre">Error</span></code> row plus a JSON sidecar.</p>
+<p>Best-effort and never raises. The row is committed first, so it
+survives even if the sidecar write later fails (its <code class="docutils literal notranslate"><span class="pre">sidecar_path</span></code>
+then stays NULL and readers treat it as “inline fields only”). Only
+the parent process should call this.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>exc</strong> (<a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" title="autowisp.exceptions.AutoWISPError"><em>AutoWISPError</em></a>) – The (already-stamped) error to record.</p></li>
+<li><p><strong>sidecar_gzip_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Byte size above which the sidecar
+payload is gzipped.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The new <code class="docutils literal notranslate"><span class="pre">Error.id</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if even the row</dt><dd><p>insert failed.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.error_context.html" class="btn btn-neutral float-left" title="autowisp.error_context module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.error_render.html" class="btn btn-neutral float-right" title="autowisp.error_render module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

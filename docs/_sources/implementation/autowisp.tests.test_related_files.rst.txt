@@ -1,0 +1,7 @@
+autowisp.tests.test\_related\_files module
+==========================================
+
+.. automodule:: autowisp.tests.test_related_files
+   :members:
+   :undoc-members:
+   :show-inheritance:

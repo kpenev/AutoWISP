@@ -3,5 +3,5 @@ autowisp.processing\_steps.calculate\_photref\_merit module
 
 .. automodule:: autowisp.processing_steps.calculate_photref_merit
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

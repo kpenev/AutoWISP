@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.run_pipeline &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.run_pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.run_pipeline</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Run the image processing pipeline in a detached mode.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exc</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">DefaultsFormatter</span><span class="p">,</span> <span class="n">SUPPRESS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sql</span><span class="p">,</span> <span class="n">update</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platformdirs</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">start_db_session</span><span class="p">,</span>
+    <span class="n">set_project_home</span><span class="p">,</span>
+    <span class="n">get_project_home</span><span class="p">,</span>
+    <span class="n">snapshot_row</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># pylint: disable=no-name-in-module</span>
+    <span class="n">PipelineRun</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.image_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.lightcurve_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightCurveProcessingManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_error_context</span><span class="p">,</span> <span class="n">set_pipeline_run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">report_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_code_version_str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoWISPError</span><span class="p">,</span>
+    <span class="n">PipelineError</span><span class="p">,</span>
+    <span class="n">ResourceError</span><span class="p">,</span>
+    <span class="n">get_hostname</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_fits_fnames</span>
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the command line configuration.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Manually invoke the fully automated processing&quot;</span><span class="p">,</span>
+        <span class="n">default_config_files</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
+        <span class="n">ignore_unknown_config_file_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;project_home&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the project home directory.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--add-raw-images&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Before processing add new raw images for processing. Can be &quot;</span>
+        <span class="s2">&quot;specified as a combination of image files and directories which will&quot;</span>
+        <span class="s2">&quot;be searched for FITS files.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--steps&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Process using only the specified steps. Leave empty for full &quot;</span>
+        <span class="s2">&quot;processing.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--step-imtypes&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Fine-grained filter as step:imagetype pairs &quot;</span>
+        <span class="s2">&quot;(e.g., calibrate:flat calibrate:science).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--detached&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="n">SUPPRESS</span><span class="p">,</span>  <span class="c1"># Only used internally to detach in windows</span>
+    <span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parsed arguments: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up the project and run the pipeline, recording any error.</span>
+
+<span class="sd">    The top-level handler records *any* exception that escapes the run --</span>
+<span class="sd">    not just an :class:`AutoWISPError`. A plain exception from the</span>
+<span class="sd">    orchestration layer (e.g. a bad configuration expression) is wrapped</span>
+<span class="sd">    in a :class:`PipelineError` so it is still captured. The error is</span>
+<span class="sd">    stamped with the pipeline-run snapshot (and the ``crashed`` time) if</span>
+<span class="sd">    it lacks one, then reported via :func:`report_error` -- recording it</span>
+<span class="sd">    as a queryable ``Error`` row plus sidecar and rendering a summary to</span>
+<span class="sd">    stderr (which, for a detached run, is ``run_pipeline.out``) -- and</span>
+<span class="sd">    re-raised. Reporting is best-effort and never masks the original</span>
+<span class="sd">    error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">project_home</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_run_pipeline</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">AutoWISPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">_record_escaping_error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="c1"># A non-AutoWISP exception (e.g. a NameError from a bad config</span>
+        <span class="c1"># expression) would otherwise crash the run unrecorded. Wrap it so</span>
+        <span class="c1"># it is captured like any other failure, preserving the original</span>
+        <span class="c1"># as the cause and its traceback for the sidecar.</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">PipelineError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">wrapped</span><span class="o">.</span><span class="n">__cause__</span> <span class="o">=</span> <span class="n">exc</span>
+        <span class="n">wrapped</span><span class="o">.</span><span class="n">__traceback__</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">__traceback__</span>
+        <span class="n">_record_escaping_error</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+
+<div class="viewcode-block" id="_record_escaping_error">
+<a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline._record_escaping_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_record_escaping_error</span><span class="p">(</span><span class="n">exc</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stamp the pipeline-run snapshot (if missing) and report ``exc``.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">exc</span><span class="o">.</span><span class="n">with_pipeline_run</span><span class="p">(</span><span class="n">get_error_context</span><span class="p">()</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+    <span class="n">report_error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_run_pipeline">
+<a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline._run_pipeline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_pipeline</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the pipeline run and drive image + lightcurve processing.&quot;&quot;&quot;</span>
+
+    <span class="c1"># old code</span>
+    <span class="c1"># db_fname = os.path.abspath(config.processing_database)</span>
+    <span class="c1"># set_sqlite_database(db_fname)</span>
+
+    <span class="c1"># with start_db_session() as db_session:</span>
+    <span class="c1">#    dummy_processing = ProcessingManager(None)</span>
+    <span class="c1">#    dummy_config = dummy_processing.get_config(</span>
+    <span class="c1">#        dummy_processing.get_matched_expressions(Evaluator()),</span>
+    <span class="c1">#        db_session,</span>
+    <span class="c1">#        step_name=&quot;add_images_to_db&quot;,</span>
+    <span class="c1">#    )[0]</span>
+
+    <span class="c1"># dummy_config[&quot;task&quot;] = &quot;run_pipeline&quot;</span>
+    <span class="c1"># dummy_config[&quot;parent_pid&quot;] = &quot;&quot;</span>
+    <span class="c1"># dummy_config[&quot;processing_step&quot;] = &quot;none&quot;</span>
+    <span class="c1"># dummy_config[&quot;image_type&quot;] = &quot;none&quot;</span>
+
+    <span class="c1"># setup_process_map(db_fname, dummy_config)</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">pipeline_run</span> <span class="o">=</span> <span class="n">PipelineRun</span><span class="p">(</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">get_hostname</span><span class="p">(),</span>
+            <span class="n">process_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">(),</span>
+            <span class="n">started</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>  <span class="c1"># pylint: disable=not-callable</span>
+            <span class="n">code_version</span><span class="o">=</span><span class="n">get_code_version_str</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pipeline_run</span><span class="p">)</span>
+        <span class="c1"># flush (not commit) assigns the id while keeping the transaction</span>
+        <span class="c1"># open, so snapshot_row can read every column -- including the</span>
+        <span class="c1"># server-evaluated ``started`` -- without tripping over a closed</span>
+        <span class="c1"># transaction. The begin() block commits the row on exit. The</span>
+        <span class="c1"># snapshot lets the error context carry the run even before the</span>
+        <span class="c1"># first setup_process call.</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">set_pipeline_run</span><span class="p">(</span><span class="n">snapshot_row</span><span class="p">(</span><span class="n">pipeline_run</span><span class="p">))</span>
+        <span class="n">pipeline_run</span> <span class="o">=</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span>
+
+    <span class="n">step_imtype_filter</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;step_imtypes&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">step_imtypes</span><span class="p">:</span>
+        <span class="n">per_step</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">step_imtypes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">step</span><span class="p">,</span> <span class="n">imt</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">imt</span> <span class="o">=</span> <span class="n">imt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">imt</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">per_step</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">imt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">per_step</span><span class="p">:</span>
+            <span class="n">step_imtype_filter</span> <span class="o">=</span> <span class="n">per_step</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Applied step-image-type filter: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">step_imtype_filter</span>
+            <span class="p">)</span>
+
+    <span class="n">processing</span> <span class="o">=</span> <span class="n">ImageProcessingManager</span><span class="p">(</span><span class="n">pipeline_run_id</span><span class="o">=</span><span class="n">pipeline_run</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">img_to_add</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">add_raw_images</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding raw images from: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">img_to_add</span><span class="p">)</span>
+        <span class="n">processing</span><span class="o">.</span><span class="n">add_raw_images</span><span class="p">(</span><span class="n">find_fits_fnames</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">img_to_add</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">steps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Starting processing for project home </span><span class="si">%s</span><span class="s2">...&quot;</span><span class="p">,</span>
+            <span class="n">get_project_home</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="n">processing</span><span class="p">(</span>
+            <span class="n">limit_to_steps</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span>
+            <span class="n">step_imtype_filter</span><span class="o">=</span><span class="n">step_imtype_filter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing completed.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="n">LightCurveProcessingManager</span><span class="p">(</span><span class="n">pipeline_run_id</span><span class="o">=</span><span class="n">pipeline_run</span><span class="p">)()</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">update</span><span class="p">(</span><span class="n">PipelineRun</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">PipelineRun</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">pipeline_run</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">finished</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>  <span class="c1"># pylint: disable=not-callable</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;autowisp&quot;</span><span class="p">),</span> <span class="s2">&quot;run_pipeline.out&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;w&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">outf</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">outf</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">:</span>  <span class="c1"># Linux/macOS</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpgid</span><span class="p">,</span> <span class="n">setsid</span><span class="p">,</span> <span class="n">fork</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+
+            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span>
+                <span class="c1"># Double-fork is unsafe on macOS after Python runtime init.</span>
+                <span class="c1"># Zombie reaping is handled by views.py (daemon thread).</span>
+                <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setsid</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">  pgid=</span><span class="si">{</span><span class="n">getpgid</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">pid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ResourceError</span><span class="p">(</span>
+                    <span class="s2">&quot;Could not start the pipeline in the background: the &quot;</span>
+                    <span class="s2">&quot;operating system refused to create a new process &quot;</span>
+                    <span class="s2">&quot;(fork() failed).&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">pid</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">setsid</span><span class="p">()</span>
+            <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>  <span class="c1"># Run main function in child process</span>
+
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>  <span class="c1"># Windows</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+                    <span class="s2">&quot;detached_process_error.log&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">error_log</span><span class="p">:</span>
+                    <span class="n">error_log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in main: </span><span class="si">{</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

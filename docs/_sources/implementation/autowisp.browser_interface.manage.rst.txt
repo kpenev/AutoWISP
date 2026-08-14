@@ -1,0 +1,7 @@
+autowisp.browser\_interface.manage module
+=========================================
+
+.. automodule:: autowisp.browser_interface.manage
+   :members:
+   :undoc-members:
+   :show-inheritance:

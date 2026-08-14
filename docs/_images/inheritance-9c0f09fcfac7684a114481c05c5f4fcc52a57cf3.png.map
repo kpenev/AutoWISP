@@ -1,0 +1,13 @@
+<map id="inheritance4b06f3d85b" name="inheritance4b06f3d85b">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" target="_top" title="Persist an :class:`AutoWISPError` (or wrapped view error) on failure." alt="" coords="5,5,483,32"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="507,5,741,32"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="526,80,722,107"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="523,155,725,181"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="766,5,866,32"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="753,80,879,107"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="902,80,1031,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="913,5,1020,32"/>
+<area shape="rect" id="node9" title="The user did not have permission to do that" alt="" coords="1045,5,1310,32"/>
+<area shape="rect" id="node11" title="An HTTP response class with a string as content." alt="" coords="1566,80,1796,107"/>
+<area shape="rect" id="node12" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="1551,5,1812,32"/>
+</map>

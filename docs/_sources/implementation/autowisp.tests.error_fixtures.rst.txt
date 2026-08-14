@@ -1,0 +1,7 @@
+autowisp.tests.error\_fixtures module
+=====================================
+
+.. automodule:: autowisp.tests.error_fixtures
+   :members:
+   :undoc-members:
+   :show-inheritance:

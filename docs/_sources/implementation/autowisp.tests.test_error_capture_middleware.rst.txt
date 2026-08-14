@@ -1,0 +1,7 @@
+autowisp.tests.test\_error\_capture\_middleware module
+======================================================
+
+.. automodule:: autowisp.tests.test_error_capture_middleware
+   :members:
+   :undoc-members:
+   :show-inheritance:

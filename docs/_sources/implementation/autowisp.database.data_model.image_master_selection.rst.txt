@@ -1,0 +1,7 @@
+autowisp.database.data\_model.image\_master\_selection module
+=============================================================
+
+.. automodule:: autowisp.database.data_model.image_master_selection
+   :members:
+   :undoc-members:
+   :show-inheritance:

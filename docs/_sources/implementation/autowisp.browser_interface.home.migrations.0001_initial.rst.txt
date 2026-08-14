@@ -1,0 +1,7 @@
+autowisp.browser\_interface.home.migrations.0001\_initial module
+================================================================
+
+.. automodule:: autowisp.browser_interface.home.migrations.0001_initial
+   :members:
+   :undoc-members:
+   :show-inheritance:

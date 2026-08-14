@@ -1,0 +1,46 @@
+<map id="inheritancea3b7aa1fc8" name="inheritancea3b7aa1fc8">
+<area shape="rect" id="node1" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="2592,5,2861,32"/>
+<area shape="rect" id="node2" href="#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="2885,5,3120,32"/>
+<area shape="rect" id="node3" href="#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="437,80,632,107"/>
+<area shape="rect" id="node5" href="#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="2903,80,3102,107"/>
+<area shape="rect" id="node11" href="#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="6099,80,6317,107"/>
+<area shape="rect" id="node23" href="#autowisp.exceptions.FormValidationError" target="_top" title="A BUI form failed validation in a way worth recording." alt="" coords="5,155,264,181"/>
+<area shape="rect" id="node31" href="#autowisp.exceptions.ProjectStateError" target="_top" title="The BUI project is in a state that blocks the requested action." alt="" coords="288,155,533,181"/>
+<area shape="rect" id="node37" href="#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="556,155,758,181"/>
+<area shape="rect" id="node4" href="#autowisp.exceptions.BadImageError" target="_top" title="An image does not look like it is expected to." alt="" coords="782,155,1013,181"/>
+<area shape="rect" id="node6" href="#autowisp.exceptions.CalibrationError" target="_top" title="Failure in the calibrate step." alt="" coords="1037,155,1272,181"/>
+<area shape="rect" id="node7" href="#autowisp.exceptions.CatalogError" target="_top" title="A problem with the reference catalog (query or coverage/consistency)." alt="" coords="1295,155,1512,181"/>
+<area shape="rect" id="node12" href="#autowisp.exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="1536,155,1786,181"/>
+<area shape="rect" id="node13" href="#autowisp.exceptions.CreateLightCurvesError" target="_top" title="Failure in the create_lightcurves step." alt="" coords="1810,155,2091,181"/>
+<area shape="rect" id="node16" href="#autowisp.exceptions.DetrendingStatError" target="_top" title="Failure computing detrending statistics." alt="" coords="2116,155,2375,181"/>
+<area shape="rect" id="node17" href="#autowisp.exceptions.EPDError" target="_top" title="Failure in the EPD detrending step." alt="" coords="2398,155,2599,181"/>
+<area shape="rect" id="node19" href="#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="2623,155,2851,181"/>
+<area shape="rect" id="node20" href="#autowisp.exceptions.FitMagnitudesError" target="_top" title="Failure in the fit_magnitudes step." alt="" coords="2875,155,3130,181"/>
+<area shape="rect" id="node21" href="#autowisp.exceptions.FitPSFMapError" target="_top" title="Failure in the fit_source_extracted_psf_map step." alt="" coords="3154,155,3392,181"/>
+<area shape="rect" id="node22" href="#autowisp.exceptions.FitStarShapeError" target="_top" title="Failure in the fit_star_shape step." alt="" coords="3417,155,3665,181"/>
+<area shape="rect" id="node25" href="#autowisp.exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="3690,155,3955,181"/>
+<area shape="rect" id="node27" href="#autowisp.exceptions.MeasurePhotometryError" target="_top" title="Failure in the measure_aperture_photometry step." alt="" coords="3979,155,4268,181"/>
+<area shape="rect" id="node34" href="#autowisp.exceptions.SolveAstrometryError" target="_top" title="Failure in the solve_astrometry step." alt="" coords="4293,155,4562,181"/>
+<area shape="rect" id="node35" href="#autowisp.exceptions.StackToMasterError" target="_top" title="Failure stacking calibration frames into a master." alt="" coords="4587,155,4847,181"/>
+<area shape="rect" id="node36" href="#autowisp.exceptions.TFAError" target="_top" title="Failure in the TFA detrending step." alt="" coords="4871,155,5067,181"/>
+<area shape="rect" id="node38" href="#autowisp.exceptions.WorkerCrashedError" target="_top" title="A multiprocessing worker died without preserving its exception." alt="" coords="5091,155,5354,181"/>
+<area shape="rect" id="node29" href="#autowisp.exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="1028,229,1281,256"/>
+<area shape="rect" id="node8" href="#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="6341,80,6552,107"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="6414,5,6506,32"/>
+<area shape="rect" id="node18" href="#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="6576,80,6768,107"/>
+<area shape="rect" id="node10" href="#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="5378,155,5627,181"/>
+<area shape="rect" id="node14" href="#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="5651,155,5879,181"/>
+<area shape="rect" id="node15" href="#autowisp.exceptions.DependencyResolutionError" target="_top" title="Failure resolving processing&#45;step dependencies." alt="" coords="5904,155,6211,181"/>
+<area shape="rect" id="node24" href="#autowisp.exceptions.HDF5LayoutError" target="_top" title="Error caused by invalid specification of HDF5 layout." alt="" coords="6235,155,6482,181"/>
+<area shape="rect" id="node26" href="#autowisp.exceptions.MasterSelectionError" target="_top" title="Failure selecting the master frame(s) for an image." alt="" coords="6505,155,6772,181"/>
+<area shape="rect" id="node30" href="#autowisp.exceptions.PhotrefBindingError" target="_top" title="Failure binding a photometric reference." alt="" coords="6795,155,7052,181"/>
+<area shape="rect" id="node33" href="#autowisp.exceptions.ResourceError" target="_top" title="Insufficient disk / memory / CPU to continue." alt="" coords="7076,155,7305,181"/>
+<area shape="rect" id="node28" href="#autowisp.exceptions.NoSourcesFoundError" target="_top" title="Source extraction completed but found no sources in a frame." alt="" coords="2600,229,2874,256"/>
+<area shape="rect" id="node32" href="#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="6543,5,6753,32"/>
+<area shape="rect" id="node39" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="6804,5,6905,32"/>
+<area shape="rect" id="node40" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="6792,80,6917,107"/>
+<area shape="rect" id="node41" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="6941,80,7069,107"/>
+<area shape="rect" id="node42" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="6952,5,7059,32"/>
+<area shape="rect" id="node43" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="7096,80,7186,107"/>
+<area shape="rect" id="node44" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="7082,5,7200,32"/>
+</map>

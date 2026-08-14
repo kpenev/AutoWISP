@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.tests module
+===================================================
+
+.. automodule:: autowisp.browser_interface.processing.tests
+   :members:
+   :undoc-members:
+   :show-inheritance:

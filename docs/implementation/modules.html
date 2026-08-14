@@ -58,9 +58,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -176,6 +176,11 @@
 <li class="toctree-l4"><a class="reference internal" href="autowisp.astrometry.html#submodules">Submodules</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.html">autowisp.browser_interface package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.html#submodules">Submodules</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.html">autowisp.data_reduction package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.data_reduction.html#submodules">Submodules</a></li>
 </ul>
@@ -260,11 +265,141 @@
 <li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.write_query_to_file"><code class="docutils literal notranslate"><span class="pre">write_query_to_file()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.crash_report.html">autowisp.crash_report module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.REDACTED"><code class="docutils literal notranslate"><span class="pre">REDACTED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report._add_scrubbed_database"><code class="docutils literal notranslate"><span class="pre">_add_scrubbed_database()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report._error_record"><code class="docutils literal notranslate"><span class="pre">_error_record()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report._read_log_scrubbed"><code class="docutils literal notranslate"><span class="pre">_read_log_scrubbed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.build_crash_report"><code class="docutils literal notranslate"><span class="pre">build_crash_report()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.collect_provenance"><code class="docutils literal notranslate"><span class="pre">collect_provenance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.crash_report_main"><code class="docutils literal notranslate"><span class="pre">crash_report_main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.find_error_progress"><code class="docutils literal notranslate"><span class="pre">find_error_progress()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.latest_error_id"><code class="docutils literal notranslate"><span class="pre">latest_error_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.scrub_config_values"><code class="docutils literal notranslate"><span class="pre">scrub_config_values()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.scrub_mapping"><code class="docutils literal notranslate"><span class="pre">scrub_mapping()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.scrub_text"><code class="docutils literal notranslate"><span class="pre">scrub_text()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.crash_report.html#autowisp.crash_report.select_error_logs"><code class="docutils literal notranslate"><span class="pre">select_error_logs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.error_cli.html">autowisp.error_cli module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_cli.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_cli.html#autowisp.error_cli._wants_traceback"><code class="docutils literal notranslate"><span class="pre">_wants_traceback()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_cli.html#autowisp.error_cli.cli_entry_point"><code class="docutils literal notranslate"><span class="pre">cli_entry_point()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_cli.html#autowisp.error_cli.exit_code_for"><code class="docutils literal notranslate"><span class="pre">exit_code_for()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_cli.html#autowisp.error_cli.report_error"><code class="docutils literal notranslate"><span class="pre">report_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.error_context.html">autowisp.error_context module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.ErrorContext"><code class="docutils literal notranslate"><span class="pre">ErrorContext</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._WorkerEntry"><code class="docutils literal notranslate"><span class="pre">_WorkerEntry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._exit_signal_entry"><code class="docutils literal notranslate"><span class="pre">_exit_signal_entry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._inherit_related_files"><code class="docutils literal notranslate"><span class="pre">_inherit_related_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._pool_exit_signals"><code class="docutils literal notranslate"><span class="pre">_pool_exit_signals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._remember_related_files"><code class="docutils literal notranslate"><span class="pre">_remember_related_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._resolve_related_files"><code class="docutils literal notranslate"><span class="pre">_resolve_related_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._signal_name"><code class="docutils literal notranslate"><span class="pre">_signal_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._stamp"><code class="docutils literal notranslate"><span class="pre">_stamp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._stamp_worker_error"><code class="docutils literal notranslate"><span class="pre">_stamp_worker_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._stream_as_completed"><code class="docutils literal notranslate"><span class="pre">_stream_as_completed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._worker_crashed"><code class="docutils literal notranslate"><span class="pre">_worker_crashed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context._wrap"><code class="docutils literal notranslate"><span class="pre">_wrap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.capture_errors"><code class="docutils literal notranslate"><span class="pre">capture_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.capture_for_queue"><code class="docutils literal notranslate"><span class="pre">capture_for_queue()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.decode_exit_signals"><code class="docutils literal notranslate"><span class="pre">decode_exit_signals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.error_context"><code class="docutils literal notranslate"><span class="pre">error_context()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.forbid_nested_workers"><code class="docutils literal notranslate"><span class="pre">forbid_nested_workers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.get_error_context"><code class="docutils literal notranslate"><span class="pre">get_error_context()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.in_worker"><code class="docutils literal notranslate"><span class="pre">in_worker()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.reraise_from_worker"><code class="docutils literal notranslate"><span class="pre">reraise_from_worker()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.run_pool"><code class="docutils literal notranslate"><span class="pre">run_pool()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.set_error_context"><code class="docutils literal notranslate"><span class="pre">set_error_context()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.set_pipeline_run"><code class="docutils literal notranslate"><span class="pre">set_pipeline_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_context.html#autowisp.error_context.worker_entry"><code class="docutils literal notranslate"><span class="pre">worker_entry()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.error_persistence.html">autowisp.error_persistence module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence._build_error_row"><code class="docutils literal notranslate"><span class="pre">_build_error_row()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence._error_bucket"><code class="docutils literal notranslate"><span class="pre">_error_bucket()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence._iter_sidecar_files"><code class="docutils literal notranslate"><span class="pre">_iter_sidecar_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence._resolve_artifact_fks"><code class="docutils literal notranslate"><span class="pre">_resolve_artifact_fks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence._row_age"><code class="docutils literal notranslate"><span class="pre">_row_age()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence._safe_unlink"><code class="docutils literal notranslate"><span class="pre">_safe_unlink()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence._write_sidecar"><code class="docutils literal notranslate"><span class="pre">_write_sidecar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence.cleanup_errors"><code class="docutils literal notranslate"><span class="pre">cleanup_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence.cleanup_main"><code class="docutils literal notranslate"><span class="pre">cleanup_main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence.delete_all_error_sidecars"><code class="docutils literal notranslate"><span class="pre">delete_all_error_sidecars()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence.delete_error"><code class="docutils literal notranslate"><span class="pre">delete_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence.load_sidecar"><code class="docutils literal notranslate"><span class="pre">load_sidecar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence.parse_duration"><code class="docutils literal notranslate"><span class="pre">parse_duration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_persistence.html#autowisp.error_persistence.persist_error"><code class="docutils literal notranslate"><span class="pre">persist_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.error_render.html">autowisp.error_render module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render._describe_artifact"><code class="docutils literal notranslate"><span class="pre">_describe_artifact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render._run_provenance"><code class="docutils literal notranslate"><span class="pre">_run_provenance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render.error_count"><code class="docutils literal notranslate"><span class="pre">error_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render.error_counts_by_step"><code class="docutils literal notranslate"><span class="pre">error_counts_by_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render.error_detail"><code class="docutils literal notranslate"><span class="pre">error_detail()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render.error_list_rows"><code class="docutils literal notranslate"><span class="pre">error_list_rows()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render.error_summary"><code class="docutils literal notranslate"><span class="pre">error_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render.format_detail_text"><code class="docutils literal notranslate"><span class="pre">format_detail_text()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.error_render.html#autowisp.error_render.open_error_count_for_steps"><code class="docutils literal notranslate"><span class="pre">open_error_count_for_steps()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.evaluator.html">autowisp.evaluator module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator"><code class="docutils literal notranslate"><span class="pre">Evaluator</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator"><code class="docutils literal notranslate"><span class="pre">LightCurveEvaluator</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.LightCurveLookUp"><code class="docutils literal notranslate"><span class="pre">LightCurveLookUp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.exceptions.html">autowisp.exceptions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError"><code class="docutils literal notranslate"><span class="pre">AutoWISPError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.BUIError"><code class="docutils literal notranslate"><span class="pre">BUIError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.BadImageError"><code class="docutils literal notranslate"><span class="pre">BadImageError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.CalibrationError"><code class="docutils literal notranslate"><span class="pre">CalibrationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.CatalogError"><code class="docutils literal notranslate"><span class="pre">CatalogError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component"><code class="docutils literal notranslate"><span class="pre">Component</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError"><code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ConvergenceError"><code class="docutils literal notranslate"><span class="pre">ConvergenceError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.CreateLightCurvesError"><code class="docutils literal notranslate"><span class="pre">CreateLightCurvesError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError"><code class="docutils literal notranslate"><span class="pre">DatabaseError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.DependencyResolutionError"><code class="docutils literal notranslate"><span class="pre">DependencyResolutionError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.DetrendingStatError"><code class="docutils literal notranslate"><span class="pre">DetrendingStatError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.EPDError"><code class="docutils literal notranslate"><span class="pre">EPDError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FileKind"><code class="docutils literal notranslate"><span class="pre">FileKind</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError"><code class="docutils literal notranslate"><span class="pre">FindStarsError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FitMagnitudesError"><code class="docutils literal notranslate"><span class="pre">FitMagnitudesError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FitPSFMapError"><code class="docutils literal notranslate"><span class="pre">FitPSFMapError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FitStarShapeError"><code class="docutils literal notranslate"><span class="pre">FitStarShapeError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FormValidationError"><code class="docutils literal notranslate"><span class="pre">FormValidationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.HDF5LayoutError"><code class="docutils literal notranslate"><span class="pre">HDF5LayoutError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ImageMismatchError"><code class="docutils literal notranslate"><span class="pre">ImageMismatchError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.MasterSelectionError"><code class="docutils literal notranslate"><span class="pre">MasterSelectionError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.MeasurePhotometryError"><code class="docutils literal notranslate"><span class="pre">MeasurePhotometryError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.NoSourcesFoundError"><code class="docutils literal notranslate"><span class="pre">NoSourcesFoundError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.OutsideImageError"><code class="docutils literal notranslate"><span class="pre">OutsideImageError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PhotrefBindingError"><code class="docutils literal notranslate"><span class="pre">PhotrefBindingError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError"><code class="docutils literal notranslate"><span class="pre">PipelineError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ProjectStateError"><code class="docutils literal notranslate"><span class="pre">ProjectStateError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile"><code class="docutils literal notranslate"><span class="pre">RelatedFile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ResourceError"><code class="docutils literal notranslate"><span class="pre">ResourceError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.SolveAstrometryError"><code class="docutils literal notranslate"><span class="pre">SolveAstrometryError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.StackToMasterError"><code class="docutils literal notranslate"><span class="pre">StackToMasterError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.StepError"><code class="docutils literal notranslate"><span class="pre">StepError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.TFAError"><code class="docutils literal notranslate"><span class="pre">TFAError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.ViewError"><code class="docutils literal notranslate"><span class="pre">ViewError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError"><code class="docutils literal notranslate"><span class="pre">WorkerCrashedError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions._rebuild_autowisp_error"><code class="docutils literal notranslate"><span class="pre">_rebuild_autowisp_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.collect_environment"><code class="docutils literal notranslate"><span class="pre">collect_environment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.collect_resource_snapshot"><code class="docutils literal notranslate"><span class="pre">collect_resource_snapshot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.get_hostname"><code class="docutils literal notranslate"><span class="pre">get_hostname()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.sanitize_for_json"><code class="docutils literal notranslate"><span class="pre">sanitize_for_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.file_utilities.html">autowisp.file_utilities module</a><ul>
@@ -335,10 +470,17 @@
 <li class="toctree-l4"><a class="reference internal" href="autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap"><code class="docutils literal notranslate"><span class="pre">PiecewiseBicubicPSFMap</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.pipeline_exceptions.html">autowisp.pipeline_exceptions module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.processor.html">autowisp.processor module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.processor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.processor.html#autowisp.processor.Processor"><code class="docutils literal notranslate"><span class="pre">Processor</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.run_pipeline.html">autowisp.run_pipeline module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.run_pipeline.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.run_pipeline.html#autowisp.run_pipeline._record_escaping_error"><code class="docutils literal notranslate"><span class="pre">_record_escaping_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.run_pipeline.html#autowisp.run_pipeline._run_pipeline"><code class="docutils literal notranslate"><span class="pre">_run_pipeline()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.run_pipeline.html#autowisp.run_pipeline.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.run_pipeline.html#autowisp.run_pipeline.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.source_finder.html">autowisp.source_finder module</a><ul>

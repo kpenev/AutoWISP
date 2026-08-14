@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.models module
+====================================================
+
+.. automodule:: autowisp.browser_interface.processing.models
+   :members:
+   :undoc-members:
+   :show-inheritance:

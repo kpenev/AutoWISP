@@ -1,0 +1,4 @@
+<map id="inheritancee18ffdf854" name="inheritancee18ffdf854">
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="64,5,221,32"/>
+<area shape="rect" id="node3" title="Similar to TransactionTestCase, but use `transaction.atomic()` to achieve" alt="" coords="39,229,246,256"/>
+</map>

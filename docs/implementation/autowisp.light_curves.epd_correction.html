@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -172,13 +172,16 @@
 <span id="autowisp-light-curves-epd-correction-module"></span><h1>autowisp.light_curves.epd_correction module<a class="headerlink" href="#module-autowisp.light_curves.epd_correction" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-7e71b94745df416e19f0395215b18508cab69411.png" alt="Inheritance diagram of Correction, EPDCorrection, EPDError, Evaluator, FitTermsInterface, LightCurveFile, repeat" usemap="#inheritance032411f3a7" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-08e4daba65d94aa87781d67eb887e23b3c45afcf.png" alt="Inheritance diagram of Correction, EPDCorrection, EPDError, Evaluator, FitTermsInterface, LightCurveFile, repeat" usemap="#inheritance032411f3a7" class="inheritance graphviz" /></div>
 <map id="inheritance032411f3a7" name="inheritance032411f3a7">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
 <area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
 <area shape="rect" id="node5" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="788,80,977,107"/>
 <area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
 <area shape="rect" id="node13" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="47,677,374,704"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="993,5,1228,32"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1011,80,1210,107"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.EPDError" target="_top" title="Failure in the EPD detrending step." alt="" coords="1010,155,1211,181"/>
 <area shape="rect" id="node9" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="1252,5,1519,32"/>
 <area shape="rect" id="node11" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="1542,5,1815,32"/>
 <area shape="rect" id="node12" href="#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="1514,80,1843,107"/>

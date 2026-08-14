@@ -1,0 +1,35 @@
+autowisp.browser\_interface.processing package
+==============================================
+
+.. automodule:: autowisp.browser_interface.processing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.processing.migrations
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.processing.admin
+   autowisp.browser_interface.processing.apps
+   autowisp.browser_interface.processing.display_fits_util
+   autowisp.browser_interface.processing.error_views
+   autowisp.browser_interface.processing.log_views
+   autowisp.browser_interface.processing.models
+   autowisp.browser_interface.processing.progress_view
+   autowisp.browser_interface.processing.select_photref_views
+   autowisp.browser_interface.processing.select_raw_view
+   autowisp.browser_interface.processing.tests
+   autowisp.browser_interface.processing.tune_starfind_views
+   autowisp.browser_interface.processing.urls
+   autowisp.browser_interface.processing.views

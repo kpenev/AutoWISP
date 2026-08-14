@@ -1,0 +1,7 @@
+autowisp.tests.test\_lc\_filter module
+======================================
+
+.. automodule:: autowisp.tests.test_lc_filter
+   :members:
+   :undoc-members:
+   :show-inheritance:

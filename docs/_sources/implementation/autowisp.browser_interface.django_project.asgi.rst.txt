@@ -1,0 +1,7 @@
+autowisp.browser\_interface.django\_project.asgi module
+=======================================================
+
+.. automodule:: autowisp.browser_interface.django_project.asgi
+   :members:
+   :undoc-members:
+   :show-inheritance:

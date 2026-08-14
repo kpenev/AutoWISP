@@ -3,5 +3,5 @@ autowisp.astrometry.map\_projections module
 
 .. automodule:: autowisp.astrometry.map_projections
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,60 @@
+<map id="inheritance13cde03dcc" name="inheritance13cde03dcc">
+<area shape="rect" id="node1" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="432,5,700,32"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="725,5,960,32"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="544,80,743,107"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="932,80,1150,107"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.BadImageError" target="_top" title="An image does not look like it is expected to." alt="" coords="5,155,237,181"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.CalibrationError" target="_top" title="Failure in the calibrate step." alt="" coords="261,155,496,181"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="519,155,768,181"/>
+<area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="792,155,1058,181"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="252,229,505,256"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1174,80,1385,107"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1346,5,1437,32"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1409,80,1601,107"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.HDF5LayoutError" target="_top" title="Error caused by invalid specification of HDF5 layout." alt="" coords="1082,155,1328,181"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1854,5,2065,32"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_exception_hierarchy.TestCatalogRetryExhaustion" target="_top" title="A Gaia query that exhausts its retries surfaces as CatalogError." alt="" coords="1624,80,2050,107"/>
+<area shape="rect" id="node16" title="A class whose instances are single test cases." alt="" coords="2792,5,2948,32"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy" target="_top" title="Contracts every concrete AutoWISP exception must satisfy." alt="" coords="2074,80,2472,107"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_exception_hierarchy.TestFrozenRow" target="_top" title="FrozenRow attribute access, immutability, and pickling." alt="" coords="2495,80,2846,107"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_exception_hierarchy.TestMigratedExceptions" target="_top" title="Folded legacy classes are pure AutoWISP exceptions (no stdlib mix&#45;in)." alt="" coords="2870,80,3268,107"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_exception_hierarchy.TestSnapshotRow" target="_top" title="``snapshot_row`` freezes a live ORM instance into a FrozenRow." alt="" coords="3292,80,3657,107"/>
+<area shape="rect" id="node21" href="#autowisp.tests.test_exception_hierarchy.TestToDetailDict" target="_top" title="``to_detail_dict`` + ``sanitize_for_json`` (the sidecar payload)." alt="" coords="3681,80,4036,107"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="4072,5,4172,32"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="4060,80,4185,107"/>
+<area shape="rect" id="node24" title="partial(func, *args, **keywords) &#45; new function with partial application" alt="" coords="4196,5,4310,32"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="4348,80,4438,107"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="4334,5,4452,32"/>
+<area shape="rect" id="node27" title="represents an event target, that is, something we can listen on" alt="" coords="5449,5,5692,32"/>
+<area shape="rect" id="node34" title="Base class for elements that are the targets of :class:`.DDLEvents`" alt="" coords="5440,80,5701,107"/>
+<area shape="rect" id="node28" title="The base class of the class hierarchy." alt="" coords="5715,5,5914,32"/>
+<area shape="rect" id="node40" title="Base class for elements of a programmatically constructed SQL" alt="" coords="4530,379,4787,405"/>
+<area shape="rect" id="node32" title="Establish the ability for a class to have dialect&#45;specific arguments" alt="" coords="3200,752,3432,779"/>
+<area shape="rect" id="node77" title="Represents a column in a database table." alt="" coords="3480,827,3687,853"/>
+<area shape="rect" id="node33" title="mark a ClauseElement as &#39;immutable&#39; when expressions are cloned." alt="" coords="3551,677,3755,704"/>
+<area shape="rect" id="node43" title="Represents a column expression from any textual string." alt="" coords="3456,752,3711,779"/>
+<area shape="rect" id="node35" title="Base class for elements that are targets of a :class:`.SchemaVisitor`." alt="" coords="5450,155,5691,181"/>
+<area shape="rect" id="node78" title="Base class for items that define a database schema." alt="" coords="5041,603,5276,629"/>
+<area shape="rect" id="node36" title="Base class for visitable objects." alt="" coords="5172,80,5379,107"/>
+<area shape="rect" id="node42" title="base class for SQL elements that can be compiled to produce a" alt="" coords="5038,155,5306,181"/>
+<area shape="rect" id="node83" title="The ultimate base class for all SQL datatypes." alt="" coords="5218,304,5450,331"/>
+<area shape="rect" id="node37" title="Mixin for objects which can produce a cache key." alt="" coords="4498,229,4760,256"/>
+<area shape="rect" id="node39" title="A mixin class that maintains the names of memoized elements in a" alt="" coords="4208,229,4474,256"/>
+<area shape="rect" id="node60" title="represents a :class:`.ClauseElement` that compiles to a DQL or DML" alt="" coords="4158,453,4470,480"/>
+<area shape="rect" id="node48" title="Represent a column&#45;oriented SQL expression suitable for usage in the" alt="" coords="2741,528,3002,555"/>
+<area shape="rect" id="node61" title="ColumnElement where ``.key`` is non&#45;None." alt="" coords="2886,603,3185,629"/>
+<area shape="rect" id="node59" title="A type that may be used to indicate any SQL column element or object" alt="" coords="3550,453,3854,480"/>
+<area shape="rect" id="node64" title="A mixin class that marks a class as &#39;typing only&#39;, meaning it has" alt="" coords="3266,304,3512,331"/>
+<area shape="rect" id="node65" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3979,229,4084,256"/>
+<area shape="rect" id="node75" title="element&#45;typed form of ColumnsClauseRole" alt="" coords="3882,304,4181,331"/>
+<area shape="rect" id="node66" title="Defines boolean, comparison, and other operators for" alt="" coords="3536,304,3807,331"/>
+<area shape="rect" id="node67" title="Base of comparison and logical operators." alt="" coords="3558,229,3785,256"/>
+<area shape="rect" id="node70" title="Elements suitable for forming comma separated lists of expressions." alt="" coords="2640,304,2876,331"/>
+<area shape="rect" id="node72" title="Define a &quot;role&quot; within a SQL statement structure." alt="" coords="2660,229,2856,256"/>
+<area shape="rect" id="node79" title="A mixin that marks a type as supporting &#39;concatenation&#39;," alt="" coords="5475,304,5719,331"/>
+<area shape="rect" id="node84" title="The base for all string and character types." alt="" coords="5367,379,5566,405"/>
+<area shape="rect" id="node80" title="classes which subclass this can act as &quot;mixin&quot; classes for" alt="" coords="5612,229,5875,256"/>
+<area shape="rect" id="node81" title="Mixin expression adaptations based on lookup tables." alt="" coords="5743,304,6038,331"/>
+<area shape="rect" id="node82" title="A type for ``int`` integers." alt="" coords="5755,379,5959,405"/>
+<area shape="rect" id="node85" title="base for classes that have a &quot;traverse internals&quot; element," alt="" coords="4462,80,4745,107"/>
+</map>

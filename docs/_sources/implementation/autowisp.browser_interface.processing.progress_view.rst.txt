@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.progress\_view module
+============================================================
+
+.. automodule:: autowisp.browser_interface.processing.progress_view
+   :members:
+   :undoc-members:
+   :show-inheritance:

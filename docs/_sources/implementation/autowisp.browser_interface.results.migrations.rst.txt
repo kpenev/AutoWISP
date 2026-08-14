@@ -1,0 +1,7 @@
+autowisp.browser\_interface.results.migrations package
+======================================================
+
+.. automodule:: autowisp.browser_interface.results.migrations
+   :members:
+   :undoc-members:
+   :show-inheritance:

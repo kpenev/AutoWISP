@@ -1,0 +1,28 @@
+autowisp.browser\_interface.configuration package
+=================================================
+
+.. automodule:: autowisp.browser_interface.configuration
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.configuration.migrations
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.configuration.admin
+   autowisp.browser_interface.configuration.apps
+   autowisp.browser_interface.configuration.models
+   autowisp.browser_interface.configuration.tests
+   autowisp.browser_interface.configuration.urls
+   autowisp.browser_interface.configuration.views

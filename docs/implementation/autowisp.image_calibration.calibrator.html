@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -172,8 +172,13 @@
 <span id="autowisp-image-calibration-calibrator-module"></span><h1>autowisp.image_calibration.calibrator module<a class="headerlink" href="#module-autowisp.image_calibration.calibrator" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-f6f04cafba724e10e38e9fe76526f57264c71c7c.png" alt="Inheritance diagram of CalibrationError, Calibrator, ImageMismatchError, OutsideImageError, Processor" usemap="#inheritance0ae92913b1" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-f8d9a18cd0dac423de8989b0f95278b945c101be.png" alt="Inheritance diagram of CalibrationError, Calibrator, ImageMismatchError, OutsideImageError, Processor" usemap="#inheritance0ae92913b1" class="inheritance graphviz" /></div>
 <map id="inheritance0ae92913b1" name="inheritance0ae92913b1">
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="151,5,385,32"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="168,80,368,107"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.CalibrationError" target="_top" title="Failure in the calibrate step." alt="" coords="15,155,249,181"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="5,229,259,256"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="273,155,538,181"/>
 <area shape="rect" id="node6" href="#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="392,80,688,107"/>
 <area shape="rect" id="node7" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="441,5,639,32"/>
 </map><p>Define a class (Calibrator) for low-level image calibration.</p>

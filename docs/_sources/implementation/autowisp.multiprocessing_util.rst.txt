@@ -3,5 +3,5 @@ autowisp.multiprocessing\_util module
 
 .. automodule:: autowisp.multiprocessing_util
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

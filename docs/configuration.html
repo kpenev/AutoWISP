@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -173,7 +173,7 @@ means. It does not say how AutoWISP decides what a setting <em>is</em> for any
 particular image, which is a separate question and occasionally a
 puzzling one – settings can hold different values for different images,
 some never appear in your configuration at all, and leaving one blank
-does not mean what it looks like it means.</p>
+does not mean what you might think it means.</p>
 <section id="settings-belong-to-the-project">
 <h2>Settings belong to the project<a class="headerlink" href="#settings-belong-to-the-project" title="Link to this heading"></a></h2>
 <p>A setting is not something you pass to a command. It is a row in the
@@ -228,10 +228,10 @@ Every project starts with one condition whose expression is simply
 what a setting with a single, unconditional value amounts to.</p>
 <p>Give a setting more than one value and you are choosing between them by
 condition. When a stage is about to run on an image, AutoWISP evaluates
-the conditions’ expressions against that image’s header, and a value
+the conditions’ expressions against that image’s header. A particular value
 applies if everything its condition asks for came out true. The values
-are tried <strong>in the order they are listed</strong> and the first that applies
-wins, so a general fallback belongs last: put it first and nothing after
+are tried <strong>in the order they are listed</strong>. The first that applies
+wins, so a general fallback belongs last. If you put it first, nothing after
 it is ever reached. If no value applies at all, the run stops with an
 error naming the setting, rather than guessing.</p>
 <p>Two things about the matching are worth knowing. It happens per image,
@@ -250,7 +250,7 @@ which ones and why; the point is that none of them are empty waiting for
 you, and the stored value is what applies until you replace it.</p>
 <p>For a fair number of settings, the value a stage would have used is
 <em>nothing at all</em>. That is a real state in its own right, and not the same
-as an empty box: such a setting is left out of the configuration handed
+as an empty box. Such a setting is left out of the configuration handed
 to the stage, and the stage then decides for itself when it runs.
 <a class="reference internal" href="wisp_options.html#cmdoption-arg-epd-datasets"><code class="xref std std-option docutils literal notranslate"><span class="pre">epd-datasets</span></code></a> and <a class="reference internal" href="wisp_options.html#cmdoption-arg-tfa-datasets"><code class="xref std std-option docutils literal notranslate"><span class="pre">tfa-datasets</span></code></a> are the clearest
 example. Absent, they do not detrend nothing – they detrend every
@@ -260,7 +260,7 @@ reference at the time.</p>
 editor’s value boxes hold text, so clearing one leaves an empty string,
 which is a value like any other rather than an absence. For settings
 where an empty value means nothing sensible, that is an error and not a
-fallback: emptying <a class="reference internal" href="wisp_options.html#cmdoption-arg-tfa-datasets"><code class="xref std std-option docutils literal notranslate"><span class="pre">tfa-datasets</span></code></a> does not restore the behaviour
+fallback. Emptying <a class="reference internal" href="wisp_options.html#cmdoption-arg-tfa-datasets"><code class="xref std std-option docutils literal notranslate"><span class="pre">tfa-datasets</span></code></a> does not restore the behaviour
 described above, it stops the step with a complaint that <code class="docutils literal notranslate"><span class="pre">''</span></code> cannot be
 made sense of as a dataset to detrend.</p>
 <p>Restoring a value to absent is therefore not something the value boxes

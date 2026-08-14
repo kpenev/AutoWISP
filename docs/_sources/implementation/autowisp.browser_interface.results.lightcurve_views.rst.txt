@@ -1,0 +1,7 @@
+autowisp.browser\_interface.results.lightcurve\_views module
+============================================================
+
+.. automodule:: autowisp.browser_interface.results.lightcurve_views
+   :members:
+   :undoc-members:
+   :show-inheritance:

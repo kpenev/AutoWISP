@@ -3,5 +3,5 @@ autowisp.database.data\_model.configuration module
 
 .. automodule:: autowisp.database.data_model.configuration
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,1567 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_error_context &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_error_context</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_error_context</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the ambient error context and capture layer.</span>
+
+<span class="sd">The in-process tests need no pipeline fixtures or database; the</span>
+<span class="sd">cross-process tests spin up a real ``multiprocessing.Pool`` (through</span>
+<span class="sd">``run_pool``) and let its worker bootstrap with the real</span>
+<span class="sd">``setup_process_map``, which initialises a throwaway project home in a</span>
+<span class="sd">temporary directory. Each test starts from a clean ambient context (reset</span>
+<span class="sd">in ``setUp``).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Queue</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ecmod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ErrorContext</span><span class="p">,</span>
+    <span class="n">_resolve_related_files</span><span class="p">,</span>
+    <span class="n">_worker_crashed</span><span class="p">,</span>
+    <span class="n">capture_errors</span><span class="p">,</span>
+    <span class="n">capture_for_queue</span><span class="p">,</span>
+    <span class="n">error_context</span><span class="p">,</span>
+    <span class="n">forbid_nested_workers</span><span class="p">,</span>
+    <span class="n">get_error_context</span><span class="p">,</span>
+    <span class="n">in_worker</span><span class="p">,</span>
+    <span class="n">reraise_from_worker</span><span class="p">,</span>
+    <span class="n">run_pool</span><span class="p">,</span>
+    <span class="n">set_error_context</span><span class="p">,</span>
+    <span class="n">set_pipeline_run</span><span class="p">,</span>
+    <span class="n">worker_entry</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Component</span><span class="p">,</span>
+    <span class="n">FileKind</span><span class="p">,</span>
+    <span class="n">FindStarsError</span><span class="p">,</span>
+    <span class="n">MeasurePhotometryError</span><span class="p">,</span>
+    <span class="n">PipelineError</span><span class="p">,</span>
+    <span class="n">RelatedFile</span><span class="p">,</span>
+    <span class="n">SolveAstrometryError</span><span class="p">,</span>
+    <span class="n">StackToMasterError</span><span class="p">,</span>
+    <span class="n">StepError</span><span class="p">,</span>
+    <span class="n">ViewError</span><span class="p">,</span>
+    <span class="n">WorkerCrashedError</span><span class="p">,</span>
+    <span class="n">collect_resource_snapshot</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.solve_astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">manage_astrometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.frozen_row</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenRow</span>
+
+
+<div class="viewcode-block" id="_dr_file">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._dr_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_dr_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;/tmp/x.h5&quot;</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A small RelatedFile for related-files assertions.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_lc_with_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._lc_with_reference">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_lc_with_reference</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A ``related_files`` classifier: the item plus a batch-constant ref.</span>
+
+<span class="sd">    Module-level (so it is picklable to workers) and returns *multiple*</span>
+<span class="sd">    files -- the per-item lightcurve and the single photometric reference</span>
+<span class="sd">    the whole batch shares -- exactly the shape the detrending call site</span>
+<span class="sd">    builds via ``functools.partial``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">),</span>
+        <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/dr/ref.h5&quot;</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;single_photref&quot;</span><span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_raise_find_stars_error">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._raise_find_stars_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_raise_find_stars_error</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Module-level Pool worker that raises a StepError.</span>
+
+<span class="sd">    Must be top-level (not a closure/lambda) so ``Pool.map`` can pickle</span>
+<span class="sd">    it to the worker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">raise</span> <span class="n">FindStarsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;boom in worker for </span><span class="si">{</span><span class="n">item</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_raise_value_error">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._raise_value_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_raise_value_error</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Module-level Pool worker that raises a bare (non-AutoWISP) error.&quot;&quot;&quot;</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bad value in worker for </span><span class="si">{</span><span class="n">item</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_hard_exit_worker">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._hard_exit_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_hard_exit_worker</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Module-level Pool worker that hard-exits without an exception.&quot;&quot;&quot;</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span></div>
+
+
+
+<div class="viewcode-block" id="_segfault_worker">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._segfault_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_segfault_worker</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Module-level Pool worker that crashes with a real SIGSEGV.</span>
+
+<span class="sd">    Used to prove ``faulthandler`` (armed in ``setup_process_map``) dumps a</span>
+<span class="sd">    native traceback into the worker&#39;s own redirected log before it dies.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">resource</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+
+        <span class="c1"># No core file, so a CI box is not littered with them.</span>
+        <span class="n">resource</span><span class="o">.</span><span class="n">setrlimit</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">RLIMIT_CORE</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">pass</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">string_at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># dereference NULL -&gt; SIGSEGV</span></div>
+
+
+
+<div class="viewcode-block" id="_nested_run_pool_worker">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._nested_run_pool_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_nested_run_pool_worker</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Worker that (illegally) tries to launch its own pool.</span>
+
+<span class="sd">    Used to prove the no-nested-workers guard end-to-end: this runs inside</span>
+<span class="sd">    a real worker (so ``setup_process_map`` has set ``in_worker``), and the</span>
+<span class="sd">    inner ``run_pool`` must refuse before spawning anything.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">run_pool</span><span class="p">(</span><span class="n">_noop</span><span class="p">,</span> <span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="n">config</span><span class="o">=</span><span class="p">{},</span> <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_instant_exit">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._instant_exit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_instant_exit</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Module-level Process target that hard-exits without an exception.&quot;&quot;&quot;</span>
+
+    <span class="c1"># os._exit skips cleanup -- exactly how a segfault/OOM-killed worker</span>
+    <span class="c1"># dies, which is what we are simulating.</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span></div>
+
+
+
+<div class="viewcode-block" id="_noop">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._noop">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_noop</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Do-nothing stand-in for the per-image mark_start / mark_end hooks.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="_process_queue_worker">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._process_queue_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_queue_worker</span><span class="p">(</span><span class="n">result_queue</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process worker that bootstraps, fails, and queues the stamped error.</span>
+
+<span class="sd">    Mirrors ``solve_astrometry.astrometry_process``: bootstrap the ambient</span>
+<span class="sd">    context from ``config``, catch the failure, and put the result of</span>
+<span class="sd">    ``capture_for_queue`` (a stamped, picklable error) on the queue rather</span>
+<span class="sd">    than raising out of the process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">setup_process</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;no wcs in worker&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">capture_for_queue</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="_pool_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._pool_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pool_config</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal per-process config for ``run_pool``&#39;s bootstrap.</span>
+
+<span class="sd">    ``setup_process_map`` runs in each worker; pointing it at a temporary</span>
+<span class="sd">    ``project_home`` keeps its side effects (a throwaway SQLite DB and the</span>
+<span class="sd">    per-worker log / stdout-stderr files) inside the temp dir.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;project_home&quot;</span><span class="p">:</span> <span class="n">project_home</span><span class="p">,</span>
+        <span class="s2">&quot;pipeline_run_id&quot;</span><span class="p">:</span> <span class="n">run_id</span><span class="p">,</span>
+        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;testhost&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pipeline_started&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;code_version&quot;</span><span class="p">:</span> <span class="s2">&quot;testver&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;processing_step&quot;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span>
+        <span class="s2">&quot;std_out_err_fname&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">project_home</span><span class="p">,</span> <span class="s2">&quot;worker_</span><span class="si">{pid:d}</span><span class="s2">.outerr&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;logging_fname&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="s2">&quot;worker_</span><span class="si">{pid:d}</span><span class="s2">.log&quot;</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="_ContextTestCase">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._ContextTestCase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_ContextTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base resetting the ambient context to empty before each test.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="_ContextTestCase.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context._ContextTestCase.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">set_error_context</span><span class="p">(</span><span class="n">ErrorContext</span><span class="p">())</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestErrorContextDataclass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestErrorContextDataclass">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestErrorContextDataclass</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The ErrorContext bundle itself.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestErrorContextDataclass.test_defaults">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestErrorContextDataclass.test_defaults">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bare ErrorContext has empty/None fields.&quot;&quot;&quot;</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ErrorContext</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">related_files</span><span class="p">,</span> <span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestErrorContextDataclass.test_frozen">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestErrorContextDataclass.test_frozen">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_frozen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ErrorContext is immutable.&quot;&quot;&quot;</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ErrorContext</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="s2">&quot;find_stars&quot;</span>  <span class="c1"># frozen dataclass -&gt; error</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestFromConfig">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestFromConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestFromConfig</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ErrorContext.from_config rebuilds context from a config dict.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestFromConfig.test_empty_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestFromConfig.test_empty_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;No run keys -&gt; no snapshot, no step, main process.&quot;&quot;&quot;</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ErrorContext</span><span class="o">.</span><span class="n">from_config</span><span class="p">({})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFromConfig.test_full_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestFromConfig.test_full_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_full_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run keys produce a populated pipeline-run snapshot.&quot;&quot;&quot;</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ErrorContext</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;pipeline_run_id&quot;</span><span class="p">:</span> <span class="mi">88</span><span class="p">,</span>
+                <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;node3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pipeline_started&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-06-21T00:00:00&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;code_version&quot;</span><span class="p">:</span> <span class="s2">&quot;abc123&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;processing_step&quot;</span><span class="p">:</span> <span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;parent_pid&quot;</span><span class="p">:</span> <span class="mi">4321</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">,</span> <span class="n">FrozenRow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">88</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;node3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">code_version</span><span class="p">,</span> <span class="s2">&quot;abc123&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;solve_astrometry&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFromConfig.test_code_version_fallback">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestFromConfig.test_code_version_fallback">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_code_version_fallback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A missing code_version falls back to get_code_version_str().&quot;&quot;&quot;</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ErrorContext</span><span class="o">.</span><span class="n">from_config</span><span class="p">({</span><span class="s2">&quot;pipeline_run_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">code_version</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">code_version</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFromConfig.test_sentinel_step_names_become_none">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestFromConfig.test_sentinel_step_names_become_none">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_sentinel_step_names_become_none</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bootstrap sentinels are not treated as real step names.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">sentinel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;init_processing&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">ErrorContext</span><span class="o">.</span><span class="n">from_config</span><span class="p">({</span><span class="s2">&quot;processing_step&quot;</span><span class="p">:</span> <span class="n">sentinel</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestFromConfig.test_in_worker_from_parent_pid">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestFromConfig.test_in_worker_from_parent_pid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_in_worker_from_parent_pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;in_worker is True iff a truthy parent_pid is present.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ErrorContext</span><span class="o">.</span><span class="n">from_config</span><span class="p">({</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">:</span> <span class="mi">999</span><span class="p">})</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span>
+        <span class="c1"># The main process threads parent_pid=&quot;&quot; -&gt; falsy -&gt; not a worker.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ErrorContext</span><span class="o">.</span><span class="n">from_config</span><span class="p">({</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ErrorContext</span><span class="o">.</span><span class="n">from_config</span><span class="p">({})</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestAmbientAccessors">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestAmbientAccessors">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAmbientAccessors</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;get/set helpers and in_worker().&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestAmbientAccessors.test_set_and_get">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestAmbientAccessors.test_set_and_get">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_set_and_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set_error_context installs a bundle get_error_context returns.&quot;&quot;&quot;</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ErrorContext</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="n">in_worker</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">set_error_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">get_error_context</span><span class="p">(),</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">in_worker</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestAmbientAccessors.test_set_pipeline_run_keeps_rest">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestAmbientAccessors.test_set_pipeline_run_keeps_rest">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_set_pipeline_run_keeps_rest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set_pipeline_run swaps only the run, preserving other fields.&quot;&quot;&quot;</span>
+
+        <span class="n">set_error_context</span><span class="p">(</span>
+            <span class="n">ErrorContext</span><span class="p">(</span>
+                <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span>
+                <span class="n">related_files</span><span class="o">=</span><span class="p">(</span><span class="n">_dr_file</span><span class="p">(),),</span>
+                <span class="n">in_worker</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">})</span>
+        <span class="n">set_pipeline_run</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;tfa&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">related_files</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestErrorContextManager">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestErrorContextManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestErrorContextManager</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The error_context() scoping context manager.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestErrorContextManager.test_scopes_and_restores">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestErrorContextManager.test_scopes_and_restores">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_scopes_and_restores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Step + files apply inside the block and are removed after.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">,</span> <span class="n">related_files</span><span class="o">=</span><span class="p">[</span><span class="n">_dr_file</span><span class="p">()]):</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">related_files</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">related_files</span><span class="p">,</span> <span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestErrorContextManager.test_nesting_innermost_step_wins_and_files_accumulate">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestErrorContextManager.test_nesting_innermost_step_wins_and_files_accumulate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_nesting_innermost_step_wins_and_files_accumulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inner step overrides; related files from both levels stack.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">related_files</span><span class="o">=</span><span class="p">[</span><span class="n">_dr_file</span><span class="p">(</span><span class="s2">&quot;/a&quot;</span><span class="p">)]):</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span>
+                <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">related_files</span><span class="o">=</span><span class="p">[</span><span class="n">_dr_file</span><span class="p">(</span><span class="s2">&quot;/b&quot;</span><span class="p">)]</span>
+            <span class="p">):</span>
+                <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">rf</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">rf</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">related_files</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">&quot;/a&quot;</span><span class="p">,</span> <span class="s2">&quot;/b&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="c1"># Back to the outer scope.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_error_context</span><span class="p">()</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;outer&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestErrorContextManager.test_keeps_pipeline_run_and_worker_flag">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestErrorContextManager.test_keeps_pipeline_run_and_worker_flag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_keeps_pipeline_run_and_worker_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The block inherits run + in_worker from the current context.&quot;&quot;&quot;</span>
+
+        <span class="n">run</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+        <span class="n">set_error_context</span><span class="p">(</span><span class="n">ErrorContext</span><span class="p">(</span><span class="n">pipeline_run</span><span class="o">=</span><span class="n">run</span><span class="p">,</span> <span class="n">in_worker</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;epd&quot;</span><span class="p">):</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">in_worker</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestCaptureErrors">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCaptureErrors</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The capture_errors decorator stamps + optionally wraps.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestCaptureErrors.test_bare_value_error_wrapped_to_step_subclass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_bare_value_error_wrapped_to_step_subclass">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_bare_value_error_wrapped_to_step_subclass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bare ValueError becomes the ambient step&#39;s StepError type.&quot;&quot;&quot;</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad pixels&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">boom</span><span class="p">()</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="s2">&quot;bad pixels&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">__cause__</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCaptureErrors.test_unknown_step_falls_back_to_base_steperror">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_unknown_step_falls_back_to_base_steperror">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_step_falls_back_to_base_steperror</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An unmapped step name yields a plain StepError.&quot;&quot;&quot;</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;mystery_step&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">StepError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">boom</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="p">),</span> <span class="n">StepError</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;mystery_step&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCaptureErrors.test_pipeline_and_bui_wrapping">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_pipeline_and_bui_wrapping">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_pipeline_and_bui_wrapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component selects the wrapper class.&quot;&quot;&quot;</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">PIPELINE</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom_pipeline</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">BUI</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom_bui</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+            <span class="n">boom_pipeline</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ViewError</span><span class="p">):</span>
+            <span class="n">boom_bui</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestCaptureErrors.test_existing_autowisp_error_passes_through_stamped">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_existing_autowisp_error_passes_through_stamped">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_existing_autowisp_error_passes_through_stamped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An AutoWISPError keeps its type and gets stamped from context.&quot;&quot;&quot;</span>
+
+        <span class="n">run</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;h&quot;</span><span class="p">})</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">StackToMasterError</span><span class="p">(</span><span class="s2">&quot;cannot stack&quot;</span><span class="p">)</span>
+
+        <span class="n">set_pipeline_run</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span>
+            <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="n">related_files</span><span class="o">=</span><span class="p">[</span><span class="n">_dr_file</span><span class="p">()]</span>
+        <span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">StackToMasterError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">boom</span><span class="p">()</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;stack_to_master&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">crashed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">related_files</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCaptureErrors.test_no_run_leaves_pipeline_run_none">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_no_run_leaves_pipeline_run_none">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_run_leaves_pipeline_run_none</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;With no run in context, pipeline_run/crashed stay unset.&quot;&quot;&quot;</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">PIPELINE</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">boom</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">crashed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCaptureErrors.test_preset_step_name_not_overwritten">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_preset_step_name_not_overwritten">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_preset_step_name_not_overwritten</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A step name set at the raise site survives stamping.&quot;&quot;&quot;</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">FindStarsError</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;explicit&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">boom</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;explicit&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCaptureErrors.test_wrap_unknown_false_passes_through">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_wrap_unknown_false_passes_through">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_wrap_unknown_false_passes_through</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;With wrap_unknown=False the original exception is untouched.&quot;&quot;&quot;</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">,</span> <span class="n">wrap_unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+                <span class="n">boom</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestCaptureErrors.test_success_returns_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestCaptureErrors.test_success_returns_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_success_returns_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The happy path returns the wrapped callable&#39;s result.&quot;&quot;&quot;</span>
+
+        <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">ok</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">123</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ok</span><span class="p">(),</span> <span class="mi">123</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestWorkerEntry">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestWorkerEntry</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;worker_entry stamps subprocess_id and stays picklable.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestWorkerEntry.test_bare_exception_wrapped_to_step_subclass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_bare_exception_wrapped_to_step_subclass">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_bare_exception_wrapped_to_step_subclass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bare worker exception becomes the mapped, picklable StepError.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;kaboom&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">worker_entry</span><span class="p">(</span><span class="n">boom</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)()</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">__cause__</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span>
+
+        <span class="n">restored</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">,</span> <span class="n">restored</span><span class="o">.</span><span class="n">details</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_autowisp_error_passes_through_stamped">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_autowisp_error_passes_through_stamped">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_autowisp_error_passes_through_stamped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An AutoWISPError keeps its type and gains subprocess_id.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">SolveAstrometryError</span><span class="p">(</span><span class="s2">&quot;no wcs&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">SolveAstrometryError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">worker_entry</span><span class="p">(</span><span class="n">boom</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;solve_astrometry&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_success_returns_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_success_returns_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_success_returns_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;worker_entry is transparent on the happy path.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">worker_entry</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)(),</span> <span class="mi">7</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_inflight_map_tracks_then_clears_item">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_inflight_map_tracks_then_clears_item">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_inflight_map_tracks_then_clears_item</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The item is in the in-flight map while running, gone after.</span>
+
+<span class="sd">        (A plain dict stands in for the ``Manager().dict()`` proxy; the</span>
+<span class="sd">        write/clear logic is the same.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">tracker</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fn</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+            <span class="n">seen</span><span class="p">[</span><span class="s2">&quot;during&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">tracker</span><span class="p">)</span>  <span class="c1"># snapshot while executing</span>
+            <span class="k">return</span> <span class="n">item</span> <span class="o">*</span> <span class="mi">2</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">worker_entry</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)(</span><span class="mi">21</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">seen</span><span class="p">[</span><span class="s2">&quot;during&quot;</span><span class="p">],</span> <span class="p">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">():</span> <span class="mi">21</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">tracker</span><span class="p">),</span> <span class="p">{})</span>  <span class="c1"># cleared on return</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_inflight_map_cleared_on_error">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_inflight_map_cleared_on_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_inflight_map_cleared_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A failing task still clears its in-flight entry.&quot;&quot;&quot;</span>
+
+        <span class="n">tracker</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">):</span>
+                <span class="n">worker_entry</span><span class="p">(</span><span class="n">boom</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">,</span> <span class="n">tracker</span><span class="p">)(</span><span class="mi">7</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">tracker</span><span class="p">),</span> <span class="p">{})</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_resolve_related_files_from_kind_and_callable">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_from_kind_and_callable">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_related_files_from_kind_and_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A FileKind wraps a path item; a callable is used as given.&quot;&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">rf</span><span class="p">,)</span> <span class="o">=</span> <span class="n">_resolve_related_files</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">&quot;/lc/x.h5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="s2">&quot;/lc/x.h5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">role</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
+
+        <span class="n">made</span> <span class="o">=</span> <span class="n">_dr_file</span><span class="p">(</span><span class="s2">&quot;/data/y.h5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">_resolve_related_files</span><span class="p">(</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">made</span><span class="p">,</span> <span class="s2">&quot;anything&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">made</span><span class="p">,)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_resolve_related_files_callable_returning_many">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_callable_returning_many">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_related_files_callable_returning_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A classifier may return several files (item + batch constants).&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_resolve_related_files</span><span class="p">(</span><span class="n">_lc_with_reference</span><span class="p">,</span> <span class="s2">&quot;/lc/x.h5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="s2">&quot;/lc/x.h5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="s2">&quot;/dr/ref.h5&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_resolve_related_files_is_total">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_resolve_related_files_is_total">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_related_files_is_total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;No classifier, no item, or a bad classifier -&gt; empty, no raise.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_resolve_related_files</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;/lc/x.h5&quot;</span><span class="p">),</span> <span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_resolve_related_files</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="p">())</span>
+        <span class="c1"># A FileKind on a non-path item (Path(42) raises) degrades to empty.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_resolve_related_files</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="mi">42</span><span class="p">),</span> <span class="p">())</span>
+        <span class="c1"># A classifier that raises degrades to empty.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_resolve_related_files</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">),</span> <span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestWorkerEntry.test_subprocess_id_not_overwritten_by_later_stamp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestWorkerEntry.test_subprocess_id_not_overwritten_by_later_stamp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_subprocess_id_not_overwritten_by_later_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An already-stamped subprocess_id survives a second boundary.</span>
+
+<span class="sd">        Models an exception stamped by one ``except`` that then passes</span>
+<span class="sd">        through another on its way out of the *same* worker: the second</span>
+<span class="sd">        stamp is a no-op (``stamp_subprocess`` is idempotent), so the first</span>
+<span class="sd">        PID wins rather than being overwritten.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">boom</span><span class="p">():</span>
+            <span class="n">exc</span> <span class="o">=</span> <span class="n">FindStarsError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+            <span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span> <span class="o">=</span> <span class="mi">4242</span>  <span class="c1"># stamped by a deeper except already</span>
+            <span class="k">raise</span> <span class="n">exc</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">worker_entry</span><span class="p">(</span><span class="n">boom</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="mi">4242</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestPoolPropagation">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPoolPropagation</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Errors raised in real Pool workers cross back stamped.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestPoolPropagation.test_step_error_propagates_with_context">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_step_error_propagates_with_context">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_step_error_propagates_with_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A worker StepError returns same-typed, stamped, with traceback.</span>
+
+<span class="sd">        Exercises the full ``run_pool`` round trip: the worker bootstraps</span>
+<span class="sd">        its context from ``config`` (via the real ``setup_process_map``),</span>
+<span class="sd">        raises a ``FindStarsError``, and the parent receives the *same*</span>
+<span class="sd">        type carrying the worker&#39;s ``subprocess_id`` (a different PID), the</span>
+<span class="sd">        step name and pipeline-run snapshot rebuilt in the worker, and the</span>
+<span class="sd">        worker traceback both in ``details`` and as the Pool&#39;s</span>
+<span class="sd">        ``RemoteTraceback`` cause.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">run_pool</span><span class="p">(</span>
+                    <span class="n">_raise_find_stars_error</span><span class="p">,</span>
+                    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">77</span><span class="p">),</span>
+                    <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="c1"># Stamped inside the worker, which is a different process:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+        <span class="c1"># Step + run context rebuilt in the worker from config:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">77</span><span class="p">)</span>
+        <span class="c1"># Worker traceback survives both ways:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;boom in worker&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">__cause__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;boom in worker&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">__cause__</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_bare_exception_wrapped_to_mapped_step_error">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_bare_exception_wrapped_to_mapped_step_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_bare_exception_wrapped_to_mapped_step_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A worker&#39;s bare exception returns as the step&#39;s StepError subclass.</span>
+
+<span class="sd">        The worker raises a plain ``ValueError``; ``_wrap`` maps the</span>
+<span class="sd">        ambient step name to its concrete subclass, so the parent receives</span>
+<span class="sd">        a ``MeasurePhotometryError``. The original is not kept as a live</span>
+<span class="sd">        ``__cause__`` across the Pool (our pickling carries only the</span>
+<span class="sd">        fields, and multiprocessing replaces ``__cause__`` with its</span>
+<span class="sd">        ``RemoteTraceback``); the durable record is the formatted traceback</span>
+<span class="sd">        in ``details``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">MeasurePhotometryError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">run_pool</span><span class="p">(</span>
+                    <span class="n">_raise_value_error</span><span class="p">,</span>
+                    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                        <span class="n">project_home</span><span class="p">,</span>
+                        <span class="n">run_id</span><span class="o">=</span><span class="mi">88</span><span class="p">,</span>
+                        <span class="n">step</span><span class="o">=</span><span class="s2">&quot;measure_aperture_photometry&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;measure_aperture_photometry&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="s2">&quot;bad value in worker for 1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+        <span class="c1"># The original ValueError is recorded as a traceback string:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;ValueError&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;bad value in worker&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">])</span>
+        <span class="c1"># ... and is visible via the Pool&#39;s RemoteTraceback cause:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">__cause__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;bad value in worker&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">__cause__</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_hard_exit_raises_worker_crashed">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_hard_exit_raises_worker_crashed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_hard_exit_raises_worker_crashed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A worker that hard-exits surfaces as WorkerCrashedError, no hang.</span>
+
+<span class="sd">        ``ProcessPoolExecutor`` reports the death as ``BrokenProcessPool``</span>
+<span class="sd">        (a bare ``multiprocessing.Pool`` would hang here), which</span>
+<span class="sd">        ``run_pool`` converts into a ``WorkerCrashedError`` describing the</span>
+<span class="sd">        in-flight inputs instead of blocking the pipeline forever.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">run_pool</span><span class="p">(</span>
+                    <span class="n">_hard_exit_worker</span><span class="p">,</span>
+                    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">),</span>
+                    <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;num_inputs&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;pool_error&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_crashed_carries_step_name">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_carries_step_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_carries_step_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The synthesised WorkerCrashedError records the ambient step.</span>
+
+<span class="sd">        Regression for the &quot;no matching logs found&quot; crash-report gap: the</span>
+<span class="sd">        step name must reach the queryable ``step_name`` attribute (which</span>
+<span class="sd">        the persistence layer writes to ``error.step_name`` and</span>
+<span class="sd">        crash-report log-collection resolves the run/step logs from), not</span>
+<span class="sd">        only the free-text message. The parent stamps it from its ambient</span>
+<span class="sd">        context -- in the pipeline it is inside</span>
+<span class="sd">        ``error_context(step_name=...)`` when it launches the pool.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                    <span class="n">run_pool</span><span class="p">(</span>
+                        <span class="n">_hard_exit_worker</span><span class="p">,</span>
+                        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                            <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="c1"># The attribute persistence reads (getattr(exc, &quot;step_name&quot;, ...)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;tfa&quot;</span><span class="p">)</span>
+        <span class="c1"># And the belt-and-braces copy that reaches the sidecar:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;step_name&quot;</span><span class="p">],</span> <span class="s2">&quot;tfa&quot;</span><span class="p">)</span>
+        <span class="c1"># A worker death is a step failure, not an orchestration failure:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_crashed_names_inflight_input">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_names_inflight_input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_names_inflight_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A silent death records the in-flight item(s), not a head sample.</span>
+
+<span class="sd">        The wrapped worker writes its item into the shared in-flight map</span>
+<span class="sd">        before running; a hard ``os._exit`` leaves it there, so</span>
+<span class="sd">        ``_worker_crashed`` can name the culprit in</span>
+<span class="sd">        ``details[&quot;crashed_inputs&quot;]`` (bounded by the worker count).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;/lc/BBB.h5&quot;</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                    <span class="n">run_pool</span><span class="p">(</span>
+                        <span class="n">_hard_exit_worker</span><span class="p">,</span>
+                        <span class="n">items</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                            <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="n">crashed</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;crashed_inputs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">crashed</span><span class="p">,</span> <span class="s2">&quot;expected a non-empty crashed_inputs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">crashed</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_faulthandler_dumps_native_traceback">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_faulthandler_dumps_native_traceback">[docs]</a>
+    <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;no way to provoke a segfault: ctypes.string_at(0) raises a &quot;</span>
+        <span class="s2">&quot;catchable OSError on Windows rather than killing the worker&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_faulthandler_dumps_native_traceback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A segfaulting worker leaves a native dump in its own log.</span>
+
+<span class="sd">        Proves the ``faulthandler`` armed in ``setup_process_map`` turns an</span>
+<span class="sd">        otherwise-silent SIGSEGV into a collectable C-level traceback --</span>
+<span class="sd">        which is what distinguishes the faulted worker from the innocents</span>
+<span class="sd">        the executor merely terminates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">):</span>
+                    <span class="n">run_pool</span><span class="p">(</span>
+                        <span class="n">_segfault_worker</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">],</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                            <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Worker logs live under a parent-pid subdirectory.</span>
+            <span class="n">logs</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">,</span> <span class="s2">&quot;*.outerr&quot;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">blobs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">logs</span>
+            <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="nb">any</span><span class="p">(</span>
+                <span class="s2">&quot;Fatal Python error&quot;</span> <span class="ow">in</span> <span class="n">b</span> <span class="ow">or</span> <span class="s2">&quot;Current thread&quot;</span> <span class="ow">in</span> <span class="n">b</span>
+                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blobs</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;no faulthandler native dump found in any worker log&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_crashed_records_exit_signal">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_records_exit_signal">[docs]</a>
+    <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">,</span> <span class="s2">&quot;signal decoding is POSIX-only (see item 5)&quot;</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_records_exit_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A native crash records the decoded killing signal.</span>
+
+<span class="sd">        The tell for OOM/jetsam (``SIGKILL``) vs. a native crash</span>
+<span class="sd">        (``SIGSEGV``); here a segfault is expected to surface as</span>
+<span class="sd">        ``SIGSEGV``. (On Windows the code is an NTSTATUS, not a signal --</span>
+<span class="sd">        that path is covered by ``TestExitSignalDecode``.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                    <span class="n">run_pool</span><span class="p">(</span>
+                        <span class="n">_segfault_worker</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">],</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                            <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exit_signal&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;SIGSEGV&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;signal&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_crashed_records_resources">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_records_resources">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_records_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A crash records a memory snapshot + the worker count.</span>
+
+<span class="sd">        ``N`` workers vs. total RAM is what makes an OOM/jetsam death easy</span>
+<span class="sd">        to judge (paired with a SIGKILL and no native dump from items 4-5).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                    <span class="n">run_pool</span><span class="p">(</span>
+                        <span class="n">_hard_exit_worker</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">],</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                            <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">num_processes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="n">resources</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_processes&quot;</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ram_total&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_error_carries_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_error_carries_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A worker error carries its process config (via from_config).</span>
+
+<span class="sd">        The resolved config lives only at runtime, so recording it is the</span>
+<span class="sd">        only way a report shows the settings the step actually ran with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">run_pool</span><span class="p">(</span>
+                    <span class="n">_raise_find_stars_error</span><span class="p">,</span>
+                    <span class="p">[</span><span class="s2">&quot;/lc/A.h5&quot;</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                        <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">77</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span>
+                    <span class="p">),</span>
+                    <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processing_step&quot;</span><span class="p">),</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;code_version&quot;</span><span class="p">),</span> <span class="s2">&quot;testver&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_crashed_carries_scoped_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_carries_scoped_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_carries_scoped_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A crash carries the *failing step&#39;s* config, scoped by the manager.</span>
+
+<span class="sd">        The parent&#39;s own context holds the base ``add_images_to_db`` config,</span>
+<span class="sd">        so the failing step&#39;s config must come from the</span>
+<span class="sd">        ``error_context(config=...)`` the manager scopes at dispatch (here</span>
+<span class="sd">        simulated around ``run_pool``) -- not from the parent context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="n">step_config</span> <span class="o">=</span> <span class="n">_pool_config</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">)</span>
+            <span class="n">step_config</span><span class="p">[</span><span class="s2">&quot;detrend_rej_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span>  <span class="c1"># a step-specific marker</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">step_config</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                    <span class="n">run_pool</span><span class="p">(</span>
+                        <span class="n">_hard_exit_worker</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;/lc/A.h5&quot;</span><span class="p">],</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">step_config</span><span class="p">,</span>
+                        <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;detrend_rej_level&quot;</span><span class="p">),</span> <span class="mf">5.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processing_step&quot;</span><span class="p">),</span> <span class="s2">&quot;tfa&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_error_carries_related_file">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_related_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_error_carries_related_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A worker error carries the item it was processing as a file.</span>
+
+<span class="sd">        The ``related_files`` classifier scopes the item as the ambient</span>
+<span class="sd">        related file inside the worker, so an error raised for it (here a</span>
+<span class="sd">        ``FindStarsError``) crosses back carrying that file -- the datum a</span>
+<span class="sd">        config-vs-file-content failure most needs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">run_pool</span><span class="p">(</span>
+                    <span class="n">_raise_find_stars_error</span><span class="p">,</span>
+                    <span class="p">[</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">77</span><span class="p">),</span>
+                    <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">related_files</span><span class="o">=</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">related</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">related_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">related</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">related</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">related</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_crashed_promotes_related_files">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_promotes_related_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_promotes_related_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A silent death promotes the in-flight item to a related file.</span>
+
+<span class="sd">        So a ``WorkerCrashedError`` links straight to the offending file</span>
+<span class="sd">        (rendered / FK-resolved), not only a ``details`` string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                    <span class="n">run_pool</span><span class="p">(</span>
+                        <span class="n">_hard_exit_worker</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;/lc/BBB.h5&quot;</span><span class="p">],</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span>
+                            <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">related_files</span><span class="o">=</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="n">related</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">related_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">related</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">related</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">r</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">related</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;/lc/BBB.h5&quot;</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_error_carries_reference_files">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_error_carries_reference_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_error_carries_reference_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A multi-file classifier attaches item *and* batch constants.</span>
+
+<span class="sd">        Mirrors the detrending call site: the classifier returns the light</span>
+<span class="sd">        curve plus the single photometric reference, so an error carries</span>
+<span class="sd">        both.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">run_pool</span><span class="p">(</span>
+                    <span class="n">_raise_find_stars_error</span><span class="p">,</span>
+                    <span class="p">[</span><span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">77</span><span class="p">),</span>
+                    <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">related_files</span><span class="o">=</span><span class="n">_lc_with_reference</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">got</span> <span class="o">=</span> <span class="p">{(</span><span class="n">r</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">related_files</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">((</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">&quot;/lc/AAA.h5&quot;</span><span class="p">),</span> <span class="n">got</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">((</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/dr/ref.h5&quot;</span><span class="p">),</span> <span class="n">got</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPoolPropagation.test_worker_crashed_dedups_shared_related_file">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestPoolPropagation.test_worker_crashed_dedups_shared_related_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_dedups_shared_related_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A batch-constant file appears once across many in-flight items.</span>
+
+<span class="sd">        Two workers in flight against the same reference -&gt; the reference</span>
+<span class="sd">        is promoted once, not once per crashed input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">inflight</span> <span class="o">=</span> <span class="p">{</span><span class="mi">111</span><span class="p">:</span> <span class="s2">&quot;/lc/A.h5&quot;</span><span class="p">,</span> <span class="mi">222</span><span class="p">:</span> <span class="s2">&quot;/lc/B.h5&quot;</span><span class="p">}</span>
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">_worker_crashed</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;/lc/A.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;/lc/B.h5&quot;</span><span class="p">],</span>
+                <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;pool broke&quot;</span><span class="p">),</span>
+                <span class="n">inflight</span><span class="p">,</span>
+                <span class="n">_lc_with_reference</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">err</span><span class="o">.</span><span class="n">related_files</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">((</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">&quot;/lc/A.h5&quot;</span><span class="p">),</span> <span class="n">pairs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">((</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">&quot;/lc/B.h5&quot;</span><span class="p">),</span> <span class="n">pairs</span><span class="p">)</span>
+        <span class="c1"># The shared single photref, returned for both items, is deduped:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">pairs</span><span class="o">.</span><span class="n">count</span><span class="p">((</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/dr/ref.h5&quot;</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestProcessQueuePropagation">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestProcessQueuePropagation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestProcessQueuePropagation</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process + Queue workers return stamped errors over a queue.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestProcessQueuePropagation.test_queue_worker_error_round_trips">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestProcessQueuePropagation.test_queue_worker_error_round_trips">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_queue_worker_error_round_trips</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A failed queue worker yields a stamped error the parent re-raises.</span>
+
+<span class="sd">        Mirrors ``solve_astrometry``: a ``Process`` worker bootstraps its</span>
+<span class="sd">        context, fails with a bare ``ValueError``, and puts</span>
+<span class="sd">        ``capture_for_queue(...)`` on the queue. The object pulled off is</span>
+<span class="sd">        the step&#39;s mapped ``AutoWISPError`` (here ``SolveAstrometryError``)</span>
+<span class="sd">        carrying the worker ``subprocess_id``, the run snapshot, and the</span>
+<span class="sd">        traceback in ``details``; ``reraise_from_worker`` then raises it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">_pool_config</span><span class="p">(</span>
+                <span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">99</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;solve_astrometry&quot;</span>
+            <span class="p">)</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+            <span class="n">result_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+            <span class="n">worker</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">_process_queue_worker</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">result_queue</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="c1"># Pulled off the queue: the step&#39;s mapped, stamped AutoWISPError.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">SolveAstrometryError</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;solve_astrometry&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;ValueError&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;no wcs in worker&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">])</span>
+        <span class="c1"># Pipeline-run snapshot rebuilt in the worker from config:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+
+        <span class="c1"># The parent re-raises the same object off the queue.</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">SolveAstrometryError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">reraise_from_worker</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProcessQueuePropagation.test_all_workers_dead_raises_worker_crashed">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestProcessQueuePropagation.test_all_workers_dead_raises_worker_crashed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_workers_dead_raises_worker_crashed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A worker that hard-exits is detected by the parent, not a hang.</span>
+
+<span class="sd">        ``manage_astrometry`` polls ``is_alive()`` while waiting on the</span>
+<span class="sd">        result queue; when every worker has died without queuing a result</span>
+<span class="sd">        it raises a ``WorkerCrashedError`` recording the OS exit codes</span>
+<span class="sd">        (normalised to the same ``exit_signal`` shape as Scheme A), instead</span>
+<span class="sd">        of blocking forever.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">worker</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_instant_exit</span><span class="p">)</span>
+        <span class="n">worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">worker</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">worker</span><span class="o">.</span><span class="n">is_alive</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">WorkerCrashedError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">manage_astrometry</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;trans_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dr1.h5&quot;</span><span class="p">]},</span>
+                <span class="n">Queue</span><span class="p">(),</span>
+                <span class="n">Queue</span><span class="p">(),</span>
+                <span class="n">_noop</span><span class="p">,</span>
+                <span class="n">_noop</span><span class="p">,</span>
+                <span class="n">workers</span><span class="o">=</span><span class="p">[</span><span class="n">worker</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="c1"># os._exit(7) -&gt; a plain exit code (positive), no signal decoded.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;exit_signal&quot;</span><span class="p">],</span> <span class="p">[{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">}])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;num_in_flight&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestExitSignalDecode">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestExitSignalDecode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestExitSignalDecode</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;decode_exit_signals is portable and drops clean/running exits.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestExitSignalDecode.test_drops_running_and_clean">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestExitSignalDecode.test_drops_running_and_clean">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_drops_running_and_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``None`` (running) and ``0`` (clean) contribute nothing.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ecmod</span><span class="o">.</span><span class="n">decode_exit_signals</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="p">[])</span></div>
+
+
+<div class="viewcode-block" id="TestExitSignalDecode.test_posix_signals_and_plain_codes">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestExitSignalDecode.test_posix_signals_and_plain_codes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_posix_signals_and_plain_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;POSIX: negative codes decode to their signal; positive don&#39;t.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">ecmod</span><span class="o">.</span><span class="n">os</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;posix&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">ecmod</span><span class="o">.</span><span class="n">decode_exit_signals</span><span class="p">([</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">11</span><span class="p">]),</span>
+                <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span> <span class="s2">&quot;SIGKILL&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">11</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span> <span class="s2">&quot;SIGSEGV&quot;</span><span class="p">},</span>
+                <span class="p">],</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestExitSignalDecode.test_windows_status_not_signal">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestExitSignalDecode.test_windows_status_not_signal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_windows_status_not_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Windows: an abnormal code is an NTSTATUS, never a POSIX signal.</span>
+
+<span class="sd">        Both the unsigned and signed spellings of an access violation map</span>
+<span class="sd">        to the conventional hex status; a plain small code stays bare.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">ecmod</span><span class="o">.</span><span class="n">os</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">ecmod</span><span class="o">.</span><span class="n">decode_exit_signals</span><span class="p">([</span><span class="mh">0xC0000005</span><span class="p">,</span> <span class="o">-</span><span class="mi">1073741819</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="mh">0xC0000005</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;0xC0000005&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1073741819</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;0xC0000005&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+                <span class="p">],</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestResourceSnapshot">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestResourceSnapshot">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestResourceSnapshot</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;collect_resource_snapshot is best-effort and never raises.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestResourceSnapshot.test_memory_fields_present_and_sane">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestResourceSnapshot.test_memory_fields_present_and_sane">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_memory_fields_present_and_sane</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;psutil is a hard dependency, so the memory fields are present.&quot;&quot;&quot;</span>
+
+        <span class="n">snap</span> <span class="o">=</span> <span class="n">collect_resource_snapshot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">snap</span><span class="p">[</span><span class="s2">&quot;ram_total&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreaterEqual</span><span class="p">(</span><span class="n">snap</span><span class="p">[</span><span class="s2">&quot;ram_available&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">snap</span><span class="p">[</span><span class="s2">&quot;process_rss&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">snap</span><span class="p">[</span><span class="s2">&quot;ram_percent_used&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestResourceSnapshot.test_empty_when_psutil_unavailable">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestResourceSnapshot.test_empty_when_psutil_unavailable">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_when_psutil_unavailable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A missing psutil degrades to an empty dict, never a raise.&quot;&quot;&quot;</span>
+
+        <span class="n">real_import</span> <span class="o">=</span> <span class="nb">__import__</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fake_import</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;psutil&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;simulated missing psutil&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">real_import</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">&quot;builtins.__import__&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">fake_import</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">collect_resource_snapshot</span><span class="p">(),</span> <span class="p">{})</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestNestingGuard">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestNestingGuard">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestNestingGuard</span><span class="p">(</span><span class="n">_ContextTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worker may not launch nested workers (resource control).&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestNestingGuard.test_forbid_nested_workers_only_inside_worker">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestNestingGuard.test_forbid_nested_workers_only_inside_worker">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_forbid_nested_workers_only_inside_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The guard is a no-op in the main process, raises in a worker.&quot;&quot;&quot;</span>
+
+        <span class="n">forbid_nested_workers</span><span class="p">()</span>  <span class="c1"># main process (in_worker False): no-op</span>
+
+        <span class="n">set_error_context</span><span class="p">(</span><span class="n">ErrorContext</span><span class="p">(</span><span class="n">in_worker</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+            <span class="n">forbid_nested_workers</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestNestingGuard.test_nested_run_pool_blocked_end_to_end">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_context.html#autowisp.tests.test_error_context.TestNestingGuard.test_nested_run_pool_blocked_end_to_end">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_nested_run_pool_blocked_end_to_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A real worker that calls run_pool is refused, not allowed to nest.</span>
+
+<span class="sd">        Goes through the full chain: the outer ``run_pool`` spawns a real</span>
+<span class="sd">        worker via ``setup_process_map`` (which sets ``in_worker``), the</span>
+<span class="sd">        worker calls ``run_pool`` again, and the inner guard raises a</span>
+<span class="sd">        ``PipelineError`` that propagates back stamped with the worker PID</span>
+<span class="sd">        -- so an accidental N^2 launch fails loudly instead of spawning.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">run_pool</span><span class="p">(</span>
+                    <span class="n">_nested_run_pool_worker</span><span class="p">,</span>
+                    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">_pool_config</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">33</span><span class="p">),</span>
+                    <span class="n">num_processes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;Nested multiprocessing&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

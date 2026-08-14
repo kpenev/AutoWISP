@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_error_persistence &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_error_persistence</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_error_persistence</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Unit tests for error persistence (row + JSON sidecar).</span>
+
+<span class="sd">These need a real (throwaway) project database, created once per class in</span>
+<span class="sd">a temporary directory.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span><span class="p">,</span> <span class="n">sql</span><span class="p">,</span> <span class="n">update</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_project_home</span><span class="p">,</span> <span class="n">start_db_session</span>
+
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Error</span><span class="p">,</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MasterFile</span><span class="p">,</span> <span class="n">PipelineRun</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileKind</span><span class="p">,</span> <span class="n">FindStarsError</span><span class="p">,</span> <span class="n">RelatedFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">_worker_crashed</span><span class="p">,</span> <span class="n">error_context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_persistence</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">cleanup_errors</span><span class="p">,</span>
+    <span class="n">delete_all_error_sidecars</span><span class="p">,</span>
+    <span class="n">delete_error</span><span class="p">,</span>
+    <span class="n">load_sidecar</span><span class="p">,</span>
+    <span class="n">parse_duration</span><span class="p">,</span>
+    <span class="n">persist_error</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.error_fixtures</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_find_stars_error</span>
+
+
+<div class="viewcode-block" id="_PersistenceTestCase">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence._PersistenceTestCase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_PersistenceTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base creating one throwaway project database for the class.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="_PersistenceTestCase.setUpClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence._PersistenceTestCase.setUpClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="n">set_project_home</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_PersistenceTestCase.tearDownClass">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence._PersistenceTestCase.tearDownClass">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_id</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="TestPersistError">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPersistError</span><span class="p">(</span><span class="n">_PersistenceTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;persist_error writes the queryable row and the detail sidecar.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestPersistError.test_row_and_sidecar_are_complementary">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_row_and_sidecar_are_complementary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_row_and_sidecar_are_complementary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inline fields on the row; the heavy remainder in the sidecar.&quot;&quot;&quot;</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">()</span>
+        <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
+        <span class="c1"># Inline, queryable fields:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="s2">&quot;step&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span> <span class="s2">&quot;FindStarsError&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span> <span class="s2">&quot;no stars found&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span>
+
+        <span class="n">sidecar</span> <span class="o">=</span> <span class="n">load_sidecar</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="c1"># Heavy remainder lives in the sidecar...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sidecar</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span> <span class="s2">&quot;no stars found&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sidecar</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;brightness_quantile&quot;</span><span class="p">:</span> <span class="mf">0.999</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sidecar</span><span class="p">[</span><span class="s2">&quot;related_files&quot;</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;traceback&quot;</span><span class="p">,</span> <span class="n">sidecar</span><span class="p">)</span>
+        <span class="c1"># ... including the crash-time environment (captured here, in the</span>
+        <span class="c1"># process that recorded the error -- immune to later upgrades).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;environment&quot;</span><span class="p">,</span> <span class="n">sidecar</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">sidecar</span><span class="p">[</span><span class="s2">&quot;environment&quot;</span><span class="p">][</span><span class="s2">&quot;packages&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;platform&quot;</span><span class="p">,</span> <span class="n">sidecar</span><span class="p">[</span><span class="s2">&quot;environment&quot;</span><span class="p">])</span>
+        <span class="c1"># ... and the inline fields are NOT duplicated into it.</span>
+        <span class="k">for</span> <span class="n">inline</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;component&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;step_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;user_message&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;subprocess_id&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="n">inline</span><span class="p">,</span> <span class="n">sidecar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPersistError.test_worker_crashed_persists_step_name">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_worker_crashed_persists_step_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_worker_crashed_persists_step_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A synthesised worker-death error lands its step on the row.</span>
+
+<span class="sd">        End-to-end regression for the crash-report &quot;no matching logs</span>
+<span class="sd">        found&quot; gap: a ``WorkerCrashedError`` is synthesised by the parent</span>
+<span class="sd">        (so it is not a per-stage ``StepError`` subclass), but it must</span>
+<span class="sd">        still persist ``step_name`` into the queryable column -- that is</span>
+<span class="sd">        what crash-report log-collection resolves the run/step logs from.</span>
+<span class="sd">        It is a ``step``-component error because the failure is in the</span>
+<span class="sd">        algorithm running inside the step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">):</span>
+            <span class="n">exc</span> <span class="o">=</span> <span class="n">_worker_crashed</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;/lc/a.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;/lc/b.h5&quot;</span><span class="p">],</span>
+                <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A process in the process pool was terminated&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;tfa&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="s2">&quot;step&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span> <span class="s2">&quot;WorkerCrashedError&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPersistError.test_artifact_fks_resolved_from_related_files">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_artifact_fks_resolved_from_related_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_artifact_fks_resolved_from_related_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A related file matching a known image/master sets the FK.&quot;&quot;&quot;</span>
+
+        <span class="c1"># pylint: disable=not-callable</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="n">PipelineRun</span><span class="p">(</span>
+                <span class="n">host</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                <span class="n">process_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">started</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
+                <span class="n">raw_fname</span><span class="o">=</span><span class="s2">&quot;/data/raw/img042.fits&quot;</span><span class="p">,</span>
+                <span class="n">image_type_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">observing_session_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">master</span> <span class="o">=</span> <span class="n">MasterFile</span><span class="p">(</span><span class="n">type_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;/data/masters/mbias.fits&quot;</span><span class="p">)</span>
+            <span class="c1"># pylint: enable=not-callable</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add_all</span><span class="p">([</span><span class="n">run</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">master</span><span class="p">])</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">image_id</span><span class="p">,</span> <span class="n">master_id</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">master</span><span class="o">.</span><span class="n">id</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">(</span>
+            <span class="n">related_files</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">RelatedFile</span><span class="p">(</span>
+                    <span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/data/raw/img042.fits&quot;</span><span class="p">),</span> <span class="s2">&quot;input&quot;</span>
+                <span class="p">),</span>
+                <span class="n">RelatedFile</span><span class="p">(</span>
+                    <span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_BIAS</span><span class="p">,</span>
+                    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/data/masters/mbias.fits&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;input&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span> <span class="n">image_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">master_file_id</span><span class="p">,</span> <span class="n">master_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPersistError.test_large_payload_is_gzipped">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_large_payload_is_gzipped">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_large_payload_is_gzipped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A payload over the threshold is written as .json.gz and reloads.&quot;&quot;&quot;</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">(</span><span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dump&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">200000</span><span class="p">})</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.json.gz&quot;</span><span class="p">))</span>
+        <span class="n">sidecar</span> <span class="o">=</span> <span class="n">load_sidecar</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sidecar</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">][</span><span class="s2">&quot;dump&quot;</span><span class="p">],</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">200000</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPersistError.test_sidecar_failure_leaves_valid_row">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_sidecar_failure_leaves_valid_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_sidecar_failure_leaves_valid_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A sidecar-write failure still leaves a row, sidecar_path NULL.&quot;&quot;&quot;</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;autowisp.error_persistence._write_sidecar&quot;</span><span class="p">,</span>
+            <span class="n">side_effect</span><span class="o">=</span><span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;disk full&quot;</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="c1"># The failure is logged (and swallowed), not raised.</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="s2">&quot;autowisp.error_persistence&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">):</span>
+                <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span> <span class="s2">&quot;FindStarsError&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestPersistError.test_missing_sidecar_degrades_to_none">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_missing_sidecar_degrades_to_none">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_sidecar_degrades_to_none</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reading an error whose sidecar is gone returns None, no crash.&quot;&quot;&quot;</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()))</span>
+        <span class="c1"># Remove the sidecar behind the row.</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">load_sidecar</span><span class="p">(</span><span class="n">row</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestPersistError.test_delete_removes_row_and_sidecar">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_delete_removes_row_and_sidecar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_delete_removes_row_and_sidecar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;delete_error removes both the row and its sidecar file.&quot;&quot;&quot;</span>
+
+        <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
+        <span class="n">sidecar</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sidecar</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">delete_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sidecar</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestPersistError.test_delete_missing_error_is_noop">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestPersistError.test_delete_missing_error_is_noop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_delete_missing_error_is_noop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deleting a non-existent error returns False, does not raise.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">delete_error</span><span class="p">(</span><span class="mi">999999</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestRunPipelineHandler">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestRunPipelineHandler">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRunPipelineHandler</span><span class="p">(</span><span class="n">_PersistenceTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;run_pipeline.main records an escaping error and re-raises it.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestRunPipelineHandler.test_handler_persists_and_reraises">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestRunPipelineHandler.test_handler_persists_and_reraises">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_handler_persists_and_reraises</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An AutoWISPError out of the run is persisted, then re-raised.&quot;&quot;&quot;</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">project_home</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
+            <span class="n">run_pipeline</span><span class="p">,</span>
+            <span class="s2">&quot;_run_pipeline&quot;</span><span class="p">,</span>
+            <span class="n">side_effect</span><span class="o">=</span><span class="n">make_find_stars_error</span><span class="p">(),</span>
+        <span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">):</span>
+                <span class="n">run_pipeline</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">Error</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="n">Error</span><span class="o">.</span><span class="n">exception_class</span>  <span class="c1"># pylint: disable=no-member</span>
+                    <span class="o">==</span> <span class="s2">&quot;FindStarsError&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="nb">any</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">step_name</span> <span class="o">==</span> <span class="s2">&quot;find_stars&quot;</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">),</span>
+            <span class="s2">&quot;the escaping error was not persisted&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRunPipelineHandler.test_handler_records_plain_exception">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestRunPipelineHandler.test_handler_records_plain_exception">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_handler_records_plain_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A non-AutoWISP exception is recorded; the original re-raises.</span>
+
+<span class="sd">        Mirrors a real failure: a bad config expression raises a plain</span>
+<span class="sd">        NameError in the orchestration layer, outside any step&#39;s capture</span>
+<span class="sd">        boundary. The handler records it (wrapped as a PipelineError) but</span>
+<span class="sd">        re-raises the original so its true traceback reaches the log.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">project_home</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
+            <span class="n">run_pipeline</span><span class="p">,</span>
+            <span class="s2">&quot;_run_pipeline&quot;</span><span class="p">,</span>
+            <span class="n">side_effect</span><span class="o">=</span><span class="ne">NameError</span><span class="p">(</span><span class="s2">&quot;name &#39;OBS_SESN&#39; is not defined&quot;</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NameError</span><span class="p">):</span>
+                <span class="n">run_pipeline</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">Error</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="n">Error</span><span class="o">.</span><span class="n">component</span> <span class="o">==</span> <span class="s2">&quot;pipeline&quot;</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">recorded</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="s2">&quot;OBS_SESN&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">user_message</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">recorded</span><span class="p">,</span> <span class="s2">&quot;the plain orchestration exception was not persisted&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">recorded</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span> <span class="s2">&quot;PipelineError&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestCleanupErrors">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCleanupErrors</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;wisp-cleanup-errors prunes aged rows, orphan files, dangling rows.</span>
+
+<span class="sd">    Uses a fresh project per test, since cleanup mutates global DB state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestCleanupErrors.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="n">set_project_home</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_abs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relative</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">relative</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestCleanupErrors._age_error">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors._age_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_age_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">days</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Backdate an error&#39;s ``created`` so it counts as old.&quot;&quot;&quot;</span>
+
+        <span class="n">old</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span>
+            <span class="n">days</span><span class="o">=</span><span class="n">days</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">update</span><span class="p">(</span><span class="n">Error</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Error</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">error_id</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">created</span><span class="o">=</span><span class="n">old</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCleanupErrors.test_aged_rows_and_sidecars_removed">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors.test_aged_rows_and_sidecars_removed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_aged_rows_and_sidecars_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An old error and its sidecar are deleted; a recent one is kept.&quot;&quot;&quot;</span>
+
+        <span class="n">old_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
+        <span class="n">recent_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_age_error</span><span class="p">(</span><span class="n">old_id</span><span class="p">,</span> <span class="n">days</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">old_sidecar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abs</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">old_id</span><span class="p">)</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">old_sidecar</span><span class="p">))</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">cleanup_errors</span><span class="p">(</span><span class="n">older_than</span><span class="o">=</span><span class="n">parse_duration</span><span class="p">(</span><span class="s2">&quot;30d&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;removed_rows&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">old_sidecar</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">old_id</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">recent_id</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestCleanupErrors.test_orphan_files_removed">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors.test_orphan_files_removed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_orphan_files_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A stray file with no owning row is swept away.&quot;&quot;&quot;</span>
+
+        <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
+        <span class="n">orphan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="s2">&quot;cli&quot;</span><span class="p">,</span> <span class="s2">&quot;9999.json&quot;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">orphan</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">orphan_file</span><span class="p">:</span>
+            <span class="n">orphan_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># A leftover temp file from a crashed write is junk too.</span>
+        <span class="n">tmp_leftover</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="s2">&quot;cli&quot;</span><span class="p">,</span> <span class="s2">&quot;5.json.tmp&quot;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp_leftover</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
+            <span class="n">tmp_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">cleanup_errors</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;removed_files&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">orphan</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_leftover</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestCleanupErrors.test_dangling_row_reference_cleared">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors.test_dangling_row_reference_cleared">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_dangling_row_reference_cleared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A row whose sidecar vanished keeps the row but clears the path.&quot;&quot;&quot;</span>
+
+        <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_abs</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">))</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">cleanup_errors</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;cleared_dangling&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCleanupErrors.test_sweep_keeps_valid_sidecar">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors.test_sweep_keeps_valid_sidecar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_sweep_keeps_valid_sidecar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A healthy error&#39;s sidecar is not touched by a plain sweep.&quot;&quot;&quot;</span>
+
+        <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">sidecar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abs</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">cleanup_errors</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">summary</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;removed_rows&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;removed_files&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;cleared_dangling&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sidecar</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestCleanupErrors.test_delete_all_sidecars_keeps_foreign_files">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestCleanupErrors.test_delete_all_sidecars_keeps_foreign_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_delete_all_sidecars_keeps_foreign_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project-deletion sidecar purge removes tracked files only.</span>
+
+<span class="sd">        Every recorded error&#39;s sidecar is removed, but an unrelated file</span>
+<span class="sd">        placed under the errors directory survives.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()),</span>
+            <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()),</span>
+        <span class="p">]</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">sidecars</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_abs</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">eid</span><span class="p">)</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">eid</span> <span class="ow">in</span> <span class="n">ids</span>
+            <span class="p">]</span>
+        <span class="c1"># Drop an unrelated file into the errors tree.</span>
+        <span class="n">foreign</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="s2">&quot;keep_me.txt&quot;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">foreign</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">foreign_file</span><span class="p">:</span>
+            <span class="n">foreign_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;not an error sidecar&quot;</span><span class="p">)</span>
+
+        <span class="n">delete_all_error_sidecars</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">sidecar</span> <span class="ow">in</span> <span class="n">sidecars</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sidecar</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">foreign</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestParseDuration">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestParseDuration">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestParseDuration</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;parse_duration accepts compact durations and rejects junk.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestParseDuration.test_units">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestParseDuration.test_units">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">parse_duration</span><span class="p">(</span><span class="s2">&quot;45s&quot;</span><span class="p">),</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">45</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">parse_duration</span><span class="p">(</span><span class="s2">&quot;12h&quot;</span><span class="p">),</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">parse_duration</span><span class="p">(</span><span class="s2">&quot;30d&quot;</span><span class="p">),</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">parse_duration</span><span class="p">(</span><span class="s2">&quot;2w&quot;</span><span class="p">),</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestParseDuration.test_invalid_raises">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_persistence.html#autowisp.tests.test_error_persistence.TestParseDuration.test_invalid_raises">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_invalid_raises</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">bad</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;30&quot;</span><span class="p">,</span> <span class="s2">&quot;5y&quot;</span><span class="p">,</span> <span class="s2">&quot;abc&quot;</span><span class="p">,</span> <span class="s2">&quot;-3d&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+                <span class="n">parse_duration</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

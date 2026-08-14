@@ -1,0 +1,6 @@
+<map id="inheritance8ea827aa59" name="inheritance8ea827aa59">
+<area shape="rect" id="node1" title="Test case involving floating point comparisons." alt="" coords="56,80,301,107"/>
+<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="64,155,293,181"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="100,5,257,32"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_lc_filter.TestCatalogSourceListFilter" target="_top" title="Read&#45;time ``source_id`` filtering in ``read_catalog_file``." alt="" coords="5,229,352,256"/>
+</map>

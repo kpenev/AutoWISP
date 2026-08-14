@@ -1,0 +1,7 @@
+autowisp.tests.test\_error\_render module
+=========================================
+
+.. automodule:: autowisp.tests.test_error_render
+   :members:
+   :undoc-members:
+   :show-inheritance:

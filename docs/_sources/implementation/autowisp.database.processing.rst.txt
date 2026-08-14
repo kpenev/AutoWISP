@@ -3,5 +3,5 @@ autowisp.database.processing module
 
 .. automodule:: autowisp.database.processing
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

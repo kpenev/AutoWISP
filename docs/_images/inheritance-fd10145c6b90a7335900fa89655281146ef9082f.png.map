@@ -1,0 +1,28 @@
+<map id="inheritance117cf78a0c" name="inheritance117cf78a0c">
+<area shape="rect" id="node1" title="Location on the Earth." alt="" coords="423,155,675,181"/>
+<area shape="rect" id="node2" title="A `~astropy.units.Quantity` represents a number with some associated unit." alt="" coords="450,80,648,107"/>
+<area shape="rect" id="node3" title="High&#45;level object providing a flexible interface for celestial coordinate" alt="" coords="498,229,786,256"/>
+<area shape="rect" id="node4" title="Like ShapedLikeNDArray, but for classes that can work with masked data." alt="" coords="698,155,1048,181"/>
+<area shape="rect" id="node6" title="Base time class from which Time and TimeDelta inherit." alt="" coords="810,229,994,256"/>
+<area shape="rect" id="node5" title="Represent and manipulate times and dates for astronomy." alt="" coords="825,304,980,331"/>
+<area shape="rect" id="node7" title="ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)" alt="" coords="496,5,602,32"/>
+<area shape="rect" id="node8" title="Mixin class to provide shape&#45;changing methods." alt="" coords="743,80,1003,107"/>
+<area shape="rect" id="node9" title="Mixin class to provide shape&#45;changing methods." alt="" coords="733,5,1013,32"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1266,304,1597,331"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="5,379,429,405"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="452,379,822,405"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount" target="_top" title="The table describing the mounts specified" alt="" coords="846,379,1198,405"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="1222,379,1641,405"/>
+<area shape="rect" id="node18" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer" target="_top" title="The table describing the observers" alt="" coords="1665,379,2049,405"/>
+<area shape="rect" id="node19" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope" target="_top" title="The table describing the telescopes specified" alt="" coords="2073,379,2468,405"/>
+<area shape="rect" id="node20" href="autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target" target="_top" title="The table describing the target." alt="" coords="2492,379,2771,405"/>
+<area shape="rect" id="node11" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1048,229,1426,256"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1450,229,1803,256"/>
+<area shape="rect" id="node13" title="Base class used for declarative class definitions." alt="" coords="1494,155,1758,181"/>
+<area shape="rect" id="node21" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1753,5,1988,32"/>
+<area shape="rect" id="node22" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1761,80,1980,107"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="2012,5,2140,32"/>
+<area shape="rect" id="node24" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1072,155,1402,181"/>
+<area shape="rect" id="node25" title="define a class as inspectable." alt="" coords="1516,80,1736,107"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1574,5,1679,32"/>
+</map>

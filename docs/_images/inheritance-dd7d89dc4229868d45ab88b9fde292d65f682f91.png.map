@@ -1,0 +1,26 @@
+<map id="inheritance0118a81800" name="inheritance0118a81800">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1015,304,1345,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="5,379,366,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="390,379,653,405"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="677,379,958,405"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="982,379,1379,405"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="1402,379,1982,405"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="2006,379,2408,405"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="2432,379,2800,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="796,229,1175,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1198,229,1552,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1243,155,1507,181"/>
+<area shape="rect" id="node12" href="#autowisp.tests.test_crash_report.TestBuildCrashReport" target="_top" title="build_crash_report assembles a scrubbed, best&#45;effort zip." alt="" coords="1508,80,1852,107"/>
+<area shape="rect" id="node13" title="A class whose instances are single test cases." alt="" coords="2895,5,3052,32"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_crash_report.TestCollectEnvironment" target="_top" title="collect_environment records platform + requested package versions." alt="" coords="1876,80,2231,107"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_crash_report.TestCollectProvenance" target="_top" title="collect_provenance captures the current environment, JSON&#45;safe." alt="" coords="2254,80,2605,107"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_crash_report.TestCrashReportCli" target="_top" title="The wisp&#45;crash&#45;report CLI: latest&#45;error lookup and the entry point." alt="" coords="2628,80,2959,107"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_crash_report.TestFindErrorProgress" target="_top" title="find_error_progress resolves a step error to its processing record." alt="" coords="2982,80,3328,107"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_crash_report.TestScrubConfigValues" target="_top" title="scrub_config_values redacts secret configuration values in the DB." alt="" coords="3351,80,3702,107"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_crash_report.TestScrubMapping" target="_top" title="scrub_mapping redacts values whose key names a secret." alt="" coords="3726,80,4050,107"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_crash_report.TestScrubText" target="_top" title="scrub_text redacts secret values, leaves everything else intact." alt="" coords="4074,80,4374,107"/>
+<area shape="rect" id="node21" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="821,155,1150,181"/>
+<area shape="rect" id="node22" title="define a class as inspectable." alt="" coords="1265,80,1485,107"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1322,5,1428,32"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="3075,5,3242,32"/>
+</map>

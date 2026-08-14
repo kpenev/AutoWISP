@@ -3,8 +3,8 @@ autowisp package
 
 .. automodule:: autowisp
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
@@ -13,6 +13,7 @@ Subpackages
    :maxdepth: 4
 
    autowisp.astrometry
+   autowisp.browser_interface
    autowisp.data_reduction
    autowisp.database
    autowisp.fake_image
@@ -32,7 +33,13 @@ Submodules
    autowisp.Dump2hdf5
    autowisp.bui_util
    autowisp.catalog
+   autowisp.crash_report
+   autowisp.error_cli
+   autowisp.error_context
+   autowisp.error_persistence
+   autowisp.error_render
    autowisp.evaluator
+   autowisp.exceptions
    autowisp.file_utilities
    autowisp.fits_utilities
    autowisp.hdf5_file
@@ -42,8 +49,8 @@ Submodules
    autowisp.miscellaneous
    autowisp.multiprocessing_util
    autowisp.piecewise_bicubic_psf_map
-   autowisp.pipeline_exceptions
    autowisp.processor
+   autowisp.run_pipeline
    autowisp.source_finder
    autowisp.source_finder_util
    autowisp.split_sources

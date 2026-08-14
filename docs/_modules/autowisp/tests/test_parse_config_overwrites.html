@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_parse_config_overwrites &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../tests.html">autowisp.tests</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_parse_config_overwrites</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.tests.test_parse_config_overwrites</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Unit tests for ``user_interface.parse_config_overwrites``.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_config_overwrites</span>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestParseConfigOverwrites</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Edge-case coverage for the configuration-line → overwrites parser.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_key_equals_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_key_equals_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_key_equals_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plain ``key = value`` produces ``{key: [(None, &#39;value&#39;)]}``.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;foo = bar&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_colon_separator">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_colon_separator">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_colon_separator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``:`` is accepted as an alternative to ``=``.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;foo: bar&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_blank_lines_skipped">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_blank_lines_skipped">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_blank_lines_skipped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Blank / whitespace-only lines do not appear in the output.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;   &quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\t\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;foo = bar&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_comment_only_lines_skipped">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_comment_only_lines_skipped">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_comment_only_lines_skipped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lines starting with ``#`` are skipped entirely.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;# a comment&quot;</span><span class="p">,</span> <span class="s2">&quot;   # indented&quot;</span><span class="p">,</span> <span class="s2">&quot;foo = bar&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_section_headers_skipped">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_section_headers_skipped">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_section_headers_skipped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``[section]`` headers from INI-style files are ignored.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;[general]&quot;</span><span class="p">,</span> <span class="s2">&quot;foo = bar&quot;</span><span class="p">,</span> <span class="s2">&quot;[calibrate]&quot;</span><span class="p">,</span> <span class="s2">&quot;baz = qux&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)],</span> <span class="s2">&quot;baz&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;qux&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_inline_comment_stripped">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_inline_comment_stripped">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_inline_comment_stripped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A trailing ``#`` comment is not part of the value.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;foo = bar  # trailing&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_semicolon_preserved_in_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_semicolon_preserved_in_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_semicolon_preserved_in_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``;`` is data, not a comment marker -- preserve it verbatim.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;foo = a;b;c&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;a;b;c&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_single_quoted_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_single_quoted_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_single_quoted_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Single quotes are stripped; their inner content is kept verbatim.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;foo = &#39;a value with spaces&#39;&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;a value with spaces&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_double_quoted_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_double_quoted_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_double_quoted_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Double quotes are stripped; their inner content is kept verbatim.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s1">&#39;foo = &quot;value with = and # inside&quot;&#39;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;value with = and # inside&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_key_without_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_key_without_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_key_without_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bare key (no separator) is recorded with value ``None``.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;flag&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;flag&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_key_with_empty_value">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_key_with_empty_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_key_with_empty_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``key =`` (empty value) is recorded as ``None``.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;key =&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_dash_and_dot_in_key">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_dash_and_dot_in_key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_dash_and_dot_in_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parameter names with ``-`` and ``.`` are valid.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;num-parallel-processes = 4&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;num-parallel-processes&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_later_value_wins">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_later_value_wins">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_later_value_wins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A repeated key keeps the last value seen.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">([</span><span class="s2">&quot;foo = first&quot;</span><span class="p">,</span> <span class="s2">&quot;foo = second&quot;</span><span class="p">]),</span>
+            <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;second&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_non_parameter_keys_excluded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_non_parameter_keys_excluded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_non_parameter_keys_excluded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``project-home`` and ``split-channels`` are silently dropped.</span>
+
+<span class="sd">        Mirrors what</span>
+<span class="sd">        ``autowisp/browser_interface/home/static/home/js/create.project.js``</span>
+<span class="sd">        strips before populating the BUI textarea; these are never valid</span>
+<span class="sd">        DB parameter overrides.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;project-home = .&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;split-channels = &#39;R(0,1;0,1)&#39;&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;verbose = debug&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;debug&quot;</span><span class="p">)]},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestParseConfigOverwrites.test_test_cfg_like_block">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_test_cfg_like_block">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_test_cfg_like_block</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sanity check on a multi-section block resembling test.cfg.&quot;&quot;&quot;</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;[general]&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;project-home = .&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;verbose = debug&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;[calibrate]&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saturation-threshold = 15000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fnum = &#39;int(RAWFNAME.split(</span><span class="se">\&quot;</span><span class="s2">-</span><span class="se">\&quot;</span><span class="s2">)[1])&#39;&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">parse_config_overwrites</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;debug&quot;</span><span class="p">)],</span>
+                <span class="s2">&quot;saturation-threshold&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;15000&quot;</span><span class="p">)],</span>
+                <span class="s2">&quot;fnum&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;int(RAWFNAME.split(&quot;-&quot;)[1])&#39;</span><span class="p">)],</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

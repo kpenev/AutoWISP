@@ -3,5 +3,5 @@ autowisp.tess\_interface module
 
 .. automodule:: autowisp.tess_interface
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

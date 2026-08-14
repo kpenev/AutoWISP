@@ -1,0 +1,8 @@
+<map id="inheritancef78df59f97" name="inheritancef78df59f97">
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="15,5,250,32"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="33,80,232,107"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.FitMagnitudesError" target="_top" title="Failure in the fit_magnitudes step." alt="" coords="5,155,260,181"/>
+<area shape="rect" id="node4" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="274,5,541,32"/>
+<area shape="rect" id="node5" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="565,5,1055,32"/>
+<area shape="rect" id="node6" title="chain(*iterables) &#45;&#45;&gt; chain object" alt="" coords="1079,5,1181,32"/>
+</map>

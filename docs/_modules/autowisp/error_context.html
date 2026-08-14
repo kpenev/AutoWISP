@@ -1,0 +1,1270 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.error_context &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.error_context</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.error_context</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Ambient error context and the capture boundaries that stamp it.</span>
+
+<span class="sd">:class:`~autowisp.exceptions.AutoWISPError` carries fields for the</span>
+<span class="sd">pipeline run, the raising worker, the step, and the related files. This</span>
+<span class="sd">module fills those fields in *without burdening every raise site*: a call</span>
+<span class="sd">deep inside a step can ``raise SolveAstrometryError(&quot;no WCS solution&quot;)``</span>
+<span class="sd">and have the step name, the pipeline-run snapshot, and the files it was</span>
+<span class="sd">working on attached automatically by the time the exception surfaces.</span>
+
+<span class="sd">The ambient context is a single immutable :class:`ErrorContext` bundle</span>
+<span class="sd">held in one ``contextvars.ContextVar``. A *single* var holding a *frozen*</span>
+<span class="sd">object keeps related state cohesive (one ``get_error_context()`` returns</span>
+<span class="sd">a consistent snapshot) while preserving exactly the contextvars</span>
+<span class="sd">set/reset semantics -- and thread/asyncio isolation -- the scoping relies</span>
+<span class="sd">on.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextvars</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Manager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">monotonic</span><span class="p">,</span> <span class="n">sleep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.frozen_row</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenRow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_code_version_str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoWISPError</span><span class="p">,</span>
+    <span class="n">CalibrationError</span><span class="p">,</span>
+    <span class="n">Component</span><span class="p">,</span>
+    <span class="n">collect_resource_snapshot</span><span class="p">,</span>
+    <span class="n">CreateLightCurvesError</span><span class="p">,</span>
+    <span class="n">DetrendingStatError</span><span class="p">,</span>
+    <span class="n">EPDError</span><span class="p">,</span>
+    <span class="n">FileKind</span><span class="p">,</span>
+    <span class="n">FindStarsError</span><span class="p">,</span>
+    <span class="n">FitMagnitudesError</span><span class="p">,</span>
+    <span class="n">FitPSFMapError</span><span class="p">,</span>
+    <span class="n">FitStarShapeError</span><span class="p">,</span>
+    <span class="n">MeasurePhotometryError</span><span class="p">,</span>
+    <span class="n">PipelineError</span><span class="p">,</span>
+    <span class="n">RelatedFile</span><span class="p">,</span>
+    <span class="n">SolveAstrometryError</span><span class="p">,</span>
+    <span class="n">StackToMasterError</span><span class="p">,</span>
+    <span class="n">StepError</span><span class="p">,</span>
+    <span class="n">TFAError</span><span class="p">,</span>
+    <span class="n">ViewError</span><span class="p">,</span>
+    <span class="n">WorkerCrashedError</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 63403a51f2b2f102602488bc36f08c4c8add500e $&quot;</span>
+
+
+<div class="viewcode-block" id="ErrorContext">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.ErrorContext">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ErrorContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Immutable bundle of the ambient context attached to errors.</span>
+
+<span class="sd">    Held in a single :data:`_context` ContextVar so any code on the call</span>
+<span class="sd">    stack can read a consistent snapshot without it being threaded</span>
+<span class="sd">    through every call. Frozen so that establishing or scoping context</span>
+<span class="sd">    replaces the ContextVar value (preserving its set/reset semantics and</span>
+<span class="sd">    thread/async isolation) rather than mutating shared state.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        pipeline_run(FrozenRow or None):    Snapshot of the</span>
+<span class="sd">            ``PipelineRun`` row, or ``None`` for runs with no DB row.</span>
+
+<span class="sd">        step_name(str or None):    The processing step currently</span>
+<span class="sd">            executing.</span>
+
+<span class="sd">        related_files(tuple):    The ``RelatedFile`` entries in scope.</span>
+
+<span class="sd">        in_worker(bool):    True inside a multiprocessing worker process;</span>
+<span class="sd">            used by the nested-worker guard.</span>
+
+<span class="sd">        config(dict or None):    Snapshot of the per-process configuration</span>
+<span class="sd">            (the resolved step parameters plus the runtime inputs threaded</span>
+<span class="sd">            in), recorded onto errors so a crash report shows the exact</span>
+<span class="sd">            settings the failing step ran with -- the resolved config is a</span>
+<span class="sd">            runtime derivation and lives nowhere else. ``None`` outside a</span>
+<span class="sd">            configured process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pipeline_run</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FrozenRow</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">step_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">related_files</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">in_worker</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ErrorContext.from_config">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.ErrorContext.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rebuild context inside a freshly-started process from config.</span>
+
+<span class="sd">        A worker has no ORM instance, so the pipeline-run snapshot is</span>
+<span class="sd">        built from the primitives threaded through the per-process config</span>
+<span class="sd">        dict rather than via ``snapshot_row``. Also picks up the step</span>
+<span class="sd">        name already present in ``config``, and infers ``in_worker`` from</span>
+<span class="sd">        ``parent_pid`` -- the key the parent threads in for workers (and</span>
+<span class="sd">        which is absent in the main process; see</span>
+<span class="sd">        ``get_log_outerr_filenames``).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config(dict):    The per-process config dict, carrying the</span>
+<span class="sd">                pipeline-run keys, ``processing_step``, and (for workers)</span>
+<span class="sd">                ``parent_pid`` threaded through by the parent.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ErrorContext:    The rebuilt context. ``pipeline_run`` is</span>
+<span class="sd">                ``None`` when the keys are absent (e.g. a unit test</span>
+<span class="sd">                calling a step directly).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">pipeline_run</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;pipeline_run_id&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">pipeline_run</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span>
+                <span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;pipeline_run_id&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;host&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">(),</span>
+                    <span class="s2">&quot;started&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pipeline_started&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;code_version&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;code_version&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">get_code_version_str</span><span class="p">()</span>
+                    <span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="n">step_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processing_step&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;init_processing&quot;</span><span class="p">):</span>
+            <span class="n">step_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">pipeline_run</span><span class="o">=</span><span class="n">pipeline_run</span><span class="p">,</span>
+            <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span>
+            <span class="n">in_worker</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">)),</span>
+            <span class="c1"># A shallow snapshot: later mutation of the caller&#39;s dict must</span>
+            <span class="c1"># not change what an error reports.</span>
+            <span class="n">config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">_context</span><span class="p">:</span> <span class="n">contextvars</span><span class="o">.</span><span class="n">ContextVar</span> <span class="o">=</span> <span class="n">contextvars</span><span class="o">.</span><span class="n">ContextVar</span><span class="p">(</span>
+    <span class="s2">&quot;autowisp_error_context&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">ErrorContext</span><span class="p">()</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_error_context">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.get_error_context">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_error_context</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ErrorContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the current ambient :class:`ErrorContext`.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_context</span><span class="o">.</span><span class="n">get</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="in_worker">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.in_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">in_worker</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether the current process is a multiprocessing worker.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_context</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">in_worker</span></div>
+
+
+
+<div class="viewcode-block" id="set_error_context">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.set_error_context">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_error_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">ErrorContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">contextvars</span><span class="o">.</span><span class="n">Token</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Install ``ctx`` as the ambient context, returning the reset token.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_context</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_remember_related_files">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._remember_related_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_remember_related_files</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span> <span class="n">related_files</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attach ``related_files`` to ``exc`` so they outlive their scope.</span>
+
+<span class="sd">    A scope&#39;s ContextVar is reset while the exception is still</span>
+<span class="sd">    propagating -- *before* any enclosing ``except`` runs -- so by the time</span>
+<span class="sd">    :func:`_stamp` sees the error at a capture boundary the ambient context</span>
+<span class="sd">    no longer holds the files. Recording them on the exception itself is</span>
+<span class="sd">    what survives the unwind.</span>
+
+<span class="sd">    Each scope contributes only the files it added, so nesting accumulates</span>
+<span class="sd">    innermost-first: the item that actually failed, then whatever enclosed</span>
+<span class="sd">    it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exc(BaseException):    The exception leaving the scope.</span>
+
+<span class="sd">        related_files(tuple):    What this scope contributed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">related_files</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="s2">&quot;_autowisp_scope_related_files&quot;</span><span class="p">,</span> <span class="p">()))</span>
+    <span class="n">merged</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">related</span> <span class="k">for</span> <span class="n">related</span> <span class="ow">in</span> <span class="n">related_files</span> <span class="k">if</span> <span class="n">related</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Deliberately a private attribute on someone else&#39;s exception: it</span>
+        <span class="c1"># is this module&#39;s bookkeeping, not part of any public interface.</span>
+        <span class="c1"># pylint: disable=protected-access</span>
+        <span class="n">exc</span><span class="o">.</span><span class="n">_autowisp_scope_related_files</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">merged</span><span class="p">)</span>
+        <span class="c1"># pylint: enable=protected-access</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="c1"># Exotic exceptions (``__slots__``, no ``__dict__``) just do not</span>
+        <span class="c1"># carry the files; recording context must never break a raise.</span>
+        <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="_inherit_related_files">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._inherit_related_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_inherit_related_files</span><span class="p">(</span><span class="n">wrapper_exc</span><span class="p">,</span> <span class="n">original</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Carry files recorded on ``original`` over to the exception wrapping it.</span>
+
+<span class="sd">    Scopes record onto the exception that passed through them, but the</span>
+<span class="sd">    capture layer surfaces a *different* object (the ``StepError`` subclass</span>
+<span class="sd">    wrapping a bare ``ValueError``), which would otherwise start empty.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wrapper_exc(AutoWISPError):    The wrapping exception.</span>
+
+<span class="sd">        original(BaseException):    The exception it wraps.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_remember_related_files</span><span class="p">(</span>
+        <span class="n">wrapper_exc</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="s2">&quot;_autowisp_scope_related_files&quot;</span><span class="p">,</span> <span class="p">())</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="set_pipeline_run">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.set_pipeline_run">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_pipeline_run</span><span class="p">(</span><span class="n">run</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FrozenRow</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">contextvars</span><span class="o">.</span><span class="n">Token</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace the bundle with a copy carrying ``run``, keeping the rest.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        run(FrozenRow or None):    The pipeline-run snapshot to attach.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        contextvars.Token:    The reset token for the previous value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">current</span> <span class="o">=</span> <span class="n">_context</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_context</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">ErrorContext</span><span class="p">(</span>
+            <span class="n">pipeline_run</span><span class="o">=</span><span class="n">run</span><span class="p">,</span>
+            <span class="n">step_name</span><span class="o">=</span><span class="n">current</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+            <span class="n">related_files</span><span class="o">=</span><span class="n">current</span><span class="o">.</span><span class="n">related_files</span><span class="p">,</span>
+            <span class="n">in_worker</span><span class="o">=</span><span class="n">current</span><span class="o">.</span><span class="n">in_worker</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">current</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="error_context">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.error_context">[docs]</a>
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">error_context</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">related_files</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scope additional context for any error raised inside the block.</span>
+
+<span class="sd">    Builds a new :class:`ErrorContext` (step, files, and config supplied at</span>
+<span class="sd">    construction, not by mutating the current one), installs it for the</span>
+<span class="sd">    duration of the block, and resets the token on exit.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        step_name(str or None):    Override the ambient step name for the</span>
+<span class="sd">            duration of the block.</span>
+
+<span class="sd">        related_files(Sequence[RelatedFile]):    Files appended to the</span>
+<span class="sd">            ambient related-files list for the duration of the block.</span>
+
+<span class="sd">        config(dict or None):    The step&#39;s resolved config to record on</span>
+<span class="sd">            errors raised in the block. The managers scope this at each</span>
+<span class="sd">            step&#39;s dispatch -- uniformly for every step, whether or not it</span>
+<span class="sd">            uses a worker pool -- so a parent-side error (including a</span>
+<span class="sd">            synthesised ``WorkerCrashedError``) carries the *failing</span>
+<span class="sd">            step&#39;s* config, not the base config the parent bootstrapped</span>
+<span class="sd">            with. ``None`` keeps whatever is already in scope.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">current</span> <span class="o">=</span> <span class="n">_context</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">_context</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">ErrorContext</span><span class="p">(</span>
+            <span class="n">pipeline_run</span><span class="o">=</span><span class="n">current</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">,</span>
+            <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span> <span class="ow">or</span> <span class="n">current</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+            <span class="n">related_files</span><span class="o">=</span><span class="n">current</span><span class="o">.</span><span class="n">related_files</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">related_files</span><span class="p">),</span>
+            <span class="n">in_worker</span><span class="o">=</span><span class="n">current</span><span class="o">.</span><span class="n">in_worker</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">current</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">_remember_related_files</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">related_files</span><span class="p">))</span>
+        <span class="k">raise</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">_context</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">token</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_stamp">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._stamp">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_stamp</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="n">AutoWISPError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill any unset context fields on ``exc`` from the ambient context.</span>
+
+<span class="sd">    Already-populated fields are left untouched. This is the one place</span>
+<span class="sd">    that writes ``step_name`` / ``related_files`` / ``pipeline_run`` /</span>
+<span class="sd">    ``crashed`` after construction (they are mutable instance attributes),</span>
+<span class="sd">    and stamps the process config into ``details`` so it travels back to</span>
+<span class="sd">    the parent with a worker error.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exc(AutoWISPError):    The exception to stamp in place.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">StepError</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="s2">&quot;step_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">exc</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exc</span><span class="o">.</span><span class="n">related_files</span><span class="p">:</span>
+        <span class="c1"># Scopes the exception already left recorded themselves on it (the</span>
+        <span class="c1"># ambient context has since been reset); scopes still in force are</span>
+        <span class="c1"># only in the context. Both matter, and the two can name the same</span>
+        <span class="c1"># file when a path is scoped twice, so merge rather than pick one.</span>
+        <span class="n">remembered</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="s2">&quot;_autowisp_scope_related_files&quot;</span><span class="p">,</span> <span class="p">())</span>
+        <span class="n">exc</span><span class="o">.</span><span class="n">related_files</span> <span class="o">=</span> <span class="n">remembered</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">related</span>
+            <span class="k">for</span> <span class="n">related</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">related_files</span>
+            <span class="k">if</span> <span class="n">related</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">remembered</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">exc</span><span class="o">.</span><span class="n">with_pipeline_run</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_wrap">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._wrap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrap</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AutoWISPError</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap a non-AutoWISP exception in the right concrete class.</span>
+
+<span class="sd">    Inside a step it becomes the step&#39;s :class:`StepError` subclass</span>
+<span class="sd">    (looked up from the ambient step name); in the BUI it becomes a</span>
+<span class="sd">    :class:`ViewError`; otherwise a :class:`PipelineError`. The original</span>
+<span class="sd">    is preserved as ``__cause__`` by the caller (``raise ... from exc``).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exc(Exception):    The original, non-AutoWISP exception.</span>
+
+<span class="sd">        component(Component):    Component of the wrapping callable.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        AutoWISPError:    The wrapping exception (not yet stamped).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># A step name&#39;s concrete StepError subclass, so an unknown exception</span>
+    <span class="c1"># raised inside a step is wrapped in a type catch sites can be specific</span>
+    <span class="c1"># about. Steps with no dedicated subclass fall back to ``StepError``</span>
+    <span class="c1"># (still carrying ``step_name``).</span>
+    <span class="n">step_error_by_name</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;calibrate&quot;</span><span class="p">:</span> <span class="n">CalibrationError</span><span class="p">,</span>
+        <span class="s2">&quot;stack_to_master&quot;</span><span class="p">:</span> <span class="n">StackToMasterError</span><span class="p">,</span>
+        <span class="s2">&quot;stack_to_master_flat&quot;</span><span class="p">:</span> <span class="n">StackToMasterError</span><span class="p">,</span>
+        <span class="s2">&quot;find_stars&quot;</span><span class="p">:</span> <span class="n">FindStarsError</span><span class="p">,</span>
+        <span class="s2">&quot;solve_astrometry&quot;</span><span class="p">:</span> <span class="n">SolveAstrometryError</span><span class="p">,</span>
+        <span class="s2">&quot;fit_star_shape&quot;</span><span class="p">:</span> <span class="n">FitStarShapeError</span><span class="p">,</span>
+        <span class="s2">&quot;measure_aperture_photometry&quot;</span><span class="p">:</span> <span class="n">MeasurePhotometryError</span><span class="p">,</span>
+        <span class="s2">&quot;fit_source_extracted_psf_map&quot;</span><span class="p">:</span> <span class="n">FitPSFMapError</span><span class="p">,</span>
+        <span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">:</span> <span class="n">FitMagnitudesError</span><span class="p">,</span>
+        <span class="s2">&quot;create_lightcurves&quot;</span><span class="p">:</span> <span class="n">CreateLightCurvesError</span><span class="p">,</span>
+        <span class="s2">&quot;epd&quot;</span><span class="p">:</span> <span class="n">EPDError</span><span class="p">,</span>
+        <span class="s2">&quot;tfa&quot;</span><span class="p">:</span> <span class="n">TFAError</span><span class="p">,</span>
+        <span class="s2">&quot;generate_epd_statistics&quot;</span><span class="p">:</span> <span class="n">DetrendingStatError</span><span class="p">,</span>
+        <span class="s2">&quot;generate_tfa_statistics&quot;</span><span class="p">:</span> <span class="n">DetrendingStatError</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span> <span class="ow">or</span> <span class="n">exc</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">if</span> <span class="n">component</span> <span class="ow">is</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">:</span>
+        <span class="n">step_name</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span><span class="o">.</span><span class="n">step_name</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">step_error_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">StepError</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">component</span> <span class="ow">is</span> <span class="n">Component</span><span class="o">.</span><span class="n">BUI</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ViewError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">PipelineError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="capture_errors">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.capture_errors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">capture_errors</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="n">wrap_unknown</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stamp ambient context onto errors leaving the wrapped callable.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        component(Component):    Which component the wrapped callable</span>
+<span class="sd">            belongs to, used when wrapping unknown exceptions.</span>
+
+<span class="sd">        wrap_unknown(bool):    If True, wrap non-:class:`AutoWISPError`</span>
+<span class="sd">            exceptions in the appropriate concrete class (preserving</span>
+<span class="sd">            ``__cause__``); if False, let them propagate untouched.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Callable:    A decorator for the step/dispatch callable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorate</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">AutoWISPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">_stamp</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">wrap_unknown</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="n">wrapped</span> <span class="o">=</span> <span class="n">_wrap</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+                <span class="n">_inherit_related_files</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="n">_stamp</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">wrapped</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorate</span></div>
+
+
+
+<div class="viewcode-block" id="_stamp_worker_error">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._stamp_worker_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_stamp_worker_error</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AutoWISPError</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn an error raised in a worker into a stamped, picklable one.</span>
+
+<span class="sd">    Shared by :func:`worker_entry` (Scheme A: ``Pool``, which re-raises)</span>
+<span class="sd">    and :func:`capture_for_queue` (Scheme B: ``Process`` + ``Queue``,</span>
+<span class="sd">    which puts the returned object on a queue). An :class:`AutoWISPError`</span>
+<span class="sd">    is stamped in place; any other exception is wrapped via :func:`_wrap`</span>
+<span class="sd">    into the step&#39;s concrete :class:`StepError` subclass (so a worker&#39;s</span>
+<span class="sd">    bare ``ValueError`` surfaces as e.g. ``FindStarsError``), *not* a</span>
+<span class="sd">    :class:`WorkerCrashedError` -- that type is reserved for a worker that</span>
+<span class="sd">    dies without producing an error object at all (synthesised by the</span>
+<span class="sd">    parent).</span>
+
+<span class="sd">    The worker traceback is captured into ``details[&quot;original_traceback&quot;]``</span>
+<span class="sd">    because it is the only durable record that crosses back: Scheme A&#39;s</span>
+<span class="sd">    ``RemoteTraceback`` lives only on the live re-raised object, Scheme B</span>
+<span class="sd">    has none, and neither transport pickles ``__cause__``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exc(Exception):    The exception raised in the worker.</span>
+
+<span class="sd">        component(Component):    Component of the worker callable, used to</span>
+<span class="sd">            pick the wrapper class for a non-AutoWISP exception.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        AutoWISPError:    The stamped exception, safe to pickle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">stamped</span> <span class="o">=</span> <span class="n">exc</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">AutoWISPError</span><span class="p">)</span> <span class="k">else</span> <span class="n">_wrap</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stamped</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">_inherit_related_files</span><span class="p">(</span><span class="n">stamped</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+    <span class="n">stamped</span><span class="o">.</span><span class="n">stamp_subprocess</span><span class="p">()</span>
+    <span class="n">_stamp</span><span class="p">(</span><span class="n">stamped</span><span class="p">)</span>
+    <span class="n">stamped</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;original_traceback&quot;</span><span class="p">,</span> <span class="n">format_exc</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">stamped</span></div>
+
+
+
+<div class="viewcode-block" id="_resolve_related_files">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._resolve_related_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_related_files</span><span class="p">(</span><span class="n">related_files</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the :class:`RelatedFile`\\ s for a work item, best-effort.</span>
+
+<span class="sd">    ``related_files`` is the call site&#39;s classifier for the items it maps</span>
+<span class="sd">    over -- either a :class:`FileKind` (the item is a path) or a callable</span>
+<span class="sd">    ``item -&gt; RelatedFile | Iterable[RelatedFile] | None`` (for items that</span>
+<span class="sd">    are not a bare path, e.g. an image set). Never raises: a classifier</span>
+<span class="sd">    that does not fit the item simply yields no related files, so error</span>
+<span class="sd">    handling is never itself a source of errors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        related_files(FileKind, Callable, or None):    The classifier, or</span>
+<span class="sd">            ``None`` to attach nothing.</span>
+
+<span class="sd">        item:    The work item handed to the worker.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:    Zero or more :class:`RelatedFile` entries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">related_files</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">related_files</span><span class="p">,</span> <span class="n">FileKind</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">RelatedFile</span><span class="p">(</span><span class="n">related_files</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">),)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">related_files</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">return</span> <span class="p">()</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">RelatedFile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">result</span><span class="p">,)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_WorkerEntry">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._WorkerEntry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_WorkerEntry</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Picklable wrapper that stamps errors leaving a Pool worker.</span>
+
+<span class="sd">    Scheme A (``Pool`` + ``map``/``imap``): on the way out an error is</span>
+<span class="sd">    stamped with ``subprocess_id`` + ambient context (see</span>
+<span class="sd">    :func:`_stamp_worker_error`) and re-raised, letting the Pool pickle it</span>
+<span class="sd">    back to the parent.</span>
+
+<span class="sd">    Around the wrapped call it does two things with the item:</span>
+
+<span class="sd">    - **In-flight tracking.** The item is recorded in the shared in-flight</span>
+<span class="sd">      map (``{pid: item}``) and cleared on return. The executor never</span>
+<span class="sd">      records which worker is running which item -- workers self-pull, the</span>
+<span class="sd">      parent only hears back on *completion*, and a broken pool collapses</span>
+<span class="sd">      every pending future to the same ``BrokenProcessPool`` -- so this</span>
+<span class="sd">      map is the only place the culprit input of a silent death can be</span>
+<span class="sd">      recovered from. A hard ``os._exit`` (segfault/OOM) skips the</span>
+<span class="sd">      ``finally``, leaving the culprit behind, which is exactly the case</span>
+<span class="sd">      we need it for.</span>
+<span class="sd">    - **Related-file context.** The item is scoped as the ambient</span>
+<span class="sd">      ``related_files`` (via ``related_files``, the call site&#39;s classifier),</span>
+<span class="sd">      so *any* error the callable raises -- e.g. a config-vs-file-content</span>
+<span class="sd">      mismatch deep inside the step -- carries the file it was about, which</span>
+<span class="sd">      then FK-resolves / renders in the error record.</span>
+
+<span class="sd">    Both ride on the wrapper: the executor already pickles ``_WorkerEntry``</span>
+<span class="sd">    to each worker, and a ``Manager().dict()`` proxy pickles/reconnects</span>
+<span class="sd">    across that boundary, so no separate plumbing is needed.</span>
+
+<span class="sd">    This is a class, not a closure, because ``Pool.map`` pickles the</span>
+<span class="sd">    mapped callable to send it to the worker (under both ``fork`` and</span>
+<span class="sd">    ``spawn``); a closure is not picklable, whereas an instance holding a</span>
+<span class="sd">    picklable ``func`` (e.g. a ``functools.partial`` of a module-level</span>
+<span class="sd">    function), an enum ``component``, and a picklable proxy is.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        func(Callable):    The wrapped per-item worker callable.</span>
+
+<span class="sd">        component(Component):    Component for wrapping unknown errors.</span>
+
+<span class="sd">        inflight(DictProxy or None):    Shared ``{pid: item}`` map, or</span>
+<span class="sd">            ``None`` to disable tracking (non-``run_pool`` callers).</span>
+
+<span class="sd">        related_files(FileKind, Callable, or None):    Classifier turning</span>
+<span class="sd">            the item into related file(s); see :func:`_resolve_related_files`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="n">inflight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">related_files</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inflight</span> <span class="o">=</span> <span class="n">inflight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">related_files</span> <span class="o">=</span> <span class="n">related_files</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inflight</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">kwargs</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="k">pass</span>  <span class="c1"># tracking is best-effort; never fail a task over it</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># The stamping ``except`` is *inside* the related-files scope so</span>
+            <span class="c1"># ``_stamp`` copies the item onto the error before it is pickled</span>
+            <span class="c1"># back (the parent&#39;s context no longer has it).</span>
+            <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span>
+                <span class="n">related_files</span><span class="o">=</span><span class="n">_resolve_related_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">related_files</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                    <span class="n">stamped</span> <span class="o">=</span> <span class="n">_stamp_worker_error</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">stamped</span> <span class="ow">is</span> <span class="n">exc</span><span class="p">:</span>
+                        <span class="k">raise</span>
+                    <span class="k">raise</span> <span class="n">stamped</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">inflight</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="worker_entry">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.worker_entry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">worker_entry</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="n">inflight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">related_files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap a Pool worker callable so errors come back picklable + stamped.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        func(Callable):    The worker callable to wrap (must itself be</span>
+<span class="sd">            picklable, e.g. a module-level function or a ``partial`` of</span>
+<span class="sd">            one).</span>
+
+<span class="sd">        component(Component):    Component to assign when wrapping an</span>
+<span class="sd">            unknown exception.</span>
+
+<span class="sd">        inflight(DictProxy or None):    Shared in-flight map (see</span>
+<span class="sd">            :class:`_WorkerEntry`); ``None`` disables tracking.</span>
+
+<span class="sd">        related_files(FileKind, Callable, or None):    Per-item related-file</span>
+<span class="sd">            classifier (see :func:`_resolve_related_files`).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        _WorkerEntry:    A picklable callable suitable to hand to a Pool.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_WorkerEntry</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">inflight</span><span class="p">,</span> <span class="n">related_files</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="capture_for_queue">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.capture_for_queue">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">capture_for_queue</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AutoWISPError</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stamp a worker error and return it for a result queue (Scheme B).</span>
+
+<span class="sd">    Sibling of :func:`worker_entry` for ``Process`` + ``Queue`` workers</span>
+<span class="sd">    that catch and *return* their error (to ``result_queue.put(...)``)</span>
+<span class="sd">    rather than re-raising it. Performs the same stamping + traceback</span>
+<span class="sd">    capture and returns the picklable exception.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exc(Exception):    The exception raised in the worker.</span>
+
+<span class="sd">        component(Component):    Component of the worker callable.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        AutoWISPError:    The stamped exception, safe to put on a queue.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_stamp_worker_error</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="reraise_from_worker">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.reraise_from_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reraise_from_worker</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="n">AutoWISPError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Re-raise in the parent an error pulled off a worker result queue.</span>
+
+<span class="sd">    Fills the pipeline-run snapshot from the parent&#39;s ambient context if</span>
+<span class="sd">    the worker did not already carry one, then raises. The error then</span>
+<span class="sd">    flows up to the parent&#39;s ``capture_errors`` boundary like any other.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exc(AutoWISPError):    The stamped exception from the queue.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">AutoWISPError</span><span class="p">)</span> <span class="ow">and</span> <span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exc</span><span class="o">.</span><span class="n">with_pipeline_run</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">exc</span></div>
+
+
+
+<div class="viewcode-block" id="forbid_nested_workers">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.forbid_nested_workers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">forbid_nested_workers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enforce the no-nested-workers policy (resource control).</span>
+
+<span class="sd">    Every parallel site is sized by ``num_parallel_processes``; a worker</span>
+<span class="sd">    that spawned its own pool/process would multiply that out to ``N^2``</span>
+<span class="sd">    live processes. Called before any worker launch so an accidental</span>
+<span class="sd">    nested launch fails loudly instead of silently blowing the limit.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">in_worker</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
+            <span class="s2">&quot;Nested multiprocessing is not allowed: a worker attempted to &quot;</span>
+            <span class="s2">&quot;create its own pool/process, which would multiply &quot;</span>
+            <span class="s2">&quot;num_parallel_processes out to N^2 live processes.&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_signal_name">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._signal_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_signal_name</span><span class="p">(</span><span class="n">signum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;POSIX signal name for a number (e.g. 9 -&gt; ``&quot;SIGKILL&quot;``), or None.&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">signal</span><span class="o">.</span><span class="n">Signals</span><span class="p">(</span><span class="n">signum</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="_exit_signal_entry">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._exit_signal_entry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_exit_signal_entry</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode one process exit code into a portable death descriptor.</span>
+
+<span class="sd">    ``None`` (still running) and ``0`` (clean) yield ``None``. The meaning</span>
+<span class="sd">    of a non-zero code is OS-specific, so decode accordingly:</span>
+
+<span class="sd">    - **POSIX**: a *negative* code is a kill by signal ``-code`` (``SIGKILL``</span>
+<span class="sd">      -&gt; OOM / macOS jetsam, ``SIGSEGV`` -&gt; native crash), whose name is</span>
+<span class="sd">      added; a positive code is a plain ``exit(code)``.</span>
+<span class="sd">    - **Windows**: there are no POSIX signals -- the code is a process /</span>
+<span class="sd">      NTSTATUS exit status (e.g. ``0xC0000005`` = access violation), so its</span>
+<span class="sd">      conventional hex form is added for abnormal values rather than being</span>
+<span class="sd">      (mis)read as a signal.</span>
+
+<span class="sd">    Never raises.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        code(int or None):    A ``multiprocessing.Process.exitcode``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict or None:    ``{&quot;exitcode&quot;: code[, &quot;signal&quot;|&quot;status&quot;: ...]}``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">code</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;exitcode&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">code</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_signal_name</span><span class="p">(</span><span class="o">-</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">code</span> <span class="o">&gt;</span> <span class="mh">0xFFFF</span><span class="p">:</span>
+            <span class="c1"># Windows crash/NTSTATUS codes read best in hex.</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;0x</span><span class="si">{</span><span class="n">code</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFFFFFF</span><span class="si">:</span><span class="s2">08X</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">entry</span></div>
+
+
+
+<div class="viewcode-block" id="decode_exit_signals">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.decode_exit_signals">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">decode_exit_signals</span><span class="p">(</span><span class="n">exitcodes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode a collection of process exit codes (best-effort, portable).</span>
+
+<span class="sd">    Returns one :func:`_exit_signal_entry` per *abnormal* exit (dropping</span>
+<span class="sd">    ``None`` = still running and ``0`` = clean), so an empty list means no</span>
+<span class="sd">    abnormal termination was observed. Shared by both parallel schemes so a</span>
+<span class="sd">    crash report reads the same ``details[&quot;exit_signal&quot;]`` regardless of</span>
+<span class="sd">    transport. Never raises.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exitcodes(iterable):    ``Process.exitcode`` values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[dict]:    The decoded abnormal exits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">exitcodes</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">_exit_signal_entry</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_pool_exit_signals">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._pool_exit_signals">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pool_exit_signals</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="n">wait_seconds</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode a broken pool&#39;s worker exit codes (best-effort, private API).</span>
+
+<span class="sd">    ``ProcessPoolExecutor`` hides a worker death behind</span>
+<span class="sd">    ``BrokenProcessPool`` and clears its process table on shutdown, so this</span>
+<span class="sd">    must be read at the moment of the break (see :func:`run_pool`). Reaches</span>
+<span class="sd">    into the executor&#39;s private ``_processes``; returns ``[]`` if the</span>
+<span class="sd">    attribute is absent or anything goes wrong.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        executor(ProcessPoolExecutor):    The broken executor.</span>
+
+<span class="sd">        wait_seconds(float):    How long to wait for the exit codes to be</span>
+<span class="sd">            collected before giving up on decoding them. Only ever paid on</span>
+<span class="sd">            the crash path, and only until the reaper wins.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[dict]:    Decoded abnormal worker exits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">processes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">((</span><span class="nb">getattr</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="s2">&quot;_processes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">deadline</span> <span class="o">=</span> <span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">wait_seconds</span>
+        <span class="k">while</span> <span class="n">monotonic</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">deadline</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">exitcode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">processes</span>
+        <span class="p">):</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decode_exit_signals</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">exitcode</span> <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+
+<div class="viewcode-block" id="_worker_crashed">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._worker_crashed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_worker_crashed</span><span class="p">(</span>
+    <span class="n">items</span><span class="p">,</span>
+    <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
+    <span class="n">inflight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">related_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">exit_signal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkerCrashedError&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synthesise the parent-side error for a worker that died silently.</span>
+
+<span class="sd">    Used when a worker dies without producing an error object (segfault,</span>
+<span class="sd">    OOM-killer, ``os._exit``), so the parent must describe the failure</span>
+<span class="sd">    from what *it* knows: the step, the in-flight inputs, and the</span>
+<span class="sd">    underlying pool error.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        items:    The work items that were in flight.</span>
+
+<span class="sd">        exc(Exception):    The error the pool surfaced for the death.</span>
+
+<span class="sd">        inflight(DictProxy or None):    The shared ``{pid: item}``</span>
+<span class="sd">            in-flight map (see :class:`_WorkerEntry`). Its values are the</span>
+<span class="sd">            items being executed at the moment of death -- the culprit</span>
+<span class="sd">            plus any innocents the executor force-terminated, a set</span>
+<span class="sd">            bounded by the worker count. ``None`` if tracking was off.</span>
+
+<span class="sd">        related_files(FileKind, Callable, or None):    The call site&#39;s</span>
+<span class="sd">            related-file classifier, used to promote the in-flight items</span>
+<span class="sd">            to structured ``related_files`` on the error (so a crash links</span>
+<span class="sd">            straight to the offending file, not just a ``details`` string).</span>
+
+<span class="sd">        exit_signal(list or None):    Decoded OS-level exit info for the</span>
+<span class="sd">            dead worker(s) (see :func:`decode_exit_signals`) -- the tell</span>
+<span class="sd">            for SIGKILL/OOM vs. a native crash. Recorded when non-empty.</span>
+
+<span class="sd">        num_processes(int or None):    The pool&#39;s worker count, recorded</span>
+<span class="sd">            alongside the memory snapshot so ``N`` workers vs. total RAM</span>
+<span class="sd">            makes an OOM death easy to judge.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        WorkerCrashedError:    Stamped with the ambient context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_error_context</span><span class="p">()</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">WorkerCrashedError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;A worker process died during step </span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="si">!r}</span><span class="s2"> without &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;reporting an error (</span><span class="si">{</span><span class="n">exc</span><span class="si">!r}</span><span class="s2">).&quot;</span><span class="p">,</span>
+        <span class="n">step_name</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># ``step_name`` also goes in ``details`` so it survives into the</span>
+    <span class="c1"># sidecar even if the queryable column is ever dropped; the attribute</span>
+    <span class="c1"># above is what the persistence layer writes to ``error.step_name``,</span>
+    <span class="c1"># which crash-report log-collection resolves the run/step logs from.</span>
+    <span class="n">err</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;step_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">step_name</span>
+    <span class="n">err</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;pool_error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exit_signal</span><span class="p">:</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;exit_signal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exit_signal</span>
+    <span class="c1"># Machine memory at crash time (+ the worker count): the tell for an</span>
+    <span class="c1"># OOM/jetsam kill, especially paired with a SIGKILL and no native dump.</span>
+    <span class="n">resources</span> <span class="o">=</span> <span class="n">collect_resource_snapshot</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">num_processes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resources</span><span class="p">[</span><span class="s2">&quot;num_processes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_processes</span>
+    <span class="k">if</span> <span class="n">resources</span><span class="p">:</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resources</span>
+    <span class="k">if</span> <span class="n">inflight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">in_flight</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">inflight</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="n">in_flight</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">in_flight</span><span class="p">:</span>
+            <span class="n">err</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;crashed_inputs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">in_flight</span><span class="p">]</span>
+            <span class="c1"># Promote to structured related files so the crash links to the</span>
+            <span class="c1"># actual artifact (rendered / FK-resolved), not just a string.</span>
+            <span class="c1"># ``dict.fromkeys`` dedups (keeping order) so a batch-constant</span>
+            <span class="c1"># file the classifier returns for every item -- e.g. the single</span>
+            <span class="c1"># photref -- appears once, not once per crashed input.</span>
+            <span class="n">related</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">crashed_item</span> <span class="ow">in</span> <span class="n">in_flight</span><span class="p">:</span>
+                <span class="n">related</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="n">_resolve_related_files</span><span class="p">(</span><span class="n">related_files</span><span class="p">,</span> <span class="n">crashed_item</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">related</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">related</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">related</span><span class="p">:</span>
+                <span class="n">err</span><span class="o">.</span><span class="n">related_files</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">related</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">items_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;num_inputs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items_list</span><span class="p">)</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;inputs_sample&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">items_list</span><span class="p">[:</span><span class="mi">20</span><span class="p">]]</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">pass</span>
+    <span class="n">_stamp</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">err</span></div>
+
+
+
+<div class="viewcode-block" id="_stream_as_completed">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context._stream_as_completed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_stream_as_completed</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield worker results as they finish (unordered streaming).</span>
+
+<span class="sd">    The ``ProcessPoolExecutor`` analogue of ``Pool.imap_unordered``:</span>
+<span class="sd">    submit every item, then surface results via ``as_completed`` so a</span>
+<span class="sd">    consumer can process them lazily. ``future.result()`` re-raises a</span>
+<span class="sd">    worker error (a stamped :class:`AutoWISPError`) or, on a worker death,</span>
+<span class="sd">    a ``BrokenProcessPool`` -- both then handled by :func:`run_pool`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        executor(ProcessPoolExecutor):    The live executor.</span>
+
+<span class="sd">        wrapped(Callable):    The :func:`worker_entry`-wrapped worker.</span>
+
+<span class="sd">        items(iterable):    Work items to submit.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        The return value of ``wrapped`` for each item, in completion</span>
+<span class="sd">        order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># The keyword-only options each map an existing call-site knob; a config</span>
+<span class="c1"># object would just be a thin shim over the same set.</span>
+<span class="c1"># pylint: disable=too-many-arguments</span>
+<div class="viewcode-block" id="run_pool">
+<a class="viewcode-back" href="../../implementation/autowisp.error_context.html#autowisp.error_context.run_pool">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_pool</span><span class="p">(</span>
+    <span class="n">worker</span><span class="p">,</span>
+    <span class="n">items</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">,</span>
+    <span class="n">component</span><span class="p">:</span> <span class="n">Component</span> <span class="o">=</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">,</span>
+    <span class="n">max_tasks_per_child</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">stream_consumer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">related_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map ``worker`` over ``items`` in a process pool, stamping errors.</span>
+
+<span class="sd">    Single entry point for the ``Pool``-style parallel sites. It enforces</span>
+<span class="sd">    the no-nested-workers policy, bootstraps each worker with</span>
+<span class="sd">    ``setup_process_map``, wraps ``worker`` with :func:`worker_entry` so</span>
+<span class="sd">    any error is stamped + picklable before it crosses back, and</span>
+<span class="sd">    synthesises a :class:`WorkerCrashedError` if a worker dies without</span>
+<span class="sd">    surfacing one.</span>
+
+<span class="sd">    Built on :class:`concurrent.futures.ProcessPoolExecutor` rather than</span>
+<span class="sd">    ``multiprocessing.Pool`` specifically so that a worker that dies</span>
+<span class="sd">    mid-task (segfault / OOM-killer / ``os._exit``) raises</span>
+<span class="sd">    ``BrokenProcessPool`` instead of hanging the pipeline forever -- the</span>
+<span class="sd">    silent-death case ``Pool`` cannot report.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        worker(Callable):    The per-item callable (already bound, e.g.</span>
+<span class="sd">            via ``functools.partial``); must be picklable.</span>
+
+<span class="sd">        items(iterable):    Work items to map over.</span>
+
+<span class="sd">        config(dict):    Per-process config passed to</span>
+<span class="sd">            ``setup_process_map``; ``parent_pid`` is set here so workers</span>
+<span class="sd">            know they are workers.</span>
+
+<span class="sd">        num_processes(int):    Number of worker processes.</span>
+
+<span class="sd">        component(Component):    Component for wrapping unknown errors.</span>
+
+<span class="sd">        max_tasks_per_child(int or None):    Recycle each worker after</span>
+<span class="sd">            this many tasks (memory control); ``None`` keeps workers for</span>
+<span class="sd">            the whole run.</span>
+
+<span class="sd">        stream_consumer(Callable or None):    If given, it is called with</span>
+<span class="sd">            an iterator yielding results as they complete (consumed inside</span>
+<span class="sd">            the pool block) instead of returning a materialised, ordered</span>
+<span class="sd">            result list.</span>
+
+<span class="sd">        related_files(FileKind, Callable, or None):    Classifier that turns</span>
+<span class="sd">            each item into the file it is about (a :class:`FileKind` when</span>
+<span class="sd">            items are paths, else an ``item -&gt; RelatedFile`` callable), so</span>
+<span class="sd">            errors -- including a silent worker death -- carry the artifact</span>
+<span class="sd">            they were processing. ``None`` attaches nothing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list or None:    The ordered results, or ``None`` when a</span>
+<span class="sd">            ``stream_consumer`` is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">forbid_nested_workers</span><span class="p">()</span>
+    <span class="c1"># Lazy import breaks a genuine cycle: multiprocessing_util imports</span>
+    <span class="c1"># this module for the setup_process_map bootstrap hook.</span>
+    <span class="c1"># pylint: disable=import-outside-toplevel</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process_map</span>
+
+    <span class="c1"># pylint: enable=import-outside-toplevel</span>
+
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+    <span class="n">executor_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;max_workers&quot;</span><span class="p">:</span> <span class="n">num_processes</span><span class="p">,</span>
+        <span class="s2">&quot;initializer&quot;</span><span class="p">:</span> <span class="n">setup_process_map</span><span class="p">,</span>
+        <span class="s2">&quot;initargs&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">config</span><span class="p">,),</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">max_tasks_per_child</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">executor_kwargs</span><span class="p">[</span><span class="s2">&quot;max_tasks_per_child&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_tasks_per_child</span>
+
+    <span class="c1"># The in-flight map lets a silent worker death name its culprit</span>
+    <span class="c1"># input(s). It lives on a Manager server process, and the proxy rides</span>
+    <span class="c1"># to each worker on the pickled ``worker_entry`` wrapper; the Manager</span>
+    <span class="c1"># is torn down when the pool is done, so nothing leaks.</span>
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">inflight</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">worker_entry</span><span class="p">(</span><span class="n">worker</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">inflight</span><span class="p">,</span> <span class="n">related_files</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="o">**</span><span class="n">executor_kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stream_consumer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">items</span><span class="p">))</span>
+                <span class="n">stream_consumer</span><span class="p">(</span><span class="n">_stream_as_completed</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">,</span> <span class="n">items</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">except</span> <span class="n">AutoWISPError</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="c1"># Synthesise *inside* the ``with`` so the dead worker&#39;s OS</span>
+                <span class="c1"># exit code is still readable -- ``ProcessPoolExecutor``</span>
+                <span class="c1"># clears its process table on shutdown, which the enclosing</span>
+                <span class="c1"># ``with`` triggers on the way out.</span>
+                <span class="k">raise</span> <span class="n">_worker_crashed</span><span class="p">(</span>
+                    <span class="n">items</span><span class="p">,</span>
+                    <span class="n">exc</span><span class="p">,</span>
+                    <span class="n">inflight</span><span class="p">,</span>
+                    <span class="n">related_files</span><span class="p">,</span>
+                    <span class="n">_pool_exit_signals</span><span class="p">(</span><span class="n">executor</span><span class="p">),</span>
+                    <span class="n">num_processes</span><span class="p">,</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

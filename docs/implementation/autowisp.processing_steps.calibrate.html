@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -172,12 +172,15 @@
 <span id="autowisp-processing-steps-calibrate-module"></span><h1>autowisp.processing_steps.calibrate module<a class="headerlink" href="#module-autowisp.processing_steps.calibrate" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-ed27ca5dd45d558601f136d3c2515d34f1061b28.png" alt="Inheritance diagram of Action, Calibrator, Component, FileKind, ManualStepArgumentParser, ParseChannelDependentAction, ParseChannelsAction, RelatedFile, _StoreAction" usemap="#inheritance6b98b2e49e" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-f652f2b87a02f3b50bfd6aa70582ef9716c2dabe.png" alt="Inheritance diagram of Action, Calibrator, Component, FileKind, ManualStepArgumentParser, ParseChannelDependentAction, ParseChannelsAction, RelatedFile, _StoreAction" usemap="#inheritance6b98b2e49e" class="inheritance graphviz" /></div>
 <map id="inheritance6b98b2e49e" name="inheritance6b98b2e49e">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.Action" target="_top" title="Information about how to convert command line strings to Python objects." alt="" coords="130,5,243,32"/>
 <area shape="rect" id="node10" href="#autowisp.processing_steps.calibrate.ParseChannelsAction" target="_top" title="Parse chanel command line arguments as described in the help." alt="" coords="5,80,368,107"/>
 <area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="410,5,579,32"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="621,80,832,107"/>
 <area shape="rect" id="node4" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="704,5,795,32"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="856,80,1048,107"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="841,5,1052,32"/>
 <area shape="rect" id="node7" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="1072,80,1368,107"/>
 <area shape="rect" id="node8" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="1121,5,1318,32"/>
 <area shape="rect" id="node9" href="#autowisp.processing_steps.calibrate.ParseChannelDependentAction" target="_top" title="Parse command line arguments with channel dependent values." alt="" coords="1343,5,1761,32"/>

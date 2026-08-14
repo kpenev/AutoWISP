@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.display\_fits\_util module
+=================================================================
+
+.. automodule:: autowisp.browser_interface.processing.display_fits_util
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -3,5 +3,5 @@ autowisp.database.interface module
 
 .. automodule:: autowisp.database.interface
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

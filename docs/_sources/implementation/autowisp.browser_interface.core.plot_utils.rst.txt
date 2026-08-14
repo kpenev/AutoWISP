@@ -1,0 +1,7 @@
+autowisp.browser\_interface.core.plot\_utils module
+===================================================
+
+.. automodule:: autowisp.browser_interface.core.plot_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

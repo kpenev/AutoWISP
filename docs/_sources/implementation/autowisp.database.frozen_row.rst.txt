@@ -1,0 +1,7 @@
+autowisp.database.frozen\_row module
+====================================
+
+.. automodule:: autowisp.database.frozen_row
+   :members:
+   :undoc-members:
+   :show-inheritance:

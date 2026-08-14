@@ -1,0 +1,7 @@
+autowisp.run\_pipeline module
+=============================
+
+.. automodule:: autowisp.run_pipeline
+   :members:
+   :undoc-members:
+   :show-inheritance:

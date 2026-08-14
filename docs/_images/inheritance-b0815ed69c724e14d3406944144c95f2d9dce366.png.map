@@ -1,0 +1,6 @@
+<map id="inheritancec4ba45cac2" name="inheritancec4ba45cac2">
+<area shape="rect" id="node1" title="Text I/O implementation using an in&#45;memory buffer." alt="" coords="5,5,96,32"/>
+<area shape="rect" id="node2" title="An HTTP response class with a string as content." alt="" coords="135,80,366,107"/>
+<area shape="rect" id="node4" title="An HTTP response class that consumes data to be serialized to JSON." alt="" coords="134,155,367,181"/>
+<area shape="rect" id="node3" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="120,5,381,32"/>
+</map>

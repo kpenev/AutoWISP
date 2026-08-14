@@ -3,5 +3,5 @@ autowisp.processing\_steps.lc\_detrending module
 
 .. automodule:: autowisp.processing_steps.lc_detrending
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

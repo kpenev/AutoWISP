@@ -1,0 +1,7 @@
+autowisp.tests.test\_catalog module
+===================================
+
+.. automodule:: autowisp.tests.test_catalog
+   :members:
+   :undoc-members:
+   :show-inheritance:

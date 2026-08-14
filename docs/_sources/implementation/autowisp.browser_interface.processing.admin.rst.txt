@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.admin module
+===================================================
+
+.. automodule:: autowisp.browser_interface.processing.admin
+   :members:
+   :undoc-members:
+   :show-inheritance:

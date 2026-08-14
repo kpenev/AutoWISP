@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -172,7 +172,7 @@
 <span id="autowisp-processing-steps-create-lightcurves-module"></span><h1>autowisp.processing_steps.create_lightcurves module<a class="headerlink" href="#module-autowisp.processing_steps.create_lightcurves" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-5a4a2ffd2914caaaf247bb3947a77a1686101025.png" alt="Inheritance diagram of Component, DataReductionFile, DecodingStringFormatter, FileKind, Interpreter, LightCurveFile, ManualStepArgumentParser, MasterCatalog, RelatedFile, Table" usemap="#inheritancef5d681357c" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-e752c0705b7dd5052a4aff348b1f2b786a48e1ac.png" alt="Inheritance diagram of Component, DataReductionFile, DecodingStringFormatter, FileKind, Interpreter, LightCurveFile, ManualStepArgumentParser, MasterCatalog, RelatedFile, Table" usemap="#inheritancef5d681357c" class="inheritance graphviz" /></div>
 <map id="inheritancef5d681357c" name="inheritancef5d681357c">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
 <area shape="rect" id="node7" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
@@ -180,7 +180,10 @@
 <area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
 <area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
 <area shape="rect" id="node15" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1283,80,1494,107"/>
 <area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1552,5,1643,32"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1518,80,1709,107"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1667,5,1878,32"/>
 <area shape="rect" id="node13" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="1750,80,2165,107"/>
 <area shape="rect" id="node14" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="1901,5,2014,32"/>
 <area shape="rect" id="node16" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="2038,5,2416,32"/>

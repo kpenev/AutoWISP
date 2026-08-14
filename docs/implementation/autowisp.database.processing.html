@@ -22,8 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.database.user_interface module" href="autowisp.database.user_interface.html" />
-    <link rel="prev" title="autowisp.database.manually_fill_tables module" href="autowisp.database.manually_fill_tables.html" /> 
+    <link rel="next" title="autowisp.database.provenance_resolver module" href="autowisp.database.provenance_resolver.html" />
+    <link rel="prev" title="autowisp.database.photref_selection module" href="autowisp.database.photref_selection.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -60,9 +60,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
 </ul>
 </li>
@@ -172,7 +172,7 @@
 <span id="autowisp-database-processing-module"></span><h1>autowisp.database.processing module<a class="headerlink" href="#module-autowisp.database.processing" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-295b68335aa838ecefb2b2da11d8449578920028.png" alt="Inheritance diagram of Condition, ConditionExpression, Configuration, ConfigurationError, DataReductionFile, Evaluator, ImageMasterSelection, ImageProcessingProgress, ImageType, InputMasterTypes, LightCurveFile, LightCurveProcessingProgress, MasterFile, MasterType, PipelineError, PipelineRun, ProcessingInProgress, ProcessingManager, Step, TemporaryDirectory" usemap="#inheritanceb41adffaad" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-5a2f12fe8011b635246bad4b817ffe6b569dc929.png" alt="Inheritance diagram of Condition, ConditionExpression, Configuration, ConfigurationError, DataReductionFile, Evaluator, ImageMasterSelection, ImageProcessingProgress, ImageType, InputMasterTypes, LightCurveFile, LightCurveProcessingProgress, MasterFile, MasterType, PipelineError, PipelineRun, ProcessingInProgress, ProcessingManager, Step, TemporaryDirectory" usemap="#inheritanceb41adffaad" class="inheritance graphviz" /></div>
 <map id="inheritanceb41adffaad" name="inheritanceb41adffaad">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
 <area shape="rect" id="node21" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
@@ -190,12 +190,15 @@
 <area shape="rect" id="node16" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="2985,379,3565,405"/>
 <area shape="rect" id="node17" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="3588,379,3930,405"/>
 <area shape="rect" id="node18" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="3954,379,4302,405"/>
-<area shape="rect" id="node19" href="autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="4326,379,4674,405"/>
+<area shape="rect" id="node19" href="autowisp.database.data_model.pipeline_run.html#autowisp.database.data_model.pipeline_run.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="4326,379,4674,405"/>
 <area shape="rect" id="node20" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="4699,379,5067,405"/>
 <area shape="rect" id="node7" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="2980,229,3333,256"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="2936,304,3416,331"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.image_master_selection.html#autowisp.database.data_model.image_master_selection.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="2936,304,3416,331"/>
 <area shape="rect" id="node22" href="#autowisp.database.processing.ProcessingInProgress" target="_top" title="Raised when a particular step is running in a different process/host." alt="" coords="3313,155,3642,181"/>
+<area shape="rect" id="node23" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="3524,80,3743,107"/>
+<area shape="rect" id="node27" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="3666,155,3916,181"/>
 <area shape="rect" id="node24" href="#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="3776,5,4092,32"/>
+<area shape="rect" id="node26" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="3516,5,3751,32"/>
 <area shape="rect" id="node30" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="590,80,760,107"/>
 <area shape="rect" id="node34" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="594,155,756,181"/>
 <area shape="rect" id="node31" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="428,5,573,32"/>
@@ -209,7 +212,7 @@
 <dl class="py exception">
 <dt class="sig sig-object py" id="autowisp.database.processing.ProcessingInProgress">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.processing.</span></span><span class="sig-name descname"><span class="pre">ProcessingInProgress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_run</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/processing.html#ProcessingInProgress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.processing.ProcessingInProgress" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PipelineError</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PipelineError</span></code></a></p>
 <p>Raised when a particular step is running in a different process/host.</p>
 </dd></dl>
 
@@ -650,8 +653,8 @@ specified step has not applied with the current configuration.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autowisp.database.manually_fill_tables.html" class="btn btn-neutral float-left" title="autowisp.database.manually_fill_tables module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.database.user_interface.html" class="btn btn-neutral float-right" title="autowisp.database.user_interface module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.database.photref_selection.html" class="btn btn-neutral float-left" title="autowisp.database.photref_selection module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.database.provenance_resolver.html" class="btn btn-neutral float-right" title="autowisp.database.provenance_resolver module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -3,5 +3,5 @@ autowisp.database.data\_model.provenance.camera\_type module
 
 .. automodule:: autowisp.database.data_model.provenance.camera_type
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

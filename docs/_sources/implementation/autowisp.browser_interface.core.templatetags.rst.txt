@@ -1,0 +1,15 @@
+autowisp.browser\_interface.core.templatetags package
+=====================================================
+
+.. automodule:: autowisp.browser_interface.core.templatetags
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.core.templatetags.custom_filters

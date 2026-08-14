@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.select\_photref\_views module
+====================================================================
+
+.. automodule:: autowisp.browser_interface.processing.select_photref_views
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -3,8 +3,8 @@ autowisp.database.data\_model package
 
 .. automodule:: autowisp.database.data_model
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
@@ -24,18 +24,22 @@ Submodules
    autowisp.database.data_model.condition
    autowisp.database.data_model.condition_expression
    autowisp.database.data_model.configuration
+   autowisp.database.data_model.error
    autowisp.database.data_model.hdf5_attributes
    autowisp.database.data_model.hdf5_datasets
    autowisp.database.data_model.hdf5_links
    autowisp.database.data_model.hdf5_products
    autowisp.database.data_model.hdf5_structure_versions
    autowisp.database.data_model.image
+   autowisp.database.data_model.image_diagnostics
+   autowisp.database.data_model.image_master_selection
    autowisp.database.data_model.image_type
    autowisp.database.data_model.input_master_types
    autowisp.database.data_model.light_curve_processing_progress
    autowisp.database.data_model.light_curve_status
    autowisp.database.data_model.master_files
    autowisp.database.data_model.observing_session
+   autowisp.database.data_model.pipeline_run
    autowisp.database.data_model.processing_sequence
    autowisp.database.data_model.step_dependencies
    autowisp.database.data_model.steps_and_parameters

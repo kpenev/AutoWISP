@@ -1,0 +1,33 @@
+autowisp.browser\_interface package
+===================================
+
+.. automodule:: autowisp.browser_interface
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.configuration
+   autowisp.browser_interface.core
+   autowisp.browser_interface.diagnostics
+   autowisp.browser_interface.django_project
+   autowisp.browser_interface.home
+   autowisp.browser_interface.processing
+   autowisp.browser_interface.results
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.error_capture_middleware
+   autowisp.browser_interface.manage
+   autowisp.browser_interface.set_project_middleware
+   autowisp.browser_interface.start
+   autowisp.browser_interface.test

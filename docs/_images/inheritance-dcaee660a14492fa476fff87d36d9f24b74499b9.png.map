@@ -1,0 +1,4 @@
+<map id="inheritance9fd045e92f" name="inheritance9fd045e92f">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="19,80,109,107"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="5,5,123,32"/>
+</map>

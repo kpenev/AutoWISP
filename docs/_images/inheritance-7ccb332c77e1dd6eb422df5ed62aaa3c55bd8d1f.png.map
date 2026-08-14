@@ -1,0 +1,31 @@
+<map id="inheritance9632c6ff7e" name="inheritance9632c6ff7e">
+<area shape="rect" id="node1" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="114,5,383,32"/>
+<area shape="rect" id="node2" href="autowisp.error_context.html#autowisp.error_context.ErrorContext" target="_top" title="Immutable bundle of the ambient context attached to errors." alt="" coords="406,5,638,32"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="662,5,896,32"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="311,80,506,107"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="680,80,879,107"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="904,80,1122,107"/>
+<area shape="rect" id="node15" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="5,155,207,181"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1146,80,1357,107"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1318,5,1409,32"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1381,80,1572,107"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="230,155,459,181"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.MeasurePhotometryError" target="_top" title="Failure in the measure_aperture_photometry step." alt="" coords="483,155,772,181"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.SolveAstrometryError" target="_top" title="Failure in the solve_astrometry step." alt="" coords="797,155,1066,181"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.StackToMasterError" target="_top" title="Failure stacking calibration frames into a master." alt="" coords="1090,155,1351,181"/>
+<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError" target="_top" title="A multiprocessing worker died without preserving its exception." alt="" coords="1375,155,1637,181"/>
+<area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1433,5,1643,32"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_error_context.TestAmbientAccessors" target="_top" title="get/set helpers and in_worker()." alt="" coords="1668,5,2022,32"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_error_context.TestCaptureErrors" target="_top" title="The capture_errors decorator stamps + optionally wraps." alt="" coords="2046,5,2371,32"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_error_context.TestErrorContextDataclass" target="_top" title="The ErrorContext bundle itself." alt="" coords="2396,5,2773,32"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_error_context.TestErrorContextManager" target="_top" title="The error_context() scoping context manager." alt="" coords="2798,5,3166,32"/>
+<area shape="rect" id="node21" href="#autowisp.tests.test_error_context.TestExitSignalDecode" target="_top" title="decode_exit_signals is portable and drops clean/running exits." alt="" coords="2906,80,3255,107"/>
+<area shape="rect" id="node22" title="A class whose instances are single test cases." alt="" coords="3190,5,3347,32"/>
+<area shape="rect" id="node27" href="#autowisp.tests.test_error_context.TestResourceSnapshot" target="_top" title="collect_resource_snapshot is best&#45;effort and never raises." alt="" coords="3279,80,3634,107"/>
+<area shape="rect" id="node23" href="#autowisp.tests.test_error_context.TestFromConfig" target="_top" title="ErrorContext.from_config rebuilds context from a config dict." alt="" coords="3371,5,3684,32"/>
+<area shape="rect" id="node24" href="#autowisp.tests.test_error_context.TestNestingGuard" target="_top" title="A worker may not launch nested workers (resource control)." alt="" coords="3708,5,4032,32"/>
+<area shape="rect" id="node25" href="#autowisp.tests.test_error_context.TestPoolPropagation" target="_top" title="Errors raised in real Pool workers cross back stamped." alt="" coords="4056,5,4396,32"/>
+<area shape="rect" id="node26" href="#autowisp.tests.test_error_context.TestProcessQueuePropagation" target="_top" title="Process + Queue workers return stamped errors over a queue." alt="" coords="4420,5,4819,32"/>
+<area shape="rect" id="node28" href="#autowisp.tests.test_error_context.TestWorkerEntry" target="_top" title="worker_entry stamps subprocess_id and stays picklable." alt="" coords="4842,5,5159,32"/>
+<area shape="rect" id="node30" title="Process objects represent activity that is run in a separate process" alt="" coords="5182,5,5427,32"/>
+</map>

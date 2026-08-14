@@ -1,0 +1,7 @@
+autowisp.browser\_interface.set\_project\_middleware module
+===========================================================
+
+.. automodule:: autowisp.browser_interface.set_project_middleware
+   :members:
+   :undoc-members:
+   :show-inheritance:

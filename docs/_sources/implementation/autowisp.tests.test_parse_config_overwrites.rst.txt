@@ -1,0 +1,7 @@
+autowisp.tests.test\_parse\_config\_overwrites module
+=====================================================
+
+.. automodule:: autowisp.tests.test_parse_config_overwrites
+   :members:
+   :undoc-members:
+   :show-inheritance:

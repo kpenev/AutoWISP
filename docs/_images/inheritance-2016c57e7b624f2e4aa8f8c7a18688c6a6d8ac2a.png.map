@@ -1,0 +1,16 @@
+<map id="inheritance49b2ef480d" name="inheritance49b2ef480d">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="224,304,554,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="258,379,521,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,229,384,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="407,229,760,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="452,155,716,181"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="731,5,831,32"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="718,80,844,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="868,80,996,107"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="878,5,986,32"/>
+<area shape="rect" id="node11" title="An HTTP response class with a string as content." alt="" coords="1241,80,1471,107"/>
+<area shape="rect" id="node12" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="1226,5,1486,32"/>
+<area shape="rect" id="node13" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="30,155,359,181"/>
+<area shape="rect" id="node14" title="define a class as inspectable." alt="" coords="474,80,694,107"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="531,5,636,32"/>
+</map>

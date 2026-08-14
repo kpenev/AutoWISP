@@ -3,5 +3,5 @@ autowisp.data\_reduction.utils module
 
 .. automodule:: autowisp.data_reduction.utils
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

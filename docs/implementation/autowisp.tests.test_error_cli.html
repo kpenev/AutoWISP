@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests.test_error_cli module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.tests.test_error_context module" href="autowisp.tests.test_error_context.html" />
+    <link rel="prev" title="autowisp.tests.test_error_capture_middleware module" href="autowisp.tests.test_error_capture_middleware.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.tests.html">autowisp.tests package</a></li>
+      <li class="breadcrumb-item active">autowisp.tests.test_error_cli module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.tests.test_error_cli.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.tests.test_error_cli">
+<span id="autowisp-tests-test-error-cli-module"></span><h1>autowisp.tests.test_error_cli module<a class="headerlink" href="#module-autowisp.tests.test_error_cli" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-48ad78b3a33021f1f2f83d188d113fdffe0829a6.png" alt="Inheritance diagram of Component, ConfigurationError, Error, PipelineError, TestCliEntryPoint, TestConfigParseErrors, TestExitCodeFor, TestReportError, TestStepEntryBoundaries, TestStepEntryEndToEnd, _CliTestCase" usemap="#inheritanceef6174da78" class="inheritance graphviz" /></div>
+<map id="inheritanceef6174da78" name="inheritanceef6174da78">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="224,304,554,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="258,379,521,405"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="407,229,760,256"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="748,5,982,32"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="756,80,974,107"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="998,80,1210,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1058,5,1150,32"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="740,155,990,181"/>
+<area shape="rect" id="node11" href="#autowisp.tests.test_error_cli.TestCliEntryPoint" target="_top" title="cli_entry_point reports and exits non&#45;zero on an escaping error." alt="" coords="1252,5,1543,32"/>
+<area shape="rect" id="node12" href="#autowisp.tests.test_error_cli.TestConfigParseErrors" target="_top" title="Stored&#45;config parse errors are catchable, not an uncatchable exit." alt="" coords="1234,80,1555,107"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_error_cli.TestExitCodeFor" target="_top" title="exit_code_for distinguishes the components." alt="" coords="1579,80,1866,107"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_error_cli.TestStepEntryBoundaries" target="_top" title="Every pipeline&#45;step main() is wrapped as a CLI error boundary." alt="" coords="1890,80,2227,107"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_error_cli.TestReportError" target="_top" title="report_error persists, renders to the stream, returns the code." alt="" coords="1824,5,2106,32"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_error_cli.TestStepEntryEndToEnd" target="_top" title="A real decorated step main() surfaces an escaping error." alt="" coords="2130,5,2462,32"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="531,5,636,32"/>
+</map><p>Unit tests for CLI error reporting and the entry decorator.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestCliEntryPoint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_cli.</span></span><span class="sig-name descname"><span class="pre">TestCliEntryPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestCliEntryPoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestCliEntryPoint" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_cli._CliTestCase" title="autowisp.tests.test_error_cli._CliTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_CliTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-5955efcd4a997849acd9f0fd8bfef407c62f2e86.png" alt="Inheritance diagram of autowisp.tests.test_error_cli.TestCliEntryPoint" usemap="#inheritance28fc2e9840" class="inheritance graphviz" /></div>
+<map id="inheritance28fc2e9840" name="inheritance28fc2e9840">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_cli.TestCliEntryPoint" target="_top" title="cli_entry_point reports and exits non&#45;zero on an escaping error." alt="" coords="5,5,297,32"/>
+</map><p>cli_entry_point reports and exits non-zero on an escaping error.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestCliEntryPoint.test_autowisp_error_exits_with_component_code">
+<span class="sig-name descname"><span class="pre">test_autowisp_error_exits_with_component_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestCliEntryPoint.test_autowisp_error_exits_with_component_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestCliEntryPoint.test_autowisp_error_exits_with_component_code" title="Link to this definition"></a></dt>
+<dd><p>A raised AutoWISPError -&gt; SystemExit with the component’s code.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestCliEntryPoint.test_success_passes_through">
+<span class="sig-name descname"><span class="pre">test_success_passes_through</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestCliEntryPoint.test_success_passes_through"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestCliEntryPoint.test_success_passes_through" title="Link to this definition"></a></dt>
+<dd><p>No error -&gt; the wrapped return value, no exit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestCliEntryPoint.test_unknown_exception_is_wrapped_and_exits">
+<span class="sig-name descname"><span class="pre">test_unknown_exception_is_wrapped_and_exits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestCliEntryPoint.test_unknown_exception_is_wrapped_and_exits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestCliEntryPoint.test_unknown_exception_is_wrapped_and_exits" title="Link to this definition"></a></dt>
+<dd><p>A bare exception is wrapped (capture_errors) then reported.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestConfigParseErrors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_cli.</span></span><span class="sig-name descname"><span class="pre">TestConfigParseErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestConfigParseErrors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestConfigParseErrors" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-cf4ea8a6feef544887740ba27f0f424496b28fd5.png" alt="Inheritance diagram of autowisp.tests.test_error_cli.TestConfigParseErrors" usemap="#inheritance5e0d815906" class="inheritance graphviz" /></div>
+<map id="inheritance5e0d815906" name="inheritance5e0d815906">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_cli.TestConfigParseErrors" target="_top" title="Stored&#45;config parse errors are catchable, not an uncatchable exit." alt="" coords="5,80,327,107"/>
+</map><p>Stored-config parse errors are catchable, not an uncatchable exit.</p>
+<p>The pipeline builds each step’s config dict by feeding stored
+configuration through the step’s <code class="docutils literal notranslate"><span class="pre">ManualStepArgumentParser</span></code> (see
+<code class="docutils literal notranslate"><span class="pre">ProcessingManager.get_config</span></code>). A bad value there must raise a
+recordable <code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code> rather than argparse’s default
+<code class="docutils literal notranslate"><span class="pre">SystemExit</span></code>, which would silently end a detached run.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestConfigParseErrors.test_config_mode_raises_configuration_error">
+<span class="sig-name descname"><span class="pre">test_config_mode_raises_configuration_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestConfigParseErrors.test_config_mode_raises_configuration_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestConfigParseErrors.test_config_mode_raises_configuration_error" title="Link to this definition"></a></dt>
+<dd><p>In config-parse mode, a bad value raises ConfigurationError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestConfigParseErrors.test_interactive_cli_still_exits">
+<span class="sig-name descname"><span class="pre">test_interactive_cli_still_exits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestConfigParseErrors.test_interactive_cli_still_exits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestConfigParseErrors.test_interactive_cli_still_exits" title="Link to this definition"></a></dt>
+<dd><p>Outside config-parse mode, a bad value keeps argparse exit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestConfigParseErrors.test_mode_is_restored_after_context">
+<span class="sig-name descname"><span class="pre">test_mode_is_restored_after_context</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestConfigParseErrors.test_mode_is_restored_after_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestConfigParseErrors.test_mode_is_restored_after_context" title="Link to this definition"></a></dt>
+<dd><p>Leaving the context reverts to argparse’s exit behavior.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestExitCodeFor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_cli.</span></span><span class="sig-name descname"><span class="pre">TestExitCodeFor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestExitCodeFor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestExitCodeFor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-fb510ab9d2cd2b824bc243cbf3fb858e199b6966.png" alt="Inheritance diagram of autowisp.tests.test_error_cli.TestExitCodeFor" usemap="#inheritance1cf85f3f6b" class="inheritance graphviz" /></div>
+<map id="inheritance1cf85f3f6b" name="inheritance1cf85f3f6b">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_cli.TestExitCodeFor" target="_top" title="exit_code_for distinguishes the components." alt="" coords="5,80,293,107"/>
+</map><p>exit_code_for distinguishes the components.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestExitCodeFor.test_distinct_codes">
+<span class="sig-name descname"><span class="pre">test_distinct_codes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestExitCodeFor.test_distinct_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestExitCodeFor.test_distinct_codes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestReportError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_cli.</span></span><span class="sig-name descname"><span class="pre">TestReportError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestReportError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestReportError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_cli._CliTestCase" title="autowisp.tests.test_error_cli._CliTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_CliTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-d060a7aaf6d99bbb55e4be4d930b7d3037fb90e5.png" alt="Inheritance diagram of autowisp.tests.test_error_cli.TestReportError" usemap="#inheritancee109a5f73e" class="inheritance graphviz" /></div>
+<map id="inheritancee109a5f73e" name="inheritancee109a5f73e">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_cli.TestReportError" target="_top" title="report_error persists, renders to the stream, returns the code." alt="" coords="5,5,287,32"/>
+</map><p>report_error persists, renders to the stream, returns the code.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestReportError.test_default_view_summary_and_pointer">
+<span class="sig-name descname"><span class="pre">test_default_view_summary_and_pointer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestReportError.test_default_view_summary_and_pointer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestReportError.test_default_view_summary_and_pointer" title="Link to this definition"></a></dt>
+<dd><p>Default rendering is the summary plus a pointer line.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestReportError.test_developer_view_includes_traceback">
+<span class="sig-name descname"><span class="pre">test_developer_view_includes_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestReportError.test_developer_view_includes_traceback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestReportError.test_developer_view_includes_traceback" title="Link to this definition"></a></dt>
+<dd><p>developer=True renders the full technical detail.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestReportError.test_persists_a_row">
+<span class="sig-name descname"><span class="pre">test_persists_a_row</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestReportError.test_persists_a_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestReportError.test_persists_a_row" title="Link to this definition"></a></dt>
+<dd><p>Reporting records a queryable Error row.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestStepEntryBoundaries">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_cli.</span></span><span class="sig-name descname"><span class="pre">TestStepEntryBoundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestStepEntryBoundaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestStepEntryBoundaries" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-ce17e6476be45de03c8ea58441916e008b17e4ec.png" alt="Inheritance diagram of autowisp.tests.test_error_cli.TestStepEntryBoundaries" usemap="#inheritance4f347220a8" class="inheritance graphviz" /></div>
+<map id="inheritance4f347220a8" name="inheritance4f347220a8">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_cli.TestStepEntryBoundaries" target="_top" title="Every pipeline&#45;step main() is wrapped as a CLI error boundary." alt="" coords="5,80,343,107"/>
+</map><p>Every pipeline-step main() is wrapped as a CLI error boundary.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestStepEntryBoundaries.test_all_step_mains_are_cli_entry_points">
+<span class="sig-name descname"><span class="pre">test_all_step_mains_are_cli_entry_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestStepEntryBoundaries.test_all_step_mains_are_cli_entry_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestStepEntryBoundaries.test_all_step_mains_are_cli_entry_points" title="Link to this definition"></a></dt>
+<dd><p>Each step that exposes a <code class="docutils literal notranslate"><span class="pre">main()</span></code> carries the CLI boundary.</p>
+<p>Driven by <code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.processing_steps.get_step_names()</span></code> so a
+newly-added step is checked automatically; steps without a CLI
+<code class="docutils literal notranslate"><span class="pre">main()</span></code> (library-only steps) are skipped.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestStepEntryEndToEnd">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_cli.</span></span><span class="sig-name descname"><span class="pre">TestStepEntryEndToEnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestStepEntryEndToEnd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestStepEntryEndToEnd" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_error_cli._CliTestCase" title="autowisp.tests.test_error_cli._CliTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">_CliTestCase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-28838ec607d286373cd084f3d4e3682cd3575aa3.png" alt="Inheritance diagram of autowisp.tests.test_error_cli.TestStepEntryEndToEnd" usemap="#inheritance844196c734" class="inheritance graphviz" /></div>
+<map id="inheritance844196c734" name="inheritance844196c734">
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_cli.TestStepEntryEndToEnd" target="_top" title="A real decorated step main() surfaces an escaping error." alt="" coords="5,5,338,32"/>
+</map><p>A real decorated step main() surfaces an escaping error.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli.TestStepEntryEndToEnd.test_calibrate_main_reports_and_exits">
+<span class="sig-name descname"><span class="pre">test_calibrate_main_reports_and_exits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#TestStepEntryEndToEnd.test_calibrate_main_reports_and_exits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli.TestStepEntryEndToEnd.test_calibrate_main_reports_and_exits" title="Link to this definition"></a></dt>
+<dd><p>An error inside <code class="docutils literal notranslate"><span class="pre">calibrate.main</span></code> -&gt; SystemExit with STEP code.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli._CliTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_cli.</span></span><span class="sig-name descname"><span class="pre">_CliTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#_CliTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli._CliTestCase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Base creating one throwaway project database for the class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli._CliTestCase.setUpClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#_CliTestCase.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli._CliTestCase.setUpClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_cli._CliTestCase.tearDownClass">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_cli.html#_CliTestCase.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_cli._CliTestCase.tearDownClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.tests.test_error_capture_middleware.html" class="btn btn-neutral float-left" title="autowisp.tests.test_error_capture_middleware module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.test_error_context.html" class="btn btn-neutral float-right" title="autowisp.tests.test_error_context module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+autowisp.browser\_interface.home.migrations package
+===================================================
+
+.. automodule:: autowisp.browser_interface.home.migrations
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.home.migrations.0001_initial

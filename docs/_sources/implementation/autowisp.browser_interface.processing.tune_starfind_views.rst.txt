@@ -1,0 +1,7 @@
+autowisp.browser\_interface.processing.tune\_starfind\_views module
+===================================================================
+
+.. automodule:: autowisp.browser_interface.processing.tune_starfind_views
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -3,5 +3,5 @@ autowisp.processing\_steps.epd module
 
 .. automodule:: autowisp.processing_steps.epd
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

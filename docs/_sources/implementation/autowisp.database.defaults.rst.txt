@@ -1,0 +1,7 @@
+autowisp.database.defaults module
+=================================
+
+.. automodule:: autowisp.database.defaults
+   :members:
+   :undoc-members:
+   :show-inheritance:

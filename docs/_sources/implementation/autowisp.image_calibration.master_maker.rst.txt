@@ -3,5 +3,5 @@ autowisp.image\_calibration.master\_maker module
 
 .. automodule:: autowisp.image_calibration.master_maker
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

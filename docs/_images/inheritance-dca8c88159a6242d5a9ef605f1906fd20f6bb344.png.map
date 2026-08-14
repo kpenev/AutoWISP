@@ -1,0 +1,24 @@
+<map id="inheritance2ab6e10a04" name="inheritance2ab6e10a04">
+<area shape="rect" id="node1" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="1255,5,1427,32"/>
+<area shape="rect" id="node15" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1246,80,1436,107"/>
+<area shape="rect" id="node2" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1210,304,1541,331"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="5,379,322,405"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="346,379,797,405"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="821,379,1181,405"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1205,379,1546,405"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="1570,379,2029,405"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="2052,379,2454,405"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="2478,379,2846,405"/>
+<area shape="rect" id="node3" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="992,229,1370,256"/>
+<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1394,229,1747,256"/>
+<area shape="rect" id="node5" title="Base class used for declarative class definitions." alt="" coords="1438,155,1702,181"/>
+<area shape="rect" id="node13" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="1705,80,2099,107"/>
+<area shape="rect" id="node14" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="1744,5,2060,32"/>
+<area shape="rect" id="node16" href="autowisp.source_finder.html#autowisp.source_finder.SourceFinder" target="_top" title="Find sources in an image of the night sky and report properties." alt="" coords="2084,5,2320,32"/>
+<area shape="rect" id="node17" title="An HTTP response class with a string as content." alt="" coords="2359,80,2589,107"/>
+<area shape="rect" id="node19" title="An HTTP response class that consumes data to be serialized to JSON." alt="" coords="2358,155,2591,181"/>
+<area shape="rect" id="node18" title="An HTTP response base class with dictionary&#45;accessed headers." alt="" coords="2344,5,2604,32"/>
+<area shape="rect" id="node20" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1016,155,1346,181"/>
+<area shape="rect" id="node21" title="define a class as inspectable." alt="" coords="1460,80,1680,107"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1518,5,1623,32"/>
+</map>

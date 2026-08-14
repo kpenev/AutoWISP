@@ -1,0 +1,7 @@
+autowisp.browser\_interface.core.walk\_fs\_view module
+======================================================
+
+.. automodule:: autowisp.browser_interface.core.walk_fs_view
+   :members:
+   :undoc-members:
+   :show-inheritance:

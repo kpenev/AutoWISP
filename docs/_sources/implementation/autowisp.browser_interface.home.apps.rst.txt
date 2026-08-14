@@ -1,0 +1,7 @@
+autowisp.browser\_interface.home.apps module
+============================================
+
+.. automodule:: autowisp.browser_interface.home.apps
+   :members:
+   :undoc-members:
+   :show-inheritance:

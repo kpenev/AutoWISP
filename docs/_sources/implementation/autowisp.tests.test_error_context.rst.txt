@@ -1,0 +1,7 @@
+autowisp.tests.test\_error\_context module
+==========================================
+
+.. automodule:: autowisp.tests.test_error_context
+   :members:
+   :undoc-members:
+   :show-inheritance:

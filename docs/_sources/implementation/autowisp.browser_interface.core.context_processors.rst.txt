@@ -1,0 +1,7 @@
+autowisp.browser\_interface.core.context\_processors module
+===========================================================
+
+.. automodule:: autowisp.browser_interface.core.context_processors
+   :members:
+   :undoc-members:
+   :show-inheritance:

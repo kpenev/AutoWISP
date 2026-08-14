@@ -1,0 +1,7 @@
+autowisp.browser\_interface.diagnostics.image\_diagnostics\_views module
+========================================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.image_diagnostics_views
+   :members:
+   :undoc-members:
+   :show-inheritance:

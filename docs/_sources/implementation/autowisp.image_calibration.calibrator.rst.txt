@@ -3,5 +3,5 @@ autowisp.image\_calibration.calibrator module
 
 .. automodule:: autowisp.image_calibration.calibrator
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
