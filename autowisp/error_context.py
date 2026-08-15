@@ -19,7 +19,6 @@ import contextvars
 import functools
 import os
 import signal
-import socket
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -43,6 +42,7 @@ from autowisp.exceptions import (
     FitMagnitudesError,
     FitPSFMapError,
     FitStarShapeError,
+    get_hostname,
     MeasurePhotometryError,
     PipelineError,
     RelatedFile,
@@ -122,7 +122,7 @@ class ErrorContext:
                 "pipeline_run",
                 {
                     "id": config["pipeline_run_id"],
-                    "host": config.get("host") or socket.gethostname(),
+                    "host": config.get("host") or get_hostname(),
                     "started": config.get("pipeline_started"),
                     "code_version": (
                         config.get("code_version") or get_code_version_str()

@@ -30,6 +30,7 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 
+
 def _merge_children(old_children, new_children, parent_type=None):
     """Merge lists of child nodes by (name,type); keep order, append new."""
 
@@ -47,15 +48,18 @@ def _merge_children(old_children, new_children, parent_type=None):
     }
 
     for child in new_children:
-        assert child["type"] == "parameter"
+        assert (
+            child["type"] == "parameter"
+        ), f'Attempting to merge node of type {child["type"]}'
         key = child.get("name")
 
-        assert key in index
+        assert key in index, f"Parameter {key} not found configuration!"
         i = index[key]
         merged[i] = deep_merge_config(merged[i], child)
         continue
 
     return merged
+
 
 def deep_merge_config(existing, new):
     """Recursively merge config trees; new overrides only where provided."""
@@ -73,7 +77,7 @@ def deep_merge_config(existing, new):
         if k == "children":
             # node_name = str(new.get("name", "")).lower()
             # if node_name in special_names or "fname" in node_name:
-                # result["children"] = existing.get("children", [])
+            # result["children"] = existing.get("children", [])
             # else:
             result["children"] = _merge_children(
                 existing.get("children", []), v, parent_type=result.get("type")
