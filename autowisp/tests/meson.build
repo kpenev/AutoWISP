@@ -26,6 +26,7 @@ py_src = [
   'test_fit_star_shape.py',
   'test_measure_aperture_photometry.py',
   'test_parse_config_overwrites.py',
+  'test_project_creation_guard.py',
   'test_provenance_resolver.py',
   'test_related_files.py',
   'test_solve_astrometry.py',
