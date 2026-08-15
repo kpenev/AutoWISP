@@ -23,6 +23,5 @@ Submodules
    autowisp.magnitude_fitting.base
    autowisp.magnitude_fitting.iterative_refit
    autowisp.magnitude_fitting.linear
-   autowisp.magnitude_fitting.master_photref_collector_grcollect
    autowisp.magnitude_fitting.master_photref_collector_zarr
    autowisp.magnitude_fitting.util
