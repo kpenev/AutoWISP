@@ -1,16 +1,47 @@
-function startEditNodeText(event) 
+// What the tree shows in place of a value that was deliberately left unset.
+const UNDEFINED_VALUE_LABEL = 'undefined (step default)';
+const UNDEFINED_VALUE_HINT =
+    'undefined: the processing step supplies its own default';
+
+
+// Is this node a value that was deliberately left undefined?
+function isUndefinedValue(dataNode)
+{
+    return dataNode.type === 'value' && dataNode.name === null;
+}
+
+
+// Only offer to undefine a value that is editable and currently defined.
+function showUndefineButton(show)
+{
+    let button = document.getElementById('undefine-node');
+    // Disabled as well as hidden, so the button is still inert if the
+    // stylesheet fails to load or is stale in the browser's cache.
+    button.disabled = !show;
+    button.classList.toggle('hidden-button', !show);
+}
+
+
+function startEditNodeText(event)
 {
     let $this = $(this);
-    let nodeType = $this.find('.content').text();
-    let nodeId = theTree.getEventNode(event).id;
-    $('#edit-node').val($this.find('.title').text());
-    document.getElementById('edit-node').disabled = 
+    let dataNode = theTree.getNodeById($this[0].id);
+    let nodeType = dataNode.type;
+    let undefinedValue = isUndefinedValue(dataNode);
+    let editField = document.getElementById('edit-node');
+
+    editField.value = undefinedValue ? '' : dataNode.name;
+    editField.placeholder = undefinedValue ? UNDEFINED_VALUE_HINT : '';
+    editField.disabled =
         !theTree.canEdit
         ||
         (nodeType != 'value' &&  nodeType != 'condition');
-    document.getElementById("node-type").innerHTML = 
+    showUndefineButton(
+        theTree.canEdit && nodeType == 'value' && !undefinedValue
+    );
+    document.getElementById("node-type").innerHTML =
         nodeType + ":";
-    theTree.displayHelp(nodeId);
+    theTree.displayHelp(dataNode.id);
 }
 
 
@@ -97,6 +128,10 @@ class configTree {
 
     getNodeById(nodeId)
     {
+        // The root node's id is the empty string, which the reduce below
+        // would read as an index into its own children.
+        if ( nodeId === '' )
+            return this.data;
         return nodeId.split('.').reduce(
             function (subTree, childIndexStr) {
                 return subTree.children[Number(childIndexStr)];
@@ -158,8 +193,50 @@ class configTree {
         this.treeDiagram = $chartContainer.orgchart({
                 'data' : this.data,
                 'nodeContent': 'type',
-                'direction': 'l2r'
+                'direction': 'l2r',
+                'createNode': function($nodeDiv, dataNode) {
+                    if ( isUndefinedValue(dataNode) )
+                        $nodeDiv.addClass('undefined-value')
+                            .children('.title').text(UNDEFINED_VALUE_LABEL);
+                }
         });
+
+        // (Re-)building the diagram leaves no node focused, hence no value
+        // for the button to act on.
+        showUndefineButton(false);
+    }
+
+    /** Show the given value node as either undefined or holding its value. */
+    styleValueNode($node, dataNode)
+    {
+        let undefinedValue = isUndefinedValue(dataNode);
+        $node.toggleClass('undefined-value', undefinedValue);
+        $node.children('.title').text(
+            undefinedValue ? UNDEFINED_VALUE_LABEL : dataNode.name
+        );
+    }
+
+    /** Leave the highlighted value unset, so the step applies its default. */
+    setNodeUndefined()
+    {
+        // A locked configuration must not be modified even if something
+        // went wrong with hiding the button.
+        if ( !this.canEdit )
+            return;
+        let $node = $('#chart-container').find('.node.focused');
+        let dataNode = this.getNodeById($node[0].id);
+        if ( dataNode.type != 'value' ) {
+            alert('Only values can be left undefined!');
+            return;
+        }
+        dataNode.name = null;
+        this.styleValueNode($node, dataNode);
+
+        let editField = document.getElementById('edit-node');
+        editField.value = '';
+        editField.placeholder = UNDEFINED_VALUE_HINT;
+        showUndefineButton(false);
+        hasUnsavedChanges = true;
     }
 
     splitCondition(event, direction)
@@ -213,14 +290,16 @@ class configTree {
         this.createDiagram(true);
     }
 
-    changeNodeText() 
+    changeNodeText()
     {
         let $node = $('#chart-container').find('.node.focused');
         let dataNode = this.getNodeById($node[0].id);
         dataNode.name = $('#edit-node').val();
-        $node.find('.title').text(
-             $('#edit-node').val()
-        );
+        // Typing a value is how an undefined value gets defined again.
+        this.styleValueNode($node, dataNode);
+        document.getElementById('edit-node').placeholder = '';
+        if ( dataNode.type == 'value' )
+            showUndefineButton(this.canEdit);
     }
 
     deleteHighlightedNode()
