@@ -54,6 +54,7 @@ from autowisp.tests.test_parse_config_overwrites import (
     TestParseConfigOverwrites,
 )
 from autowisp.tests.test_database_migration import TestAdditiveMigrations
+from autowisp.tests.test_project_creation_guard import TestNewProjectGuard
 from autowisp.tests.test_error_persistence import (
     TestPersistError,
     TestRunPipelineHandler,

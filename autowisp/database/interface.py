@@ -17,6 +17,7 @@ from autowisp.database.initialize_data_reduction_structure import (
 from autowisp.database.initialize_light_curve_structure import (
     get_default_light_curve_structure,
 )
+from autowisp.exceptions import DatabaseError
 
 _db_engine = None
 
@@ -151,7 +152,7 @@ def initialize_cmdline_database():
         db_session.add(get_default_light_curve_structure(db_session))
 
 
-def set_project_home(project_home, db_url=None):
+def set_project_home(project_home, db_url=None, new_project=False):
     """
     Set the database engine and session for the given project home.
 
@@ -177,6 +178,22 @@ def set_project_home(project_home, db_url=None):
             ``"mysql+pymysql://user:password@host:3306/dbname"``
             ``"mariadb+pymysql://user:password@host:3306/dbname"``
             Passing an explicit URL raises an error if a saved URL is found.
+
+        new_project:
+            Pass ``True`` when this call is creating a project rather than
+            opening an existing one. The target database must then contain
+            none of the AutoWISP tables, since project creation goes on to
+            drop and recreate them (see ``initialize_database``) -- which
+            on a centralised server would silently destroy whichever
+            project already lives in that database. Independent of
+            backend: it equally catches an SQLite project home that
+            already holds a database.
+
+    Raises:
+        DatabaseError:  If ``new_project`` is set and the target database
+            already contains AutoWISP tables. Nothing is written or
+            dropped in that case: the URL file is persisted only after
+            this check passes.
     """
 
     global _db_engine, _Session, _project_home  # pylint: disable=global-statement
@@ -197,14 +214,16 @@ def set_project_home(project_home, db_url=None):
 
     url_file = path.join(_project_home, DB_URL_FNAME)
 
+    persist_db_url = None
     if db_url is not None:
         assert not path.exists(url_file), (
             f"Attempting to set a new db_url in {_project_home!r} which already"
             f" contains {url_file!r}"
         )
-        # Persist the URL so future calls without db_url reconnect correctly.
-        with open(url_file, "w", encoding="utf-8") as fobj:
-            fobj.write(db_url)
+        # Persisted (further down) only once the target database has been
+        # accepted, so a rejected one leaves no half-created project whose
+        # URL file points at somebody else's data.
+        persist_db_url = db_url
     elif path.exists(url_file):
         with open(url_file, encoding="utf-8") as fobj:
             db_url = fobj.read().strip()
@@ -214,7 +233,6 @@ def set_project_home(project_home, db_url=None):
         "pool_pre_ping": True,
         "pool_recycle": 3600,
     }
-    url_file = path.join(_project_home, DB_URL_FNAME)
 
     if db_url is None:
         db_path = path.join(_project_home, "autowisp.db")
@@ -223,11 +241,35 @@ def set_project_home(project_home, db_url=None):
         engine_kwargs["poolclass"] = NullPool
         engine_kwargs["connect_args"] = {"timeout": 600}
 
-    _db_engine = create_engine(db_url, **engine_kwargs)
+    # Built into a local first: an engine rejected below must not become
+    # the module-wide one, or the caller would be left connected to the
+    # database it was just refused.
+    engine = create_engine(db_url, **engine_kwargs)
+    existing_tables = set(sa_inspect(engine).get_table_names())
+    already_present = set(DataModelBase.metadata.tables) & existing_tables
+    if new_project and already_present:
+        # The URL can carry a password, so report the sanitised form.
+        target = engine.url.render_as_string(hide_password=True)
+        engine.dispose()
+        raise DatabaseError(
+            f"Refusing to create a new project in {_project_home!r}: its "
+            f"database ({target}) already contains "
+            f"{len(already_present)} AutoWISP table(s), including "
+            f"{', '.join(sorted(already_present)[:5])}. Creating the "
+            "project would drop them, destroying whatever project they "
+            "belong to. Point the new project at an empty database, or "
+            "delete the existing project first."
+        )
+
+    _db_engine = engine
     _Session = sessionmaker(_db_engine, expire_on_commit=False)
 
-    existing_tables = set(sa_inspect(_db_engine).get_table_names())
-    if not set(DataModelBase.metadata.tables).intersection(existing_tables):
+    if persist_db_url is not None:
+        # Lets future calls with only project_home reconnect here.
+        with open(url_file, "w", encoding="utf-8") as fobj:
+            fobj.write(persist_db_url)
+
+    if not already_present:
         initialize_cmdline_database()
     else:
         apply_additive_migrations(_db_engine)
