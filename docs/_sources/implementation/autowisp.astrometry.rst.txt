@@ -12,7 +12,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   autowisp.astrometry.anmatch_transformation
    autowisp.astrometry.astrometry
    autowisp.astrometry.astrometry_max_mag_estimate
    autowisp.astrometry.astrometry_net_client
