@@ -22,6 +22,10 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	python3 source/document_options.py
+# sphinx-apidoc overwrites the pages it generates but never deletes the
+# ones whose module is gone, so a deleted module stays published until
+# the directory is cleared out first.
+	rm -rf "$(SOURCEDIR)/implementation"
 	$(SPHINXAPIDOC) "$(MODULEDIR)" $(APIDOCOPTS)
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	rm -rf ../docs
