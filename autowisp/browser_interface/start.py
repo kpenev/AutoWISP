@@ -69,74 +69,75 @@ def find_free_port(hostname="localhost"):
         return sock.getsockname()[1]
 
 
+def run_server(hostname, port):
+    """Run the migrations and the django server, blocking until it exits."""
+
+    cmd = [
+        sys.executable,
+        os.path.join(os.path.dirname(__file__), "manage.py"),
+    ]
+    subprocess.run(
+        cmd + ["migrate"], check=True, stdout=sys.stdout, stderr=sys.stderr
+    )
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    cmd.extend(["runserver", f"{hostname}:{port}"])
+    print(f"Starting server with command: {' '.join(cmd)} in environment:")
+    print("\n\t".join([f"{k}={v}" for k, v in os.environ.items()]))
+    print("Python paths:\n\t" + "\n\t".join(sys.path))
+    sys.stdout.flush()
+    sys.stderr.flush()
+    with subprocess.Popen(
+        cmd, stdout=sys.stdout, stderr=sys.stderr
+    ) as server_cmd:
+        wait_for_server(hostname, port)
+        webbrowser.open_new_tab(f"http://{hostname}:{port}")
+        server_cmd.wait()
+
+
 def start_server():
     """Starts the Django development server."""
 
+    config = parse_command_line()
+
+    os.makedirs(str(settings.BASE_DIR), exist_ok=True)
     filenames = {
         ext: str(settings.BASE_DIR / f"bui.{ext}")
         for ext in ["out", "err", "log"]
     }
-    if not os.path.exists(str(settings.BASE_DIR)):
-        os.makedirs(str(settings.BASE_DIR))
 
-    with open(filenames["out"], "w", encoding="utf-8") as outf, open(
-        filenames["err"], "w", encoding="utf-8"
-    ) as errf:
-        sys.stdout = outf
-        sys.stderr = errf
-
-        print("Test redirect")
-        sys.stdout.flush()
-        sys.stderr.flush()
-
-    config = parse_command_line()
-    logging_level = getattr(logging, config.verbose.upper())
     logging.basicConfig(
-        level=logging_level,
+        level=getattr(logging, config.verbose.upper()),
         filename=filenames["log"],
         format="%(levelname)s %(asctime)s %(name)s: %(message)s | "
         "%(pathname)s.%(funcName)s:%(lineno)d",
         force=True,
     )
 
+    hostname = "localhost"
+    if len(config.hostname) > 1:
+        if ":" in config.hostname:
+            hostname, port = config.hostname.split(":")
+        else:
+            port = config.hostname
+        port = int(port)
+    else:
+        port = find_free_port(hostname)
+
+    # The redirected streams must be restored before the files are closed,
+    # otherwise any later output (e.g. a warning or a traceback) is written to
+    # a closed file and the interpreter dies with "lost sys.stderr".
+    original_streams = (sys.stdout, sys.stderr)
     with open(filenames["out"], "w", encoding="utf-8") as outf, open(
         filenames["err"], "w", encoding="utf-8"
     ) as errf:
-        sys.stdout = outf
-        sys.stderr = errf
-
-        hostname = "localhost"
-        if len(config.hostname) > 1:
-            if ":" in config.hostname:
-                hostname, port = config.hostname.split(":")
-            else:
-                port = config.hostname
-            port = int(port)
-        else:
-            port = find_free_port(hostname)
-
-        cmd = [
-            sys.executable,
-            os.path.join(os.path.dirname(__file__), "manage.py"),
-        ]
-        subprocess.run(
-            cmd + ["migrate"], check=True, stdout=sys.stdout, stderr=sys.stderr
-        )
-        sys.stdout.flush()
-        sys.stderr.flush()
-
-        cmd.extend(["runserver", f"{hostname}:{port}"])
-        print(f"Starting server with command: {' '.join(cmd)} in environment:")
-        print("\n\t".join([f"{k}={v}" for k, v in os.environ.items()]))
-        print("Python paths:\n\t" + "\n\t".join(sys.path))
-        sys.stdout.flush()
-        sys.stderr.flush()
-        with subprocess.Popen(
-            cmd, stdout=sys.stdout, stderr=sys.stderr
-        ) as server_cmd:
-            wait_for_server(hostname, port)
-            webbrowser.open_new_tab(f"http://{hostname}:{port}")
-            server_cmd.wait()
+        try:
+            sys.stdout = outf
+            sys.stderr = errf
+            run_server(hostname, port)
+        finally:
+            sys.stdout, sys.stderr = original_streams
 
 
 if __name__ == "__main__":
