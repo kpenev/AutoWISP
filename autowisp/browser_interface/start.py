@@ -40,8 +40,8 @@ def parse_command_line():
     return parser.parse_args()
 
 
-def wait_for_server(hostname, port):
-    """Waits for the Django server to respond to requests."""
+def wait_until_responsive(hostname, port):
+    """Poll until the django server answers requests."""
 
     url = f"http://{hostname}:{port}"
 
@@ -69,8 +69,8 @@ def find_free_port(hostname="localhost"):
         return sock.getsockname()[1]
 
 
-def run_server(hostname, port):
-    """Run the migrations and the django server, blocking until it exits."""
+def migrate_and_serve(hostname, port):
+    """Apply migrations, launch django and block until it exits."""
 
     cmd = [
         sys.executable,
@@ -91,13 +91,13 @@ def run_server(hostname, port):
     with subprocess.Popen(
         cmd, stdout=sys.stdout, stderr=sys.stderr
     ) as server_cmd:
-        wait_for_server(hostname, port)
+        wait_until_responsive(hostname, port)
         webbrowser.open_new_tab(f"http://{hostname}:{port}")
         server_cmd.wait()
 
 
-def start_server():
-    """Starts the Django development server."""
+def main():
+    """Set up config, logging and output redirection, then serve."""
 
     config = parse_command_line()
 
@@ -135,10 +135,10 @@ def start_server():
         try:
             sys.stdout = outf
             sys.stderr = errf
-            run_server(hostname, port)
+            migrate_and_serve(hostname, port)
         finally:
             sys.stdout, sys.stderr = original_streams
 
 
 if __name__ == "__main__":
-    start_server()
+    main()
