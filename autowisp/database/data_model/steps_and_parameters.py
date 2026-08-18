@@ -60,10 +60,13 @@ class Parameter(DataModelBase):
     name = Column(
         String(100),
         nullable=False,
-        doc="The name of the step within the pipeline.",
+        doc="The name of the parameter.",
     )
     description = Column(
-        String(1000), nullable=False, doc="Description of what the step does."
+        String(1000),
+        nullable=False,
+        doc="Description of what the parameter does (the command line help of "
+        "the corresponding argument, hence limited to 1000 characters).",
     )
 
     def __str__(self):
