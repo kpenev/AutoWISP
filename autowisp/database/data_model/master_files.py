@@ -64,14 +64,28 @@ class MasterType(DataModelBase):
     Index("maker", "maker_step_id", "maker_image_type_id")
 
     master_files = relationship("MasterFile", back_populates="master_type")
+    # Both joins are spelled out because these condition columns are
+    # deliberately not foreign keys -- condition.id names a group of rows
+    # rather than one row -- so nothing is left for SQLAlchemy to infer
+    # from. foreign() marks the side it would have taken from the
+    # constraint.
     match_expressions: Mapped[List[ConditionExpression]] = relationship(
         secondary=Condition.__table__,
-        primaryjoin="MasterType.condition_id == Condition.id",
+        primaryjoin="MasterType.condition_id == foreign(Condition.id)",
+        secondaryjoin=(
+            "foreign(Condition.expression_id) == ConditionExpression.id"
+        ),
         viewonly=True,
     )
     split_expressions: Mapped[List[ConditionExpression]] = relationship(
         secondary=Condition.__table__,
-        primaryjoin="MasterType.maker_image_split_condition_id == Condition.id",
+        primaryjoin=(
+            "MasterType.maker_image_split_condition_id"
+            " == foreign(Condition.id)"
+        ),
+        secondaryjoin=(
+            "foreign(Condition.expression_id) == ConditionExpression.id"
+        ),
         viewonly=True,
     )
 

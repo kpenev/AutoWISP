@@ -59,7 +59,17 @@ class Configuration(DataModelBase):
     )
     parameter = relationship("Parameter")
     condition_expressions = relationship(
-        "ConditionExpression", secondary=Condition.__tablename__, viewonly=True
+        "ConditionExpression",
+        secondary=Condition.__table__,
+        # Spelled out because condition_id is deliberately not a foreign
+        # key -- condition.id names a group of rows, not one row -- so
+        # there is nothing for SQLAlchemy to infer the join from. foreign()
+        # marks the side it would otherwise have taken from the constraint.
+        primaryjoin="Configuration.condition_id == foreign(Condition.id)",
+        secondaryjoin=(
+            "foreign(Condition.expression_id) == ConditionExpression.id"
+        ),
+        viewonly=True,
     )
 
     def __repr__(self):
