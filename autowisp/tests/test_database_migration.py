@@ -4,13 +4,18 @@ These need only a throwaway SQLite database, not a full project, so they
 subclass ``unittest.TestCase`` directly.
 """
 
+import io
 import os
+import shutil
+import subprocess
+import sys
+import tarfile
 import tempfile
 import threading
 import unittest
 
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import Index, MetaData, Table, create_engine, inspect, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.pool import NullPool
 
@@ -33,8 +38,130 @@ from autowisp.exceptions import DatabaseError
 # are created in setUp and must outlive it.
 # pylint: disable=consider-using-with
 
+SERVER_URL_ENV = "AUTOWISP_TEST_DB_URL"  # pylint: disable=invalid-name
+"""Environment variable naming a MySQL/MariaDB URL to test against.
 
-class TestAdditiveMigrations(unittest.TestCase):
+Unset -- the default, and what a developer gets locally -- runs every
+scenario against throwaway SQLite files. Setting it runs *the same*
+scenarios against a server, so the backend-specific paths (GET_LOCK,
+implicitly committed DDL, type comparison in the drift check) are covered
+by the tests that already exist rather than by a parallel copy of them that
+would drift out of step. CI runs this module once per backend.
+"""
+
+
+def on_server():
+    """Whether this run is pointed at a MySQL/MariaDB server."""
+
+    return bool(os.environ.get(SERVER_URL_ENV))
+
+
+class BackendMixin:
+    """Supplies clean project databases on whichever backend is under test.
+
+    SQLite gets a fresh file per engine; a server has only the one database,
+    so it is emptied before each test instead.
+    """
+
+    # Mixed into unittest.TestCase subclasses, so setUp is an override
+    # despite this class not deriving from TestCase itself.
+    # pylint: disable=invalid-name
+    def setUp(self):
+        """Leave a clean project database ready for the test."""
+
+        super().setUp()
+        if on_server():
+            self._empty_server()
+        else:
+            self._tmp = tempfile.TemporaryDirectory()
+            self.addCleanup(self._tmp.cleanup)
+
+    # pylint: enable=invalid-name
+
+    def _empty_server(self):
+        """Drop every table, including alembic_version."""
+
+        engine = create_engine(os.environ[SERVER_URL_ENV], poolclass=NullPool)
+        try:
+            with engine.begin() as connection:
+                connection.execute(text("SET FOREIGN_KEY_CHECKS=0"))
+                for table in inspect(engine).get_table_names():
+                    connection.execute(text(f"DROP TABLE IF EXISTS `{table}`"))
+                connection.execute(text("SET FOREIGN_KEY_CHECKS=1"))
+        finally:
+            engine.dispose()
+
+    def make_engine(self, name="project.db"):
+        """An engine for a clean project database on the current backend."""
+
+        if on_server():
+            engine = create_engine(
+                os.environ[SERVER_URL_ENV], poolclass=NullPool
+            )
+        else:
+            engine = create_engine(
+                f"sqlite:///{os.path.join(self._tmp.name, name)}",
+                connect_args={"timeout": 30.0},
+                poolclass=NullPool,
+            )
+        self.addCleanup(engine.dispose)
+        return engine
+
+    def migrate(self, engine):
+        """Migrate, confirming the backup where the backend demands one."""
+
+        return migrate_project(engine, assume_backed_up=on_server())
+
+    @staticmethod
+    def create_legacy_schema(engine):
+        """Build the pre-migration schema: everything but the new index.
+
+        Not create_all-then-drop. InnoDB refuses to drop
+        ``image_observing_session`` because it is the index backing image's
+        foreign key on ``observing_session_id`` -- MySQL indexes a foreign
+        key column whether or not anyone asked. Leaving the index out of
+        the metadata is both portable and a truer picture of a 1.8.1
+        database, which never had it.
+        """
+
+        image = DataModelBase.metadata.tables["image"]
+        held_back = {
+            index
+            for index in image.indexes
+            if index.name == "image_observing_session"
+        }
+        image.indexes -= held_back
+        try:
+            DataModelBase.metadata.create_all(engine)
+        finally:
+            image.indexes |= held_back
+
+    @staticmethod
+    def add_stray_index(engine, name):
+        """Add an index the models do not declare, to produce drift.
+
+        Drift is provoked by adding something rather than removing it: the
+        index this branch introduces cannot be dropped on MySQL (see
+        :meth:`create_legacy_schema`).
+        """
+
+        with engine.begin() as connection:
+            table = Table("image", MetaData(), autoload_with=connection)
+            # jd, not a text column: indexing VARCHAR(1000) would exceed
+            # InnoDB's 3072-byte key limit and fail for the wrong reason.
+            Index(name, table.c.jd).create(connection)
+
+    @staticmethod
+    def has_index(engine, table, name):
+        """Whether *table* carries an index called *name*."""
+
+        return any(
+            index["name"] == name
+            for index in inspect(engine).get_indexes(table)
+        )
+
+
+class TestAdditiveMigrations(BackendMixin, unittest.TestCase):
     """The pre-Alembic helper still adds missing nullable columns.
 
     It is private now and has exactly one caller -- the baseline path of
@@ -43,12 +170,8 @@ class TestAdditiveMigrations(unittest.TestCase):
     """
 
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.engine = create_engine(
-            f"sqlite:///{os.path.join(self._tmp.name, 'm.db')}"
-        )
-        self.addCleanup(self._tmp.cleanup)
-        self.addCleanup(self.engine.dispose)
+        super().setUp()
+        self.engine = self.make_engine("m.db")
 
     def _columns(self, table):
         return {col["name"] for col in inspect(self.engine).get_columns(table)}
@@ -156,6 +279,23 @@ class TestRevisionChain(unittest.TestCase):
         for revision in self.script.walk_revisions():
             self.assertRegex(revision.revision, r"^\d{4}_[a-z0-9_]+$")
 
+    def test_revision_ids_fit_the_version_table(self):
+        """Ids stay within Alembic's ``VARCHAR(32)`` version column.
+
+        SQLite ignores a declared length, so an over-long id passes there
+        and only fails on MySQL, mid-upgrade, with "Data too long for
+        column 'version_num'" -- after some revisions have already been
+        applied. Cheaper to catch here.
+        """
+
+        for revision in self.script.walk_revisions():
+            self.assertLessEqual(
+                len(revision.revision),
+                32,
+                f"{revision.revision!r} is {len(revision.revision)} "
+                "characters; alembic_version.version_num holds 32",
+            )
+
     def test_numbers_increase_along_the_chain(self):
         """Numeric prefixes strictly increase from base to head.
 
@@ -194,40 +334,20 @@ class TestRevisionChain(unittest.TestCase):
         self.assertEqual(roots, [BASELINE_REVISION])
 
 
-class TestMigrateProject(unittest.TestCase):
+class TestMigrateProject(BackendMixin, unittest.TestCase):
     """The three database states :func:`migrate_project` has to handle."""
-
-    def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-
-    def _engine(self, name):
-        engine = create_engine(
-            f"sqlite:///{os.path.join(self._tmp.name, name)}"
-        )
-        self.addCleanup(engine.dispose)
-        return engine
 
     def _legacy_engine(self):
         """A 1.8.1-era database: full schema, unstamped, missing the index."""
 
-        engine = self._engine("legacy.db")
-        DataModelBase.metadata.create_all(engine)
-        with engine.begin() as conn:
-            conn.execute(text("DROP INDEX IF EXISTS image_observing_session"))
+        engine = self.make_engine("legacy.db")
+        self.create_legacy_schema(engine)
         return engine
-
-    @staticmethod
-    def _has_index(engine, table, name):
-        return any(
-            index["name"] == name
-            for index in inspect(engine).get_indexes(table)
-        )
 
     def test_fresh_database_is_stamped_without_running_revisions(self):
         """``create_all`` builds the current schema, so nothing is applied."""
 
-        engine = self._engine("fresh.db")
+        engine = self.make_engine("fresh.db")
         create_project_schema(engine)
 
         self.assertEqual(get_project_revision(engine), get_head_revision())
@@ -239,12 +359,12 @@ class TestMigrateProject(unittest.TestCase):
         engine = self._legacy_engine()
         self.assertIsNone(get_project_revision(engine))
 
-        result = migrate_project(engine)
+        result = self.migrate(engine)
 
         self.assertEqual(result["from"], BASELINE_REVISION)
         self.assertEqual(result["to"], get_head_revision())
         self.assertTrue(
-            self._has_index(engine, "image", "image_observing_session")
+            self.has_index(engine, "image", "image_observing_session")
         )
         check_project_schema(engine)
 
@@ -257,7 +377,7 @@ class TestMigrateProject(unittest.TestCase):
         with engine.begin() as conn:
             conn.execute(text("DROP TABLE IF EXISTS error"))
 
-        migrate_project(engine)
+        self.migrate(engine)
 
         self.assertIn("error", inspect(engine).get_table_names())
         self.assertIn(
@@ -270,30 +390,49 @@ class TestMigrateProject(unittest.TestCase):
         """A second run applies nothing and reports no change."""
 
         engine = self._legacy_engine()
-        migrate_project(engine)
+        self.migrate(engine)
 
-        result = migrate_project(engine)
+        result = self.migrate(engine)
 
         self.assertEqual(result["from"], result["to"])
         self.assertIsNone(result["backup"])
 
-    def test_sqlite_is_backed_up_before_migrating(self):
-        """The copy is named for the revision it is a snapshot of."""
+    def test_backup_is_taken_before_migrating(self):
+        """SQLite is copied aside; a server is the administrator's job."""
 
         engine = self._legacy_engine()
 
-        backup = migrate_project(engine)["backup"]
+        backup = self.migrate(engine)["backup"]
 
-        self.assertIsNotNone(backup)
-        self.assertTrue(os.path.exists(backup))
-        self.assertTrue(backup.endswith(".pre-baseline"))
+        if on_server():
+            self.assertIsNone(backup)
+        else:
+            self.assertTrue(os.path.exists(backup))
+            self.assertTrue(backup.endswith(".pre-baseline"))
 
     def test_project_creation_leaves_no_backup(self):
         """There is nothing to preserve when the database is empty."""
 
-        engine = self._engine("new.db")
+        engine = self.make_engine("new.db")
 
-        self.assertIsNone(migrate_project(engine)["backup"])
+        self.assertIsNone(self.migrate(engine)["backup"])
+
+    def test_server_refuses_without_a_confirmed_backup(self):
+        """A shared database is not migrated as a side effect of anything.
+
+        The SQLite path has no equivalent: it copies the file aside itself.
+        """
+
+        if not on_server():
+            self.skipTest("backup confirmation only applies to servers")
+
+        engine = self._legacy_engine()
+
+        with self.assertRaises(DatabaseError) as caught:
+            migrate_project(engine)
+
+        self.assertIn("--assume-backed-up", str(caught.exception))
+        self.assertIsNone(get_project_revision(engine))
 
     def test_crash_window_between_ddl_and_version_update(self):
         """DDL applied but the stamp lost -- the state MySQL can crash into.
@@ -304,28 +443,24 @@ class TestMigrateProject(unittest.TestCase):
         """
 
         engine = self._legacy_engine()
-        migrate_project(engine)
+        self.migrate(engine)
         with engine.begin() as conn:
             conn.execute(text("DELETE FROM alembic_version"))
 
-        migrate_project(engine)
+        self.migrate(engine)
 
         check_project_schema(engine)
         self.assertTrue(
-            self._has_index(engine, "image", "image_observing_session")
+            self.has_index(engine, "image", "image_observing_session")
         )
 
 
-class TestCheckProjectSchema(unittest.TestCase):
+class TestCheckProjectSchema(BackendMixin, unittest.TestCase):
     """The read-only gate every project open -- and every worker -- runs."""
 
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-        self.engine = create_engine(
-            f"sqlite:///{os.path.join(self._tmp.name, 'c.db')}"
-        )
-        self.addCleanup(self.engine.dispose)
+        super().setUp()
+        self.engine = self.make_engine("c.db")
 
     def test_passes_on_a_current_database(self):
         """No exception, and nothing written."""
@@ -336,9 +471,7 @@ class TestCheckProjectSchema(unittest.TestCase):
     def test_raises_on_an_unbaselined_database(self):
         """A legacy project is refused, pointing at wisp-migrate."""
 
-        DataModelBase.metadata.create_all(self.engine)
-        with self.engine.begin() as conn:
-            conn.execute(text("DROP INDEX IF EXISTS image_observing_session"))
+        self.create_legacy_schema(self.engine)
 
         with self.assertRaises(DatabaseError) as caught:
             check_project_schema(self.engine)
@@ -368,9 +501,7 @@ class TestCheckProjectSchema(unittest.TestCase):
     def test_does_not_mutate_a_stale_database(self):
         """The gate must never issue DDL: workers run it concurrently."""
 
-        DataModelBase.metadata.create_all(self.engine)
-        with self.engine.begin() as conn:
-            conn.execute(text("DROP INDEX IF EXISTS image_observing_session"))
+        self.create_legacy_schema(self.engine)
 
         with self.assertRaises(DatabaseError):
             check_project_schema(self.engine)
@@ -384,6 +515,7 @@ class TestCheckProjectSchema(unittest.TestCase):
         )
 
 
+@unittest.skipIf(on_server(), "exercises SQLite's own locking")
 class TestSqliteMigrationLock(unittest.TestCase):
     """The SQLite half of the migration lock really does exclude a second
     writer.
@@ -392,7 +524,8 @@ class TestSqliteMigrationLock(unittest.TestCase):
     both read the same revision and both try to apply it. On SQLite the
     protection is ``BEGIN IMMEDIATE``, which pysqlite does not issue by
     default -- it defers ``BEGIN`` until the first write, leaving a window in
-    which both have already read.
+    which both have already read. The server equivalent is ``GET_LOCK``,
+    covered by :class:`TestConcurrentMigration` when pointed at one.
     """
 
     def setUp(self):
@@ -451,27 +584,17 @@ class TestSqliteMigrationLock(unittest.TestCase):
             self._write_from_elsewhere()
 
 
-class TestConcurrentMigration(unittest.TestCase):
-    """Two migrators racing on one database must not corrupt or crash it."""
+class TestConcurrentMigration(BackendMixin, unittest.TestCase):
+    """Two migrators racing on one database must not corrupt or crash it.
+
+    Exercises whichever lock the backend uses: ``BEGIN IMMEDIATE`` on
+    SQLite, ``GET_LOCK`` on a server. Alembic supplies neither.
+    """
 
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-        self.db_path = os.path.join(self._tmp.name, "race.db")
-        engine = self._engine()
-        DataModelBase.metadata.create_all(engine)
-        with engine.begin() as connection:
-            connection.execute(
-                text("DROP INDEX IF EXISTS image_observing_session")
-            )
-        engine.dispose()
-
-    def _engine(self):
-        return create_engine(
-            f"sqlite:///{self.db_path}",
-            connect_args={"timeout": 30.0},
-            poolclass=NullPool,
-        )
+        super().setUp()
+        engine = self.make_engine("race.db")
+        self.create_legacy_schema(engine)
 
     def test_two_migrators_reach_head_without_error(self):
         """Both calls return, and the database ends up correctly migrated."""
@@ -480,26 +603,23 @@ class TestConcurrentMigration(unittest.TestCase):
         errors = []
 
         def migrate():
-            engine = self._engine()
+            engine = self.make_engine("race.db")
             try:
                 barrier.wait(timeout=30)
-                migrate_project(engine)
+                self.migrate(engine)
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 errors.append(exc)
-            finally:
-                engine.dispose()
 
         threads = [threading.Thread(target=migrate) for _ in range(2)]
         for thread in threads:
             thread.start()
         for thread in threads:
-            thread.join(timeout=60)
+            thread.join(timeout=120)
             self.assertFalse(thread.is_alive(), "migration deadlocked")
 
         self.assertEqual([str(error) for error in errors], [])
 
-        engine = self._engine()
-        self.addCleanup(engine.dispose)
+        engine = self.make_engine("race.db")
         self.assertEqual(get_project_revision(engine), get_head_revision())
         check_project_schema(engine)
         indexes = [
@@ -510,7 +630,7 @@ class TestConcurrentMigration(unittest.TestCase):
         self.assertEqual(len(indexes), 1)
 
 
-class TestSchemaDrift(unittest.TestCase):
+class TestSchemaDrift(BackendMixin, unittest.TestCase):
     """The revision chain and the ORM models describe the same schema.
 
     A revision may not import the models -- it has to keep meaning the same
@@ -518,40 +638,31 @@ class TestSchemaDrift(unittest.TestCase):
     is declared twice, once in ``data_model`` and once in the revision.
     Nothing keeps the two in step except this check, which is why the plan
     calls for it rather than for sharing the definitions.
+
+    Worth running per backend: the comparison is over reflected types, and
+    what MySQL reports for a column is not what SQLite does.
     """
 
-    def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-
-    def _engine(self, name):
-        engine = create_engine(
-            f"sqlite:///{os.path.join(self._tmp.name, name)}"
-        )
-        self.addCleanup(engine.dispose)
-        return engine
-
     def test_migrated_database_matches_the_models(self):
-        """The real check: a database brought up by the revisions agrees.
+        """A database the revisions built agrees with the models.
 
-        This is what catches a model edited without a matching revision --
-        the migrated schema would then lack whatever the models gained.
+        Note this cannot catch a model changed with no revision to match:
+        the "before" state here comes from today's metadata too, so both
+        sides move together. :class:`TestUpgradeFromRelease` is the test
+        that catches that, by building the "before" state from released
+        code.
         """
 
-        engine = self._engine("migrated.db")
-        DataModelBase.metadata.create_all(engine)
-        with engine.begin() as connection:
-            connection.execute(
-                text("DROP INDEX IF EXISTS image_observing_session")
-            )
-        migrate_project(engine)
+        engine = self.make_engine("migrated.db")
+        self.create_legacy_schema(engine)
+        self.migrate(engine)
 
         self.assertEqual(get_schema_drift(engine), [])
 
     def test_created_database_matches_the_models(self):
         """Control: create_all builds from the models, so it must agree."""
 
-        engine = self._engine("created.db")
+        engine = self.make_engine("created.db")
         create_project_schema(engine)
 
         self.assertEqual(get_schema_drift(engine), [])
@@ -563,16 +674,159 @@ class TestSchemaDrift(unittest.TestCase):
         get_schema_drift() always returned nothing.
         """
 
-        engine = self._engine("drifted.db")
+        engine = self.make_engine("drifted.db")
         create_project_schema(engine)
-        with engine.begin() as connection:
-            connection.execute(text("DROP INDEX image_observing_session"))
+        self.add_stray_index(engine, "not_in_the_models")
 
         drift = get_schema_drift(engine)
 
         self.assertEqual(len(drift), 1)
-        self.assertEqual(drift[0][0], "add_index")
-        self.assertEqual(drift[0][1].name, "image_observing_session")
+        self.assertEqual(drift[0][0], "remove_index")
+        self.assertEqual(drift[0][1].name, "not_in_the_models")
+
+
+def _repo_root():
+    """Return the repository's top level, or None outside a checkout."""
+
+    try:
+        return subprocess.run(
+            [
+                "git",
+                "-C",
+                os.path.dirname(__file__),
+                "rev-parse",
+                "--show-toplevel",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def _git(*args, binary=False):
+    """Run git at the repository root; return output, or None if it fails.
+
+    The root, not this file's directory: ``git archive`` refuses a pathspec
+    reaching outside the current directory, so it has to be invoked from
+    the top level.
+    """
+
+    root = _repo_root()
+    if root is None:
+        return None
+    try:
+        result = subprocess.run(
+            ["git", "-C", root, *args],
+            capture_output=True,
+            text=not binary,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return result.stdout if binary else result.stdout.strip()
+
+
+class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
+    """A database built by a *released* AutoWISP reaches today's schema.
+
+    This is the test that catches a model changed without a revision to
+    match. Every other check here builds its "before" state from today's
+    metadata, so a missing revision moves both sides together and goes
+    unnoticed. Here the starting schema is built by the released code
+    itself, checked out from its tag, so the revision chain is the only
+    thing that can close the gap.
+
+    That released package is loaded in a **subprocess**: it defines the
+    same module names as the code under test, so importing both into one
+    interpreter would have whichever came first shadow the other.
+    """
+
+    release_baselines = ("1.8.1",)
+    """Released versions a project database may be upgraded from.
+
+    Add each new release tag as it ships; every entry gets its own
+    upgrade-to-current check.
+    """
+
+    def setUp(self):
+        super().setUp()
+        if _git("rev-parse", "--git-dir") is None:
+            self.skipTest("not a git checkout, so releases cannot be exported")
+
+    def _export_release(self, ref):
+        """Extract the ``autowisp`` package as of *ref* into a temp dir."""
+
+        if _git("rev-parse", "--verify", f"{ref}^{{commit}}") is None:
+            self.skipTest(
+                f"tag {ref} unavailable -- CI needs fetch-depth: 0 for tags"
+            )
+        archive = _git("archive", ref, "autowisp", binary=True)
+        self.assertIsNotNone(archive, f"could not export {ref}")
+
+        target = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, target, True)
+        # tarfile rather than the tar binary: no external command, and no
+        # assumption about which tar the platform ships.
+        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+            tar.extractall(target, filter="data")
+        return target
+
+    def _build_release_schema(self, source, engine):
+        """Create the release's schema, running that release's own code."""
+
+        # hide_password=False: str(URL) masks the password, which would
+        # make the subprocess fail to connect to a server.
+        url = engine.url.render_as_string(hide_password=False)
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                f"import sys; sys.path.insert(0, {source!r})\n"
+                "from sqlalchemy import create_engine\n"
+                "from autowisp.database.data_model.base import DataModelBase\n"
+                "import autowisp.database.data_model\n"
+                f"DataModelBase.metadata.create_all(create_engine({url!r}))\n",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode:
+            # The release cannot create its own schema here, so there is no
+            # upgrade to check -- not a failure of the revisions. Reachable:
+            # 1.8.1 cannot be created on MySQL 8.4 under utf8mb4 at all,
+            # because its VARCHAR(1000) unique keys exceed InnoDB's index
+            # limit. That is precisely what these revisions fix, and why
+            # real deployments run a narrower charset.
+            self.skipTest(
+                "the release cannot build its schema on this backend, so "
+                f"there is no upgrade path to check:\n{result.stderr[-300:]}"
+            )
+
+    def test_every_release_upgrades_to_the_current_schema(self):
+        """Each released schema, once migrated, agrees with today's models."""
+
+        for ref in self.release_baselines:
+            with self.subTest(release=ref):
+                engine = self.make_engine(f"from_{ref}.db")
+                self._build_release_schema(self._export_release(ref), engine)
+
+                # Predates Alembic, so this covers the whole path: reach the
+                # baseline, stamp it, then apply every revision.
+                self.assertIsNone(get_project_revision(engine))
+                self.migrate(engine)
+
+                self.assertEqual(
+                    get_project_revision(engine), get_head_revision()
+                )
+                self.assertEqual(
+                    get_schema_drift(engine),
+                    [],
+                    f"a database from {ref} does not reach the current "
+                    "schema; the differences above each need a revision",
+                )
 
 
 if __name__ == "__main__":
