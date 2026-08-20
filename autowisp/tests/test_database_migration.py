@@ -6,15 +6,19 @@ subclass ``unittest.TestCase`` directly.
 
 import os
 import tempfile
+import threading
 import unittest
 
 from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.migrate import (
     BASELINE_REVISION,
     _alembic_config,
+    _sqlite_immediate,
     _apply_additive_migrations as apply_additive_migrations,
     check_project_schema,
     create_project_schema,
@@ -48,6 +52,12 @@ class TestAdditiveMigrations(unittest.TestCase):
     def _columns(self, table):
         return {col["name"] for col in inspect(self.engine).get_columns(table)}
 
+    def _apply(self):
+        """Run the helper the way migrate_project does: on one connection."""
+
+        with self.engine.begin() as conn:
+            apply_additive_migrations(conn)
+
     def _make_old_project(self):
         """Simulate an existing project: a ``pipeline_run`` table from
         before ``code_version`` and the ``error`` table existed, holding a
@@ -65,7 +75,7 @@ class TestAdditiveMigrations(unittest.TestCase):
         self._make_old_project()
         self.assertNotIn("code_version", self._columns("pipeline_run"))
 
-        apply_additive_migrations(self.engine)
+        self._apply()
 
         self.assertIn("code_version", self._columns("pipeline_run"))
 
@@ -75,7 +85,7 @@ class TestAdditiveMigrations(unittest.TestCase):
         self._make_old_project()
         self.assertNotIn("error", inspect(self.engine).get_table_names())
 
-        apply_additive_migrations(self.engine)
+        self._apply()
 
         self.assertIn("error", inspect(self.engine).get_table_names())
 
@@ -86,7 +96,7 @@ class TestAdditiveMigrations(unittest.TestCase):
             conn.execute(text("CREATE TABLE error (id INTEGER PRIMARY KEY)"))
         self.assertNotIn("resolved", self._columns("error"))
 
-        apply_additive_migrations(self.engine)
+        self._apply()
 
         self.assertIn("resolved", self._columns("error"))
 
@@ -95,7 +105,7 @@ class TestAdditiveMigrations(unittest.TestCase):
 
         self._make_old_project()
 
-        apply_additive_migrations(self.engine)
+        self._apply()
 
         with self.engine.begin() as conn:
             row = conn.execute(
@@ -109,8 +119,8 @@ class TestAdditiveMigrations(unittest.TestCase):
 
         self._make_old_project()
 
-        apply_additive_migrations(self.engine)
-        apply_additive_migrations(self.engine)
+        self._apply()
+        self._apply()
 
         self.assertIn("code_version", self._columns("pipeline_run"))
         self.assertIn("error", inspect(self.engine).get_table_names())
@@ -371,6 +381,132 @@ class TestCheckProjectSchema(unittest.TestCase):
                 for index in inspect(self.engine).get_indexes("image")
             )
         )
+
+
+class TestSqliteMigrationLock(unittest.TestCase):
+    """The SQLite half of the migration lock really does exclude a second
+    writer.
+
+    Alembic does no locking of its own, so without this two migrators can
+    both read the same revision and both try to apply it. On SQLite the
+    protection is ``BEGIN IMMEDIATE``, which pysqlite does not issue by
+    default -- it defers ``BEGIN`` until the first write, leaving a window in
+    which both have already read.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.db_path = os.path.join(self._tmp.name, "lock.db")
+        with self._engine().begin() as connection:
+            connection.execute(text("CREATE TABLE t (id INTEGER PRIMARY KEY)"))
+
+    def _engine(self, timeout=30.0):
+        """An engine with a busy timeout, as interface.py builds them."""
+
+        engine = create_engine(
+            f"sqlite:///{self.db_path}",
+            connect_args={"timeout": timeout},
+            poolclass=NullPool,
+        )
+        self.addCleanup(engine.dispose)
+        return engine
+
+    def _write_from_elsewhere(self):
+        """Write from an independent connection, failing fast if locked."""
+
+        with self._engine(timeout=0.5).begin() as connection:
+            connection.execute(text("INSERT INTO t (id) VALUES (1)"))
+
+    def test_transaction_alone_does_not_hold_the_write_lock(self):
+        """Baseline: the window this guard closes is real.
+
+        Without the guard an open transaction that has not yet written lets
+        another connection write, which is what allows two migrators to both
+        read a stale revision.
+        """
+
+        engine = self._engine()
+        with engine.begin():
+            self._write_from_elsewhere()
+
+    def test_begin_immediate_excludes_a_second_writer(self):
+        """With the guard, the write lock is held from the start."""
+
+        engine = self._engine()
+        with _sqlite_immediate(engine):
+            with engine.begin():
+                with self.assertRaises(OperationalError) as caught:
+                    self._write_from_elsewhere()
+        self.assertIn("locked", str(caught.exception).lower())
+
+    def test_guard_is_removed_afterwards(self):
+        """The listeners are per-call and must not leak onto the engine."""
+
+        engine = self._engine()
+        with _sqlite_immediate(engine):
+            pass
+        with engine.begin():
+            self._write_from_elsewhere()
+
+
+class TestConcurrentMigration(unittest.TestCase):
+    """Two migrators racing on one database must not corrupt or crash it."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.db_path = os.path.join(self._tmp.name, "race.db")
+        engine = self._engine()
+        DataModelBase.metadata.create_all(engine)
+        with engine.begin() as connection:
+            connection.execute(
+                text("DROP INDEX IF EXISTS image_observing_session")
+            )
+        engine.dispose()
+
+    def _engine(self):
+        return create_engine(
+            f"sqlite:///{self.db_path}",
+            connect_args={"timeout": 30.0},
+            poolclass=NullPool,
+        )
+
+    def test_two_migrators_reach_head_without_error(self):
+        """Both calls return, and the database ends up correctly migrated."""
+
+        barrier = threading.Barrier(2)
+        errors = []
+
+        def migrate():
+            engine = self._engine()
+            try:
+                barrier.wait(timeout=30)
+                migrate_project(engine)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                errors.append(exc)
+            finally:
+                engine.dispose()
+
+        threads = [threading.Thread(target=migrate) for _ in range(2)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=60)
+            self.assertFalse(thread.is_alive(), "migration deadlocked")
+
+        self.assertEqual([str(error) for error in errors], [])
+
+        engine = self._engine()
+        self.addCleanup(engine.dispose)
+        self.assertEqual(get_project_revision(engine), get_head_revision())
+        check_project_schema(engine)
+        indexes = [
+            index["name"]
+            for index in inspect(engine).get_indexes("image")
+            if index["name"] == "image_observing_session"
+        ]
+        self.assertEqual(len(indexes), 1)
 
 
 if __name__ == "__main__":

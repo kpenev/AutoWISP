@@ -46,7 +46,7 @@ _LOCK_NAME = "autowisp_migrate"  # pylint: disable=invalid-name
 _LOCK_TIMEOUT = 600  # pylint: disable=invalid-name
 
 
-def _apply_additive_migrations(engine):
+def _apply_additive_migrations(connection):
     """Bring a project database that predates Alembic up to the 1.8.1 schema.
 
     .. note::
@@ -70,8 +70,13 @@ def _apply_additive_migrations(engine):
     Idempotent, so running it against an already-current database does
     nothing.
 
+    Takes a connection rather than an engine so it runs inside the caller's
+    migration lock. Opening a second connection here would block against
+    that lock instead of cooperating with it.
+
     Args:
-        engine:    The SQLAlchemy engine for the project database.
+        connection:    An open connection to the project database, inside a
+            transaction held by :func:`_locked_connection`.
 
     Returns:
         None
@@ -79,27 +84,26 @@ def _apply_additive_migrations(engine):
 
     # Create any tables added since the project was initialized (idempotent;
     # existing tables and data are left as-is).
-    DataModelBase.metadata.create_all(engine)
+    DataModelBase.metadata.create_all(connection)
 
     # Add any nullable columns added to tables that already existed.
     additive_columns = [
         ("pipeline_run", "code_version", "VARCHAR(1000)"),
         ("error", "resolved", "TIMESTAMP"),
     ]
-    inspector = sa_inspect(engine)
+    inspector = sa_inspect(connection)
     present_tables = set(inspector.get_table_names())
-    with engine.begin() as connection:
-        for table, column, sql_type in additive_columns:
-            if table not in present_tables:
-                continue
-            columns = {col["name"] for col in inspector.get_columns(table)}
-            if column in columns:
-                continue
-            # table/column/type come from the trusted list above, not from
-            # user input, so the f-string is safe here.
-            connection.execute(
-                text(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}")
-            )
+    for table, column, sql_type in additive_columns:
+        if table not in present_tables:
+            continue
+        columns = {col["name"] for col in inspector.get_columns(table)}
+        if column in columns:
+            continue
+        # table/column/type come from the trusted list above, not from user
+        # input, so the f-string is safe here.
+        connection.execute(
+            text(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}")
+        )
 
 
 def _alembic_config():
@@ -271,13 +275,12 @@ def _backup_sqlite(engine, current):
     return backup_path
 
 
-def _stamp(engine, revision):
-    """Record *revision* as applied without running anything."""
+def _stamp(connection, revision):
+    """Record *revision* as applied, on the caller's connection."""
 
     config = _alembic_config()
-    with engine.begin() as connection:
-        config.attributes["connection"] = connection
-        command.stamp(config, revision)
+    config.attributes["connection"] = connection
+    command.stamp(config, revision)
 
 
 def create_project_schema(engine):
@@ -295,7 +298,8 @@ def create_project_schema(engine):
     """
 
     DataModelBase.metadata.create_all(engine)
-    _stamp(engine, "head")
+    with engine.begin() as connection:
+        _stamp(connection, "head")
 
 
 def migrate_project(engine, *, assume_backed_up=False):
@@ -350,17 +354,28 @@ def migrate_project(engine, *, assume_backed_up=False):
         create_project_schema(engine)
         return result
 
-    result["backup"] = _backup_sqlite(engine, current)
-
-    if current is None:
-        # Predates Alembic: reach a known schema, then record that it is the
-        # one 0001_baseline describes.
-        _apply_additive_migrations(engine)
-        _stamp(engine, BASELINE_REVISION)
-        result["from"] = BASELINE_REVISION
-
     config = _alembic_config()
     with _locked_connection(engine) as connection:
+        # Re-read now that the lock is held. The check above was an unlocked
+        # fast path, and another migrator may have finished while this one
+        # waited -- without this it would redo work already done, and stamp
+        # the baseline over a newer revision on the way.
+        current = MigrationContext.configure(connection).get_current_revision()
+        result["from"] = current
+        if current == head:
+            return result
+
+        # Inside the lock, so the copy cannot catch a half-applied migration.
+        result["backup"] = _backup_sqlite(engine, current)
+
+        if current is None:
+            # Predates Alembic: reach a known schema, then record that it is
+            # the one 0001_baseline describes. Both run on this connection;
+            # opening another would block against the lock we are holding.
+            _apply_additive_migrations(connection)
+            _stamp(connection, BASELINE_REVISION)
+            result["from"] = BASELINE_REVISION
+
         config.attributes["connection"] = connection
         command.upgrade(config, "head")
 
