@@ -20,14 +20,40 @@ commits implicitly on MySQL -- a crash between the change and the
 re-run has to succeed.
 """
 
-import sqlalchemy as sa
-from alembic import op
+import alembic
+import sqlalchemy
+
+from autowisp.exceptions import DatabaseError
+
+
+def _longest_value(connection, table, column):
+    """Return the length of the longest value in *column*, in characters.
+
+    Zero for an empty table.
+    """
+
+    # SQLite's length() counts characters, MySQL's counts bytes, and
+    # char_length() -- the character count there -- does not exist on
+    # SQLite. So the function is picked per dialect; measuring bytes on
+    # MySQL would report values as too long when they fit.
+    measure = (
+        sqlalchemy.func.length
+        if connection.dialect.name == "sqlite"
+        else sqlalchemy.func.char_length
+    )
+    reflected = sqlalchemy.Table(
+        table, sqlalchemy.MetaData(), autoload_with=connection
+    )
+    longest = connection.execute(
+        sqlalchemy.select(sqlalchemy.func.max(measure(reflected.c[column])))
+    ).scalar()
+    return longest or 0
 
 
 def _column_length(connection, table, column):
     """Return the declared length of *column*, or None if it is absent."""
 
-    for described in sa.inspect(connection).get_columns(table):
+    for described in sqlalchemy.inspect(connection).get_columns(table):
         if described["name"] == column:
             return getattr(described["type"], "length", None)
     return None
@@ -58,16 +84,27 @@ def resize_varchar_column(
             across the change.
     """
 
-    connection = op.get_bind()
+    connection = alembic.op.get_bind()
     current = _column_length(connection, table, column)
     if current is None or current == new_length:
         return
 
-    with op.batch_alter_table(table) as batch:
+    if current is not None and new_length < current:
+        longest = _longest_value(connection, table, column)
+        if longest > new_length:
+            raise DatabaseError(
+                f"Cannot narrow {table}.{column} to {new_length} characters: "
+                f"the longest value is {longest}. Shorten or remove the "
+                "offending rows, then migrate again. Narrowing regardless "
+                "would truncate them -- silently, on a MySQL server that is "
+                "not in strict mode."
+            )
+
+    with alembic.op.batch_alter_table(table) as batch:
         batch.alter_column(
             column,
-            existing_type=sa.String(old_length),
-            type_=sa.String(new_length),
+            existing_type=sqlalchemy.String(old_length),
+            type_=sqlalchemy.String(new_length),
             existing_nullable=nullable,
         )
 
@@ -90,27 +127,29 @@ def drop_foreign_keys_to(table, referred_table):
         referred_table(str):    Only keys pointing here are dropped.
     """
 
-    connection = op.get_bind()
+    connection = alembic.op.get_bind()
     matching = [
         key
-        for key in sa.inspect(connection).get_foreign_keys(table)
+        for key in sqlalchemy.inspect(connection).get_foreign_keys(table)
         if key["referred_table"] == referred_table
     ]
     if not matching:
         return
 
     if connection.dialect.name == "sqlite":
-        reflected = sa.Table(table, sa.MetaData(), autoload_with=connection)
+        reflected = sqlalchemy.Table(
+            table, sqlalchemy.MetaData(), autoload_with=connection
+        )
         for constraint in list(reflected.constraints):
-            if isinstance(constraint, sa.ForeignKeyConstraint) and (
+            if isinstance(constraint, sqlalchemy.ForeignKeyConstraint) and (
                 constraint.referred_table.name == referred_table
             ):
                 reflected.constraints.discard(constraint)
-        with op.batch_alter_table(
+        with alembic.op.batch_alter_table(
             table, copy_from=reflected, recreate="always"
         ):
             pass
         return
 
     for key in matching:
-        op.drop_constraint(key["name"], table, type_="foreignkey")
+        alembic.op.drop_constraint(key["name"], table, type_="foreignkey")

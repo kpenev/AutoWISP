@@ -828,6 +828,45 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                     "schema; the differences above each need a revision",
                 )
 
+    def test_a_value_too_long_to_keep_stops_the_migration(self):
+        """Narrowing a column refuses rather than truncating.
+
+        ``image.raw_fname`` goes from 1000 characters to 768, so a path
+        longer than that cannot survive. Refusing is the point: on a MySQL
+        server not running in strict mode the ALTER would truncate the
+        value silently, losing the only record of where the image came
+        from.
+        """
+
+        ref = self.release_baselines[0]
+        engine = self.make_engine(f"toolong_{ref}.db")
+        self._build_release_schema(self._export_release(ref), engine)
+
+        long_path = "/" + "d" * 800 + "/frame.fits"
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "INSERT INTO image "
+                    "(raw_fname, image_type_id, observing_session_id) "
+                    "VALUES (:name, 1, 1)"
+                ),
+                {"name": long_path},
+            )
+
+        with self.assertRaises(DatabaseError) as caught:
+            self.migrate(engine)
+
+        message = str(caught.exception)
+        self.assertIn("raw_fname", message)
+        self.assertIn(str(len(long_path)), message)
+
+        # The value is still intact, and the schema was left alone.
+        with engine.begin() as connection:
+            kept = connection.execute(
+                text("SELECT raw_fname FROM image")
+            ).scalar()
+        self.assertEqual(kept, long_path)
+
 
 if __name__ == "__main__":
     unittest.main()
