@@ -22,23 +22,33 @@ COLUMN = "description"
 
 
 def _unique_on_description(connection):
-    """Reflected unique constraints and indexes covering just *COLUMN*.
+    """Names of unique constraints or indexes covering just *COLUMN*.
 
     Backends disagree on which of the two a ``unique=True`` column becomes,
-    so both are considered.
+    so both are consulted -- but **de-duplicated by name**, because on
+    MySQL and MariaDB a UNIQUE constraint *is* a unique index and the
+    inspector reports the very same object through both. Dropping the list
+    without collapsing it attempts the drop twice, and the second raises
+    "Can't DROP INDEX `description`; check that it exists".
+
+    Returns a mapping of name to the kind it was reported as, preferring
+    "index" where a backend claims both, since that is what actually
+    exists there.
     """
 
     inspector = sqlalchemy.inspect(connection)
-    found = [
-        (constraint["name"], "constraint")
+    found = {
+        constraint["name"]: "constraint"
         for constraint in inspector.get_unique_constraints(TABLE)
         if constraint["column_names"] == [COLUMN]
-    ]
-    found += [
-        (index["name"], "index")
-        for index in inspector.get_indexes(TABLE)
-        if index.get("unique") and index["column_names"] == [COLUMN]
-    ]
+    }
+    found.update(
+        {
+            index["name"]: "index"
+            for index in inspector.get_indexes(TABLE)
+            if index.get("unique") and index["column_names"] == [COLUMN]
+        }
+    )
     return found
 
 
@@ -67,7 +77,7 @@ def upgrade():
             pass
         return
 
-    for name, kind in existing:
+    for name, kind in existing.items():
         if kind == "index":
             alembic.op.drop_index(name, table_name=TABLE)
         else:
