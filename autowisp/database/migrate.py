@@ -29,7 +29,7 @@ import shutil
 from contextlib import contextmanager
 from functools import lru_cache
 
-from alembic import command
+import alembic
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
@@ -307,7 +307,7 @@ def _stamp(connection, revision):
 
     config = _alembic_config()
     config.attributes["connection"] = connection
-    command.stamp(config, revision)
+    alembic.command.stamp(config, revision)
 
 
 def create_project_schema(engine):
@@ -404,6 +404,6 @@ def migrate_project(engine, *, assume_backed_up=False):
             result["from"] = BASELINE_REVISION
 
         config.attributes["connection"] = connection
-        command.upgrade(config, "head")
+        alembic.command.upgrade(config, "head")
 
     return result

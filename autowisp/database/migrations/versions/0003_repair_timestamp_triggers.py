@@ -19,8 +19,8 @@ MySQL is untouched: its template sets ``NEW.timestamp`` directly and never
 referred to ``id``.
 """
 
-import sqlalchemy as sa
-from alembic import op
+import sqlalchemy
+import alembic
 
 # revision identifiers, used by Alembic.
 revision = "0003_repair_timestamp_triggers"
@@ -47,11 +47,11 @@ def _rebuild_trigger(connection, table, key_columns):
 def upgrade():
     """Recreate any trigger whose table has no ``id`` column."""
 
-    connection = op.get_bind()
+    connection = alembic.op.get_bind()
     if connection.dialect.name != "sqlite":
         return
 
-    inspector = sa.inspect(connection)
+    inspector = sqlalchemy.inspect(connection)
     for table in inspector.get_table_names():
         columns = {column["name"] for column in inspector.get_columns(table)}
         if "id" in columns or "timestamp" not in columns:

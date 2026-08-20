@@ -19,13 +19,13 @@ When editing this file, remember:
   (which MySQL 8 does not accept for indexes). For the same reason as
   above, a crash can leave the change applied but this revision
   unrecorded, and the re-run has to succeed. See
-  ``0002_image_observing_session_index.py`` for the shape.
+  ``0002_image_session_index.py`` for the shape.
 - Add this file to ``versions/meson.build`` or it will be missing from
   installed builds.
 """
 
-from alembic import op
-import sqlalchemy as sa
+import alembic
+import sqlalchemy
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.

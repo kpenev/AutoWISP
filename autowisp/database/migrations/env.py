@@ -11,7 +11,7 @@ always migrated against a live connection, and emitting SQL for a schema we
 cannot inspect would be misleading.
 """
 
-from alembic import context
+import alembic
 
 from autowisp.database.data_model.base import DataModelBase
 
@@ -19,7 +19,7 @@ from autowisp.database.data_model.base import DataModelBase
 def run_migrations_online():
     """Run the migrations against the connection supplied by the caller."""
 
-    connection = context.config.attributes.get("connection")
+    connection = alembic.context.config.attributes.get("connection")
     if connection is None:
         raise RuntimeError(
             "No connection supplied to the Alembic environment. Project "
@@ -28,7 +28,7 @@ def run_migrations_online():
             "engine's connection in via Config.attributes."
         )
 
-    context.configure(
+    alembic.context.configure(
         connection=connection,
         target_metadata=DataModelBase.metadata,
         # SQLite cannot ALTER most things in place; batch mode renders such
@@ -38,11 +38,11 @@ def run_migrations_online():
         compare_type=True,
     )
 
-    with context.begin_transaction():
-        context.run_migrations()
+    with alembic.context.begin_transaction():
+        alembic.context.run_migrations()
 
 
-if context.is_offline_mode():
+if alembic.context.is_offline_mode():
     raise RuntimeError(
         "Offline (--sql) migration is not supported for project databases."
     )

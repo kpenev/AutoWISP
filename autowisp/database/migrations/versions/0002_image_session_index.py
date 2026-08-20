@@ -10,8 +10,8 @@ collections AutoWISP is aimed at, which run to millions of images.
 the index serve the sort as well as the filter.
 """
 
-import sqlalchemy as sa
-from alembic import op
+import sqlalchemy
+import alembic
 
 # revision identifiers, used by Alembic.
 revision = "0002_image_session_index"
@@ -30,7 +30,8 @@ def _index_exists(connection):
     """
 
     return INDEX_NAME in {
-        index["name"] for index in sa.inspect(connection).get_indexes("image")
+        index["name"]
+        for index in sqlalchemy.inspect(connection).get_indexes("image")
     }
 
 
@@ -43,14 +44,16 @@ def upgrade():
     than fail on an index that already exists.
     """
 
-    connection = op.get_bind()
+    connection = alembic.op.get_bind()
     if not _index_exists(connection):
-        op.create_index(INDEX_NAME, "image", ["observing_session_id", "jd"])
+        alembic.op.create_index(
+            INDEX_NAME, "image", ["observing_session_id", "jd"]
+        )
 
 
 def downgrade():
     """Drop the index, if it is there."""
 
-    connection = op.get_bind()
+    connection = alembic.op.get_bind()
     if _index_exists(connection):
-        op.drop_index(INDEX_NAME, table_name="image")
+        alembic.op.drop_index(INDEX_NAME, table_name="image")
