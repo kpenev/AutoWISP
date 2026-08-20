@@ -11,6 +11,7 @@ py_src = [
   '0006_drop_step_desc_unique.py',
   '0007_drop_condition_fks.py',
   '0008_widen_lc_status_id.py',
+  '0009_float_columns_to_double.py',
 ]
 
 py.install_sources(

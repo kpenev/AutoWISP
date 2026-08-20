@@ -5,7 +5,7 @@ from sqlalchemy import (
     Integer,
     String,
     Boolean,
-    Float,
+    Double,
     ForeignKey,
     Index,
     text,
@@ -78,7 +78,7 @@ class HDF5DataSet(DataModelBase):
         doc="Should the shuffle filter be enabled?",
     )
     replace_nonfinite = Column(
-        Float,
+        Double,
         nullable=True,
         server_default=text("NULL"),
         doc="For numeric datasets, if this is not NULL, any non-finite "
