@@ -4,6 +4,7 @@ from sqlalchemy import text, Column, Integer, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 
+
 # Intended to be sub-classed
 # pylint: disable=too-few-public-methods
 class DataModelSubBase(DeclarativeBase):
@@ -30,5 +31,6 @@ class DataModelBase(AbstractConcreteBase, DataModelSubBase):
         primary_key=True,
         doc="A unique identifier for each row.",
     )
+
 
 # pylint: enable=too-few-public-methods

@@ -76,6 +76,7 @@ class Parameter(DataModelBase):
         secondary=step_param_association, back_populates="parameters"
     )
 
+
 class AlternateParameterName(DataModelBase):
     """Table describing alternate names for parameters."""
 

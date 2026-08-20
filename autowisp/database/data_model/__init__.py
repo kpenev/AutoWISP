@@ -15,6 +15,7 @@ from autowisp.database.data_model.steps_and_parameters import (
 
 __all__ = []
 
+
 # TODO: merge with data_model/provenance/__init__.py
 def import_table_definitions():
     """Import all table definitions directly to data_model."""
@@ -33,7 +34,7 @@ def import_table_definitions():
         # Pylint false positive
         # pylint: disable=cell-var-from-loop
         def is_table(mod_attr):
-            print('Checking', mod_attr)
+            print("Checking", mod_attr)
             return (
                 mod_attr[0] != "_"
                 and mod_attr != "DataModelBase"

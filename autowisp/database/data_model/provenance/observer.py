@@ -58,8 +58,8 @@ class Observer(DataModelBase):
         """Return dict representation of the observer."""
 
         return {
-            'name': self.name,
-            'email': self.email,
-            'phone': self.phone,
-            'notes': self.notes,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone,
+            "notes": self.notes,
         }
