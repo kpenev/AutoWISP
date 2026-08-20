@@ -8,7 +8,24 @@ name: Tests
 
 # Manual only, like AstroWISP -- the full grid is expensive, so dispatch it for
 # release validation. (A lightweight auto PR-smoke track is a possible follow-up.)
-on: workflow_dispatch
+#
+# `only` narrows a dispatch to one group of jobs. Re-running a single job after
+# a fix otherwise means paying for the whole grid: workflow_dispatch has no job
+# filter, and cancelling a run cancels every job in it, including the one being
+# watched.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: Which jobs to run
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - pipeline
+          - catalog
+          - migrations
 
 permissions:
   contents: read
@@ -20,6 +37,7 @@ jobs:
   # offline failure instead of a flaky network call. TestCatalog (live Gaia) is
   # excluded here and runs in its own job.
   pipeline:
+    if: inputs.only == 'all' || inputs.only == 'pipeline'
     name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -131,6 +149,7 @@ jobs:
   # CATALOG / ADQL tests -- LIVE Gaia, ubuntu only, no cache guard.
   # OS-independent, so one OS across the numpy/python sweep.
   catalog:
+    if: inputs.only == 'all' || inputs.only == 'catalog'
     name: catalog py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ubuntu-latest
     strategy:
@@ -181,6 +200,7 @@ jobs:
   # index limit -- so the release-upgrade test only truly exercises there,
   # and skips (loudly, with its reason) on utf8mb4.
   migrations:
+    if: inputs.only == 'all' || inputs.only == 'migrations'
     name: migrations mariadb ${{ matrix.charset }}
     runs-on: ubuntu-latest
     strategy:
