@@ -110,6 +110,15 @@ class Image(DataModelBase):
         String(1000), nullable=True, doc="The notes provided for the image"
     )
 
+    __table_args__ = (
+        # Diagnostics and photref queries all filter on the observing session
+        # and order by jd. Foreign keys are not indexed automatically (SQLite
+        # never, MySQL only for the constraint), so without this each of those
+        # scans the whole table -- see migration
+        # 0002_image_observing_session_index.
+        Index("image_observing_session", "observing_session_id", "jd"),
+    )
+
     def __repr__(self):
         return (
             f"({self.id}) {self.raw_fname}: {self.image_type_id} "

@@ -9,6 +9,8 @@ py_src = [
   'initialize_light_curve_structure.py',
   'interface.py',
   'lightcurve_processing.py',
+  'migrate.py',
+  'migrate_cli.py',
   'photref_selection.py',
   'processing.py',
   'provenance_resolver.py',
@@ -21,4 +23,13 @@ py.install_sources(
     pure: true,
 )
 
+# Alembic reads this at runtime to locate migrations/; it is data, not a
+# module, so it needs its own install_sources call.
+py.install_sources(
+    ['alembic.ini'],
+    subdir: 'autowisp/database',
+    pure: true,
+)
+
 subdir('data_model')
+subdir('migrations')
