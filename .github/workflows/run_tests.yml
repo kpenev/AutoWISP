@@ -44,6 +44,18 @@ jobs:
           # 3.13 / 3.14 (numpy 2 only; numpy 1.26 has no 3.13/3.14 wheels).
           - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
           - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
+          # Centralised project database. AutoWISP runs against MariaDB in
+          # production, but every other cell puts the project database in
+          # SQLite -- which compares strings case-sensitively, enforces
+          # neither foreign keys nor column widths, and serialises writers
+          # instead of taking row locks. This cell is regression cover for
+          # the centralised path.
+          #
+          # The server is started with `docker run` rather than as a job
+          # `services:` container, because services are Linux-only and
+          # job-level: declaring one here would break the Windows and macOS
+          # cells. Same pinned image either way.
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true }
     env:
       AUTOWISP_NO_LIVE_CATALOG: '1'
     steps:
@@ -75,8 +87,28 @@ jobs:
             macOS) brew install astrometry-net ;;
             *) echo "No solve-field install for $RUNNER_OS"; exit 1 ;;
           esac
+      # ONLY_FULL_GROUP_BY is the one meaningful strictness MySQL enables by
+      # default and MariaDB does not; turning it on keeps that check while
+      # still testing the server actually deployed.
+      - name: Start MariaDB
+        if: matrix.mariadb
+        shell: bash
+        run: |
+          docker run --detach --name mariadb --publish 3306:3306 \
+              --env MARIADB_ROOT_PASSWORD=autowisp \
+              --env MARIADB_DATABASE=autowisp_pipeline \
+              mariadb:11 --sql-mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES
+          until docker exec mariadb \
+                  healthcheck.sh --connect --innodb_initialized; do
+            sleep 2
+          done
+          python -m pip install pymysql
       - name: Run tests
         shell: bash
+        env:
+          # Empty on every other cell, which server_test_url() reads as
+          # unset, leaving those runs on SQLite.
+          AUTOWISP_TEST_DB_URL: ${{ matrix.mariadb && 'mysql+pymysql://root:autowisp@127.0.0.1:3306/autowisp_pipeline' || '' }}
         run: |
           # Exclude the live-Gaia catalog tests everywhere; also exclude the
           # expensive full-pipeline integration test unless this cell opts in.

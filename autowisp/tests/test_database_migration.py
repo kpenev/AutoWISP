@@ -33,25 +33,24 @@ from autowisp.database.migrate import (
     migrate_project,
 )
 from autowisp.exceptions import DatabaseError
+from autowisp.tests import SERVER_URL_ENV, empty_server_database
 
 # Resources here are released via addCleanup rather than `with`, since they
 # are created in setUp and must outlive it.
 # pylint: disable=consider-using-with
 
-SERVER_URL_ENV = "AUTOWISP_TEST_DB_URL"  # pylint: disable=invalid-name
-"""Environment variable naming a MySQL/MariaDB URL to test against.
-
-Unset -- the default, and what a developer gets locally -- runs every
-scenario against throwaway SQLite files. Setting it runs *the same*
-scenarios against a server, so the backend-specific paths (GET_LOCK,
-implicitly committed DDL, type comparison in the drift check) are covered
-by the tests that already exist rather than by a parallel copy of them that
-would drift out of step. CI runs this module once per backend.
-"""
-
 
 def on_server():
-    """Whether this run is pointed at a MySQL/MariaDB server."""
+    """Whether this run is pointed at a MySQL/MariaDB server.
+
+    The same switch the rest of the suite uses (see
+    :mod:`autowisp.tests`), so one variable turns everything onto a server
+    rather than each part having its own idea of where to look. Setting it
+    runs *these* scenarios against one too, covering the backend-specific
+    paths -- GET_LOCK, implicitly committed DDL, type comparison in the
+    drift check -- with the tests that already exist rather than a parallel
+    copy that would drift out of step.
+    """
 
     return bool(os.environ.get(SERVER_URL_ENV))
 
@@ -71,25 +70,12 @@ class BackendMixin:
 
         super().setUp()
         if on_server():
-            self._empty_server()
+            empty_server_database(os.environ[SERVER_URL_ENV])
         else:
             self._tmp = tempfile.TemporaryDirectory()
             self.addCleanup(self._tmp.cleanup)
 
     # pylint: enable=invalid-name
-
-    def _empty_server(self):
-        """Drop every table, including alembic_version."""
-
-        engine = create_engine(os.environ[SERVER_URL_ENV], poolclass=NullPool)
-        try:
-            with engine.begin() as connection:
-                connection.execute(text("SET FOREIGN_KEY_CHECKS=0"))
-                for table in inspect(engine).get_table_names():
-                    connection.execute(text(f"DROP TABLE IF EXISTS `{table}`"))
-                connection.execute(text("SET FOREIGN_KEY_CHECKS=1"))
-        finally:
-            engine.dispose()
 
     def make_engine(self, name="project.db"):
         """An engine for a clean project database on the current backend."""
