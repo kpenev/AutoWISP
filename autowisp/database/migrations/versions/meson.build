@@ -10,6 +10,7 @@ py_src = [
   '0005_shorten_condition_expr.py',
   '0006_drop_step_desc_unique.py',
   '0007_drop_condition_fks.py',
+  '0008_widen_lc_status_id.py',
 ]
 
 py.install_sources(
