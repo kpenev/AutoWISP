@@ -30,6 +30,7 @@ from contextlib import contextmanager
 from functools import lru_cache
 
 from alembic import command
+from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
@@ -134,6 +135,32 @@ def get_project_revision(engine):
 
     with engine.connect() as connection:
         return MigrationContext.configure(connection).get_current_revision()
+
+
+def get_schema_drift(engine):
+    """Return how *engine*'s schema differs from the ORM models.
+
+    Empty means they agree. This is the guard behind a duplication the
+    design accepts deliberately: a revision may not import the models -- it
+    has to keep describing the same schema forever, while the models move --
+    so an index or column is declared twice, once in ``data_model`` and once
+    in the revision that creates it. Nothing stops the two drifting apart
+    except noticing, which is what this does.
+
+    Args:
+        engine:    The SQLAlchemy engine for the database to compare.
+
+    Returns:
+        list:    Alembic's autogenerate diff entries, e.g.
+            ``("add_index", Index(...))`` for something the models declare
+            and the database lacks.
+    """
+
+    with engine.connect() as connection:
+        context = MigrationContext.configure(
+            connection, opts={"compare_type": True}
+        )
+        return compare_metadata(context, DataModelBase.metadata)
 
 
 def _is_known_revision(revision):

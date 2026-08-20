@@ -24,6 +24,7 @@ from autowisp.database.migrate import (
     create_project_schema,
     get_head_revision,
     get_project_revision,
+    get_schema_drift,
     migrate_project,
 )
 from autowisp.exceptions import DatabaseError
@@ -507,6 +508,71 @@ class TestConcurrentMigration(unittest.TestCase):
             if index["name"] == "image_observing_session"
         ]
         self.assertEqual(len(indexes), 1)
+
+
+class TestSchemaDrift(unittest.TestCase):
+    """The revision chain and the ORM models describe the same schema.
+
+    A revision may not import the models -- it has to keep meaning the same
+    schema forever, while the models move -- so anything a revision creates
+    is declared twice, once in ``data_model`` and once in the revision.
+    Nothing keeps the two in step except this check, which is why the plan
+    calls for it rather than for sharing the definitions.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def _engine(self, name):
+        engine = create_engine(
+            f"sqlite:///{os.path.join(self._tmp.name, name)}"
+        )
+        self.addCleanup(engine.dispose)
+        return engine
+
+    def test_migrated_database_matches_the_models(self):
+        """The real check: a database brought up by the revisions agrees.
+
+        This is what catches a model edited without a matching revision --
+        the migrated schema would then lack whatever the models gained.
+        """
+
+        engine = self._engine("migrated.db")
+        DataModelBase.metadata.create_all(engine)
+        with engine.begin() as connection:
+            connection.execute(
+                text("DROP INDEX IF EXISTS image_observing_session")
+            )
+        migrate_project(engine)
+
+        self.assertEqual(get_schema_drift(engine), [])
+
+    def test_created_database_matches_the_models(self):
+        """Control: create_all builds from the models, so it must agree."""
+
+        engine = self._engine("created.db")
+        create_project_schema(engine)
+
+        self.assertEqual(get_schema_drift(engine), [])
+
+    def test_drift_is_actually_detected(self):
+        """The check discriminates -- an empty result means agreement.
+
+        Without this the two tests above would pass just as happily if
+        get_schema_drift() always returned nothing.
+        """
+
+        engine = self._engine("drifted.db")
+        create_project_schema(engine)
+        with engine.begin() as connection:
+            connection.execute(text("DROP INDEX image_observing_session"))
+
+        drift = get_schema_drift(engine)
+
+        self.assertEqual(len(drift), 1)
+        self.assertEqual(drift[0][0], "add_index")
+        self.assertEqual(drift[0][1].name, "image_observing_session")
 
 
 if __name__ == "__main__":
