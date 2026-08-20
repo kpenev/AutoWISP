@@ -15,7 +15,15 @@ import threading
 import unittest
 
 from alembic.script import ScriptDirectory
-from sqlalchemy import Index, MetaData, Table, create_engine, inspect, text
+from sqlalchemy import (
+    Index,
+    MetaData,
+    Table,
+    create_engine,
+    inspect,
+    select,
+    text,
+)
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.pool import NullPool
 
@@ -817,41 +825,48 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
     def test_a_value_too_long_to_keep_stops_the_migration(self):
         """Narrowing a column refuses rather than truncating.
 
-        ``image.raw_fname`` goes from 1000 characters to 768, so a path
-        longer than that cannot survive. Refusing is the point: on a MySQL
-        server not running in strict mode the ALTER would truncate the
-        value silently, losing the only record of where the image came
-        from.
+        Refusing is the point: on a server not running in strict mode the
+        ALTER would truncate the value silently.
+
+        Uses ``condition_expression.expression`` (1000 -> 768 in ``0005``)
+        rather than ``image.raw_fname``, which narrows identically in
+        ``0004``. The guard lives in the shared ``resize_varchar_column``,
+        so either exercises it -- but condition_expression has no foreign
+        keys, whereas an image row needs an image_type and an observing
+        session, and that in turn needs an observer, camera, telescope,
+        mount, observatory and target. A server enforces every one of
+        those, so the alternative was either a dozen rows of fixture or
+        switching the checks off, and neither has anything to do with
+        column widths.
         """
 
         ref = self.release_baselines[0]
         engine = self.make_engine(f"toolong_{ref}.db")
         self._build_release_schema(self._export_release(ref), engine)
 
-        long_path = "/" + "d" * 800 + "/frame.fits"
+        long_expression = "x" * 800
         with engine.begin() as connection:
+            table = Table(
+                "condition_expression", MetaData(), autoload_with=connection
+            )
             connection.execute(
-                text(
-                    "INSERT INTO image "
-                    "(raw_fname, image_type_id, observing_session_id) "
-                    "VALUES (:name, 1, 1)"
-                ),
-                {"name": long_path},
+                table.insert().values(expression=long_expression)
             )
 
         with self.assertRaises(DatabaseError) as caught:
             self.migrate(engine)
 
         message = str(caught.exception)
-        self.assertIn("raw_fname", message)
-        self.assertIn(str(len(long_path)), message)
+        self.assertIn("expression", message)
+        self.assertIn(str(len(long_expression)), message)
 
         # The value is still intact, and the schema was left alone.
         with engine.begin() as connection:
-            kept = connection.execute(
-                text("SELECT raw_fname FROM image")
-            ).scalar()
-        self.assertEqual(kept, long_path)
+            table = Table(
+                "condition_expression", MetaData(), autoload_with=connection
+            )
+            kept = connection.execute(select(table.c.expression)).scalar()
+        self.assertEqual(kept, long_expression)
 
 
 if __name__ == "__main__":
