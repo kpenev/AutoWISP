@@ -82,7 +82,12 @@ class Image(DataModelBase):
     __tablename__ = "image"
 
     raw_fname = Column(
-        String(1000),
+        # 768 rather than 1000 so the unique key fits InnoDB's 3072-byte
+        # index limit at 4 bytes/character (utf8mb4). A longer path is
+        # rejected loudly on insert, which beats the alternatives: a prefix
+        # index would report a spurious duplicate for two files sharing a
+        # deep directory tree, and paths vary at the end, not the start.
+        String(768),
         nullable=False,
         unique=True,
         doc="The full path of the raw image",
@@ -115,7 +120,7 @@ class Image(DataModelBase):
         # and order by jd. Foreign keys are not indexed automatically (SQLite
         # never, MySQL only for the constraint), so without this each of those
         # scans the whole table -- see migration
-        # 0002_image_observing_session_index.
+        # 0002_image_session_index.
         Index("image_observing_session", "observing_session_id", "jd"),
     )
 

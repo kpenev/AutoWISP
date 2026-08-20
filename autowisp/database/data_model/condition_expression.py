@@ -17,7 +17,10 @@ class ConditionExpression(DataModelBase):
     __tablename__ = "condition_expression"
 
     expression = Column(
-        String(1000),
+        # 768, not 1000: the unique index has to fit InnoDB's 3072-byte
+        # limit at 4 bytes/character. Ample for an expression over header
+        # keywords.
+        String(768),
         nullable=False,
         unique=True,
         index=True,

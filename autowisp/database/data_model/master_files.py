@@ -29,7 +29,8 @@ class MasterType(DataModelBase):
     )
     condition_id = Column(
         Integer,
-        ForeignKey("condition.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        # Not a ForeignKey: condition.id names a set of expressions, not a
+        # row, so it is not unique. See Configuration.condition_id.
         nullable=False,
         doc="The collection of expression involving header keywords that must "
         "match between an image and a master for a master to be useable for "
@@ -50,7 +51,7 @@ class MasterType(DataModelBase):
     )
     maker_image_split_condition_id = Column(
         Integer,
-        ForeignKey("condition.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        # Not a ForeignKey, for the same reason as condition_id above.
         nullable=True,
         doc="The collection of expression involving header keywords that must "
         "match between all images that are combined into a master in addition "

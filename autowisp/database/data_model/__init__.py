@@ -56,34 +56,48 @@ def import_table_definitions():
                 SET NEW.timestamp = CURRENT_TIMESTAMP
             """
 
+        # Keyed on the table's actual primary key. It used to be hardcoded
+        # to `id`, which most tables have but not all: the trigger on
+        # image_master_selection (primary key image_id, channel,
+        # master_type_id) could not parse. That went unnoticed because
+        # SQLite only parses a trigger when it fires -- or when something
+        # renames a table, which is how a batch migration rebuilds one.
         update_timestamp_sqlite = """
             CREATE TRIGGER update_{table}_timestamp
             AFTER UPDATE
-            ON %(table)s
+            ON {table}
             FOR EACH ROW
             BEGIN
-                UPDATE %(table)s SET timestamp = CURRENT_TIMESTAMP
-                WHERE id = NEW.id;
+                UPDATE {table} SET timestamp = CURRENT_TIMESTAMP
+                WHERE {match};
             END
             """
 
         for class_name in table_class_names:
             table_class = getattr(module, class_name)
             setattr(this_module, class_name, table_class)
+            table = table_class.__table__
             event.listen(
-                table_class.__table__,
+                table,
                 "after_create",
-                DDL(
-                    update_timestamp_mysql.format(table=table_class.__table__)
-                ).execute_if(dialect="mysql"),
+                DDL(update_timestamp_mysql.format(table=table)).execute_if(
+                    dialect="mysql"
+                ),
             )
-            event.listen(
-                table_class.__table__,
-                "after_create",
-                DDL(
-                    update_timestamp_sqlite.format(table=table_class.__table__)
-                ).execute_if(dialect="sqlite"),
-            )
+            key_columns = [column.name for column in table.primary_key.columns]
+            if key_columns:
+                event.listen(
+                    table,
+                    "after_create",
+                    DDL(
+                        update_timestamp_sqlite.format(
+                            table=table,
+                            match=" AND ".join(
+                                f"{name} = NEW.{name}" for name in key_columns
+                            ),
+                        )
+                    ).execute_if(dialect="sqlite"),
+                )
 
             __all__.append(class_name)
 

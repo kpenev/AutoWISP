@@ -29,7 +29,13 @@ class Configuration(DataModelBase):
     )
     condition_id = Column(
         Integer,
-        ForeignKey("condition.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        # Deliberately not a ForeignKey. A condition is a *set* of
+        # expressions: `condition` holds one row per member, all sharing an
+        # id, so condition.id identifies a group rather than a row and is
+        # not unique. A foreign key asserts the opposite. InnoDB accepted
+        # that as a non-standard extension until MySQL 8.4 began rejecting
+        # it (ER_FK_NO_UNIQUE_INDEX_PARENT); the relationship below already
+        # hand-annotates the join for the same reason.
         doc="The id of the condition that must be met for this configuration to"
         " apply",
     )

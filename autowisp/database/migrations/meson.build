@@ -1,5 +1,6 @@
 py_src = [
   'env.py',
+  'helpers.py',
 ]
 
 py.install_sources(

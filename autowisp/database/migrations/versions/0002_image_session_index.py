@@ -14,7 +14,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0002_image_observing_session_index"
+revision = "0002_image_session_index"
 down_revision = "0001_baseline"
 branch_labels = None
 depends_on = None
