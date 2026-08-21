@@ -33,7 +33,9 @@ class Step(DataModelBase):
     description = Column(
         String(1000),
         nullable=False,
-        unique=True,
+        # Not unique: it was only ever a guard against a copy-pasted
+        # description, and at 4 bytes/character the key exceeded InnoDB's
+        # 3072-byte index limit. Step.name carries the real uniqueness.
         doc="Description of what the step does.",
     )
 
@@ -75,6 +77,7 @@ class Parameter(DataModelBase):
     steps: Mapped[List[Step]] = relationship(
         secondary=step_param_association, back_populates="parameters"
     )
+
 
 class AlternateParameterName(DataModelBase):
     """Table describing alternate names for parameters."""

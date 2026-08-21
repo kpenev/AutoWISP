@@ -29,7 +29,13 @@ class Configuration(DataModelBase):
     )
     condition_id = Column(
         Integer,
-        ForeignKey("condition.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        # Deliberately not a ForeignKey. A condition is a *set* of
+        # expressions: `condition` holds one row per member, all sharing an
+        # id, so condition.id identifies a group rather than a row and is
+        # not unique. A foreign key asserts the opposite. InnoDB accepted
+        # that as a non-standard extension until MySQL 8.4 began rejecting
+        # it (ER_FK_NO_UNIQUE_INDEX_PARENT); the relationship below already
+        # hand-annotates the join for the same reason.
         doc="The id of the condition that must be met for this configuration to"
         " apply",
     )
@@ -53,7 +59,17 @@ class Configuration(DataModelBase):
     )
     parameter = relationship("Parameter")
     condition_expressions = relationship(
-        "ConditionExpression", secondary=Condition.__tablename__, viewonly=True
+        "ConditionExpression",
+        secondary=Condition.__table__,
+        # Spelled out because condition_id is deliberately not a foreign
+        # key -- condition.id names a group of rows, not one row -- so
+        # there is nothing for SQLAlchemy to infer the join from. foreign()
+        # marks the side it would otherwise have taken from the constraint.
+        primaryjoin="Configuration.condition_id == foreign(Condition.id)",
+        secondaryjoin=(
+            "foreign(Condition.expression_id) == ConditionExpression.id"
+        ),
+        viewonly=True,
     )
 
     def __repr__(self):

@@ -13,6 +13,12 @@ ignore=CVS,Dump2hdf5.py,DbSource.py
 # regex matches against base names, not paths.
 ignore-patterns=
 
+# Alembic revision scripts. Their ids are NNNN_slug so the chain reads in
+# order, which cannot be snake_case, and they are near-generated besides --
+# correctness comes from running them and from the chain-shape test, not from
+# linting. Only versions/ is skipped; env.py is ours and is still checked.
+ignore-paths=.*[/\\]database[/\\]migrations[/\\]versions[/\\].*
+
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
 init-hook='import sys; from os.path import expanduser; sys.path.append(expanduser("~/projects/git/poet/PythonPackage"))'
@@ -401,7 +407,9 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis. It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=numpy,scipy,astropy
+# alembic.op and alembic.context are proxies whose members Alembic installs at
+# runtime, so static analysis cannot see create_index, configure, etc.
+ignored-modules=numpy,scipy,astropy,alembic.op,alembic.context
 
 # Show a hint with possible names when a member name was not found. The aspect
 # of finding the hint is based on edit distance.

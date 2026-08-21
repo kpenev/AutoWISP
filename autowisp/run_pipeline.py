@@ -91,7 +91,15 @@ def main(config):
     error.
     """
 
-    set_project_home(config.project_home)
+    # Migrate here, in the one process that is definitely alone: workers
+    # opening the project later only check the schema, since concurrent DDL
+    # from a pool of them is not survivable.
+    #
+    # No assume_backed_up: a local SQLite database is copied aside and
+    # migrated without ceremony, while a centralised one refuses and points
+    # at wisp-migrate. Migrating a database several people share should be a
+    # deliberate act, not a side effect of starting a photometry run.
+    set_project_home(config.project_home, migrate=True)
     try:
         _run_pipeline(config)
     except AutoWISPError as exc:

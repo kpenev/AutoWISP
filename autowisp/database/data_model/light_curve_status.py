@@ -42,9 +42,14 @@ class LightCurveStatus(DataModelSubBase):
     )
 
     id = Column(
-        Integer,
+        # The Gaia source id of the star, not a row counter --
+        # LightCurveProcessingManager stores src_id here. Those run to ~8e17,
+        # which overflows the 32-bit INT that ``Integer`` becomes on MySQL and
+        # MariaDB ("Out of range value for column 'id'"). SQLite hid it: its
+        # INTEGER is 64-bit and it does not enforce declared types anyway.
+        GaiaIDType,
         primary_key=True,
-        doc="A unique identifier for each row.",
+        doc="The Gaia source id of the star whose lightcurve this row tracks.",
     )
 
     def __str__(self):

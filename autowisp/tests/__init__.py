@@ -1,21 +1,68 @@
 """Autowisp unit-test init."""
 
 from collections.abc import Sequence
-from os import path, makedirs
+from os import path, makedirs, environ
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, move, rmtree
 from glob import glob
 import logging
 
+import sqlalchemy
 from asteval import Interpreter
 from astrowisp.tests.utilities import FloatTestCase
 
 from autowisp.database.interface import (
     set_project_home,
     initialize_cmdline_database,
+    DB_URL_FNAME,
 )
 from autowisp.database.user_interface import import_json_to_survey
 from autowisp.database.initialize_database import initialize_database
+
+SERVER_URL_ENV = "AUTOWISP_TEST_DB_URL"  # pylint: disable=invalid-name
+"""Environment variable naming a MySQL/MariaDB URL to test against.
+
+Unset -- the default, and what a developer gets locally -- puts every
+project database in a throwaway SQLite file, as before. Setting it runs the
+same tests against a centralised server, which is a supported deployment
+but one the suite has never exercised: SQLite compares strings
+case-sensitively, does not enforce foreign keys or column widths, and
+serialises writers instead of taking row locks.
+"""
+
+
+def server_test_url():
+    """Return the server URL to test against, or None for SQLite.
+
+    Empty counts as unset. A CI matrix that carries the URL as a per-cell
+    key gives every *other* cell the variable set to an empty string rather
+    than absent, and those cells must stay on SQLite.
+    """
+
+    return environ.get(SERVER_URL_ENV) or None
+
+
+def empty_server_database(url):
+    """Drop every table in *url*, including ``alembic_version``.
+
+    SQLite gets a fresh file per test simply by using a fresh directory. A
+    server has one database shared by the whole run, so it has to be
+    emptied between tests instead -- and completely, since a leftover
+    ``alembic_version`` would make the next project look migrated when its
+    tables are gone.
+    """
+
+    engine = sqlalchemy.create_engine(url, poolclass=sqlalchemy.pool.NullPool)
+    try:
+        with engine.begin() as connection:
+            connection.execute(sqlalchemy.text("SET FOREIGN_KEY_CHECKS=0"))
+            for table in sqlalchemy.inspect(engine).get_table_names():
+                connection.execute(
+                    sqlalchemy.text(f"DROP TABLE IF EXISTS `{table}`")
+                )
+            connection.execute(sqlalchemy.text("SET FOREIGN_KEY_CHECKS=1"))
+    finally:
+        engine.dispose()
 
 
 class AutoWISPTestCase(FloatTestCase):
@@ -203,6 +250,7 @@ class AutoWISPTestCase(FloatTestCase):
             path.join(self.test_directory, "test.cfg"),
             path.join(self.processing_directory, "test.cfg"),
         )
+        self._point_at_test_database()
         set_project_home(self.processing_directory)
         with open(
             path.join(self.test_directory, "survey_instruments.json"),
@@ -210,6 +258,33 @@ class AutoWISPTestCase(FloatTestCase):
             encoding="utf-8",
         ) as survey_json:
             import_json_to_survey(survey_json)
+
+    def _point_at_test_database(self):
+        """Send this test's project database to the configured server.
+
+        Nothing else in the suite -- and no pipeline or step code -- needs
+        to know. ``set_project_home`` already reads ``autowisp_db.url``
+        from the project home when it is there, and every step launched by
+        :meth:`run_step` runs with that directory as its cwd, so it
+        resolves the same file. Writing it here therefore redirects the
+        whole run, subprocesses included.
+
+        A no-op when the variable is unset, which is the default.
+        """
+
+        url = server_test_url()
+        if url is None:
+            return
+
+        # Before the project is opened: it is about to be created in a
+        # database the previous test left populated.
+        empty_server_database(url)
+        with open(
+            path.join(self.processing_directory, DB_URL_FNAME),
+            "w",
+            encoding="utf-8",
+        ) as url_file:
+            url_file.write(url)
 
     def _test_failed(self):
         """Whether *this* test has just failed or errored.

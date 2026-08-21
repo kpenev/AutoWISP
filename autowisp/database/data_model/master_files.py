@@ -29,7 +29,8 @@ class MasterType(DataModelBase):
     )
     condition_id = Column(
         Integer,
-        ForeignKey("condition.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        # Not a ForeignKey: condition.id names a set of expressions, not a
+        # row, so it is not unique. See Configuration.condition_id.
         nullable=False,
         doc="The collection of expression involving header keywords that must "
         "match between an image and a master for a master to be useable for "
@@ -50,7 +51,7 @@ class MasterType(DataModelBase):
     )
     maker_image_split_condition_id = Column(
         Integer,
-        ForeignKey("condition.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        # Not a ForeignKey, for the same reason as condition_id above.
         nullable=True,
         doc="The collection of expression involving header keywords that must "
         "match between all images that are combined into a master in addition "
@@ -63,14 +64,28 @@ class MasterType(DataModelBase):
     Index("maker", "maker_step_id", "maker_image_type_id")
 
     master_files = relationship("MasterFile", back_populates="master_type")
+    # Both joins are spelled out because these condition columns are
+    # deliberately not foreign keys -- condition.id names a group of rows
+    # rather than one row -- so nothing is left for SQLAlchemy to infer
+    # from. foreign() marks the side it would have taken from the
+    # constraint.
     match_expressions: Mapped[List[ConditionExpression]] = relationship(
         secondary=Condition.__table__,
-        primaryjoin="MasterType.condition_id == Condition.id",
+        primaryjoin="MasterType.condition_id == foreign(Condition.id)",
+        secondaryjoin=(
+            "foreign(Condition.expression_id) == ConditionExpression.id"
+        ),
         viewonly=True,
     )
     split_expressions: Mapped[List[ConditionExpression]] = relationship(
         secondary=Condition.__table__,
-        primaryjoin="MasterType.maker_image_split_condition_id == Condition.id",
+        primaryjoin=(
+            "MasterType.maker_image_split_condition_id"
+            " == foreign(Condition.id)"
+        ),
+        secondaryjoin=(
+            "foreign(Condition.expression_id) == ConditionExpression.id"
+        ),
         viewonly=True,
     )
 

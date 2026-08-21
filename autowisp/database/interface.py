@@ -6,11 +6,16 @@ from contextlib import contextmanager
 import platformdirs
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, inspect as sa_inspect, text
+from sqlalchemy import create_engine, inspect as sa_inspect
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.frozen_row import FrozenRow
+from autowisp.database.migrate import (
+    check_project_schema,
+    create_project_schema,
+    migrate_project,
+)
 from autowisp.database.initialize_data_reduction_structure import (
     get_default_data_reduction_structure,
 )
@@ -37,59 +42,6 @@ etc.) the connection URL is written to this file so that subsequent calls to
 :func:`set_project_home` with only the directory path can reconnect without
 requiring the caller to supply the URL again.
 """
-
-
-def apply_additive_migrations(engine):
-    """Bring an existing project database up to the current schema.
-
-    A minimal, idempotent stand-in for a migration framework (the project
-    has none), covering the additive changes that are safe to apply
-    automatically on connect:
-
-    - **New tables** (e.g. ``error``) are created via ``create_all``,
-      which leaves existing tables and their data untouched. This is how a
-      table added after a project was initialized reaches that project.
-    - **New nullable columns** on existing tables are added with
-      ``ALTER TABLE ... ADD COLUMN``. Rows that predate a column keep
-      NULL -- e.g. ``pipeline_run`` rows from before ``code_version``
-      existed have no recorded code version, which is correct (it is
-      genuinely unknown).
-
-    Freshly initialized databases get everything from ``create_all``
-    already, so this is effectively a no-op for them. When the pipeline
-    runs, the main process opens the project first, so by the time workers
-    connect every table exists and their ``create_all`` does no DDL.
-
-    Args:
-        engine:    The SQLAlchemy engine for the project database.
-
-    Returns:
-        None
-    """
-
-    # Create any tables added since the project was initialized (idempotent;
-    # existing tables and data are left as-is).
-    DataModelBase.metadata.create_all(engine)
-
-    # Add any nullable columns added to tables that already existed.
-    additive_columns = [
-        ("pipeline_run", "code_version", "VARCHAR(1000)"),
-        ("error", "resolved", "TIMESTAMP"),
-    ]
-    inspector = sa_inspect(engine)
-    present_tables = set(inspector.get_table_names())
-    with engine.begin() as connection:
-        for table, column, sql_type in additive_columns:
-            if table not in present_tables:
-                continue
-            columns = {col["name"] for col in inspector.get_columns(table)}
-            if column in columns:
-                continue
-            # table/column/type come from the trusted list above, not from
-            # user input, so the f-string is safe here.
-            connection.execute(
-                text(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}")
-            )
 
 
 def get_db_engine():
@@ -146,13 +98,20 @@ def snapshot_row(orm_obj, *, exclude=()):
 def initialize_cmdline_database():
     """Initialize the current database HDF5 structure tables."""
 
-    DataModelBase.metadata.create_all(_db_engine)
+    create_project_schema(_db_engine)
     with start_db_session() as db_session:
         db_session.add(get_default_data_reduction_structure())
         db_session.add(get_default_light_curve_structure(db_session))
 
 
-def set_project_home(project_home, db_url=None, new_project=False):
+def set_project_home(
+    project_home,
+    db_url=None,
+    new_project=False,
+    *,
+    migrate=False,
+    assume_backed_up=False,
+):
     """
     Set the database engine and session for the given project home.
 
@@ -188,6 +147,26 @@ def set_project_home(project_home, db_url=None, new_project=False):
             project already lives in that database. Independent of
             backend: it equally catches an SQLite project home that
             already holds a database.
+
+        migrate:
+            Bring the schema up to date rather than merely requiring that it
+            already is. Off by default because every process opening a
+            project calls this, including every pipeline worker, and
+            concurrent schema changes from dozens of workers is exactly what
+            must not happen. Set it only where a single process is known to
+            be in charge: the ``wisp-migrate`` command, the browser
+            interface selecting a project, and the main process of a
+            pipeline run.
+
+        assume_backed_up:
+            Passed through to :func:`migrate_project`; only meaningful with
+            ``migrate``. Required to migrate a server database, which cannot
+            be copied aside automatically.
+
+    Returns:
+        dict or None:    The result of :func:`migrate_project` when
+            ``migrate`` is set and the project already existed, otherwise
+            None.
 
     Raises:
         DatabaseError:  If ``new_project`` is set and the target database
@@ -271,5 +250,13 @@ def set_project_home(project_home, db_url=None, new_project=False):
 
     if not already_present:
         initialize_cmdline_database()
-    else:
-        apply_additive_migrations(_db_engine)
+        return None
+
+    if migrate:
+        return migrate_project(_db_engine, assume_backed_up=assume_backed_up)
+
+    # Read-only on purpose: every process opening a project runs this,
+    # including every pipeline worker, so it must never issue DDL. Migrating
+    # is migrate_project()'s job -- see autowisp.database.migrate.
+    check_project_schema(_db_engine)
+    return None

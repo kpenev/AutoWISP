@@ -8,7 +8,24 @@ name: Tests
 
 # Manual only, like AstroWISP -- the full grid is expensive, so dispatch it for
 # release validation. (A lightweight auto PR-smoke track is a possible follow-up.)
-on: workflow_dispatch
+#
+# `only` narrows a dispatch to one group of jobs. Re-running a single job after
+# a fix otherwise means paying for the whole grid: workflow_dispatch has no job
+# filter, and cancelling a run cancels every job in it, including the one being
+# watched.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: Which jobs to run
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - pipeline
+          - catalog
+          - migrations
 
 permissions:
   contents: read
@@ -20,6 +37,7 @@ jobs:
   # offline failure instead of a flaky network call. TestCatalog (live Gaia) is
   # excluded here and runs in its own job.
   pipeline:
+    if: inputs.only == 'all' || inputs.only == 'pipeline'
     name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -44,6 +62,18 @@ jobs:
           # 3.13 / 3.14 (numpy 2 only; numpy 1.26 has no 3.13/3.14 wheels).
           - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
           - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
+          # Centralised project database. AutoWISP runs against MariaDB in
+          # production, but every other cell puts the project database in
+          # SQLite -- which compares strings case-sensitively, enforces
+          # neither foreign keys nor column widths, and serialises writers
+          # instead of taking row locks. This cell is regression cover for
+          # the centralised path.
+          #
+          # The server is started with `docker run` rather than as a job
+          # `services:` container, because services are Linux-only and
+          # job-level: declaring one here would break the Windows and macOS
+          # cells. Same pinned image either way.
+          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true, mariadb: true }
     env:
       AUTOWISP_NO_LIVE_CATALOG: '1'
     steps:
@@ -75,8 +105,28 @@ jobs:
             macOS) brew install astrometry-net ;;
             *) echo "No solve-field install for $RUNNER_OS"; exit 1 ;;
           esac
+      # ONLY_FULL_GROUP_BY is the one meaningful strictness MySQL enables by
+      # default and MariaDB does not; turning it on keeps that check while
+      # still testing the server actually deployed.
+      - name: Start MariaDB
+        if: matrix.mariadb
+        shell: bash
+        run: |
+          docker run --detach --name mariadb --publish 3306:3306 \
+              --env MARIADB_ROOT_PASSWORD=autowisp \
+              --env MARIADB_DATABASE=autowisp_pipeline \
+              mariadb:11 --sql-mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES
+          until docker exec mariadb \
+                  healthcheck.sh --connect --innodb_initialized; do
+            sleep 2
+          done
+          python -m pip install pymysql
       - name: Run tests
         shell: bash
+        env:
+          # Empty on every other cell, which server_test_url() reads as
+          # unset, leaving those runs on SQLite.
+          AUTOWISP_TEST_DB_URL: ${{ matrix.mariadb && 'mysql+pymysql://root:autowisp@127.0.0.1:3306/autowisp_pipeline' || '' }}
         run: |
           # Exclude the live-Gaia catalog tests everywhere; also exclude the
           # expensive full-pipeline integration test unless this cell opts in.
@@ -99,6 +149,7 @@ jobs:
   # CATALOG / ADQL tests -- LIVE Gaia, ubuntu only, no cache guard.
   # OS-independent, so one OS across the numpy/python sweep.
   catalog:
+    if: inputs.only == 'all' || inputs.only == 'catalog'
     name: catalog py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ubuntu-latest
     strategy:
@@ -128,3 +179,80 @@ jobs:
             test-output.txt
           if-no-files-found: ignore
           retention-days: 3
+
+  # PROJECT DATABASE MIGRATIONS against a real server.
+  #
+  # Ubuntu only, and that is sufficient: nothing in the migration code is
+  # OS-specific (no sys.platform/os.name branches, no shelling out, paths
+  # only via os.path.join), and every branch is on engine.dialect.name,
+  # which the connection URL decides rather than the host. The SQLite half
+  # already gets Windows and macOS coverage from the `pipeline` job.
+  #
+  # MariaDB rather than MySQL because MySQL 8.4 cannot build a 1.8.1
+  # database at all -- it rejects both the VARCHAR(1000) unique keys and
+  # the foreign key to condition.id, which names a group rather than a row.
+  # MariaDB permits the latter, so it is the only server on which the
+  # upgrade-from-release path can be constructed.
+  #
+  # The charset matrix is not incidental. utf8mb4 is what a new MariaDB 11
+  # project gets; utf8mb3 is what existing deployments run, and is the only
+  # one where 1.8.1's VARCHAR(1000) unique keys fit InnoDB's 3072-byte
+  # index limit -- so the release-upgrade test only truly exercises there,
+  # and skips (loudly, with its reason) on utf8mb4.
+  migrations:
+    if: inputs.only == 'all' || inputs.only == 'migrations'
+    name: migrations mariadb ${{ matrix.charset }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        charset: ['utf8mb4', 'utf8mb3']
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: autowisp
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # TestUpgradeFromRelease exports the schema from each release tag;
+          # the default shallow clone has no tags and it would skip.
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install AutoWISP and a MySQL driver
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install . pymysql
+      - name: Create the ${{ matrix.charset }} test database
+        shell: bash
+        run: |
+          python - <<'PY'
+          import pymysql
+          connection = pymysql.connect(
+              host="127.0.0.1", port=3306, user="root", password="autowisp"
+          )
+          with connection.cursor() as cursor:
+              cursor.execute(
+                  "CREATE DATABASE IF NOT EXISTS autowisp_test "
+                  "CHARACTER SET ${{ matrix.charset }}"
+              )
+          PY
+      # SQLite first: it is the backend every project uses, and running it
+      # here keeps the two comparable in one log.
+      - name: Migration tests on SQLite
+        run: python -m unittest autowisp.tests.test_database_migration -v
+      - name: Migration tests on MariaDB (${{ matrix.charset }})
+        env:
+          AUTOWISP_TEST_DB_URL: >-
+            mysql+pymysql://root:autowisp@127.0.0.1:3306/autowisp_test
+        run: python -m unittest autowisp.tests.test_database_migration -v
