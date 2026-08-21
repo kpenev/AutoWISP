@@ -737,7 +737,7 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
     interpreter would have whichever came first shadow the other.
     """
 
-    release_baselines = ("1.8.1",)
+    release_baselines = ("1.8.1", "2.0.0")
     """Released versions a project database may be upgraded from.
 
     Add each new release tag as it ships; every entry gets its own
