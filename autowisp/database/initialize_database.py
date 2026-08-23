@@ -454,7 +454,28 @@ def _init_diagnostic_types():
                 (
                     "num_extracted_src",
                     "The number of extracted stars in the image",
-                )
+                ),
+                (
+                    "src_count_min_half_fraction",
+                    "The smaller-to-larger ratio of extracted source counts "
+                    "between image halves, using the worse of the horizontal "
+                    "and vertical splits",
+                ),
+                (
+                    "median_rb_ratio",
+                    "The ratio of the local star-suppressed median red sky "
+                    "level to the local star-suppressed median blue sky level",
+                ),
+                (
+                    "local_sky_gb_ratio",
+                    "The ratio of the local star-suppressed median green sky "
+                    "level to the local star-suppressed median blue sky level",
+                ),
+                (
+                    "local_sky_brightness_minmax_frac",
+                    "The fractional range of local star-suppressed sky "
+                    "brightness across image blocks",
+                ),
             ]
             + [
                 (

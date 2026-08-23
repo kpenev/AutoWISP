@@ -41,6 +41,29 @@ fail_reasons = {
 }
 
 
+def _regional_source_balance(extracted_sources):
+    """Return how evenly extracted sources occupy the image halves."""
+
+    if len(extracted_sources) == 0:
+        return 0.0
+
+    def half_balance(coordinates):
+        """Return smaller/larger count for a split through coordinate range."""
+
+        split_coord = (coordinates.min() + coordinates.max()) / 2.0
+        low_count = (coordinates < split_coord).sum()
+        high_count = (coordinates >= split_coord).sum()
+        return (
+            0.0
+            if high_count == 0
+            else min(low_count, high_count) / max(low_count, high_count)
+        )
+
+    source_x = extracted_sources["x"]
+    source_y = extracted_sources["y"]
+    return float(min(half_balance(source_x), half_balance(source_y)))
+
+
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
@@ -206,7 +229,13 @@ def find_stars_single(  # pylint: disable=too-many-arguments, too-many-positiona
         _logger.debug("Added sources from: %r", extracted_sources)
         mark_end(
             image_fname,
-            diagnostics=[("num_extracted_src", len(extracted_sources))],
+            diagnostics=[
+                ("num_extracted_src", len(extracted_sources)),
+                (
+                    "src_count_min_half_fraction",
+                    _regional_source_balance(extracted_sources),
+                ),
+            ],
         )
         _logger.debug("Marked end for: %r", extracted_sources)
 
