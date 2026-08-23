@@ -1,0 +1,44 @@
+#full-view {
+    position: relative;
+}
+
+#star-counts {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 2;
+    display: flex;
+    gap: 0.75rem;
+    pointer-events: none;
+}
+
+.star-count-box {
+    box-sizing: border-box;
+    width: 11rem;
+    min-height: 5rem;
+    padding: 0.65rem 0.9rem;
+    border-left: 0.8rem solid #fc6;
+    border-right: 0.8rem solid #fc6;
+    border-radius: 0.75rem;
+    background-color: #234;
+    color: #fc6;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.star-count-label,
+.star-count-value {
+    display: block;
+}
+
+.star-count-label {
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.star-count-value {
+    margin-top: 0.35rem;
+    color: #fff;
+    font-size: 1.65rem;
+    line-height: 1;
+}
