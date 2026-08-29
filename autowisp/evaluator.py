@@ -12,7 +12,64 @@ from autowisp.fits_utilities import get_primary_header
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 
-class Evaluator(asteval.Interpreter):
+class EvaluatorBase(asteval.Interpreter):
+    """Asteval interpreter with the symbols all AutoWISP expressions share."""
+
+    # The NaN-ignoring aggregates available to every user expression. Listed
+    # explicitly rather than derived from ``dir(numpy)`` so that the names
+    # users can rely on are a property of AutoWISP and not of whichever numpy
+    # or asteval version happens to be installed. Asteval's default symtable
+    # supplies only some of these, and which ones has varied between releases.
+    nan_aggregates = (
+        "nanmean",
+        "nanmedian",
+        "nanstd",
+        "nanvar",
+        "nansum",
+        "nanprod",
+        "nanmin",
+        "nanmax",
+        "nanpercentile",
+        "nanquantile",
+        "nanargmin",
+        "nanargmax",
+        "nancumsum",
+        "nancumprod",
+    )
+
+    def __init__(self):
+        """
+        Create an interpreter with the NaN-ignoring aggregates defined.
+
+        Sub-classes should add their data to the symbol table after invoking
+        this, so a variable named like one of the aggregates shadows the
+        function rather than the other way around.
+
+        Returns:
+            None
+        """
+
+        super().__init__()
+        for func_name in self.nan_aggregates:
+            self.symtable[func_name] = getattr(numpy, func_name)
+
+    def __call__(self, *args, **kwargs):
+        """
+        Evaluate the expression, raising rather than returning None on error.
+
+        Asteval defaults to printing the error and returning ``None``, which
+        only relocates the failure: the ``None`` flows on and breaks somewhere
+        unrelated, long after the message about the offending expression has
+        scrolled away. Callers wanting the permissive behaviour can still pass
+        ``raise_errors=False`` explicitly.
+        """
+
+        if "raise_errors" not in kwargs:
+            kwargs["raise_errors"] = True
+        return super().__call__(*args, **kwargs)
+
+
+class Evaluator(EvaluatorBase):
     """Evaluator for expressions involving fields of numpy array or headers."""
 
     def __init__(self, *data):
@@ -51,13 +108,6 @@ class Evaluator(asteval.Interpreter):
                     self.symtable[hdr_key.replace("-", "_")] = hdr_val
         self.symtable["units"] = units
 
-    def __call__(self, *args, **kwargs):
-        """Evaluate the expression enabling error."""
-
-        if "raise_errors" not in kwargs:
-            kwargs["raise_errors"] = True
-        return super().__call__(*args, **kwargs)
-
 
 # Needed to implement real-time lookup of datasets
 # pylint: disable=too-few-public-methods
@@ -90,7 +140,7 @@ class LightCurveLookUp:
 # pylint: enable=too-few-public-methods
 
 
-class LightCurveEvaluator(asteval.Interpreter):
+class LightCurveEvaluator(EvaluatorBase):
     """Evaluator for expressions involving lightcurve datasets."""
 
     def _reset(self):
@@ -106,8 +156,6 @@ class LightCurveEvaluator(asteval.Interpreter):
         self.lightcurve = lightcurve
         self._lc_substitutions = lc_substitutions
         self._lc_points_selection = lc_points_selection
-        self.symtable["nanmean"] = numpy.nanmean
-        self.symtable["nanmedian"] = numpy.nanmedian
         self._extra_names = set(
             element.split(".")[0] for element in lightcurve.elements["dataset"]
         )
