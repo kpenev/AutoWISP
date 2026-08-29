@@ -115,6 +115,11 @@ from autowisp.tests.test_error_context import (
     TestProcessQueuePropagation,
     TestNestingGuard,
 )
+from autowisp.tests.test_diagnostics_views import (
+    TestQuantileSeriesExpansion,
+    TestSharedTimeOffset,
+    TestSeriesGrouping,
+)
 
 # pylint: enable=unused-import
 

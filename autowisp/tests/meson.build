@@ -10,6 +10,7 @@ py_src = [
   'test_create_lightcurves.py',
   'test_database_migration.py',
   'test_detrending_stat.py',
+  'test_diagnostics_views.py',
   'test_epd.py',
   'error_fixtures.py',
   'test_error_capture_middleware.py',

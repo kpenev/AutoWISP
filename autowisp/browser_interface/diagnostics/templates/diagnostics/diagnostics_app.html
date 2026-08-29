@@ -15,8 +15,7 @@
 {% if available_diagnostics %}
 <div class="lcars-bar horizontal"
      id="diag-selector-bar"
-     data-image-url="{% url 'diagnostics:display_image_diagnostics' diagnostic_name='YPLACEHOLDER' %}"
-     data-diag-vs-diag-url="{% url 'diagnostics:display_diag_vs_diag' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
+     data-diagnostics-url="{% url 'diagnostics:display_diagnostics' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
     <select id="diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
             onchange="navigateDiagnostics()">
@@ -30,7 +29,6 @@
     <select id="x-diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
             onchange="navigateDiagnostics()">
-        <option value="time" {% if not x_diagnostic %}selected{% endif %}>time</option>
         {% for diag_name in available_diagnostics %}
         <option value="{{ diag_name }}"
                 {% if diag_name == x_diagnostic %}selected{% endif %}>
