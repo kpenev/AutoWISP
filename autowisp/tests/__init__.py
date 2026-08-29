@@ -4,13 +4,51 @@ from collections.abc import Sequence
 from os import path, makedirs, environ
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, move, rmtree
+from tempfile import TemporaryDirectory
 from glob import glob
+import atexit
 import logging
 
+import platformdirs
 import sqlalchemy
 from asteval import Interpreter
 from astrowisp.tests.utilities import FloatTestCase
 
+_user_data_dir = TemporaryDirectory(  # pylint: disable=consider-using-with
+    prefix="autowisp_tests_"
+)
+"""Throwaway stand-in for the real user data directory.
+
+Five call sites derive paths from ``platformdirs.user_data_dir("autowisp")``:
+the BUI database and ``bui.log`` (``django_project/settings.py``), the
+default project home when none is given (``database/interface.py``), and the
+``run_pipeline.out`` capture file (``run_pipeline.py`` and
+``processing/views.py``). Redirecting the lookup once, here, means no test
+can reach the developer's real data by forgetting to override something --
+the BUI database in particular holds their project list.
+
+This belongs in the package ``__init__`` rather than ``__main__`` because CI
+also runs modules directly (``python -m unittest autowisp.tests.…``), which
+never loads ``__main__``. Importing anything under ``autowisp.tests``
+executes this first, which matters because ``settings.py`` resolves the
+directory at *import* time.
+"""
+
+atexit.register(_user_data_dir.cleanup)
+
+
+def _redirected_user_data_dir(*args, **kwargs):
+    """Return the throwaway directory whatever application is asked for."""
+
+    # pylint: disable=unused-argument
+    return _user_data_dir.name
+
+
+platformdirs.user_data_dir = _redirected_user_data_dir
+
+# Imported after the redirect above, so that anything resolving a user data
+# path at import time picks up the throwaway directory.
+# pylint: disable=wrong-import-position
 from autowisp.database.interface import (
     set_project_home,
     initialize_cmdline_database,
@@ -18,6 +56,8 @@ from autowisp.database.interface import (
 )
 from autowisp.database.user_interface import import_json_to_survey
 from autowisp.database.initialize_database import initialize_database
+
+# pylint: enable=wrong-import-position
 
 SERVER_URL_ENV = "AUTOWISP_TEST_DB_URL"  # pylint: disable=invalid-name
 """Environment variable naming a MySQL/MariaDB URL to test against.
