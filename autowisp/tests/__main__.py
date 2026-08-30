@@ -120,6 +120,11 @@ from autowisp.tests.test_diagnostics_views import (
     TestSharedTimeOffset,
     TestSeriesGrouping,
 )
+from autowisp.tests.test_bui_models import (
+    TestModelBase,
+    TestModifiedIsMaintained,
+    TestMigrationCarriesExistingRows,
+)
 
 # pylint: enable=unused-import
 

@@ -5,6 +5,7 @@ py_src = [
   'context_processors.py',
   'plot_utils.py',
   'models.py',
+  'timestamp_triggers.py',
   'views.py',
   'walk_fs_view.py'
 ]
