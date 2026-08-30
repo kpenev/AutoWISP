@@ -46,6 +46,13 @@ def _redirected_user_data_dir(*args, **kwargs):
 
 platformdirs.user_data_dir = _redirected_user_data_dir
 
+# Redirecting the data directory moves the browser-interface database only
+# so long as nothing overrides it. AUTOWISP_BUI_DB_URL does exactly that,
+# and would point the suite at whatever server a developer happens to have
+# configured -- so drop it, the same way the directory itself is replaced
+# rather than merely defaulted.
+environ.pop("AUTOWISP_BUI_DB_URL", None)
+
 # Imported after the redirect above, so that anything resolving a user data
 # path at import time picks up the throwaway directory.
 # pylint: disable=wrong-import-position

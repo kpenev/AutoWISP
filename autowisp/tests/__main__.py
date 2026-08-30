@@ -120,6 +120,12 @@ from autowisp.tests.test_diagnostics_views import (
     TestSharedTimeOffset,
     TestSeriesGrouping,
 )
+from autowisp.tests.test_bui_db_config import (
+    TestDiscovery,
+    TestDefaultDatabase,
+    TestUrlTranslation,
+    TestMysqlDriver,
+)
 from autowisp.tests.test_bui_models import (
     TestModelBase,
     TestModifiedIsMaintained,
