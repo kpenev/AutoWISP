@@ -120,6 +120,10 @@ from autowisp.tests.test_diagnostics_views import (
     TestSharedTimeOffset,
     TestSeriesGrouping,
 )
+from autowisp.tests.test_diagnostic_expressions import (
+    TestNameSpace,
+    TestStoredFields,
+)
 from autowisp.tests.test_bui_db_config import (
     TestDiscovery,
     TestDefaultDatabase,
