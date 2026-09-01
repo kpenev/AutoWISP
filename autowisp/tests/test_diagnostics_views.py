@@ -42,6 +42,8 @@ from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     create_diagnostics_figure,
     get_available_series,
     group_series_by_x_overlap,
+    make_series,
+    split_series_id,
 )
 
 # pylint: enable=wrong-import-position
@@ -146,6 +148,51 @@ class DiagnosticsViewTestCase(unittest.TestCase):
                             )
                         )
         # pylint: enable=not-callable
+
+
+class TestSeriesId(unittest.TestCase):
+    """The id encoding, which is a contract between two functions only.
+
+    It is also an HTML element id, four more element ids are built from it,
+    and it keys the ``datasets`` object the client posts back -- so it has
+    to survive a round trip through all of that as an opaque string.
+    """
+
+    def round_trip(self, session_id, channel, quantile_name=None):
+        """Build a series and read its identity back out of the id."""
+
+        series = make_series("night_0", session_id, channel, 3, quantile_name)
+        return split_series_id(series)
+
+    def test_plain_series(self):
+        """No quantile: the field is empty rather than missing."""
+
+        self.assertEqual(self.round_trip(7, "R"), (7, "R", None))
+
+    def test_quantile_series(self):
+        """The quantile survives despite containing underscores.
+
+        This is what the previous encoding could not do without guessing
+        which underscores separated fields and which belonged to the name.
+        """
+
+        self.assertEqual(
+            self.round_trip(7, "R", "pixel_q999"), (7, "R", "pixel_q999")
+        )
+
+    def test_channel_containing_an_underscore(self):
+        """Underscores anywhere are now harmless."""
+
+        self.assertEqual(
+            self.round_trip(7, "odd_channel", "pixel_q999"),
+            (7, "odd_channel", "pixel_q999"),
+        )
+
+    def test_an_ambiguous_field_is_refused(self):
+        """Failing loudly beats an id that silently pairs wrong data."""
+
+        with self.assertRaises(ValueError):
+            make_series("night_0", 7, "we|rd", 3)
 
 
 class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):

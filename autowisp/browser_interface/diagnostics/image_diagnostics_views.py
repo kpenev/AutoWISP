@@ -48,6 +48,14 @@ _time_quantity = "jd"
 #: Pseudo-quantity expanding to one series per ``pixel_q*`` diagnostic.
 _quantiles_quantity = "quantiles"
 
+#: Separates the fields of a series id, and the contract between
+#: :func:`make_series` and :func:`split_series_id`.  Not the underscore the
+#: encoding used to use: ``pixel_q*`` names contain those, so unpacking had
+#: to guess which underscores were separators, and adding a field would have
+#: made the guess wrong.  A session id, a channel and a diagnostic name can
+#: none of them contain this one.
+_id_separator = "|"
+
 
 def make_series(session_label, session_id, channel, count, quantile_name=None):
     """
@@ -69,7 +77,23 @@ def make_series(session_label, session_id, channel, count, quantile_name=None):
         dict:    A series entry with the keys expected by
             ``diagnostics_app.html`` and
             :func:`plot_image_diagnostic_series`.
+
+    Raises:
+        ValueError:    If any field contains :data:`_id_separator`, which
+            would make the id ambiguous.  Worth failing on rather than
+            trusting, since a channel naming scheme is not this module's to
+            control and the alternative is plots that silently pair the
+            wrong data.
     """
+
+    fields = (str(session_id), channel, quantile_name or "")
+    ambiguous = [field for field in fields if _id_separator in field]
+    if ambiguous:
+        raise ValueError(
+            f"Cannot build a series id from {fields!r}: "
+            f"{', '.join(repr(field) for field in ambiguous)} contains the "
+            f"{_id_separator!r} that separates its fields."
+        )
 
     series = {
         "channel": channel,
@@ -78,14 +102,13 @@ def make_series(session_label, session_id, channel, count, quantile_name=None):
         ),
         "marker": "o",
         "scale": "1.0",
+        "id": _id_separator.join(fields),
     }
     if quantile_name is None:
-        series["id"] = f"{session_id}_{channel}"
         series["label"] = f"{session_label} {channel}"
         series["info"] = [session_label, channel, count]
     else:
         quantile_label = "0." + quantile_name[len("pixel_q") :]
-        series["id"] = f"{session_id}_{channel}_{quantile_name}"
         series["label"] = f"{session_label} {channel} {quantile_label}"
         series["info"] = [session_label, channel, quantile_label, count]
 
@@ -96,13 +119,17 @@ def split_series_id(series):
     """
     Return ``(session_id, channel, quantile_name)`` for a series entry.
 
-    The quantile name is ``None`` unless the series id carries one, so the
-    caller does not need to know which axis asked for ``quantiles``.
+    The exact inverse of :func:`make_series`'s id, and reads only the id:
+    the entry also carries a ``channel``, echoed back by the client, but
+    taking it from the id keeps one source of truth for what the series
+    identifies.
+
+    The quantile name is ``None`` unless the id carries one, so the caller
+    does not need to know which axis asked for ``quantiles``.
     """
 
-    parts = series["id"].split("_")
-    quantile_name = "_".join(parts[2:]) or None
-    return int(parts[0]), series["channel"], quantile_name
+    session_id, channel, quantile_name = series["id"].split(_id_separator)
+    return int(session_id), channel, quantile_name or None
 
 
 def get_available_diagnostics(db_session):
