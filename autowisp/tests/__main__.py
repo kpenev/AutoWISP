@@ -120,6 +120,15 @@ from autowisp.tests.test_diagnostics_views import (
     TestQuantileSeriesExpansion,
     TestSharedTimeOffset,
     TestSeriesGrouping,
+    TestImageTypeSplit,
+)
+from autowisp.tests.test_expression_series import (
+    TestCanonicalImages,
+    TestDiagnosticValues,
+    TestSeriesValues,
+    TestKnownNames,
+    TestAvailability,
+    TestTiedJulianDates,
 )
 from autowisp.tests.test_evaluator import (
     TestNanAggregates,

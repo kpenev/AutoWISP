@@ -8,14 +8,13 @@ else because the canonical image list already carries the Julian dates.
 """
 
 from io import BytesIO
-from typing import NamedTuple
 import json
 import math
 
 import matplotlib
 from matplotlib import pyplot
 from matplotlib.figure import Figure
-from sqlalchemy import select, func
+from sqlalchemy import select
 import numpy
 
 from django.http import HttpResponse
@@ -28,95 +27,28 @@ from autowisp.browser_interface.core.plot_utils import (
     figure_to_svg_response,
 )
 from autowisp.database.interface import start_db_session
+from autowisp.diagnostics.expression_series import (
+    SeriesKey,
+    count_images_with_all,
+    get_series_values,
+    time_quantity,
+)
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     DiagnosticType,
     ImageDiagnostics,
-    Image,
-    ImageType,
-    ObservingSession,
 )
 
 # pylint: enable=no-name-in-module
 
-#: The mid-exposure Julian date, available for every image of a session
-#: without consulting ``image_diagnostics``.  Plain JD, not barycentric:
-#: barycentric correction depends on where on the sky one points, so BJD is
-#: per-source and undefined for a per-image diagnostic.
-_time_quantity = "jd"
-
 #: Pseudo-quantity expanding to one series per ``pixel_q*`` diagnostic.
+#: Purely a selector convenience -- it names a family rather than a
+#: quantity, so it is resolved to a concrete ``pixel_q*`` before anything
+#: below the view sees it, and the layer that reads values knows nothing
+#: about it.
 _quantiles_quantity = "quantiles"
-
-
-class SeriesKey(NamedTuple):
-    """What one plotted series is, and what its id encodes.
-
-    The image type is part of the key because a session holds frames of
-    several types and a diagnostic rarely means the same thing across them
-    -- some are only defined for object frames, and one recorded for both
-    would have its aggregates taken over a mixture, making
-    ``nanmedian(bg_center)`` a median of object and flat frames together.
-
-    Everything downstream of :func:`get_available_series` takes one of these
-    rather than the four values separately, so a caller cannot pair a
-    channel with the wrong session by getting an argument order wrong.
-    """
-
-    session_id: int
-    image_type: str
-    channel: str
-    quantile_name: str = None
-
-    #: Separates the fields of an id.  Not the underscore the encoding used
-    #: to use: ``pixel_q*`` names contain those, so unpacking had to guess
-    #: which underscores were separators, and adding a field would have made
-    #: the guess wrong.  A session id, a channel and a diagnostic name can
-    #: none of them contain this one.  Not annotated, so it stays a class
-    #: attribute rather than becoming a fifth field.
-    id_separator = "|"
-
-    def to_id(self):
-        """
-        Return the opaque string identifying this series to the client.
-
-        It becomes an HTML element id, four more element ids are built from
-        it, and it keys the ``datasets`` object the client posts back, so it
-        has to survive that round trip unchanged.
-
-        Raises:
-            ValueError:    If a field contains :data:`id_separator`, which
-                would make the id ambiguous.  Worth failing on rather than
-                trusting, since a channel naming scheme is not this module's
-                to control and the alternative is plots that silently pair
-                the wrong data.
-        """
-
-        fields = (
-            str(self.session_id),
-            self.image_type,
-            self.channel,
-            self.quantile_name or "",
-        )
-        ambiguous = [field for field in fields if self.id_separator in field]
-        if ambiguous:
-            raise ValueError(
-                f"Cannot build a series id from {fields!r}: "
-                f"{', '.join(repr(field) for field in ambiguous)} contains "
-                f"the {self.id_separator!r} that separates its fields."
-            )
-        return self.id_separator.join(fields)
-
-    @classmethod
-    def from_id(cls, series_id):
-        """Return the key an id was built from, the inverse of `to_id`."""
-
-        session_id, image_type, channel, quantile_name = series_id.split(
-            cls.id_separator
-        )
-        return cls(int(session_id), image_type, channel, quantile_name or None)
 
 
 def make_series(session_label, series_key, count):
@@ -178,62 +110,13 @@ def get_available_diagnostics(db_session):
         if in_use:
             names.append(name)
 
-    result = [_time_quantity] + [
+    result = [time_quantity] + [
         name for name in names if not name.startswith("pixel_q")
     ]
     if any(name.startswith("pixel_q") for name in names):
         result.append(_quantiles_quantity)
 
     return result
-
-
-def get_canonical_images(series_key, db_session):
-    """
-    Return ``(image_ids, jd_values)`` for one session and image type, by JD.
-
-    Every array plotted for this series is built against this list, with
-    ``NaN`` wherever a value does not exist, so index *i* is the same image
-    in every array.  Alignment is then structural and no join is needed
-    between two quantities.
-
-    The channel of *series_key* is deliberately not used -- the list is the
-    same for every channel -- but the image type is: frames of different
-    types are different populations, and mixing them would put a flat frame
-    and an object frame in one array for an aggregate to average over.
-
-    Args:
-        series_key(SeriesKey):    The series to list the images of.
-
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        tuple:    Arrays of image IDs and of Julian dates, of equal length.
-    """
-
-    rows = db_session.execute(
-        select(Image.id, Image.jd)  # pylint: disable=no-member
-        .join(
-            ImageType,
-            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
-        )
-        .where(
-            # pylint: disable=no-member
-            Image.observing_session_id == series_key.session_id,
-            ImageType.name == series_key.image_type,
-            Image.jd.is_not(None),
-            # pylint: enable=no-member
-        )
-        .order_by(Image.jd)  # pylint: disable=no-member
-    ).all()
-
-    if not rows:
-        return numpy.empty(0, dtype=int), numpy.empty(0, dtype=float)
-
-    image_ids, jd_values = zip(*rows)
-    return (
-        numpy.asarray(image_ids, dtype=int),
-        numpy.asarray(jd_values, dtype=float),
-    )
 
 
 def resolve_quantity(quantity_name, quantile_name):
@@ -275,73 +158,6 @@ def get_quantile_names(db_session):
     ]
 
 
-def count_images_with_all(needed, db_session):
-    """
-    Count images holding all of *needed*, per (session, type, channel).
-
-    Args:
-        needed(set):    ``DiagnosticType`` names that must all be recorded
-            for an image to count.  An empty set means no quantity
-            constrains the result, which only happens when both axes are
-            :data:`_time_quantity`; nothing is plottable then.
-
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        list:    ``(session_label, session_id, image_type, channel, count)``
-            tuples.
-    """
-
-    if not needed:
-        return []
-
-    per_image = (
-        select(
-            Image.observing_session_id.label(  # pylint: disable=no-member
-                "session_id"
-            ),
-            Image.image_type_id.label(  # pylint: disable=no-member
-                "image_type_id"
-            ),
-            ImageDiagnostics.channel.label("channel"),
-        )
-        .join(
-            Image,
-            Image.id == ImageDiagnostics.image_id,  # pylint: disable=no-member
-        )
-        .join(
-            DiagnosticType,
-            DiagnosticType.id == ImageDiagnostics.diagnostic_id,
-        )
-        .where(
-            DiagnosticType.name.in_(needed),
-            Image.jd.is_not(None),  # pylint: disable=no-member
-        )
-        .group_by(ImageDiagnostics.image_id, ImageDiagnostics.channel)
-        .having(
-            # pylint: disable=not-callable
-            func.count(func.distinct(DiagnosticType.id))
-            == len(needed)
-        )
-        .subquery()
-    )
-
-    return db_session.execute(
-        select(
-            ObservingSession.label,
-            ObservingSession.id,
-            ImageType.name,
-            per_image.c.channel,
-            func.count(),  # pylint: disable=not-callable
-        )
-        .select_from(per_image)
-        .join(ObservingSession, ObservingSession.id == per_image.c.session_id)
-        .join(ImageType, ImageType.id == per_image.c.image_type_id)
-        .group_by(ObservingSession.id, ImageType.id, per_image.c.channel)
-        .order_by(ObservingSession.label, ImageType.name, per_image.c.channel)
-    ).all()
-
-
 def get_available_series(x_diagnostic, y_diagnostic, db_session):
     """
     Return the (session, image type, channel) series plottable for an axis pair.
@@ -377,7 +193,7 @@ def get_available_series(x_diagnostic, y_diagnostic, db_session):
                 resolve_quantity(x_diagnostic, quantile_name),
                 resolve_quantity(y_diagnostic, quantile_name),
             )
-            if name != _time_quantity
+            if name != time_quantity
         }
         rows.extend(
             (
@@ -411,80 +227,15 @@ def get_available_series(x_diagnostic, y_diagnostic, db_session):
     }
 
 
-def get_quantity_values(quantity_name, series_key, canonical, db_session):
-    """
-    Return one quantity NaN-padded onto the canonical image list.
-
-    Args:
-        quantity_name(str):    The quantity to read, already resolved by
-            :func:`resolve_quantity` so that it names either
-            :data:`_time_quantity` or a single ``DiagnosticType``.
-
-        series_key(SeriesKey):    The series to read the values of.  Its
-            image type narrows the query: values for the session's other
-            types would be discarded anyway, being absent from the canonical
-            list, but excluding them in SQL keeps the work proportional to
-            the series actually plotted.
-
-        canonical(tuple):    ``(image_ids, jd_values)`` from
-            :func:`get_canonical_images`.
-
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        numpy.ndarray:    Values in canonical order, ``NaN`` where the
-            quantity is not recorded for that image.
-    """
-
-    image_ids, jd_values = canonical
-    if quantity_name == _time_quantity:
-        return jd_values
-
-    values = numpy.full(image_ids.size, numpy.nan)
-    if not image_ids.size:
-        return values
-
-    row_of_image = {
-        image_id: index for index, image_id in enumerate(image_ids.tolist())
-    }
-    for image_id, value in db_session.execute(
-        select(ImageDiagnostics.image_id, ImageDiagnostics.value)
-        .join(
-            Image,
-            Image.id == ImageDiagnostics.image_id,  # pylint: disable=no-member
-        )
-        .join(
-            DiagnosticType,
-            DiagnosticType.id == ImageDiagnostics.diagnostic_id,
-        )
-        .join(
-            ImageType,
-            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
-        )
-        .where(
-            # pylint: disable=no-member
-            Image.observing_session_id == series_key.session_id,
-            ImageType.name == series_key.image_type,
-            ImageDiagnostics.channel == series_key.channel,
-            DiagnosticType.name == quantity_name,
-            Image.jd.is_not(None),
-            # pylint: enable=no-member
-        )
-    ).all():
-        index = row_of_image.get(image_id)
-        if index is not None:
-            values[index] = value
-
-    return values
-
-
 def get_series_data(series, x_diagnostic, y_diagnostic, db_session):
     """
     Query the paired x/y values for a single series.
 
-    Both axes are built against the same canonical image list, so they are
-    aligned by construction and are returned unmasked; the single finite
-    mask lives in :func:`plot_image_diagnostic_series`.
+    Both axes are resolved in one call, which is what makes them share a
+    query for the diagnostics they need and -- once expressions arrive --
+    one symbol table, so a subexpression common to the two is evaluated
+    once.  They are returned unmasked; the single finite mask lives in
+    :func:`plot_image_diagnostic_series`.
 
     Args:
         series(dict):    An entry from :func:`get_available_series`.
@@ -502,19 +253,20 @@ def get_series_data(series, x_diagnostic, y_diagnostic, db_session):
     # From the id rather than from the entry's own ``channel``, which the
     # client echoes back: one source of truth for what the series is.
     series_key = SeriesKey.from_id(series["id"])
-    canonical = get_canonical_images(series_key, db_session)
-
-    x_values, y_values = (
-        get_quantity_values(
-            resolve_quantity(quantity_name, series_key.quantile_name),
-            series_key,
-            canonical,
-            db_session,
-        )
+    quantities = [
+        resolve_quantity(quantity_name, series_key.quantile_name)
         for quantity_name in (x_diagnostic, y_diagnostic)
+    ]
+
+    # An empty library until the expression views land: what a bare
+    # diagnostic and ``jd`` resolve to does not depend on one.
+    values, image_ids = get_series_values(
+        series_key, quantities, {}, db_session
     )
 
-    return x_values, y_values, canonical[0]
+    # Indexed rather than unpacked: the two axes may name one quantity,
+    # which is a plot of it against itself rather than a mistake.
+    return values[quantities[0]], values[quantities[1]], image_ids
 
 
 def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
@@ -744,7 +496,7 @@ def create_diagnostics_figure(
     """
 
     figure_config = figure_config or {}
-    against_time = x_diagnostic == _time_quantity
+    against_time = x_diagnostic == time_quantity
 
     series_data = collect_series_data(
         series_list, x_diagnostic, y_diagnostic, db_session
@@ -879,7 +631,7 @@ def display_diagnostics(request, x_diagnostic, y_diagnostic):
     context["y_diagnostic"] = y_diagnostic
     context["diagnostics_title"] = (
         y_diagnostic
-        if x_diagnostic == _time_quantity
+        if x_diagnostic == time_quantity
         else f"{x_diagnostic} vs {y_diagnostic}"
     )
     context["update_plot_url"] = reverse(
@@ -909,6 +661,6 @@ def display_image_diagnostics(_request, diagnostic_name):
 
     return redirect(
         "diagnostics:display_diagnostics",
-        x_diagnostic=_time_quantity,
+        x_diagnostic=time_quantity,
         y_diagnostic=diagnostic_name,
     )

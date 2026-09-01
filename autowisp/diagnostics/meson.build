@@ -1,6 +1,7 @@
 py_src = [
   '__init__.py',
   'detrending.py',
+  'expression_series.py',
   'expressions.py',
   'get_from_lc.py',
 ]

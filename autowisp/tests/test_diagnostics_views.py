@@ -39,11 +39,13 @@ from autowisp.database.data_model import (
 
 # Imported after set_project_home is available; these only touch the DB
 # through start_db_session, so no Django configuration is needed.
-from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
+from autowisp.diagnostics.expression_series import (
     SeriesKey,
+    get_canonical_images,
+)
+from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     create_diagnostics_figure,
     get_available_series,
-    get_canonical_images,
     get_series_data,
     group_series_by_x_overlap,
 )

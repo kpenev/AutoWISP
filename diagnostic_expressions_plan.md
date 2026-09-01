@@ -663,29 +663,60 @@ place any of it has to be tested.
   depends on which project is open.
 
 **Tier 2 — `autowisp/diagnostics/expression_series.py` (new). Project
-database only.** Turns a (session, channel) into the values tier 1 needs.
-`get_canonical_images` belongs here — it currently sits in
-`image_diagnostics_views`, where §4 put it, and should move.
+database only. Done.** Turns a series into the values tier 1 needs.
+`get_canonical_images` and `count_images_with_all` both moved here out of
+`image_diagnostics_views`, where §4 had put them, and `SeriesKey` came with
+them — every function below wanted three of its four fields, which is the
+same argument-order hazard the key was introduced to remove. The browser
+interface now imports it, along with `time_quantity`, which had been defined
+in both places.
 
-- `get_canonical_images(session_id, image_type_id, db_session)` →
-  `(image_ids, jd_values)` ordered by `jd`; the list every array is padded
-  to. Keyed on session **and image type**, for the reason under
-  *Alignment* — but with no `channel` argument, since channels share an
-  index space where types do not.
-- `get_diagnostic_values(session_id, image_type_id, channel, names,
-  db_session)` → `{name: array}` NaN-padded to that list, plus `jd` from
-  the canonical list itself. This is what tier 1's *values* argument is
-  built from.
-- `get_series_values(session_id, image_type_id, channel, quantities,
-  expressions, db_session)` → `({quantity: array}, image_ids)`, NaN-padded
-  to the canonical list and *not* masked; the single mask lives in
+Signatures differ from the draft above in two ways, both settled by the code
+they meet: the image type is its **name** rather than its id, since that is
+what `SeriesKey` carries and what the queries and tests already key on; and
+they take that key rather than its fields spelled out.
+
+- `get_canonical_images(series_key, db_session)` → `(image_ids, jd_values)`,
+  the list every array is padded to. The channel is deliberately unused —
+  channels share an index space where types do not — as is `quantile_name`,
+  which identifies a plotted series rather than a set of images.
+- `get_diagnostic_values(series_key, names, db_session)` →
+  `({name: array}, image_ids)`, NaN-padded to that list. The ids come back
+  because the same query already carries them; the dates do not, since `jd`
+  is asked for by name like anything else and arrives in the dictionary.
+- `get_series_values(series_key, quantities, expressions, db_session)` →
+  `({quantity: array}, image_ids)`, *not* masked; the single mask lives in
   `plot_image_diagnostic_series`. **Takes the library explicitly** — the
   signature the first draft got wrong — and **takes all the quantities
   wanted at once**, which is the point below.
+- `get_known_names(db_session)` → every `diagnostic_type` name plus `jd`.
+  Not in the draft, but tier 1 takes *known_names* as an argument precisely
+  because it cannot look them up, so something had to.
 - `get_expression_availability(name, expressions, db_session)` →
   `[(session_label, session_id, image_type, channel, count), …]`, the count
   coming from the SQL aggregate under *Series table semantics* rather than
   from evaluating anything.
+
+**The padding is the database's, not ours.** One query does it: a cross join
+pairs every wanted diagnostic with every image of the series, and an outer
+join attaches the values, leaving `NULL` where nothing was recorded. The
+result is therefore a rectangle — one row per image per name — which the
+unique index on `(image_id, channel, diagnostic_id)` guarantees, so the
+value column is read out whole and reshaped into one row per name rather
+than being matched back up image by image. `EXPLAIN QUERY PLAN` confirms it
+still drives from `image` on `image_observing_session` and probes
+`image_diagnostics` by that unique index, as *Scaling* requires.
+
+Two details that arrangement depends on, both of them silent when wrong:
+
+- **The image order must be total**, so everything is ordered by `jd` *and*
+  `id`. Two frames of a session can share a `jd`, and an order that leaves
+  the tie to the database lets two queries return the same images
+  differently and pair a value with the wrong image.
+- **Each block's name is read from its first row**, never from a sorted copy
+  of the names asked for. SQL's ordering of strings is the collation's to
+  decide — MySQL's default is case-insensitive where Python's is not — and
+  nothing here should depend on the two agreeing.
 
 **Both axes together, not one at a time.** *quantities* is a sequence
 because §4's figure path wants x and y for the same series, and resolving
