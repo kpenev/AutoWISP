@@ -24,6 +24,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db.utils import IntegrityError
 
+from diagnostics.expression_data import get_expressions
 from diagnostics.models import DiagnosticExpression
 
 # pylint: enable=wrong-import-position
@@ -131,6 +132,46 @@ class TestStoredFields(DiagnosticExpressionTestCase):
         """What the admin and any error message will show."""
 
         self.assertEqual(str(self.make("readable")), "readable")
+
+
+class TestLibraryAccess(DiagnosticExpressionTestCase):
+    """``get_expressions`` -- the whole of tier 3.
+
+    What it produces is the ``{name: expression}`` dictionary tiers 1 and 2
+    take as an argument, so these assert the *shape* of that hand-off rather
+    than anything about expressions, which is tested where the rules live.
+    """
+
+    def test_empty_library_is_a_dictionary(self):
+        """Not ``None``: the tiers below iterate it without checking."""
+
+        self.assertEqual(get_expressions(), {})
+
+    def test_names_map_to_their_text(self):
+        """The shape tiers 1 and 2 expect, and nothing more."""
+
+        self.make("rel_bg", "bg_center - nanmedian(bg_center)")
+        self.make("twice_bg", "bg_center * 2")
+
+        self.assertEqual(
+            get_expressions(),
+            {
+                "rel_bg": "bg_center - nanmedian(bg_center)",
+                "twice_bg": "bg_center * 2",
+            },
+        )
+
+    def test_the_whole_library_regardless_of_what_resolves(self):
+        """Filtering by project would need a project, which tier 3 lacks.
+
+        An expression naming a diagnostic nothing has recorded is not an
+        error; it is simply not offered where it cannot be drawn, and
+        deciding that belongs to whoever holds the project's names.
+        """
+
+        self.make("references_nothing_real", "no_such_diagnostic * 2")
+
+        self.assertIn("references_nothing_real", get_expressions())
 
 
 if __name__ == "__main__":

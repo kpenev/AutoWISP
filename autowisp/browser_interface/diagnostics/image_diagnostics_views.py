@@ -30,9 +30,11 @@ from autowisp.database.interface import start_db_session
 from autowisp.diagnostics.expression_series import (
     SeriesKey,
     count_images_with_all,
+    get_known_names,
     get_series_values,
     time_quantity,
 )
+from autowisp.diagnostics.expressions import order_expressions
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -158,43 +160,58 @@ def get_quantile_names(db_session):
     ]
 
 
-def get_available_series(x_diagnostic, y_diagnostic, db_session):
+def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
     """
     Return the (session, image type, channel) series plottable for an axis pair.
 
     The count is the number of images recording every diagnostic both axes
-    need.  It is an upper bound on the number of drawn points, since
-    arithmetic can still yield NaN, so the column is labelled for the inputs
-    rather than for the points.
+    need -- for an expression, every diagnostic it reaches transitively.  It
+    is an upper bound on the number of drawn points, since arithmetic can
+    still yield NaN, so the column is labelled for the inputs rather than
+    for the points.  Nothing is evaluated to produce it: the count is a
+    question about rows, and stays a SQL aggregate.
 
     Args:
         x_diagnostic(str):    Quantity on the X axis.
 
         y_diagnostic(str):    Quantity on the Y axis.
 
+        expressions(dict):    The library, ``{name: expression}``, passed in
+            rather than fetched so that nothing below the view has to know
+            it came from the browser-interface database.
+
         db_session:    An active SQLAlchemy database session.
 
     Returns:
         dict:    ``diagnostics_fields`` and ``diagnostics_list``, in the
             format ``diagnostics_app.html`` expects.
+
+    Raises:
+        PipelineError:    If an axis names nothing that resolves.
     """
 
     has_quantiles = _quantiles_quantity in (x_diagnostic, y_diagnostic)
 
     quantile_names = get_quantile_names(db_session) if has_quantiles else [None]
 
+    known_names = get_known_names(db_session)
+
     rows = []
     for quantile_name in quantile_names:
-        # Anything but jd has to be recorded for an image to count; jd is
+        # What an axis *needs* is not what it names: an expression needs the
+        # diagnostics it reaches, transitively, and a series is offered only
+        # where every one of them is recorded.  For a plain diagnostic the
+        # walk returns it unchanged, and jd drops out either way -- it is
         # known for every image of the session and so constrains nothing.
-        needed = {
-            name
-            for name in (
-                resolve_quantity(x_diagnostic, quantile_name),
-                resolve_quantity(y_diagnostic, quantile_name),
-            )
-            if name != time_quantity
-        }
+        _, needed = order_expressions(
+            [
+                resolve_quantity(quantity_name, quantile_name)
+                for quantity_name in (x_diagnostic, y_diagnostic)
+            ],
+            expressions,
+            known_names,
+        )
+        needed = needed - {time_quantity}
         rows.extend(
             (
                 session_label,
@@ -227,14 +244,16 @@ def get_available_series(x_diagnostic, y_diagnostic, db_session):
     }
 
 
-def get_series_data(series, x_diagnostic, y_diagnostic, db_session):
+def get_series_data(
+    series, x_diagnostic, y_diagnostic, expressions, db_session
+):
     """
     Query the paired x/y values for a single series.
 
     Both axes are resolved in one call, which is what makes them share a
-    query for the diagnostics they need and -- once expressions arrive --
-    one symbol table, so a subexpression common to the two is evaluated
-    once.  They are returned unmasked; the single finite mask lives in
+    query for the diagnostics they need and one symbol table, so a
+    subexpression common to the two is evaluated once.  They are returned
+    unmasked; the single finite mask lives in
     :func:`plot_image_diagnostic_series`.
 
     Args:
@@ -243,6 +262,10 @@ def get_series_data(series, x_diagnostic, y_diagnostic, db_session):
         x_diagnostic(str):    Quantity on the X axis.
 
         y_diagnostic(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``, passed in
+            rather than fetched so that nothing below the view has to know
+            it came from the browser-interface database.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -258,10 +281,8 @@ def get_series_data(series, x_diagnostic, y_diagnostic, db_session):
         for quantity_name in (x_diagnostic, y_diagnostic)
     ]
 
-    # An empty library until the expression views land: what a bare
-    # diagnostic and ``jd`` resolve to does not depend on one.
     values, image_ids = get_series_values(
-        series_key, quantities, {}, db_session
+        series_key, quantities, expressions, db_session
     )
 
     # Indexed rather than unpacked: the two axes may name one quantity,
@@ -407,7 +428,9 @@ def create_figure(num_plots, plot_height_frac, aspect_ratio, num_columns):
     return fig, all_axes
 
 
-def collect_series_data(series_list, x_diagnostic, y_diagnostic, db_session):
+def collect_series_data(
+    series_list, x_diagnostic, y_diagnostic, expressions, db_session
+):
     """
     Read the selected series, dropping those with nothing to draw.
 
@@ -418,6 +441,8 @@ def collect_series_data(series_list, x_diagnostic, y_diagnostic, db_session):
         x_diagnostic(str):    Quantity on the X axis.
 
         y_diagnostic(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -431,7 +456,7 @@ def collect_series_data(series_list, x_diagnostic, y_diagnostic, db_session):
         if not series.get("marker", "").strip():
             continue
         x_values, y_values, image_ids = get_series_data(
-            series, x_diagnostic, y_diagnostic, db_session
+            series, x_diagnostic, y_diagnostic, expressions, db_session
         )
         x_values = numpy.atleast_1d(x_values)
         y_values = numpy.atleast_1d(y_values)
@@ -467,11 +492,16 @@ def draw_series_group(axes, group, x_offset):
         )
 
 
+# All but the first are keyword-only, and each names one thing the figure
+# cannot be drawn without.  Grouping them into an object would hide what the
+# URL layer has to supply rather than simplify it.
+# pylint: disable=too-many-arguments
 def create_diagnostics_figure(
     series_list,
     *,
     x_diagnostic,
     y_diagnostic,
+    expressions,
     db_session,
     figure_config=None,
 ):
@@ -486,6 +516,8 @@ def create_diagnostics_figure(
 
         y_diagnostic(str):    Quantity on the Y axis.
 
+        expressions(dict):    The library, ``{name: expression}``.
+
         db_session:    An active SQLAlchemy database session.
 
         figure_config(dict):    Layout of the figure, defining
@@ -499,7 +531,7 @@ def create_diagnostics_figure(
     against_time = x_diagnostic == time_quantity
 
     series_data = collect_series_data(
-        series_list, x_diagnostic, y_diagnostic, db_session
+        series_list, x_diagnostic, y_diagnostic, expressions, db_session
     )
 
     # Julian dates are large numbers spanning a tiny range, so the axis is
@@ -531,6 +563,9 @@ def create_diagnostics_figure(
 
     fig.tight_layout()
     return fig
+
+
+# pylint: enable=too-many-arguments
 
 
 def update_plot_view(request, figure_factory, session_key=None, **url_kwargs):
@@ -620,11 +655,24 @@ def download_plot_view(request, figure_factory, session_key, **url_kwargs):
         )
 
 
-def display_diagnostics(request, x_diagnostic, y_diagnostic):
-    """View displaying the table of available series for an axis pair."""
+#: Where the last posted plot configuration is kept, so that the download
+#: view can regenerate exactly what was on screen.
+plot_session_key = "diagnostics_last"
+
+
+def display_diagnostics(request, x_diagnostic, y_diagnostic, expressions):
+    """View displaying the table of available series for an axis pair.
+
+    The library arrives as an argument rather than being fetched here: it
+    is the one thing on this page that comes from the browser-interface
+    database, and keeping it out means everything in this module can be
+    tested against a project database alone.  ``views.py`` supplies it.
+    """
 
     with start_db_session() as db_session:
-        context = get_available_series(x_diagnostic, y_diagnostic, db_session)
+        context = get_available_series(
+            x_diagnostic, y_diagnostic, expressions, db_session
+        )
         context["available_diagnostics"] = get_available_diagnostics(db_session)
 
     context["x_diagnostic"] = x_diagnostic

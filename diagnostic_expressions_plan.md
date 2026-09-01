@@ -571,13 +571,25 @@ Optionally register the model in `diagnostics/admin.py`.
 
 ### 3. The expression layer — three tiers, only one of which knows Django
 
-> **Rewritten.** The first draft put everything in one
-> `browser_interface/diagnostics/expression_data.py` and had several
-> functions take a bare *name*, which forced them to look the expression up
-> and so hid a browser-interface dependency inside what should be pipeline
-> code. `validate_expression` additionally raised
+> **Done**, and rewritten before it was built. The first draft put
+> everything in one `browser_interface/diagnostics/expression_data.py` and
+> had several functions take a bare *name*, which forced them to look the
+> expression up and so hid a browser-interface dependency inside what should
+> be pipeline code. `validate_expression` additionally raised
 > `django.core.exceptions.ValidationError`, coupling a project-database
 > check to Django. Both are fixed by the tiering below.
+>
+> All three tiers now exist: `diagnostics/expressions.py` (no database),
+> `diagnostics/expression_series.py` (project database) and
+> `browser_interface/diagnostics/expression_data.py` (the browser-interface
+> one). The property they were separated for holds and is tested: an
+> expression is defined, resolved, counted, evaluated and plotted, and only
+> the last tier imports Django. The library reaches the plotting code as an
+> argument from `views.py` and is never looked up beneath it.
+>
+> Reading a library from a file, for `run_pipeline`, is the one part of
+> tier 3 not built — it waits on §5's export format, and is noted under
+> *Out of scope* rather than deferred silently.
 
 #### Why this is not only a browser-interface feature
 
@@ -744,12 +756,26 @@ every transitive dependency's text, the diagnostic rows for that session and
 channel, and which project is open — and a silently stale plot is worse than
 a slow one in a tool for deciding which images to discard.
 
-**Tier 3 — where the library comes from.** Two sources, both producing the
-same `{name: expression}` dictionary, neither knowing what it is for:
+**Tier 3 — where the library comes from. Done for the browser interface.**
+Two sources, both producing the same `{name: expression}` dictionary,
+neither knowing what it is for:
 
-- `browser_interface/diagnostics/expression_data.py`:
-  `get_expressions()` from the Django model. **The only Django-aware code
-  in the whole feature** besides the views.
+- `browser_interface/diagnostics/expression_data.py`: **Done.**
+  `get_expressions()` from the Django model, returning the whole library
+  rather than the part that resolves — filtering needs a project's names,
+  which this tier has not got. **The only Django-aware code in the whole
+  feature** besides the views.
+
+  Where it is *called* took one correction worth recording. Importing it
+  into `image_diagnostics_views` pulls in the Django models, and so the app
+  registry, which broke `test_diagnostics_views` — a module that
+  deliberately exercises the plotting path against a project database with
+  no Django at all. That property is worth more than the convenience, so
+  the library is fetched in `views.py`, already the app's Django side, and
+  handed to `display_diagnostics`, `create_diagnostics_figure` and
+  `get_available_series` as an argument. The two plot routes gained named
+  handlers there in place of the `functools.partial` in `urls.py`, which had
+  nowhere per-request to fetch anything.
 - A JSON or `key=value` file for `run_pipeline`. The §5 export format is
   the obvious vehicle, which is why it is versioned and why a subset export
   pulls in what it depends on — see *Out of scope*.
@@ -1003,13 +1029,20 @@ Export format (versioned so it can evolve):
 
 ### 7. meson.build (mandatory — sources are listed explicitly, no globs)
 
-> **Partly done**, alongside the changes that needed it:
-> `diagnostics/migrations/meson.build` has `0001_initial.py`, and
-> `diagnostics/meson.build` lost `diag_vs_diag_views.py`. The entries below
-> for files that do not exist yet remain.
+> **Partly done**, alongside the changes that needed it: every file that
+> exists is listed. The entries below for files that do not exist yet
+> remain. Note this section covers more than §6 anticipated, since §3's
+> tiers brought `autowisp/diagnostics/` and `autowisp/tests/` entries of
+> their own.
 
-- `diagnostics/meson.build`: add `expression_data.py`, `expression_views.py`.
+- `diagnostics/meson.build`: `expression_data.py` — **done**; add
+  `expression_views.py`.
 - `diagnostics/migrations/meson.build`: `0001_initial.py` — **done**.
+- `autowisp/diagnostics/meson.build`: `expression_series.py` — **done**
+  (`expressions.py` landed with tier 1).
+- `autowisp/tests/meson.build`: `test_expression_series.py` — **done**.
+- `browser_interface/static/js/meson.build`: `sortable.min.js` — **done**,
+  with §9.
 - `diagnostics/templates/diagnostics/meson.build`: add
   `diagnostic_expressions.html`.
 - `diagnostics/static/diagnostics/js/meson.build`: add

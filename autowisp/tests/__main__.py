@@ -121,6 +121,7 @@ from autowisp.tests.test_diagnostics_views import (
     TestSharedTimeOffset,
     TestSeriesGrouping,
     TestImageTypeSplit,
+    TestExpressionAxis,
 )
 from autowisp.tests.test_expression_series import (
     TestCanonicalImages,
@@ -147,6 +148,7 @@ from autowisp.tests.test_expressions import (
 from autowisp.tests.test_diagnostic_expressions import (
     TestNameSpace,
     TestStoredFields,
+    TestLibraryAccess,
 )
 from autowisp.tests.test_bui_db_config import (
     TestDiscovery,

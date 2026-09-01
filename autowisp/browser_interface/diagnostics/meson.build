@@ -3,6 +3,7 @@ py_src = [
   'admin.py',
   'apps.py',
   'detrending_diagnostics_views.py',
+  'expression_data.py',
   'image_diagnostics_views.py',
   'models.py',
   'preview_calibrated.py',

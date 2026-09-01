@@ -43,6 +43,7 @@ from autowisp.diagnostics.expression_series import (
     SeriesKey,
     get_canonical_images,
 )
+from autowisp.exceptions import PipelineError
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     create_diagnostics_figure,
     get_available_series,
@@ -84,7 +85,11 @@ class DiagnosticsViewTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        # Closed in tearDownClass rather than by a context manager, which a
+        # fixture spanning every test of the class cannot use.
+        # pylint: disable=consider-using-with
         cls._tmp = tempfile.TemporaryDirectory()
+        # pylint: enable=consider-using-with
         set_project_home(cls._tmp.name)
         cls._fill_database()
 
@@ -241,7 +246,7 @@ class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
 
         with start_db_session() as db_session:
             context = get_available_series(
-                x_diagnostic, y_diagnostic, db_session
+                x_diagnostic, y_diagnostic, {}, db_session
             )
         return [series["id"] for series in context["diagnostics_list"]]
 
@@ -270,7 +275,9 @@ class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
         """A quantile pairing gains the extra ``Quantile`` table column."""
 
         with start_db_session() as db_session:
-            context = get_available_series("quantiles", "bg_center", db_session)
+            context = get_available_series(
+                "quantiles", "bg_center", {}, db_session
+            )
         self.assertIn("Quantile", context["diagnostics_fields"])
 
 
@@ -285,7 +292,7 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
         """
 
         with start_db_session() as db_session:
-            context = get_available_series("jd", "bg_center", db_session)
+            context = get_available_series("jd", "bg_center", {}, db_session)
             series_list = context["diagnostics_list"]
             # One per (night, image type): night 0 object, night 1 object,
             # night 1 flat.
@@ -300,6 +307,7 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
                     series_list,
                     x_diagnostic="jd",
                     y_diagnostic="bg_center",
+                    expressions={},
                     db_session=db_session,
                     # Nothing is drawn once plotting is mocked, so asking
                     # for a legend only produces a warning.
@@ -346,7 +354,7 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
 
         with start_db_session() as db_session:
             context = get_available_series(
-                x_diagnostic, y_diagnostic, db_session
+                x_diagnostic, y_diagnostic, {}, db_session
             )
         return {
             SeriesKey.from_id(series["id"]): series
@@ -375,7 +383,7 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
         """Otherwise two rows of the mixed night would look identical."""
 
         with start_db_session() as db_session:
-            context = get_available_series("jd", "bg_center", db_session)
+            context = get_available_series("jd", "bg_center", {}, db_session)
         self.assertIn("Type", context["diagnostics_fields"])
 
     def test_canonical_list_holds_only_its_own_type(self):
@@ -405,7 +413,7 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
         series = self._series_for("jd", "bg_center")[SeriesKey(2, "flat", "R")]
         with start_db_session() as db_session:
             _, y_values, image_ids = get_series_data(
-                series, "jd", "bg_center", db_session
+                series, "jd", "bg_center", {}, db_session
             )
 
         flat_values = [
@@ -419,6 +427,95 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
             numpy.median(flat_values),
             places=6,
         )
+
+
+class TestExpressionAxis(DiagnosticsViewTestCase):
+    """An expression selected for an axis, as a diagnostic would be.
+
+    The library is passed in rather than stored, which is the arrangement
+    that lets these run against a project database alone: what the view does
+    with an expression does not depend on where it was kept.
+    """
+
+    #: Referenced by every test here; ``bg_center`` is recorded for both
+    #: image types, so the availability answer is interesting.
+    library = {
+        "rel_bg": "bg_center - nanmedian(bg_center)",
+        "scaled_bg": "rel_bg * 10",
+        "q_ratio": "pixel_q999 / pixel_q99",
+    }
+
+    def _series_for(self, x_diagnostic, y_diagnostic):
+        """Return ``{SeriesKey: series}`` offered for an axis pair."""
+
+        with start_db_session() as db_session:
+            context = get_available_series(
+                x_diagnostic, y_diagnostic, self.library, db_session
+            )
+        return {
+            SeriesKey.from_id(series["id"]): series
+            for series in context["diagnostics_list"]
+        }
+
+    def test_offered_wherever_its_diagnostics_are(self):
+        """Availability follows what the expression reaches, not its name.
+
+        Nothing records a diagnostic called ``rel_bg``; the series it can be
+        drawn for are those recording the ``bg_center`` it is built from.
+        """
+
+        self.assertEqual(
+            sorted(self._series_for("jd", "rel_bg")),
+            sorted(self._series_for("jd", "bg_center")),
+        )
+
+    def test_a_composed_expression_reaches_through(self):
+        """``scaled_bg`` needs what ``rel_bg`` needs, transitively."""
+
+        self.assertEqual(
+            sorted(self._series_for("jd", "scaled_bg")),
+            sorted(self._series_for("jd", "bg_center")),
+        )
+
+    def test_restricted_to_the_types_recording_its_inputs(self):
+        """Only object frames record the quantiles, so only they are offered."""
+
+        self.assertEqual(
+            {key.image_type for key in self._series_for("jd", "q_ratio")},
+            {"object"},
+        )
+
+    def test_the_values_are_the_expression_evaluated(self):
+        """End to end: an expression axis produces its own numbers."""
+
+        series = self._series_for("jd", "rel_bg")[SeriesKey(2, "object", "R")]
+        with start_db_session() as db_session:
+            _, y_values, _ = get_series_data(
+                series, "jd", "rel_bg", self.library, db_session
+            )
+
+        # bg_center is 100, 101, 102 for these frames.
+        self.assertEqual(y_values.tolist(), [-1.0, 0.0, 1.0])
+
+    def test_an_expression_against_a_diagnostic(self):
+        """Both axes at once, one of each kind, sharing a query."""
+
+        series = self._series_for("bg_center", "rel_bg")[
+            SeriesKey(2, "object", "R")
+        ]
+        with start_db_session() as db_session:
+            x_values, y_values, _ = get_series_data(
+                series, "bg_center", "rel_bg", self.library, db_session
+            )
+
+        self.assertEqual(x_values.tolist(), [100.0, 101.0, 102.0])
+        self.assertEqual(y_values.tolist(), [-1.0, 0.0, 1.0])
+
+    def test_an_unknown_name_is_refused(self):
+        """Neither a diagnostic nor an expression, so nothing to plot."""
+
+        with self.assertRaises(PipelineError):
+            self._series_for("jd", "no_such_thing")
 
 
 class TestSeriesGrouping(unittest.TestCase):
