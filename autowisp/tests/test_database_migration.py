@@ -154,6 +154,34 @@ class BackendMixin:
             for index in inspect(engine).get_indexes(table)
         )
 
+    @staticmethod
+    def list_triggers(engine):
+        """The names of every trigger defined in the project database."""
+
+        with engine.connect() as connection:
+            if connection.dialect.name == "sqlite":
+                query = "SELECT name FROM sqlite_master WHERE type = 'trigger'"
+            else:
+                query = (
+                    "SELECT trigger_name FROM information_schema.triggers "
+                    "WHERE trigger_schema = DATABASE()"
+                )
+            return {row[0] for row in connection.exec_driver_sql(query)}
+
+
+def expected_timestamp_triggers():
+    """The triggers the models install when they create the schema.
+
+    Derived from the metadata rather than listed, so a table added later
+    is covered without anyone remembering to extend a literal here.
+    """
+
+    return {
+        f"update_{table}_timestamp"
+        for table in DataModelBase.metadata.tables.values()
+        if "timestamp" in table.columns and table.primary_key.columns
+    }
+
 
 class TestAdditiveMigrations(BackendMixin, unittest.TestCase):
     """The pre-Alembic helper still adds missing nullable columns.
@@ -242,6 +270,56 @@ class TestAdditiveMigrations(BackendMixin, unittest.TestCase):
 
         self.assertIn("code_version", self._columns("pipeline_run"))
         self.assertIn("error", inspect(self.engine).get_table_names())
+
+
+class TestTimestampTriggers(BackendMixin, unittest.TestCase):
+    """Every table carrying ``timestamp`` keeps a trigger maintaining it.
+
+    Nothing else checks this. ``get_schema_drift`` is alembic's comparison
+    of tables, columns, indexes and constraints, and a trigger is none of
+    those -- so the schema checks elsewhere in this file pass unchanged
+    with every trigger in the database dropped.
+    """
+
+    def test_creating_the_schema_installs_all_of_them(self):
+        """Creation covers the provenance tables, not just data_model's.
+
+        The triggers used to be attached to each class
+        ``import_table_definitions`` discovered, and that discovery is a
+        glob which does not descend into ``data_model/provenance`` -- so
+        twelve tables carried a ``timestamp`` column that nothing ever
+        updated. Comparing against the metadata catches a repeat.
+        """
+
+        engine = self.make_engine("created.db")
+        DataModelBase.metadata.create_all(engine)
+
+        self.assertEqual(
+            self.list_triggers(engine), expected_timestamp_triggers()
+        )
+
+    def test_migrating_reinstates_a_dropped_trigger(self):
+        """Covers the path taken when the revisions have nothing to do.
+
+        A database already at head skips the upgrade entirely, so the
+        repair cannot ride along with a revision; it has to be a check
+        made on the way past.
+        """
+
+        engine = self.make_engine("dropped.db")
+        self.create_legacy_schema(engine)
+        self.migrate(engine)
+
+        casualty = "update_image_timestamp"
+        self.assertIn(casualty, self.list_triggers(engine))
+        with engine.begin() as connection:
+            connection.exec_driver_sql(f"DROP TRIGGER {casualty}")
+        self.assertNotIn(casualty, self.list_triggers(engine))
+
+        self.migrate(engine)
+        self.assertEqual(
+            self.list_triggers(engine), expected_timestamp_triggers()
+        )
 
 
 class TestRevisionChain(unittest.TestCase):
@@ -821,6 +899,25 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                     f"a database from {ref} does not reach the current "
                     "schema; the differences above each need a revision",
                 )
+
+    def test_every_release_keeps_its_timestamp_triggers(self):
+        """Upgrading does not cost the database its triggers.
+
+        SQLite cannot alter a column in place, so ``batch_alter_table``
+        rebuilds the table and the drop takes its triggers with it. The
+        rebuilt table is created by the revision rather than from the
+        models, so nothing puts them back -- a 1.8.1 database used to lose
+        seven this way, and the check above could not see it.
+        """
+
+        expected = expected_timestamp_triggers()
+        for ref in self.release_baselines:
+            with self.subTest(release=ref):
+                engine = self.make_engine(f"triggers_{ref}.db")
+                self._build_release_schema(self._export_release(ref), engine)
+                self.migrate(engine)
+
+                self.assertEqual(self.list_triggers(engine), expected)
 
     def test_a_value_too_long_to_keep_stops_the_migration(self):
         """Narrowing a column refuses rather than truncating.

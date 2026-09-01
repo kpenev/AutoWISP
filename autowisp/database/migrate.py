@@ -37,6 +37,7 @@ from alembic.script import ScriptDirectory
 from alembic.util import CommandError
 from sqlalchemy import event, inspect as sa_inspect, text
 
+from autowisp.database.data_model import timestamp_trigger_ddl
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.exceptions import DatabaseError
 
@@ -329,6 +330,97 @@ def create_project_schema(engine):
         _stamp(connection, "head")
 
 
+def _missing_timestamp_triggers(connection):
+    """Return ``{table: key_columns}`` for tables with no timestamp trigger.
+
+    Read-only, so the healthy case -- which is every case where no revision
+    rebuilt a table -- costs two catalogue queries and no DDL.
+
+    Both backends are checked. Only SQLite loses triggers to a rebuild, but
+    a database created before the triggers were attached off the shared
+    metadata is missing the provenance ones whichever backend it is on.
+    """
+
+    if connection.dialect.name == "sqlite":
+        trigger_query = "SELECT name FROM sqlite_master WHERE type = 'trigger'"
+    elif connection.dialect.name == "mysql":
+        trigger_query = (
+            "SELECT trigger_name FROM information_schema.triggers "
+            "WHERE trigger_schema = DATABASE()"
+        )
+    else:
+        # No trigger template for it, so nothing to compare against.
+        return {}
+
+    present = {row[0] for row in connection.exec_driver_sql(trigger_query)}
+    inspector = sa_inspect(connection)
+    missing = {}
+    for table in inspector.get_table_names():
+        columns = {column["name"] for column in inspector.get_columns(table)}
+        if "timestamp" not in columns:
+            continue
+        if f"update_{table}_timestamp" in present:
+            continue
+        key_columns = inspector.get_pk_constraint(table)["constrained_columns"]
+        if key_columns:
+            missing[table] = key_columns
+
+    return missing
+
+
+def restore_timestamp_triggers(connection):
+    """
+    Install any update-timestamp trigger the database is missing.
+
+    Brings an existing database in line with what the models would create,
+    covering two ways it can fall behind:
+
+    SQLite cannot alter a column in place, so ``batch_alter_table`` rebuilds
+    the table: copy, drop the original, rename the copy into place. Dropping
+    the original takes its triggers with it, and the copy is created by the
+    revision rather than from the models, so the ``after_create`` listeners
+    that install them never fire. Every revision that genuinely rebuilds a
+    table has therefore been removing that table's trigger -- upgrading a
+    1.8.1 database loses seven of them.
+
+    The twelve provenance tables, separately, never had one to lose: the
+    triggers used to be attached per class discovered by
+    ``data_model.import_table_definitions``, whose glob does not reach into
+    ``data_model/provenance``. Attaching them off the shared metadata fixed
+    that for databases created from now on; these are how the ones already
+    on disk catch up.
+
+    This is a catch-all rather than a revision for the same reason
+    :func:`_apply_additive_migrations` runs ``create_all``: a revision would
+    repair the databases damaged before it, and nothing at all after it.
+    Running here means whatever the revisions just did, the triggers are
+    correct when they finish -- including for revisions not yet written.
+
+    The consequence of a missing one is confined to provenance: every
+    trigger in this schema does nothing but maintain ``timestamp``, so an
+    affected table stopped recording when its rows last changed, and nothing
+    computes a different answer as a result.
+
+    Args:
+        connection:    An open connection, inside the caller's migration
+            lock where one is held.
+
+    Returns:
+        list:    Names of the tables whose trigger was reinstated.
+    """
+
+    restored = []
+    for table, key_columns in _missing_timestamp_triggers(connection).items():
+        statement = timestamp_trigger_ddl(
+            table, key_columns, connection.dialect.name
+        )
+        if statement is not None:
+            connection.exec_driver_sql(statement)
+            restored.append(table)
+
+    return restored
+
+
 def migrate_project(engine, *, assume_backed_up=False):
     """Bring a project database up to the current head revision.
 
@@ -362,6 +454,15 @@ def migrate_project(engine, *, assume_backed_up=False):
     head = get_head_revision()
     result = {"from": current, "to": head, "backup": None}
     if current == head:
+        # Already current, but possibly damaged by rebuilds an earlier
+        # release performed, so it would otherwise never be repaired: the
+        # damage does not move the revision. The check is read-only, so a
+        # healthy database costs two catalogue queries and takes no lock.
+        with engine.connect() as connection:
+            damaged = bool(_missing_timestamp_triggers(connection))
+        if damaged:
+            with _locked_connection(engine) as connection:
+                restore_timestamp_triggers(connection)
         return result
 
     if engine.dialect.name != "sqlite" and not assume_backed_up:
@@ -405,5 +506,10 @@ def migrate_project(engine, *, assume_backed_up=False):
 
         config.attributes["connection"] = connection
         alembic.command.upgrade(config, "head")
+
+        # Whatever the revisions just did, leave the triggers correct. A
+        # rebuild drops them silently, so this cannot be left to each
+        # revision to remember.
+        restore_timestamp_triggers(connection)
 
     return result
