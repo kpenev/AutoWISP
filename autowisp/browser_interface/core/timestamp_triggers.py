@@ -62,7 +62,7 @@ def timestamped_models(app_config):
 
     for model in app_config.get_models():
         try:
-            model._meta.get_field(_column)  # pylint: disable=W0212
+            model._meta.get_field(_column)  # pylint: disable=protected-access
         except FieldDoesNotExist:
             continue
         yield model
@@ -151,11 +151,11 @@ def install_modified_triggers(sender, using, **_kwargs):
             cursor.execute(
                 template.format(
                     name=name,
-                    table=quote(model._meta.db_table),  # pylint: disable=W0212
+                    table=quote(model._meta.db_table),  # pylint: disable=protected-access
                     column=quote(_column),
                     # Derived, never assumed to be `id`: that assumption
                     # is exactly what broke the project database's
                     # triggers.
-                    key=quote(model._meta.pk.column),  # pylint: disable=W0212
+                    key=quote(model._meta.pk.column),  # pylint: disable=protected-access
                 )
             )

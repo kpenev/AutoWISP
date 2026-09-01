@@ -31,6 +31,7 @@ from autowisp.database.data_model import (
     DiagnosticType,
     Image,
     ImageDiagnostics,
+    ImageType,
     ObservingSession,
 )
 
@@ -39,11 +40,12 @@ from autowisp.database.data_model import (
 # Imported after set_project_home is available; these only touch the DB
 # through start_db_session, so no Django configuration is needed.
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
+    SeriesKey,
     create_diagnostics_figure,
     get_available_series,
+    get_canonical_images,
+    get_series_data,
     group_series_by_x_overlap,
-    make_series,
-    split_series_id,
 )
 
 # pylint: enable=wrong-import-position
@@ -64,6 +66,16 @@ _quantile_names = ("pixel_q99", "pixel_q999")
 #: couple these tests to project-creation behaviour they are not about.
 _diagnostic_names = ("bg_center",) + _quantile_names
 
+#: Frames of each type per night.  Only the second night is mixed, which is
+#: what lets these tests tell a per-type series from one that lumps a whole
+#: session together; leaving the first night single-type keeps the plain
+#: one-series-per-night cases readable.
+_frames_per_night = ({"object": 3}, {"object": 3, "flat": 2})
+
+#: ``bg_center`` of the first frame of each type.  Far enough apart that a
+#: median over one type cannot be confused with a median over the mixture.
+_first_bg_center = {"object": 100.0, "flat": 500.0}
+
 
 class DiagnosticsViewTestCase(unittest.TestCase):
     """Base creating one throwaway project database holding two nights."""
@@ -78,14 +90,20 @@ class DiagnosticsViewTestCase(unittest.TestCase):
     def tearDownClass(cls):
         cls._tmp.cleanup()
 
+    #: ``{(night, image_type): [image_id, ...]}``, in JD order, so a test can
+    #: say which images a series is supposed to be built from.
+    images_of = {}
+
     @classmethod
     def _fill_database(cls):
-        """Create two observing sessions of three images each.
+        """Create two observing sessions, the second holding two image types.
 
-        Both nights record ``bg_center`` and both quantiles in channel ``R``,
-        so every combination under test has data.  Provenance foreign keys are
-        left dangling, as SQLite does not enforce them and the diagnostics
-        queries only ever join back to ``observing_session``.
+        Every frame records ``bg_center`` in channel ``R``; only object
+        frames record the quantiles, which is the ordinary case of a
+        diagnostic that is not defined for every type.  Provenance foreign
+        keys are left dangling, as SQLite does not enforce them and the
+        diagnostics queries only ever join back to ``observing_session`` and
+        ``image_type``.
         """
 
         # False positive: the declarative models are callable.
@@ -97,6 +115,8 @@ class DiagnosticsViewTestCase(unittest.TestCase):
                         name=name, description=f"Test diagnostic {name}"
                     )
                 )
+            for name in ("object", "flat"):
+                db_session.add(ImageType(name=name, description=f"{name}s"))
             db_session.flush()
 
             diagnostic_ids = dict(
@@ -106,8 +126,11 @@ class DiagnosticsViewTestCase(unittest.TestCase):
                     )
                 ).all()
             )
+            image_type_ids = dict(
+                db_session.execute(select(ImageType.name, ImageType.id)).all()
+            )
 
-            for night in range(2):
+            for night, frame_counts in enumerate(_frames_per_night):
                 session = ObservingSession(
                     observer_id=1,
                     camera_id=1,
@@ -122,52 +145,60 @@ class DiagnosticsViewTestCase(unittest.TestCase):
                 db_session.add(session)
                 db_session.flush()
 
-                for index in range(3):
-                    image = Image(
-                        raw_fname=f"/data/raw/n{night}_{index}.fits",
-                        image_type_id=1,
-                        observing_session_id=session.id,
-                        jd=(
-                            _first_jd + night * _night_separation + index * 0.05
-                        ),
-                    )
-                    db_session.add(image)
-                    db_session.flush()
-
-                    for name, value in [
-                        ("bg_center", 100.0 + index),
-                        ("pixel_q99", 200.0 + index),
-                        ("pixel_q999", 300.0 + index),
-                    ]:
-                        db_session.add(
-                            ImageDiagnostics(
-                                image_id=image.id,
-                                channel="R",
-                                diagnostic_id=diagnostic_ids[name],
-                                value=value,
-                            )
+                jd = _first_jd + night * _night_separation
+                for image_type, count in frame_counts.items():
+                    cls.images_of[night, image_type] = []
+                    for index in range(count):
+                        image = Image(
+                            raw_fname=(
+                                f"/data/raw/n{night}_{image_type}_{index}.fits"
+                            ),
+                            image_type_id=image_type_ids[image_type],
+                            observing_session_id=session.id,
+                            jd=jd,
                         )
+                        db_session.add(image)
+                        db_session.flush()
+                        cls.images_of[night, image_type].append(image.id)
+                        jd += 0.05
+
+                        values = {
+                            "bg_center": _first_bg_center[image_type] + index
+                        }
+                        if image_type == "object":
+                            values["pixel_q99"] = 200.0 + index
+                            values["pixel_q999"] = 300.0 + index
+
+                        for name, value in values.items():
+                            db_session.add(
+                                ImageDiagnostics(
+                                    image_id=image.id,
+                                    channel="R",
+                                    diagnostic_id=diagnostic_ids[name],
+                                    value=value,
+                                )
+                            )
         # pylint: enable=not-callable
 
 
 class TestSeriesId(unittest.TestCase):
-    """The id encoding, which is a contract between two functions only.
+    """The id encoding, a round trip through the client and back.
 
-    It is also an HTML element id, four more element ids are built from it,
+    It becomes an HTML element id, four more element ids are built from it,
     and it keys the ``datasets`` object the client posts back -- so it has
-    to survive a round trip through all of that as an opaque string.
+    to survive all of that as an opaque string.
     """
 
-    def round_trip(self, session_id, channel, quantile_name=None):
-        """Build a series and read its identity back out of the id."""
+    def round_trip(self, *args):
+        """Return the key recovered from the id built from *args*."""
 
-        series = make_series("night_0", session_id, channel, 3, quantile_name)
-        return split_series_id(series)
+        return SeriesKey.from_id(SeriesKey(*args).to_id())
 
     def test_plain_series(self):
         """No quantile: the field is empty rather than missing."""
 
-        self.assertEqual(self.round_trip(7, "R"), (7, "R", None))
+        key = SeriesKey(7, "object", "R")
+        self.assertEqual(self.round_trip(*key), key)
 
     def test_quantile_series(self):
         """The quantile survives despite containing underscores.
@@ -176,23 +207,28 @@ class TestSeriesId(unittest.TestCase):
         which underscores separated fields and which belonged to the name.
         """
 
-        self.assertEqual(
-            self.round_trip(7, "R", "pixel_q999"), (7, "R", "pixel_q999")
-        )
+        key = SeriesKey(7, "object", "R", "pixel_q999")
+        self.assertEqual(self.round_trip(*key), key)
 
-    def test_channel_containing_an_underscore(self):
-        """Underscores anywhere are now harmless."""
+    def test_underscores_anywhere_are_harmless(self):
+        """Neither the channel nor the image type has to avoid them."""
 
-        self.assertEqual(
-            self.round_trip(7, "odd_channel", "pixel_q999"),
-            (7, "odd_channel", "pixel_q999"),
-        )
+        key = SeriesKey(7, "twilight_flat", "odd_channel", "pixel_q999")
+        self.assertEqual(self.round_trip(*key), key)
 
     def test_an_ambiguous_field_is_refused(self):
         """Failing loudly beats an id that silently pairs wrong data."""
 
         with self.assertRaises(ValueError):
-            make_series("night_0", 7, "we|rd", 3)
+            SeriesKey(7, "object", "we|rd").to_id()
+
+    def test_the_image_type_is_part_of_the_identity(self):
+        """Two types in one session must not collide on one id."""
+
+        self.assertNotEqual(
+            SeriesKey(7, "object", "R").to_id(),
+            SeriesKey(7, "flat", "R").to_id(),
+        )
 
 
 class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
@@ -249,7 +285,9 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
         with start_db_session() as db_session:
             context = get_available_series("jd", "bg_center", db_session)
             series_list = context["diagnostics_list"]
-            self.assertEqual(len(series_list), 2, "expected one series/night")
+            # One per (night, image type): night 0 object, night 1 object,
+            # night 1 flat.
+            self.assertEqual(len(series_list), 3)
 
             target = (
                 "autowisp.browser_interface.diagnostics"
@@ -268,26 +306,116 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
 
         return [call.args[1] for call in plot_series.call_args_list]
 
-    def test_one_series_starts_at_zero(self):
-        """Only the earliest night is zeroed; the offset is shared."""
+    def _series_starts(self):
+        """Return where each plotted series begins on the shared x axis."""
 
-        x_values = self._plotted_x_values()
-        self.assertEqual(len(x_values), 2)
+        return sorted(float(min(values)) for values in self._plotted_x_values())
 
-        starts = sorted(float(min(values)) for values in x_values)
+    def test_only_the_earliest_series_starts_at_zero(self):
+        """One offset for the figure, so exactly one series lands on 0."""
+
+        starts = self._series_starts()
         self.assertAlmostEqual(starts[0], 0.0, places=6)
-        self.assertAlmostEqual(starts[1], _night_separation, places=6)
+        for start in starts[1:]:
+            self.assertGreater(start, 0.0)
 
     def test_offset_is_not_per_series(self):
-        """Guard the exact regression the merge could introduce."""
+        """Guard the exact regression the merge could introduce.
 
-        starts = [float(min(values)) for values in self._plotted_x_values()]
-        self.assertNotAlmostEqual(
-            starts[0],
-            starts[1],
+        Zeroing each series on its own would start every one of them at 0,
+        collapsing the day between the two nights.  The second night's
+        series keep that day, wherever in the night each one begins.
+        """
+
+        for start in self._series_starts()[1:]:
+            self.assertGreaterEqual(
+                start,
+                _night_separation,
+                msg="a second-night series was zeroed on its own -- the "
+                "offset became per-series instead of shared",
+            )
+
+
+class TestImageTypeSplit(DiagnosticsViewTestCase):
+    """A session holding several image types yields a series per type."""
+
+    def _series_for(self, x_diagnostic, y_diagnostic):
+        """Return ``{SeriesKey: series}`` offered for an axis pair."""
+
+        with start_db_session() as db_session:
+            context = get_available_series(
+                x_diagnostic, y_diagnostic, db_session
+            )
+        return {
+            SeriesKey.from_id(series["id"]): series
+            for series in context["diagnostics_list"]
+        }
+
+    def test_each_type_gets_its_own_series(self):
+        """The mixed night offers object and flat separately."""
+
+        types = {
+            key.image_type
+            for key in self._series_for("jd", "bg_center")
+            if key.session_id == 2
+        }
+        self.assertEqual(types, {"object", "flat"})
+
+    def test_a_type_without_the_diagnostic_is_absent(self):
+        """Only object frames record the quantiles, so only they appear."""
+
+        types = {
+            key.image_type for key in self._series_for("quantiles", "bg_center")
+        }
+        self.assertEqual(types, {"object"})
+
+    def test_the_type_is_shown_in_the_table(self):
+        """Otherwise two rows of the mixed night would look identical."""
+
+        with start_db_session() as db_session:
+            context = get_available_series("jd", "bg_center", db_session)
+        self.assertIn("Type", context["diagnostics_fields"])
+
+    def test_canonical_list_holds_only_its_own_type(self):
+        """The alignment the whole design rests on is per type.
+
+        Every array is padded onto this list, so if it mixed types then so
+        would every quantity built against it.
+        """
+
+        with start_db_session() as db_session:
+            for image_type in ("object", "flat"):
+                image_ids, _ = get_canonical_images(
+                    SeriesKey(2, image_type, "R"), db_session
+                )
+                self.assertEqual(
+                    image_ids.tolist(), self.images_of[1, image_type]
+                )
+
+    def test_values_are_not_taken_across_types(self):
+        """The point of the split: an aggregate sees one population.
+
+        A series covering the whole night would hand ``nanmedian`` all five
+        frames and return the object median, since the objects outnumber the
+        flats -- silently, and wrongly.
+        """
+
+        series = self._series_for("jd", "bg_center")[SeriesKey(2, "flat", "R")]
+        with start_db_session() as db_session:
+            _, y_values, image_ids = get_series_data(
+                series, "jd", "bg_center", db_session
+            )
+
+        flat_values = [
+            _first_bg_center["flat"] + index
+            for index in range(_frames_per_night[1]["flat"])
+        ]
+        self.assertEqual(y_values.tolist(), flat_values)
+        self.assertEqual(image_ids.tolist(), self.images_of[1, "flat"])
+        self.assertAlmostEqual(
+            float(numpy.nanmedian(y_values)),
+            numpy.median(flat_values),
             places=6,
-            msg="both nights zeroed independently -- the offset became "
-            "per-series instead of shared across the figure",
         )
 
 

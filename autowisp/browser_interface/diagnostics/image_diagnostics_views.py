@@ -8,6 +8,7 @@ else because the canonical image list already carries the Julian dates.
 """
 
 from io import BytesIO
+from typing import NamedTuple
 import json
 import math
 
@@ -34,6 +35,7 @@ from autowisp.database.data_model import (
     DiagnosticType,
     ImageDiagnostics,
     Image,
+    ImageType,
     ObservingSession,
 )
 
@@ -48,88 +50,108 @@ _time_quantity = "jd"
 #: Pseudo-quantity expanding to one series per ``pixel_q*`` diagnostic.
 _quantiles_quantity = "quantiles"
 
-#: Separates the fields of a series id, and the contract between
-#: :func:`make_series` and :func:`split_series_id`.  Not the underscore the
-#: encoding used to use: ``pixel_q*`` names contain those, so unpacking had
-#: to guess which underscores were separators, and adding a field would have
-#: made the guess wrong.  A session id, a channel and a diagnostic name can
-#: none of them contain this one.
-_id_separator = "|"
 
+class SeriesKey(NamedTuple):
+    """What one plotted series is, and what its id encodes.
 
-def make_series(session_label, session_id, channel, count, quantile_name=None):
+    The image type is part of the key because a session holds frames of
+    several types and a diagnostic rarely means the same thing across them
+    -- some are only defined for object frames, and one recorded for both
+    would have its aggregates taken over a mixture, making
+    ``nanmedian(bg_center)`` a median of object and flat frames together.
+
+    Everything downstream of :func:`get_available_series` takes one of these
+    rather than the four values separately, so a caller cannot pair a
+    channel with the wrong session by getting an argument order wrong.
     """
-    Build the entry describing one plottable (observing session, channel) pair.
+
+    session_id: int
+    image_type: str
+    channel: str
+    quantile_name: str = None
+
+    #: Separates the fields of an id.  Not the underscore the encoding used
+    #: to use: ``pixel_q*`` names contain those, so unpacking had to guess
+    #: which underscores were separators, and adding a field would have made
+    #: the guess wrong.  A session id, a channel and a diagnostic name can
+    #: none of them contain this one.  Not annotated, so it stays a class
+    #: attribute rather than becoming a fifth field.
+    id_separator = "|"
+
+    def to_id(self):
+        """
+        Return the opaque string identifying this series to the client.
+
+        It becomes an HTML element id, four more element ids are built from
+        it, and it keys the ``datasets`` object the client posts back, so it
+        has to survive that round trip unchanged.
+
+        Raises:
+            ValueError:    If a field contains :data:`id_separator`, which
+                would make the id ambiguous.  Worth failing on rather than
+                trusting, since a channel naming scheme is not this module's
+                to control and the alternative is plots that silently pair
+                the wrong data.
+        """
+
+        fields = (
+            str(self.session_id),
+            self.image_type,
+            self.channel,
+            self.quantile_name or "",
+        )
+        ambiguous = [field for field in fields if self.id_separator in field]
+        if ambiguous:
+            raise ValueError(
+                f"Cannot build a series id from {fields!r}: "
+                f"{', '.join(repr(field) for field in ambiguous)} contains "
+                f"the {self.id_separator!r} that separates its fields."
+            )
+        return self.id_separator.join(fields)
+
+    @classmethod
+    def from_id(cls, series_id):
+        """Return the key an id was built from, the inverse of `to_id`."""
+
+        session_id, image_type, channel, quantile_name = series_id.split(
+            cls.id_separator
+        )
+        return cls(int(session_id), image_type, channel, quantile_name or None)
+
+
+def make_series(session_label, series_key, count):
+    """
+    Build the entry describing one plottable series.
 
     Args:
         session_label(str):    The label of the observing session.
 
-        session_id(int):    The database ID of the observing session.
-
-        channel(str):    The color channel the values were measured in.
+        series_key(SeriesKey):    What the series identifies.
 
         count(int):    The number of images contributing to the series.
-
-        quantile_name(str):    For quantile series, the ``pixel_q*`` diagnostic
-            name this series corresponds to.  ``None`` for all other series.
 
     Returns:
         dict:    A series entry with the keys expected by
             ``diagnostics_app.html`` and
             :func:`plot_image_diagnostic_series`.
-
-    Raises:
-        ValueError:    If any field contains :data:`_id_separator`, which
-            would make the id ambiguous.  Worth failing on rather than
-            trusting, since a channel naming scheme is not this module's to
-            control and the alternative is plots that silently pair the
-            wrong data.
     """
 
-    fields = (str(session_id), channel, quantile_name or "")
-    ambiguous = [field for field in fields if _id_separator in field]
-    if ambiguous:
-        raise ValueError(
-            f"Cannot build a series id from {fields!r}: "
-            f"{', '.join(repr(field) for field in ambiguous)} contains the "
-            f"{_id_separator!r} that separates its fields."
-        )
+    describe = [session_label, series_key.image_type, series_key.channel]
+    if series_key.quantile_name is not None:
+        describe.append("0." + series_key.quantile_name[len("pixel_q") :])
 
-    series = {
-        "channel": channel,
+    return {
+        "channel": series_key.channel,
         "color": channel_colors.get(
-            channel[0].upper() if channel else "", "#ffffff"
+            series_key.channel[0].upper() if series_key.channel else "",
+            "#ffffff",
         ),
         "marker": "o",
         "scale": "1.0",
-        "id": _id_separator.join(fields),
+        "id": series_key.to_id(),
+        "label": " ".join(describe),
+        "info": describe + [count],
     }
-    if quantile_name is None:
-        series["label"] = f"{session_label} {channel}"
-        series["info"] = [session_label, channel, count]
-    else:
-        quantile_label = "0." + quantile_name[len("pixel_q") :]
-        series["label"] = f"{session_label} {channel} {quantile_label}"
-        series["info"] = [session_label, channel, quantile_label, count]
-
-    return series
-
-
-def split_series_id(series):
-    """
-    Return ``(session_id, channel, quantile_name)`` for a series entry.
-
-    The exact inverse of :func:`make_series`'s id, and reads only the id:
-    the entry also carries a ``channel``, echoed back by the client, but
-    taking it from the id keeps one source of truth for what the series
-    identifies.
-
-    The quantile name is ``None`` unless the id carries one, so the caller
-    does not need to know which axis asked for ``quantiles``.
-    """
-
-    session_id, channel, quantile_name = series["id"].split(_id_separator)
-    return int(session_id), channel, quantile_name or None
 
 
 def get_available_diagnostics(db_session):
@@ -165,18 +187,22 @@ def get_available_diagnostics(db_session):
     return result
 
 
-def get_canonical_images(session_id, db_session):
+def get_canonical_images(series_key, db_session):
     """
-    Return ``(image_ids, jd_values)`` for a session, ordered by JD.
+    Return ``(image_ids, jd_values)`` for one session and image type, by JD.
 
-    Every array plotted for this session is built against this list, with
+    Every array plotted for this series is built against this list, with
     ``NaN`` wherever a value does not exist, so index *i* is the same image
     in every array.  Alignment is then structural and no join is needed
-    between two quantities.  There is deliberately no channel argument: the
-    list is a function of the observing session alone.
+    between two quantities.
+
+    The channel of *series_key* is deliberately not used -- the list is the
+    same for every channel -- but the image type is: frames of different
+    types are different populations, and mixing them would put a flat frame
+    and an object frame in one array for an aggregate to average over.
 
     Args:
-        session_id(int):    The observing session to list images for.
+        series_key(SeriesKey):    The series to list the images of.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -186,9 +212,16 @@ def get_canonical_images(session_id, db_session):
 
     rows = db_session.execute(
         select(Image.id, Image.jd)  # pylint: disable=no-member
+        .join(
+            ImageType,
+            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
+        )
         .where(
-            Image.observing_session_id == session_id,  # pylint: disable=E1101
-            Image.jd.is_not(None),  # pylint: disable=no-member
+            # pylint: disable=no-member
+            Image.observing_session_id == series_key.session_id,
+            ImageType.name == series_key.image_type,
+            Image.jd.is_not(None),
+            # pylint: enable=no-member
         )
         .order_by(Image.jd)  # pylint: disable=no-member
     ).all()
@@ -244,7 +277,7 @@ def get_quantile_names(db_session):
 
 def count_images_with_all(needed, db_session):
     """
-    Count images holding every one of *needed*, per (session, channel).
+    Count images holding all of *needed*, per (session, type, channel).
 
     Args:
         needed(set):    ``DiagnosticType`` names that must all be recorded
@@ -255,7 +288,8 @@ def count_images_with_all(needed, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        list:    ``(session_label, session_id, channel, count)`` tuples.
+        list:    ``(session_label, session_id, image_type, channel, count)``
+            tuples.
     """
 
     if not needed:
@@ -265,6 +299,9 @@ def count_images_with_all(needed, db_session):
         select(
             Image.observing_session_id.label(  # pylint: disable=no-member
                 "session_id"
+            ),
+            Image.image_type_id.label(  # pylint: disable=no-member
+                "image_type_id"
             ),
             ImageDiagnostics.channel.label("channel"),
         )
@@ -293,19 +330,21 @@ def count_images_with_all(needed, db_session):
         select(
             ObservingSession.label,
             ObservingSession.id,
+            ImageType.name,
             per_image.c.channel,
             func.count(),  # pylint: disable=not-callable
         )
         .select_from(per_image)
         .join(ObservingSession, ObservingSession.id == per_image.c.session_id)
-        .group_by(ObservingSession.id, per_image.c.channel)
-        .order_by(ObservingSession.label, per_image.c.channel)
+        .join(ImageType, ImageType.id == per_image.c.image_type_id)
+        .group_by(ObservingSession.id, ImageType.id, per_image.c.channel)
+        .order_by(ObservingSession.label, ImageType.name, per_image.c.channel)
     ).all()
 
 
 def get_available_series(x_diagnostic, y_diagnostic, db_session):
     """
-    Return the (observing session, channel) pairs plottable for an axis pair.
+    Return the (session, image type, channel) series plottable for an axis pair.
 
     The count is the number of images recording every diagnostic both axes
     need.  It is an upper bound on the number of drawn points, since
@@ -340,35 +379,39 @@ def get_available_series(x_diagnostic, y_diagnostic, db_session):
             )
             if name != _time_quantity
         }
-        for session_label, session_id, channel, count in count_images_with_all(
-            needed, db_session
-        ):
-            rows.append(
-                (session_label, session_id, channel, quantile_name, count)
+        rows.extend(
+            (
+                session_label,
+                SeriesKey(session_id, image_type, channel, quantile_name),
+                count,
             )
+            for session_label, session_id, image_type, channel, count in (
+                count_images_with_all(needed, db_session)
+            )
+        )
 
-    # Keep the pre-merge ordering: session, then channel, then quantile.
-    rows.sort(key=lambda row: (row[0], row[2], row[3] or ""))
+    # Session, then type, then channel, then quantile.
+    rows.sort(
+        key=lambda row: (
+            row[0],
+            row[1].image_type,
+            row[1].channel,
+            row[1].quantile_name or "",
+        )
+    )
 
-    fields = ["Observing Session", "Channel"]
+    fields = ["Observing Session", "Type", "Channel"]
     if has_quantiles:
         fields.append("Quantile")
     fields.append("Count")
 
     return {
         "diagnostics_fields": fields,
-        "diagnostics_list": [
-            make_series(
-                session_label, session_id, channel, count, quantile_name
-            )
-            for session_label, session_id, channel, quantile_name, count in rows
-        ],
+        "diagnostics_list": [make_series(*row) for row in rows],
     }
 
 
-def get_quantity_values(
-    quantity_name, session_id, channel, canonical, db_session
-):
+def get_quantity_values(quantity_name, series_key, canonical, db_session):
     """
     Return one quantity NaN-padded onto the canonical image list.
 
@@ -377,9 +420,11 @@ def get_quantity_values(
             :func:`resolve_quantity` so that it names either
             :data:`_time_quantity` or a single ``DiagnosticType``.
 
-        session_id(int):    The observing session.
-
-        channel(str):    The color channel.
+        series_key(SeriesKey):    The series to read the values of.  Its
+            image type narrows the query: values for the session's other
+            types would be discarded anyway, being absent from the canonical
+            list, but excluding them in SQL keeps the work proportional to
+            the series actually plotted.
 
         canonical(tuple):    ``(image_ids, jd_values)`` from
             :func:`get_canonical_images`.
@@ -412,11 +457,18 @@ def get_quantity_values(
             DiagnosticType,
             DiagnosticType.id == ImageDiagnostics.diagnostic_id,
         )
+        .join(
+            ImageType,
+            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
+        )
         .where(
-            Image.observing_session_id == session_id,  # pylint: disable=E1101
-            ImageDiagnostics.channel == channel,
+            # pylint: disable=no-member
+            Image.observing_session_id == series_key.session_id,
+            ImageType.name == series_key.image_type,
+            ImageDiagnostics.channel == series_key.channel,
             DiagnosticType.name == quantity_name,
-            Image.jd.is_not(None),  # pylint: disable=no-member
+            Image.jd.is_not(None),
+            # pylint: enable=no-member
         )
     ).all():
         index = row_of_image.get(image_id)
@@ -447,14 +499,15 @@ def get_series_data(series, x_diagnostic, y_diagnostic, db_session):
         tuple:    ``(x_values, y_values, image_ids)``, all of equal length.
     """
 
-    session_id, channel, quantile_name = split_series_id(series)
-    canonical = get_canonical_images(session_id, db_session)
+    # From the id rather than from the entry's own ``channel``, which the
+    # client echoes back: one source of truth for what the series is.
+    series_key = SeriesKey.from_id(series["id"])
+    canonical = get_canonical_images(series_key, db_session)
 
     x_values, y_values = (
         get_quantity_values(
-            resolve_quantity(quantity_name, quantile_name),
-            session_id,
-            channel,
+            resolve_quantity(quantity_name, series_key.quantile_name),
+            series_key,
             canonical,
             db_session,
         )

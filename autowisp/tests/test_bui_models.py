@@ -72,7 +72,7 @@ class TestModelBase(BuiModelTestCase):
 
         fields = {
             field.name
-            for field in Project._meta.fields  # pylint: disable=W0212
+            for field in Project._meta.fields  # pylint: disable=protected-access
         }
         self.assertIn("created", fields)
         self.assertIn("modified", fields)
@@ -135,7 +135,7 @@ class TestModifiedIsMaintained(BuiModelTestCase):
         ]
         self.assertIn(Project, covered)
         for model in covered:
-            table = model._meta.db_table  # pylint: disable=W0212
+            table = model._meta.db_table  # pylint: disable=protected-access
             self.assertIn(f"update_{table}_modified", names)
 
     def _assert_advances(self, project, write):
