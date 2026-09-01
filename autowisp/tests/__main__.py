@@ -120,6 +120,11 @@ from autowisp.tests.test_diagnostics_views import (
     TestSharedTimeOffset,
     TestSeriesGrouping,
 )
+from autowisp.tests.test_evaluator import (
+    TestNanAggregates,
+    TestRemovedNames,
+    TestErrorHandling,
+)
 from autowisp.tests.test_expressions import (
     TestReferencedNames,
     TestBareAggregates,
@@ -127,6 +132,7 @@ from autowisp.tests.test_expressions import (
     TestOrdering,
     TestEvaluation,
     TestChecking,
+    TestReachableNames,
 )
 from autowisp.tests.test_diagnostic_expressions import (
     TestNameSpace,

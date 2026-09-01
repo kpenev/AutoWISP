@@ -37,9 +37,19 @@ class EvaluatorBase(asteval.Interpreter):
         "nancumprod",
     )
 
+    # Names asteval offers that an AutoWISP expression has no business
+    # using. Asteval is a genuine sandbox against code execution -- no
+    # imports, no eval/exec/getattr, no dunder traversal, and it refuses
+    # every file mode but reading -- but reading is enough: `open` lets an
+    # expression pull the contents of any file the user can read, and
+    # expressions now travel between installations in export files.
+    # `print` is a side effect rather than a value, so an expression using
+    # it was a mistake in any case.
+    removed_names = ("open", "print")
+
     def __init__(self):
         """
-        Create an interpreter with the NaN-ignoring aggregates defined.
+        Create an interpreter with AutoWISP's symbol table.
 
         Sub-classes should add their data to the symbol table after invoking
         this, so a variable named like one of the aggregates shadows the
@@ -52,6 +62,10 @@ class EvaluatorBase(asteval.Interpreter):
         super().__init__()
         for func_name in self.nan_aggregates:
             self.symtable[func_name] = getattr(numpy, func_name)
+        for func_name in self.removed_names:
+            # Absent rather than asserted, so that an asteval release which
+            # drops one of these on its own is not an error here.
+            self.symtable.pop(func_name, None)
 
     def __call__(self, *args, **kwargs):
         """

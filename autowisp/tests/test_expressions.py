@@ -41,12 +41,65 @@ class TestReferencedNames(unittest.TestCase):
         )
 
     def test_statements_are_rejected(self):
-        """``mode="eval"`` is the guard on imported expressions."""
+        """``mode="eval"`` refuses anything that is not one expression."""
 
         for text in ("import os", "y = 1", "for i in x: pass"):
             with self.subTest(text=text):
                 with self.assertRaises(SyntaxError):
                     get_expression_names(text)
+
+
+class TestReachableNames(unittest.TestCase):
+    """What an expression is allowed to reach.
+
+    Parsing is not what makes this safe -- most attacks are perfectly valid
+    expressions. The evaluator's symbol table is, and these pin the part of
+    it AutoWISP chooses rather than inherits.
+    """
+
+    def test_filesystem_access_is_refused(self):
+        """``open`` is dropped from the evaluator, so the name is unknown.
+
+        Asteval permits reading files; harmless for text the local user
+        typed, but expressions travel between installations in export
+        files, so a shared one must not be able to read ``~/.ssh``.
+        """
+
+        problems = check_expression(
+            "evil", "open('/etc/passwd').read()", {}, _known
+        )
+        self.assertTrue(any("open" in problem for problem in problems))
+
+    def test_hidden_filesystem_access_is_refused(self):
+        """Also when buried in something that would otherwise plot."""
+
+        problems = check_expression(
+            "evil",
+            "bg_center + len(open('/etc/passwd').read())",
+            {},
+            _known,
+        )
+        self.assertTrue(any("open" in problem for problem in problems))
+
+    def test_side_effects_are_refused(self):
+        """``print`` returns nothing, so it was never a valid value."""
+
+        self.assertTrue(
+            check_expression("noisy", "print(bg_center)", {}, _known)
+        )
+
+    def test_the_mathematical_subset_still_works(self):
+        """The removals must not cost anything anyone would write."""
+
+        self.assertEqual(
+            check_expression(
+                "fine",
+                "bg_center - nanmedian(bg_center) + sqrt(abs(bg_center))",
+                {},
+                _known,
+            ),
+            [],
+        )
 
 
 class TestBareAggregates(unittest.TestCase):
@@ -119,12 +172,27 @@ class TestOrdering(unittest.TestCase):
         self.assertEqual(needed, {"astrom_residual", "diagonal_fov"})
 
     def test_cycle_names_every_expression_involved(self):
-        """Reported in one pass, rather than by a recursion guard."""
+        """The whole loop, in the order it closes."""
 
         with self.assertRaises(PipelineError) as caught:
             order_expressions(["a"], {"a": "b", "b": "c", "c": "a"}, _known)
         for name in ("a", "b", "c"):
             self.assertIn(name, str(caught.exception))
+
+    def test_cycle_names_the_loop_and_not_its_dependents(self):
+        """An expression merely downstream of a cycle is not implicated.
+
+        ``d`` is unreachable because ``a`` and ``b`` reference each other,
+        but ``d`` is not itself part of the problem and naming it would
+        send the reader to the wrong expression.
+        """
+
+        with self.assertRaises(PipelineError) as caught:
+            order_expressions(["d"], {"a": "b", "b": "a", "d": "a + 1"}, _known)
+        message = str(caught.exception)
+        self.assertIn("a", message)
+        self.assertIn("b", message)
+        self.assertNotIn("d", message)
 
     def test_unresolvable_reference_is_refused(self):
         """And says which expression contains it."""

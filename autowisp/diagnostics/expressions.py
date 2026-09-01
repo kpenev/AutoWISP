@@ -24,18 +24,6 @@ import numpy
 from autowisp.evaluator import Evaluator, EvaluatorBase
 from autowisp.exceptions import PipelineError
 
-# The NaN-propagating spelling of each aggregate the evaluator defines:
-# `median` where `nanmedian` was meant, and so on. Derived from the
-# evaluator's own list so the two cannot drift apart.
-_bare_aggregates = frozenset(
-    nan_name[len("nan") :] for nan_name in EvaluatorBase.nan_aggregates
-)
-
-# Django's slug charset, spelled out so this module needs no Django. An
-# expression is selected through `image/<slug:x>/vs/<slug:y>`, so a name
-# outside this set could be stored but never plotted.
-_slug_name = re.compile(r"^[-a-zA-Z0-9_]+\Z")
-
 
 @functools.lru_cache(maxsize=1)
 def _evaluator_names():
@@ -46,22 +34,35 @@ def _evaluator_names():
 
 def get_expression_names(expression):
     """
-    Return the variable names one expression references.
+    Return every name one expression mentions, functions included.
+
+    ``nanmedian(rel)`` gives ``{"nanmedian", "rel"}``: a call by bare name
+    is an ``ast.Call`` whose ``func`` is an ``ast.Name``, so there is
+    nothing here to tell a function from a variable, and no attempt is made
+    to. Which is which cannot be decided from the text anyway -- it depends
+    on the open project's diagnostics, on what else the library holds, and
+    on the evaluator's symbol table -- so the split is left to the caller,
+    which is what :func:`order_expressions` and :func:`check_expression`
+    both do.
 
     Args:
         expression(str):    The expression text.
 
     Returns:
-        set:    The bare ``ast.Name`` identifiers. The caller splits them
-            into diagnostics, other expressions and evaluator builtins,
-            since which is which depends on the open project and on what
-            else the library holds.
+        set:    The ``ast.Name`` identifiers, whether they are used as
+            values or called.
 
     Raises:
         SyntaxError:    If the text is not a single Python expression.
-            ``mode="eval"`` structurally rejects statements, assignments,
-            loops and imports, so this doubles as the guard on expressions
-            arriving from someone else's export file.
+            ``mode="eval"`` rejects statements, assignments, loops and
+            imports, which is worth having but is **not** what makes
+            evaluating an expression safe: ``__import__('os').listdir('.')``
+            is a perfectly valid expression. Safety comes from
+            :class:`autowisp.evaluator.EvaluatorBase` -- asteval refuses
+            imports, ``eval``, ``exec``, ``getattr`` and dunder traversal,
+            and AutoWISP drops ``open`` and ``print`` on top -- and from
+            :func:`check_expression` restricting names to that symbol table
+            plus the project's diagnostics.
     """
 
     return {
@@ -91,12 +92,17 @@ def get_bare_aggregates(expression):
         SyntaxError:    As for :func:`get_expression_names`.
     """
 
+    # The NaN-propagating spelling of each aggregate the evaluator defines:
+    # `median` where `nanmedian` was meant, and so on. Derived from the
+    # evaluator's own list so the two cannot drift apart.
+    bare = {nan_name[len("nan") :] for nan_name in EvaluatorBase.nan_aggregates}
+
     return {
         node.func.id
         for node in ast.walk(ast.parse(expression, mode="eval"))
         if isinstance(node, ast.Call)
         and isinstance(node.func, ast.Name)
-        and node.func.id in _bare_aggregates
+        and node.func.id in bare
     }
 
 
@@ -120,27 +126,62 @@ def get_expression_dependents(name, expressions):
     }
 
 
-def _dependency_subtree(targets, expressions):
-    """Return the expressions reachable from *targets*.
+def _evaluation_order(targets, expressions):
+    """Return the expressions to evaluate, each after what it references.
 
-    Only these are evaluated, so asking for one expression does not drag in
-    the whole library.
+    A depth-first walk from *targets*, appending a name only once the
+    expressions it references have been appended. Only what the targets
+    reach is visited, so asking for one expression does not drag in the
+    whole library.
+
+    Appending on the way *out* is what makes this an order rather than a
+    traversal. On the way in, two expressions reached at the same depth are
+    indistinguishable even when one references the other: with
+    ``a = b + c`` and ``c = b * 2``, both ``b`` and ``c`` are reached from
+    ``a`` together, so reversing the order of discovery can place ``c``
+    before the ``b`` it needs.
+
+    Raises:
+        PipelineError:    On a reference cycle, naming the loop.
     """
 
-    subtree = set()
-    pending = [name for name in targets if name in expressions]
-    while pending:
-        name = pending.pop()
-        if name in subtree:
-            continue
-        subtree.add(name)
-        pending.extend(
-            referenced
-            for referenced in get_expression_names(expressions[name])
-            if referenced in expressions
-        )
+    order = []
+    done = set()
+    path = []
 
-    return subtree
+    def visit(name):
+        """Append *name*, and first everything it references."""
+
+        if name in done:
+            return
+        if name in path:
+            # The stack from the earlier visit down to here is exactly the
+            # loop, so it can be reported as one rather than as a set of
+            # suspects.
+            cycle = path[path.index(name) :] + [name]
+            raise PipelineError(
+                "Expressions reference each other in a cycle: "
+                + " -> ".join(cycle)
+                + ".",
+                details={"cycle": cycle},
+            )
+
+        path.append(name)
+        # Sorted because the references arrive as a set, and the resulting
+        # order should not depend on set iteration.
+        for referenced in sorted(get_expression_names(expressions[name])):
+            if referenced in expressions:
+                visit(referenced)
+        path.pop()
+
+        done.add(name)
+        order.append(name)
+
+    for target in sorted(targets):
+        if target in expressions:
+            visit(target)
+
+    return order
 
 
 def _needed_diagnostics(targets, references, expressions, known_names):
@@ -176,42 +217,6 @@ def _needed_diagnostics(targets, references, expressions, known_names):
         )
 
     return needed
-
-
-def _evaluation_rounds(references):
-    """Return the expressions in an order that satisfies their references.
-
-    Kahn's algorithm by rounds: those referencing no unplaced expression go
-    first, then those satisfied by them, and so on.
-
-    Raises:
-        PipelineError:    If a round comes up empty while expressions
-            remain, which means they are in or downstream of a cycle.
-    """
-
-    order = []
-    remaining = set(references)
-    while remaining:
-        # Sorted so the order is reproducible rather than set-iteration
-        # order.
-        ready = sorted(
-            name for name in remaining if not references[name] & remaining
-        )
-        if not ready:
-            # Whatever is left is exactly what the cycle involves, so it
-            # can be reported by name in one pass, with no bespoke
-            # recursion guard.
-            cycle = sorted(remaining)
-            raise PipelineError(
-                "Expressions reference each other in a cycle: "
-                + ", ".join(cycle)
-                + ".",
-                details={"cycle": cycle},
-            )
-        order.extend(ready)
-        remaining.difference_update(ready)
-
-    return order
 
 
 def order_expressions(targets, expressions, known_names):
@@ -253,13 +258,15 @@ def order_expressions(targets, expressions, known_names):
             details={"unknown": unknown},
         )
 
+    # The order is also exactly the set of expressions reached, so it
+    # doubles as the subtree to collect diagnostics from.
+    order = _evaluation_order(targets, expressions)
     references = {
-        name: get_expression_names(expressions[name])
-        for name in _dependency_subtree(targets, expressions)
+        name: get_expression_names(expressions[name]) for name in order
     }
 
     return (
-        _evaluation_rounds(references),
+        order,
         _needed_diagnostics(targets, references, expressions, known_names),
     )
 
@@ -356,7 +363,10 @@ def check_expression(name, expression, expressions, known_names):
 
     problems = []
 
-    if not name or not _slug_name.match(name):
+    # Django's slug charset, spelled out so this module needs no Django. An
+    # expression is selected through `image/<slug:x>/vs/<slug:y>`, so a name
+    # outside this set could be stored but never plotted.
+    if not name or not re.match(r"^[-a-zA-Z0-9_]+\Z", name):
         problems.append(
             f"{name!r} is not a valid name: use letters, digits, hyphens "
             "and underscores, so that it survives being put in a URL."

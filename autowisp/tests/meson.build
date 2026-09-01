@@ -15,6 +15,7 @@ py_src = [
   'test_diagnostic_expressions.py',
   'test_diagnostics_views.py',
   'test_epd.py',
+  'test_evaluator.py',
   'test_expressions.py',
   'error_fixtures.py',
   'test_error_capture_middleware.py',
