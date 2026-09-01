@@ -14,7 +14,12 @@ from pathlib import Path
 
 import platformdirs
 
-from django_project.db_config import get_databases
+# Relative, because this module is imported under two different names: as
+# ``django_project.settings`` by manage.py, which runs with
+# ``browser_interface`` as sys.path[0], and as
+# ``autowisp.browser_interface.django_project.settings`` by start.py, which
+# does not.  A bare ``django_project`` resolves only in the first.
+from .db_config import get_databases
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
