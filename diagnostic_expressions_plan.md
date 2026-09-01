@@ -8,8 +8,8 @@ or against each other. Those quantities are fixed: whatever a processing step
 recorded into `ImageDiagnostics` is exactly what can be plotted. There is no way
 to look at a *derived* quantity — a normalised residual
 `astrom_residual / diagonal_fov`, a night-relative background
-`bg_center - median(bg_center)`, or a contrast ratio between pixel quantiles —
-without leaving the BUI and writing a script.
+`bg_center - nanmedian(bg_center)`, or a contrast ratio between pixel
+quantiles — without leaving the BUI and writing a script.
 
 This adds user-defined **diagnostic expressions**: named mathematical
 expressions over the recorded diagnostics, stored in the BUI database (the
@@ -33,12 +33,11 @@ Decisions taken with the user:
 
 ### Namespace
 
-Expressions live in the **same flat name space** as `DiagnosticType` names. This
-is what keeps the change small: the URL patterns
-(`image/<slug:diagnostic_name>`, `image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>`),
-`diagnostics_app.html`'s two `<select>`s, and `diagnostics_app.js`'s
-`navigateDiagnostics()` all keep working untouched — an expression is just
-another name in `available_diagnostics`.
+Expressions live in the **same flat name space** as `DiagnosticType` names —
+and, after the merge in §4, as `jd` too. This is what keeps the change small:
+`diagnostics_app.html`'s two `<select>`s and the single surviving URL pattern
+`image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>` treat all three kinds
+alike — an expression is just another name in `available_diagnostics`.
 
 Consequences to handle explicitly:
 
@@ -47,24 +46,63 @@ Consequences to handle explicitly:
 - Saving/importing rejects a name that collides with a built-in diagnostic. The
   reserved set is the static list seeded by
   `_init_diagnostic_types()` in `autowisp/database/initialize_database.py:448`,
-  plus `quantiles` and anything matching `pixel_q*`, plus any `DiagnosticType`
-  name present in the currently-open project DB.
+  plus `quantiles`, `jd`, and anything matching `pixel_q*`, plus any
+  `DiagnosticType` name present in the currently-open project DB.
 - If a future release ships a `DiagnosticType` matching an existing expression
   name, the **real diagnostic wins** at resolution time and the management page
   flags the expression as shadowed. The no-collision rule carries extra weight
   because expression names are themselves variables inside other expressions
   (see *Composition* below) — a collision would be genuinely ambiguous there,
   not merely confusing in a dropdown.
+- A bookmarked URL naming an expression that is unresolvable in the currently
+  open project must render the page with an empty series table and a message,
+  not a 500. The name survives in the URL after a project switch, so this is
+  reachable by ordinary use, not just by hand-editing the address bar.
 
-### Evaluation
+### Evaluator
 
 Reuse `autowisp.evaluator.Evaluator` (`autowisp/evaluator.py`) — the asteval
 wrapper already used for every other user expression in the pipeline. It takes
 a dict of `{name: numpy array}` and evaluates **vectorized** over all images at
-once, which is what makes `bg_center - median(bg_center)` work for free
-(asteval's default symtable carries the numpy/math names).
+once, which is what makes `bg_center - nanmedian(bg_center)` work for free
+(asteval's default symtable carries most of the numpy/math names).
 
-### Alignment — one canonical image list per session, NaN elsewhere
+### NaN-aware aggregates
+
+Because every array is NaN-padded to the canonical image list, the `nan*`
+aggregates are the ones users actually want, so they must be **uniformly
+available** — the same names, in every evaluator, regardless of environment.
+They are not today:
+
+- asteval's default symtable supplies only `nanargmax`, `nanargmin`, `nanmax`,
+  `nanmin`, `nansum` (plus the `nan` constant and `nan_to_num`). Verified
+  against asteval 0.9.31; the set is an implementation detail of asteval and
+  may shift between versions, which is precisely why it cannot be relied on.
+- `nanmean`, `nanmedian`, `nanstd`, `nanvar`, `nanpercentile`, `nanquantile`,
+  `nanprod`, `nancumsum`, and `nancumprod` are **absent**.
+- `LightCurveEvaluator` patches over exactly two of those gaps
+  (`nanmean`/`nanmedian`, `autowisp/evaluator.py:109-110`) while `Evaluator`
+  patches none — so which aggregates work depends on which evaluator you happen
+  to be in.
+
+Fix it once, in a shared base class both evaluators derive from (see §1). Bind
+the whole set unconditionally rather than only the currently-missing names —
+rebinding `numpy.nanmax` over asteval's own `numpy.nanmax` is a no-op, and it
+makes the available names a property of AutoWISP rather than of the installed
+asteval.
+
+List the names explicitly rather than deriving them from `dir(numpy)`: a
+derived list would vary with the numpy version, which is the unpredictability
+being removed. All 14 (`nanmean`, `nanmedian`, `nanstd`, `nanvar`, `nansum`,
+`nanprod`, `nanmin`, `nanmax`, `nanpercentile`, `nanquantile`, `nanargmin`,
+`nanargmax`, `nancumsum`, `nancumprod`) predate the numpy 1.21 floor and
+survive numpy 2, so an explicit list fails loudly if that ever stops being
+true.
+
+This is a small, self-contained improvement to shared pipeline code that
+happens to be a prerequisite here; it lands as its own commit.
+
+### Alignment — one canonical image list per session and image type
 
 Every array is built against the **same canonical image list**, with `NaN`
 wherever a value does not exist. Alignment is then structural: index *i* is the
@@ -75,21 +113,38 @@ The canonical list is simply:
 
 ```sql
 SELECT id, jd FROM image
-WHERE observing_session_id = ? AND jd IS NOT NULL
+WHERE observing_session_id = ? AND image_type_id = ? AND jd IS NOT NULL
 ORDER BY jd
 ```
 
-No image-type filter, no requirement that any diagnostic be present, no join to
-`image_diagnostics` — and therefore no `channel` in it either, so it is a
-function of the **observing session alone** and is shared by every channel.
-Images with nothing recorded for a given channel are just NaN across the board
-there.
+No requirement that any diagnostic be present and no join to
+`image_diagnostics`, so the list is a function of the observing session and
+the image type alone. Images with nothing recorded for a given channel are
+just NaN across the board there.
 
-Requiring "at least one diagnostic in this channel" would buy nothing: those
-rows are masked out before anything reads them, so the plots are identical
-either way. It would only add a join to the query and a channel argument to the
-signature. A session holds a manageable number of images (see *Scaling*), so
-the extra padding costs nothing that matters.
+**Type splits the list; channel does not**, and the asymmetry is not
+arbitrary. Channels are simultaneous measurements of one exposure, so they
+share an index space by construction — a row exists for the image either
+way, and requiring "at least one diagnostic in this channel" would buy
+nothing, since those rows are masked out before anything reads them. Image
+types are *different images*, which were never meaningfully on a common
+index.
+
+That distinction is load-bearing rather than tidy, because **the canonical
+list is what an aggregate spans**. `calibrate` runs on dark, flat and object
+frames (`database/defaults.py:10-12`), and each produces the `pixel_q*`
+diagnostics (`image_calibration/calibrator.py:820`, handed to `mark_end` at
+`processing_steps/calibrate.py:342`). So wherever a user's
+`observing_session_label` puts calibration frames in the same session as
+objects — which `get_or_create_target` permits, tolerating `zero`/`dark`/
+`flat` with null pointing — a session-wide list would make
+`nanmedian(pixel_q999)` a median *across image types*. Silently, and
+certainly not what was meant.
+
+Splitting also costs almost nothing in the series table, because rows with
+no data are dropped already: it separates rows only where a diagnostic
+genuinely spans types, which is exactly where they should be separate. An
+object-only diagnostic such as `bg_center` yields the same rows as before.
 
 This is what makes missing data a non-problem rather than a special case:
 
@@ -144,22 +199,37 @@ skip-empty-series behaviour without pulling the mask upstream.
 
 **The one real cost:** numpy's plain aggregates propagate NaN, so
 `bg_center - median(bg_center)` goes all-NaN if a single image lacks
-`bg_center`. Add `nanmedian`, `nanmean`, `nanstd`, `nanmin`, `nanmax`,
-`nansum`, `nanpercentile` to the evaluator's symtable — exactly as
-`LightCurveEvaluator` already does for `nanmean`/`nanmedian` in
-`autowisp/evaluator.py` — and document that aggregates want the `nan*` forms.
-Do **not** silently rebind `median` to `nanmedian`: an expression shared
-through an export file has to mean what it says. The all-NaN trap is caught
-instead by the two bounded checks under *Scaling*.
+`bg_center`. The `nan*` forms are the answer, and they must be **uniformly
+available** — see *NaN-aware aggregates* below. Do **not** silently rebind
+`median` to `nanmedian`: an expression shared through an export file has to
+mean what it says.
 
-Note also that these aggregates are **per (session, channel)**, not global:
+This bites more often than it first appears, because the canonical list has no
+image-type filter and no processing-progress filter. `bg_center` is written by
+`fit_star_shape` (step 5 of the pipeline), so a session that is partially
+processed, that contains a failed or skipped image, or whose
+`observing_session_label` groups calibration frames together with object frames
+(`get_or_create_observing_session` in `database/provenance_resolver.py` keys the
+session purely on that header expression, and `get_or_create_target` explicitly
+tolerates `zero`/`dark`/`flat` with null pointing) will have at least one image
+lacking the diagnostic — which is all it takes.
+
+It is nonetheless treated as **ordinary user error**, in exactly the way
+`bg_center / 0` is, and gets the same treatment: an empty plot. Determining
+whether an expression *actually* evaluates to all-NaN requires per-session
+evaluation, and that machinery is not worth maintaining (see *Series table
+semantics* and *Scaling*). The one concession is a static, save-time warning
+described under *Bare-aggregate warning*.
+
+Note also that these aggregates are **per (session, image type, channel)**,
+not global:
 `nanmedian(bg_center)` is the median over the plotted session, not over the
 whole archive. That is the useful meaning for night-relative quantities, and it
 is the only one that stays affordable at scale. Say so in the documentation.
 
-### Evaluation
+### Evaluation — per-series algorithm
 
-Per (observing session, channel) series:
+Per (observing session, image type, channel) series:
 
 1. Determine what the target expression needs, by `ast.parse(text,
    mode="eval")` and collecting `ast.Name` ids. Ids matching another
@@ -184,43 +254,60 @@ Per (observing session, channel) series:
    `numpy.atleast_1d` + broadcast to the image count so a constant-valued
    expression still plots.
 
+### Series table semantics
+
 The per-series count shown in the table is a **SQL aggregate only** — the
 number of images having all the needed diagnostics, from the
-`HAVING COUNT(DISTINCT diagnostic_type.id) == len(needed)` subquery. It is an
-upper bound on the number of plotted points, since arithmetic can still produce
-NaN, and the column should be labelled as "images with the required inputs"
-rather than implying a point count. Do not evaluate expressions to build this
-table — see *Scaling* — and so the all-NaN case is reported instead by the two
-bounded checks described there.
+`HAVING COUNT(DISTINCT diagnostic_type.id) == len(needed)` subquery. Label the
+column as "images with the required inputs" rather than implying a point count.
+
+This is exact for the case that carries meaning: an expression none of whose
+inputs are recorded in a session yields count 0 and therefore no row, which is
+how "not available here" gets communicated. It is an *upper* bound only when
+arithmetic manufactures NaN from finite inputs — a bare aggregate over a padded
+array, or a division by zero. Such a series does get a row and then plots
+empty. That is **accepted**: the alternative is evaluating the expression for
+every (session, channel) in the table, which is precisely the work forbidden
+under *Scaling*.
+
+### Bare-aggregate warning
+
+The one concession to the `median`-vs-`nanmedian` trap is static and costs
+nothing. At **save time only**, walk the already-parsed AST for calls to
+`median`, `mean`, `std`, `min`, `max`, `sum`, or `percentile` without a `nan`
+prefix, and emit a **non-blocking** `django.contrib.messages.warning`
+suggesting the `nan*` form.
+
+No DB query, no session or channel to choose, no evaluation, and no false
+alarms from partial processing — it reports what the expression says, not what
+some sampled session happens to contain. A deliberate bare `median` still
+saves. The AST is already being parsed at this point as the security guard, so
+this adds a walk and a name list, nothing more.
 
 ### Scaling — nothing may be O(all images)
 
 A single observing session holds a manageable number of images, but the
 `image` table as a whole will not: one of the first intended applications of
 AutoWISP runs to **millions of rows**. So the governing rule is that expression
-evaluation is always **anchored to one (observing session, channel)** and
+evaluation is always **anchored to one (observing session, image type,
+channel)** and
 bounded by that session's size. Nothing in this feature may do work
 proportional to the whole collection.
 
-#### Prerequisite: index `image.observing_session_id` — delivered elsewhere
+#### Prerequisite: index `image.observing_session_id` — already delivered
 
 Every query in this feature is scoped by observing session, so that column has
-to be indexed. It currently is not: `data_model/image.py:96` declares it as a
-plain `ForeignKey` with no `index=True`, and `Image` has no `__table_args__`
-covering it. SQLite does not index foreign keys, so
-`WHERE observing_session_id = ?` full-scans `image` today — already the shape
-of the existing `get_diagnostic_series_data`, which the canonical-image-list
-query would inherit.
+to be indexed. **This has landed and is no longer a dependency.**
+`Index("image_observing_session", "observing_session_id", "jd")` is declared in
+`Image.__table_args__` (`autowisp/database/data_model/image.py`), applied to
+existing project databases by
+`autowisp/database/migrations/versions/0002_image_session_index.py`, and
+covered by `autowisp/tests/test_database_migration.py`.
 
-**This branch does not add the index.** It is the first real entry in the
-project-database migration mechanism described in
-`project_db_migrations_plan.md`, which lands first, on its own branch. This
-work rebases onto it and simply assumes
-`Index("image_observing_session", "observing_session_id", "jd")` exists.
-
-If the sequencing ever changes, note that a model-only fix is not enough:
-`create_all` skips existing tables wholesale and will not add an index to one,
-so existing projects would silently keep the full scan.
+The reason it needed a migration rather than a model edit is worth keeping on
+record: SQLite does not index foreign keys, and `create_all` skips existing
+tables wholesale and will not add an index to one, so a model-only fix would
+have left every existing project silently full-scanning `image`.
 
 #### Query discipline
 
@@ -241,17 +328,23 @@ so existing projects would silently keep the full scan.
 These are architectural and must be respected regardless of schema:
 
 - **Never evaluate an expression to populate the series table.** That table has
-  a row per (session, channel), so evaluating per row is Python work
+  a row per (session, image type, channel), so evaluating per row is Python
+  work
   proportional to the entire image collection. Availability and counts are SQL
   aggregates, full stop; evaluation happens only for series the user actually
   selected to plot.
-- **The all-NaN check must be bounded**, since the finite count is no longer
-  available for free. Two cheap places give the same protection: at plot time,
-  when a selected series masks to empty (free — the mask already ran); and on
-  the management page, spot-checking a *single* recent session.
+- **There is no all-NaN check anywhere**, and deliberately so. Every way of
+  getting one either violates the rule above or is a heuristic that lies: a
+  management page that spot-checks one recent session reports on the session
+  *most* likely to be mid-processing, so it would raise false alarms about
+  expressions that are fine everywhere else, and it would still miss a
+  per-channel failure in the channel it did not sample. The static save-time
+  warning covers the realistic mistake at the moment it is made, and an empty
+  plot covers the rest.
 
 Two pre-existing limits are worth naming but are **not** in scope: the
-cross-session series table grows a row per (session, channel) with no
+cross-session series table grows a row per (session, image type, channel)
+with no
 pagination, and `get_available_diagnostic_series()` aggregates across every
 session for the chosen diagnostic — inherently proportional to the number of
 images carrying that diagnostic, so no index helps. The requirement on this
@@ -274,9 +367,17 @@ rel_astrom_residual_scaled = rel_astrom_residual / median(rel_astrom_residual)
 `rel_astrom_residual` is evaluated once and both of its uses in the second
 expression read the same array.
 
-The order comes from rounds: expressions depending only on real diagnostics are
-round 0, those depending only on diagnostics and round 0 are round 1, and so
-on. This is Kahn's algorithm, and it carries three properties worth naming:
+The order comes from a depth-first walk from the targets that appends each
+expression only once the expressions it references have been appended.
+Appending on the way *out* is what makes it an order rather than a
+traversal: on the way in, two expressions reached at the same depth are
+indistinguishable even when one references the other, so reversing the order
+of discovery is **not** a valid evaluation order. With `a = b + c` and
+`c = b * 2`, both `b` and `c` are reached from `a` together, and reversing
+can place `c` before the `b` it needs — the more so because the references
+come back as a set, making discovery order non-deterministic.
+
+Four properties worth naming:
 
 - **No recomputation.** A subexpression used twice — or shared by several
   dependents in a diamond — is computed once. Textual substitution would
@@ -284,10 +385,13 @@ on. This is Kahn's algorithm, and it carries three properties worth naming:
   bad cases. At the array sizes here (hundreds to thousands of images per
   session/channel) this is not what makes or breaks the feature, but it is
   free to get right.
-- **Cycle detection falls out.** If a round comes up empty while expressions
-  remain unassigned, those remaining are exactly the ones in or downstream of
-  a cycle — reported by name, globally, in one pass. No bespoke recursion
-  guard, and it catches a cycle introduced from either end.
+- **Cycle detection falls out**, and names the loop precisely. Reaching an
+  expression already on the current path closes a cycle, and that path *is*
+  the loop, so the message reads `a -> b -> a` rather than listing every
+  expression that happens to be stuck. An expression merely downstream of a
+  cycle is not implicated, which matters because it is the innocent one.
+  Catches a cycle introduced from either end, and self-reference with no
+  special case.
 - **Intermediates need no alignment bookkeeping**, because every array is
   already on the canonical image list (see *Alignment*). An intermediate that
   is undefined for some images is simply NaN there, and that propagates to its
@@ -299,11 +403,11 @@ on. This is Kahn's algorithm, and it carries three properties worth naming:
 The additions this requires, beyond what is already planned:
 
 - `order_expressions(targets, expressions, known_names)` → `(evaluation_order,
-  needed_diagnostics)`. The round-labelling above, restricted to the
+  needed_diagnostics)`. The depth-first post-order above, restricted to the
   dependency subtree of *targets* so plotting one expression does not evaluate
   the whole library. Raises on a cycle or an unresolvable name.
-- `validate_expression()` additionally accepts other expression names as valid
-  variables, and reports a cycle as a validation error.
+- `check_expression()` additionally accepts other expression names as valid
+  variables, and reports a cycle among its problems.
 - Deleting an expression that others reference is **blocked**, with the error
   naming the dependents. Cheapest safe default, and easy to relax later.
 - `import_expressions` validates the **whole incoming set together** after
@@ -315,24 +419,132 @@ management page — is untouched by nesting.
 
 ### Safety
 
-`ast.parse(..., mode="eval")` is the guard: it accepts a single expression and
-structurally rejects statements, assignments, loops, and imports. This matters
-because imported expressions come from *other people's files* — unlike the
-already-existing free-text expression boxes in `tune_starfind_views.py`,
-`lightcurve_views.py`, and `detrending_diagnostics_views.py`, which only ever
-see what the local user typed. Applied in `validate_expression()`, shared by
-the edit form and the importer.
+Three layers, and it is worth being clear which one does what, because the
+obvious answer is wrong.
+
+**`ast.parse(..., mode="eval")` is not the security boundary.** It rejects
+statements, assignments, loops and imports, which is worth having and is
+free — parsing is how the names get read anyway. But every interesting
+attack is a valid *expression*: `__import__('os').listdir('.')`,
+`().__class__.__bases__[0].__subclasses__()` and `open(f).read()` all parse
+without complaint.
+
+**asteval is the sandbox**, and it holds: `__import__`, `eval`, `exec` and
+`getattr` are absent from its symbol table, dunder traversal raises, and its
+`open` wrapper refuses every file mode but reading. Verified against asteval
+0.9.31.
+
+**Reading was still enough to matter**, which is why `EvaluatorBase` now
+drops `open` and `print` (`removed_names`). Asteval leaves `open` available,
+so an expression could read any file the user can — harmless in a box the
+local user typed into, but expressions now travel between installations in
+export files, and a shared "expression" that reads `~/.ssh/` is not one.
+`print` goes with it as a side effect rather than a value. Removing them in
+the evaluator rather than in the validator protects the ~26 modules that
+build an `Evaluator`, not only this feature, and means `check_expression`
+needs no denylist of its own: it admits the symbol table as it finds it.
+
+`check_expression` closes the loop by restricting every referenced name to
+that symbol table, the project's diagnostics, or another expression — so the
+mathematical subset is the whole of what an expression can reach.
 
 ## Implementation
 
-### 1. Model + migration
+### 1. `autowisp/evaluator.py` — uniform NaN-aware aggregates (modify)
 
-`autowisp/browser_interface/diagnostics/models.py` (currently the empty stub) —
-this app has no Django models yet, but the BUI DB is the Django `default`
-database, so a model here lands in `bui_db.sqlite3` alongside `home.Project`:
+> **Done.** `EvaluatorBase` carries all 14 NaN-ignoring aggregates and both
+> evaluators derive from it. `__call__` was hoisted onto the base as well,
+> so `LightCurveEvaluator` raises rather than returning `None`; the four
+> call sites in `get_from_lc.py` that had opted into `raise_errors=True` by
+> hand are correspondingly simpler. Two dead-code fixes came with it: an
+> assertion against an undefined `times`, and `old_main()`.
+
+Landed first, as its own commit; it is shared pipeline code and stands on
+its own merits independently of this feature.
+
+`Evaluator` and `LightCurveEvaluator` are **siblings**, both deriving straight
+from `asteval.Interpreter` — neither inherits from the other. That is why the
+`nanmean`/`nanmedian` lines had to be repeated in `LightCurveEvaluator` in the
+first place, and it is why a shared base class is the right shape here rather
+than an extra module-level helper: it is the only place the two can meet.
+
+Add `EvaluatorBase(asteval.Interpreter)` carrying the `nan_aggregates` tuple as
+a class attribute and binding it in `__init__`, then derive **both** evaluators
+from it. Neither subclass needs an explicit call — both already open their
+`__init__` with `super().__init__()`, so the binding happens there, which is
+also exactly the right moment:
+
+- In `Evaluator`, before the `for data_entry in data` loop, so a data column
+  named like an aggregate shadows the function rather than the reverse. Later
+  assignment wins in a symtable, and the data is what the user is asking about.
+- In `LightCurveEvaluator`, before the closing `self._reset()` that binds the
+  dataset names, giving datasets the same precedence.
+
+Hoist `__call__` (with its `raise_errors=True` default) onto the base as well,
+so both evaluators raise instead of returning `None`. Asteval's default prints
+the error and returns `None`, which does not buy tolerance — it relocates the
+crash away from the expression that caused it, after the message naming that
+expression has already scrolled past. Checked against the eight call sites in
+`autowisp/diagnostics/get_from_lc.py`:
+
+- Four (`:80`, `:145`, `:178`, `:185`) already passed `raise_errors=True` by
+  hand. Having opted in four separate times is itself a statement about which
+  behaviour was wanted. Now that it is the default these become redundant and
+  are **removed**, which is most of what makes this a net simplification
+  rather than an addition.
+- The other four (`:25`, `:29`, `:34`, `:76`) relied on the default and never
+  checked the result: the `None` lands in `transit_model`'s arguments, in
+  `len(None)`, and in `None - ndarray`. All three fail later and less legibly
+  than raising would.
+
+`get_from_lc.py` is the only consumer of `LightCurveEvaluator`, so the blast
+radius is one module. A caller wanting the old behaviour can still pass
+`raise_errors=False` explicitly.
+
+Two dead-code findings in the same module were cleaned up while confirming the
+above, since they were what made the call-site audit hard to read:
+
+- `get_from_lc.py:35` asserted against an undefined `times` (only ever a
+  parameter of `transit_model`), so the `shift_to` branch raised `NameError`
+  whenever it ran. Corrected to `len(model_values)`, which is what the
+  following subtraction actually requires.
+- `old_main()` was obsolete scratch code — never called from anywhere, a
+  hardcoded personal data path, a docstring naming one target while saving
+  files named for another, most of the body commented out, and two undefined
+  names (`combined_figure_id`, `individual_figures_id`) whose definitions were
+  themselves commented out. Deleted, along with the `pyplot` and
+  `DataReductionFile` imports that existed only to serve it. The console
+  script `wisp-get-from-lc` points at `main`, and the module's only external
+  importer takes `get_plot_data`/`calculate_combined`, so nothing referenced
+  it. Takes the module from pylint 8.95/10 to 10.00/10.
+
+Delete the now-redundant `self.symtable["nanmean"]` / `["nanmedian"]` lines
+from `LightCurveEvaluator.__init__`.
+
+Note `Evaluator.__init__` recurses through `self.__init__(...)` for the FITS
+and HDF5 branches, so the binding runs more than once on those paths. Harmless,
+since it is idempotent.
+
+### 2. Model + migration
+
+> **Done.** `bui_database_plan.md` is complete, and this model derives from
+> the `core.models.BuiModelBase` it introduced, so `created`, `modified` and
+> the trigger maintaining `modified` come for free — the trigger machinery
+> selects models by the column rather than from a list, so nothing had to be
+> told this table exists.
+>
+> Two additions beyond what was sketched here: `Meta.ordering = ["name"]`,
+> since the management page lists them alphabetically, and admin
+> registration, as a way to inspect or repair an expression when the
+> management page is itself what needs fixing.
+
+The model regardless of ORM: a slug `name` unique across the installation, the
+`expression` text, an optional `description`, and the created/modified
+timestamps — which come from the shared base rather than being declared here,
+so they are not repeated per model.
 
 ```python
-class DiagnosticExpression(models.Model):
+class DiagnosticExpression(BuiModelBase):
     """A user-defined expression over per-image diagnostics."""
 
     name = models.SlugField(
@@ -343,8 +555,6 @@ class DiagnosticExpression(models.Model):
         help_text="Python expression over per-image diagnostic names",
     )
     description = models.TextField(blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
 ```
 
 Generate the migration once and check it in — the repo has **no**
@@ -359,104 +569,335 @@ DJANGO_SETTINGS_MODULE=django_project.settings \
 
 Optionally register the model in `diagnostics/admin.py`.
 
-### 2. `diagnostics/expression_data.py` (new)
+### 3. The expression layer — three tiers, only one of which knows Django
 
-The project-DB-facing half. No Django views here.
+> **Rewritten.** The first draft put everything in one
+> `browser_interface/diagnostics/expression_data.py` and had several
+> functions take a bare *name*, which forced them to look the expression up
+> and so hid a browser-interface dependency inside what should be pipeline
+> code. `validate_expression` additionally raised
+> `django.core.exceptions.ValidationError`, coupling a project-database
+> check to Django. Both are fixed by the tiering below.
 
-- `get_expressions()` → `{name: expression}` from the Django ORM.
-- `get_expression_names(expression)` → the bare `ast.Name` ids referenced by
-  one expression, via the `ast` walk above; the caller splits them into
-  diagnostics, other expressions, and asteval builtins.
+#### Why this is not only a browser-interface feature
 
-  Keep this a **pure function of the expression text, derived on demand** — do
-  not persist the variable list alongside the expression. Parsing happens at
-  save time anyway (it is the `mode="eval"` security guard), so caching would
-  not remove this code, only add a column or dependency table plus
+Expressions exist to **identify images to exclude from magnitude fitting,
+EPD and TFA** — not merely to draw plots. That makes them pipeline
+machinery that the browser interface happens to also edit and visualise,
+and it has to hold across AutoWISP's usage modes:
+
+- **`run_pipeline`, project database only.** Must be able to use
+  expressions, with the definitions arriving as configuration rather than
+  from the browser-interface database.
+- **Individual steps.** Deliberately unaffected: the user deals with
+  diagnostics themselves.
+
+There is a precedent for the shape. `fit_magnitudes` already takes
+`--fit-source-condition`, "an expression involving catalog, reference
+and/or photometry variables which evaluates to zero if a source should be
+excluded". The image-level equivalent is the same idea one level up, and
+should read the same way.
+
+**A limit worth stating rather than working around:** image diagnostics
+live *only* in the project database. `fit_star_shape` passes them to
+`mark_end`, and `image_processing._save_image_diagnostics` writes the
+`ImageDiagnostics` rows; they are not in the data-reduction file structure.
+So a mode with no database at all has no recorded diagnostics, and
+expressions over them do not apply there. Nothing below tries to fix that:
+there is no facility for supplying diagnostic values from outside, and none
+is proposed. What has to survive the browser interface is the *definitions*
+arriving as configuration instead of from its database — which is tier 3.
+
+#### The tiers
+
+**Tier 1 — `autowisp/diagnostics/expressions.py`. Done. No database of any
+kind.** Pure functions over an expression library and already-fetched
+values. This is where every rule about expressions lives, so it is the only
+place any of it has to be tested.
+
+- `get_expression_names(expression)` → the bare `ast.Name` ids referenced
+  by one expression; the caller splits them into diagnostics, other
+  expressions, and asteval builtins.
+
+  Keep this a **pure function of the expression text, derived on demand** —
+  do not persist the variable list alongside the expression. Parsing happens
+  at save time anyway (it is the `mode="eval"` security guard), so caching
+  would not remove this code, only add a column or dependency table plus
   invalidation on every write path, with silent-failure modes if it drifts.
-  More importantly the useful half cannot be cached: whether a name is a real
-  diagnostic depends on which project is open, and whether it resolves to
-  another expression depends on what exists at the time — an import batch may
-  legitimately contain forward references. Expressions number in the tens and
-  parsing is microseconds; if that ever changes, `functools.lru_cache` on this
-  function is keyed by the text and so needs no invalidation.
+  More importantly the useful half cannot be cached: whether a name is a
+  real diagnostic depends on which project is open, and whether it resolves
+  to another expression depends on what exists at the time — an import batch
+  may legitimately contain forward references. Expressions number in the
+  tens and parsing is microseconds; if that ever changes,
+  `functools.lru_cache` on this function is keyed by the text and so needs
+  no invalidation.
+- `get_bare_aggregates(expression)` → the names of aggregate calls lacking a
+  `nan` prefix, for the save-time warning. The same `ast` walk, looking at
+  `ast.Call` funcs rather than bare `ast.Name` ids.
 - `order_expressions(targets, expressions, known_names)` →
-  `(evaluation_order, needed_diagnostics)`, the round-labelling described under
-  *Composition*, restricted to the dependency subtree of *targets*. Raises on a
-  cycle (naming the expressions involved) or an unresolvable name.
-- `validate_expression(name, expression, db_session)` → raises
-  `django.core.exceptions.ValidationError` on: non-slug name, reserved/colliding
-  name, non-`mode="eval"` parse, a reference cycle, or names that are neither a
-  known diagnostic, nor another expression, nor present in a fresh
-  `Evaluator().symtable`. Shared by form and import.
-- `get_expression_dependents(name)` → the expressions that reference *name*,
-  for the delete guard.
-- `get_canonical_images(session_id, db_session)` → `(image_ids, jd_values)`
-  ordered by `jd`: the canonical list every array is padded to. No `channel`
-  argument — one list per session, shared by every channel and by both the
-  plain-diagnostic and expression paths.
-- `get_expression_availability(name, db_session)` →
-  `[(session_label, session_id, channel, count), …]`, the count being finite
-  values.
-- `get_expression_series_data(session_id, channel, name, db_session)` →
-  `(jd_values, values, image_ids)`, the same 3-tuple contract as the existing
-  `get_diagnostic_series_data`, NaN-padded to the canonical list and *not*
-  masked — the single mask lives in `plot_image_diagnostic_series`.
+  `(evaluation_order, needed_diagnostics)` by the depth-first post-order
+  under *Composition*, restricted to the dependency subtree of *targets* so
+  that plotting one expression does not evaluate the whole library. Raises
+  on a cycle, naming the loop, or on an unresolvable name.
+- `get_expression_dependents(name, expressions)` → those referencing
+  *name*, for the delete guard. **Takes the library**, rather than fetching
+  it.
+- `evaluate_expressions(targets, expressions, values)` → `{name: array}`.
+  *values* is `{diagnostic_name: numpy array}` on a common index, which in
+  practice tier 2 built from the canonical image list. Passing it in rather
+  than fetching it is what keeps this tier free of a database and cheap to
+  test, not a facility for anyone to supply values by hand. The single point
+  where an `Evaluator` is built and the ordered evaluation is run.
+- `check_expression(name, expression, expressions, known_names)` → a list
+  of problems, as plain strings: non-slug name, reserved or colliding name,
+  a body that is not a single `mode="eval"` expression, a reference cycle,
+  or names that are neither a known diagnostic, nor another expression, nor
+  in a fresh `Evaluator().symtable`. **Returns problems rather than
+  raising**, so the tier stays free of Django; §5 turns them into a
+  `ValidationError`.
 
-### 3. `diagnostics/image_diagnostics_views.py` (modify)
+  The reserved set is the static list seeded by `_init_diagnostic_types()`,
+  plus `quantiles`, `jd` and `pixel_q*`, plus the `DiagnosticType` names of
+  the open project. That last group is why *known_names* is an argument:
+  this tier has no database to query for them, and which names are taken
+  depends on which project is open.
 
-- Factor the duplicated series-dict construction (identical ~18 lines in
-  `get_available_diagnostic_series:111-130` and
-  `get_available_series_for_pair:124-142`) into one
-  `make_series(session_label, session_id, channel, count, quantile_name=None)`
-  helper and use it from all three call sites.
-- `get_available_diagnostics()` (line 493): append expression names, but only
-  those whose referenced diagnostics all exist in this project's
-  `DiagnosticType` rows.
-- `get_available_diagnostic_series()` (line 34): if the name is an expression,
-  build the list from `get_expression_availability()` instead of the
-  type-based query.
-- `get_diagnostic_series_data()` (line 143): if the name is an expression,
-  delegate to `get_expression_series_data()`.
+**Tier 2 — `autowisp/diagnostics/expression_series.py` (new). Project
+database only.** Turns a (session, channel) into the values tier 1 needs.
+`get_canonical_images` belongs here — it currently sits in
+`image_diagnostics_views`, where §4 put it, and should move.
 
-`create_image_diagnostics_figure`, `plot_image_diagnostic_series`,
-`update_plot_view`, `download_plot_view`, and the whole clickable-point
-`set_urls()` path (line 231) need **no changes** — points on an expression plot
-still link to `preview_calibrated_image`, since they are still per-image.
+- `get_canonical_images(session_id, image_type_id, db_session)` →
+  `(image_ids, jd_values)` ordered by `jd`; the list every array is padded
+  to. Keyed on session **and image type**, for the reason under
+  *Alignment* — but with no `channel` argument, since channels share an
+  index space where types do not.
+- `get_diagnostic_values(session_id, image_type_id, channel, names,
+  db_session)` → `{name: array}` NaN-padded to that list, plus `jd` from
+  the canonical list itself. This is what tier 1's *values* argument is
+  built from.
+- `get_series_values(session_id, image_type_id, channel, quantities,
+  expressions, db_session)` → `({quantity: array}, image_ids)`, NaN-padded
+  to the canonical list and *not* masked; the single mask lives in
+  `plot_image_diagnostic_series`. **Takes the library explicitly** — the
+  signature the first draft got wrong — and **takes all the quantities
+  wanted at once**, which is the point below.
+- `get_expression_availability(name, expressions, db_session)` →
+  `[(session_label, session_id, image_type, channel, count), …]`, the count
+  coming from the SQL aggregate under *Series table semantics* rather than
+  from evaluating anything.
 
-### 4. `diagnostics/diag_vs_diag_views.py` (modify)
+**Both axes together, not one at a time.** *quantities* is a sequence
+because §4's figure path wants x and y for the same series, and resolving
+them separately would waste the one property that needs deliberate plumbing
+to be real. Tier 1's `evaluate_expressions` already takes a *set* of
+targets, so one call gives:
 
-Replace `_get_series_query()` (lines 30–92, two `aliased(ImageDiagnostics)` +
-two `aliased(DiagnosticType)` self-joins) and the parallel self-join in
-`get_xy_series_data()` (lines 186–211) with a uniform composition. Because both
-axes come back on the same canonical image list, there is **no join left to
-write**:
+- one query for the **union** of the diagnostics both axes need, rather
+  than two overlapping ones;
+- one `Evaluator`, so a subexpression the two axes share is computed once —
+  which is exactly the *No recomputation* claim under *Composition*. Per
+  axis it would be computed twice, and the claim would hold only within an
+  axis rather than across the plot.
 
+Note this is the only place that property needs arranging. Everything else
+called lazy in this plan is **scoping, not memoization**, and needs no state
+whatsoever: the series table never evaluates because its counts are SQL
+aggregates, and `order_expressions` walks only the targets' subtree. Nothing
+is cached between requests, and nothing needs to be — a session/channel is
+hundreds to thousands of images, so evaluation is microseconds against an
+indexed query that dominates it. Should that ever stop being true, cache
+against the project database's `timestamp` columns rather than inventing a
+store; but measure first, because a value depends on the expression text,
+every transitive dependency's text, the diagnostic rows for that session and
+channel, and which project is open — and a silently stale plot is worse than
+a slow one in a tool for deciding which images to discard.
+
+**Tier 3 — where the library comes from.** Two sources, both producing the
+same `{name: expression}` dictionary, neither knowing what it is for:
+
+- `browser_interface/diagnostics/expression_data.py`:
+  `get_expressions()` from the Django model. **The only Django-aware code
+  in the whole feature** besides the views.
+- A JSON or `key=value` file for `run_pipeline`. The §5 export format is
+  the obvious vehicle, which is why it is versioned and why a subset export
+  pulls in what it depends on — see *Out of scope*.
+
+#### Consequences worth stating
+
+- The browser interface becomes one caller among several rather than the
+  owner. Tier 1 and tier 2 have no Django import, so they are testable
+  without standing Django up, and usable from `run_pipeline`.
+- Actually *excluding* images in magfit/EPD/TFA — an
+  `--fit-image-condition` alongside the existing `--fit-source-condition`,
+  and the plumbing to honour it — is **not in this plan**. This tiering is
+  what makes it a small addition later rather than a rewrite. Noted under
+  *Out of scope*.
+
+### 4. Merge the two view modules into one
+
+> **Done.** `diag_vs_diag_views.py` is gone; both axes resolve through one
+> path against the canonical image list, with `jd` an ordinary quantity. Net
+> deletion despite adding the canonical-list machinery. The characterization
+> tests below were written and green against the previous code first, and
+> pass unchanged in intent against the merged one.
+>
+> One thing the work settled that this section left open: `quantiles`
+> resolves to its concrete `pixel_q*` member **once per series**, in
+> `resolve_quantity`, so `jd` ends up the only quantity needing a branch
+> anywhere. The default `aspect_ratio` is also conditional — 3.0 against
+> time, 1.0 otherwise — preserving the wide time-series and square scatter
+> looks the two modules had separately.
+
+`image_diagnostics_views.py` and `diag_vs_diag_views.py` were one feature
+wearing two URLs. They already share the template (`diagnostics_app.html`) and
+the JavaScript, and the x-selector already lists `time` as **one option among
+the diagnostics** — the user-facing model is already "x is a quantity, one of
+which happens to be time". The whole split is a single branch in
+`navigateDiagnostics()`: `if (xDiag === 'time')` choose URL shape A, else
+shape B.
+
+Under the canonical-image-list design the case is stronger still, because
+`get_canonical_images()` already returns `(image_ids, jd_values)`. **`jd` is
+the one quantity that arrives with every series at zero query cost.** It is the
+natural x, not a special case. Making it an ordinary variable also buys
+something new: expressions can *use* it — `jd - 2460000`, night-relative time,
+phase folds — none of which is possible today.
+
+So: one code path, `x` and `y` both resolved through the same single-quantity
+getter, with `jd` joining diagnostics and expressions as a third kind of
+resolvable name.
+
+- **`jd`, not `bjd`.** `Image.jd` is plain mid-exposure JD: `JD-OBS` is built
+  in `provenance_resolver.py` as `exposure_start.jd + exposure/2` with no
+  `location`, and stored verbatim by `add_images_to_db.py`. BJD exists, but
+  only in lightcurves (`lc_data_io.py` re-wraps the same `JD-OBS` with an
+  observatory location and per-source coordinates). Barycentric correction
+  depends on where on the sky you point, so **BJD is per-source while
+  diagnostics are per-image** — it is not merely absent here, it is undefined.
+  Naming the variable `bjd` would assert a correction that has not been
+  applied.
+- **`jd` is the only never-NaN quantity**, since the canonical list is defined
+  by `jd IS NOT NULL`. It is therefore the sole legitimate exception to the
+  "prefer `nan*`" guidance — say so in the docs, since it will otherwise look
+  inconsistent.
 - Availability = the union of the two axes' series keys
-  `(session_id, channel[, quantile_name])`, with the count being the number of
-  images where both are finite.
-- Data = call the single-quantity getter for each axis and pair them
-  positionally; `isfinite(x) & isfinite(y)` at the plotting boundary is what
-  used to be the inner join.
+  `(session_id, image_type, channel[, quantile_name])`, count from the SQL
+  aggregate. An axis of `jd` constrains nothing, so a `jd` vs *y* table is
+  today's time-series table, except split by image type.
 
-This gives all four combinations (type×type, type×expr, expr×type, expr×expr)
-from one code path and deletes ~90 lines of aliasing. **Regression risk to
-verify by hand:** the `quantiles` pseudo-name expands to one series per
-`pixel_q*` per (session, channel), and the current code special-cases which
-axis's quantile name lands in the series id. Preserve that by keying on the
-quantile name whenever either axis is `quantiles`, and check `quantiles` vs a
-plain diagnostic still renders one row per quantile.
+  **The image type is new** — see *Alignment* for why it belongs in the key
+  rather than only in the canonical list. Practically this means a `Type`
+  column in the table, `image_type_id` in the `GROUP BY`, and a join to
+  `image_type` for the name. It changes what is displayed only where a
+  diagnostic actually spans types, which today means `quantiles`: `pixel_q*`
+  is recorded for dark, flat and object frames alike, so a shared session
+  currently shows them as one undifferentiated row and one undifferentiated
+  series.
+- Data = ask for both axes at once and pair positionally;
+  `isfinite(x) & isfinite(y)` at the plotting boundary is what used to be the
+  inner join. As implemented for plain diagnostics this is
+  `get_quantity_values` once per axis, which is free — each is a separate
+  column. Once expressions arrive it becomes a single
+  `get_series_values(…, quantities=(x, y), …)` call, so that two axes
+  sharing a subexpression evaluate it once rather than twice; see §3.
+
+This deletes `_get_series_query()` (lines 30–92, two `aliased(ImageDiagnostics)`
++ two `aliased(DiagnosticType)` self-joins), the parallel self-join in
+`get_xy_series_data()` (lines 186–211), one of the two figure factories, the
+`navigateDiagnostics()` branch, and the duplicated ~18-line series-dict
+construction — which is now deduplicated as a side effect rather than as the
+separate `make_series` commit previously planned.
+
+Two behaviours must be carried across deliberately:
+
+- **The shared x-offset stays presentation logic.**
+  `create_image_diagnostics_figure` computes `min_jd` across *all* selected
+  series (lines 369–379) and applies
+  that one value to every one of them, so nights keep their relative spacing
+  and the axis reads `JD - 2460…`. Keep exactly that, conditioned on `x ==
+  "jd"`. It never touches the data, so it stays out of the expression system.
+  Deliberately **not** replaced by a seeded `time = jd - min(jd)` expression:
+  expression aggregates are per (session, image type, channel), so that would
+  zero each
+  night independently, overlay them at a common origin, and — because all
+  x-ranges would then overlap — collapse today's per-night subplots into one.
+  That is a useful view, but a different one; a user who wants it can define it.
+  **No expressions are seeded**; the library starts empty.
+- **Subplot grouping generalizes.** `group_series_by_jd_overlap` is really
+  "group by x-range overlap". For a non-time x the ranges typically overlap, so
+  it collapses to the single axes the xy path uses today — today's behaviour
+  falls out of the general rule rather than needing a branch. Assert this in a
+  test rather than assuming it.
+
+`plot_image_diagnostic_series`, `update_plot_view`, `download_plot_view`, and
+the clickable-point `set_urls()` path need no behavioural change — points are
+still per-image, so they still link to `preview_calibrated_image`.
+
+Also in this pass: `get_available_diagnostics()` (line 493) switches its
+`GROUP BY` over all of `image_diagnostics` to per-type `EXISTS` probes (see
+*Query discipline*), and gains `jd` plus the expression names whose referenced
+diagnostics all exist in this project's `DiagnosticType` rows.
+
+**Regression risk — pin it with a test before refactoring, not by eye.** The
+`quantiles` pseudo-name expands to one series per `pixel_q*` per
+(session, channel), and the current code special-cases which axis's quantile
+name lands in the series id (`_get_series_query` lines 76–87). Write a test
+asserting one series per `pixel_q*` with the quantile name in the series id,
+**for both axis orders**, and get it green against the current code first. With
+the merge this is the only remaining path, so the test is load-bearing rather
+than precautionary.
+
+**The series id gets a new encoding, not a fourth positional field.** It is
+packed today as `f"{session_id}_{channel}"` or
+`f"{session_id}_{channel}_{quantile_name}"` and unpacked by `split("_")`,
+which works only because channels carry no underscore while quantile names
+do — hence the `"_".join(parts[2:])` in `split_series_id`. Adding image type
+to that is how the encoding finally breaks.
+
+It stays a string, because it has to be: the id is the table row's HTML
+`id`, and four more element ids are built from it — `marker-button:`,
+`plot-color:`, `scale:` and `label:` (`diagnostics_app.html:82`,
+`diagnostics_app.js:15-38`) — and it is a key of the `datasets` object
+posted back to `update_plot_view`. What changes is the encoding:
+
+```python
+series["id"] = "|".join(
+    (str(session_id), image_type, channel, quantile_name or "")
+)
+```
+
+- **A fixed four fields**, so `split("|")` needs no cleverness and an
+  underscore anywhere is harmless. An absent quantile is the empty string
+  rather than a missing field, keeping the count constant.
+- **`|` cannot occur** in a session id, an `ImageType.name`, a channel or a
+  `pixel_q*` name. `make_series` should assert that rather than trust it, so
+  a future channel naming scheme fails loudly instead of producing an
+  ambiguous id.
+- **Not `:`**, which already separates the prefixes above; not JSON, which
+  would need escaping to sit in an HTML attribute. `|` is valid in an HTML5
+  `id`, and the code reaches these elements with `getElementById` rather
+  than CSS selectors, so nothing needs escaping.
+
+`make_series` and `split_series_id` remain the only two places that know the
+format, so the change is contained to them and their tests. Keeping the
+quantile last also means the existing characterization assertion — that a
+quantile series id *ends with* its `pixel_q*` name — holds under the new
+encoding as it did under the old, so that test needs no rewriting for this.
 
 ### 5. `diagnostics/expression_views.py` (new)
 
 - `list_expressions` — table of expressions with a per-row status computed
   against the open project (OK / missing variables / shadowed by a real
-  diagnostic / **inputs present but every value NaN**, the visible symptom of
-  using `median` where `nanmedian` is meant), plus the create-or-edit form.
-  The all-NaN check evaluates against **one** recent observing session, never
-  all of them. Show each row's direct dependencies so a composed expression is
-  traceable.
-- `save_expression` — POST, `validate_expression()` then create/update;
-  `django.contrib.messages.error` on failure, redirect back.
+  diagnostic), plus the create-or-edit form. Show each row's direct
+  dependencies so a composed expression is traceable. **No all-NaN status** —
+  every status here is derived from names alone, so the page costs no
+  evaluation and no per-session query.
+- `save_expression` — POST, `check_expression()` with the open project's
+  `DiagnosticType` names as *known_names*, raising its returned problems as
+  a `ValidationError` (this is the one place that adaptation happens), then
+  `get_bare_aggregates()` → non-blocking `messages.warning` if any, then
+  create/update; `django.contrib.messages.error` on failure, redirect back.
 - `delete_expressions` — POST with checked ids (mirror
   `home/views.py:delete_projects`), refusing any id that other expressions
   reference and naming those dependents in the error.
@@ -488,6 +929,20 @@ Export format (versioned so it can evolve):
 
 ### 6. Templates, JS, URLs
 
+> **Partly done**, split by which change they belonged to. Everything the
+> axis merge needed has landed: `navigateDiagnostics()` lost its branch and
+> `data-image-url`, the hard-coded `<option value="time">` is gone since
+> `jd` is now an ordinary entry in `available_diagnostics`, `urls.py`
+> collapsed onto one display route with `image/<slug:diagnostic_name>`
+> redirecting to `x=jd`, and `views.py` dropped the `diag_vs_diag_views`
+> re-exports. **Remaining** is everything belonging to the expressions page
+> itself: the new template and JS, the two `<optgroup>`s, the left-menu
+> button, the `expressions/*` routes and their re-exports.
+>
+> Keeping the redirect turned out to be load-bearing rather than courteous:
+> `processing/progress.html` reverses `display_image_diagnostics` six times,
+> so the URL *name* had to survive, not just the path.
+
 - New `diagnostics/templates/diagnostics/diagnostic_expressions.html`
   extending `core/lcars_app.html`. Use the hidden-file-input +
   `onchange="form.submit()"` import idiom from
@@ -498,17 +953,32 @@ Export format (versioned so it can evolve):
   edit/delete row interactions.
 - `diagnostics_app.html`: wrap the built-in and expression options in two
   `<optgroup>`s in both `<select>`s (lines 20–40), and add a "Diagnostic
-  Expressions" button to the `left_menu` block (line 45).
-  `diagnostics_app.js` needs **no** change — dropdown values stay plain names.
-- `diagnostics/urls.py`: add `expressions`, `expressions/save`,
-  `expressions/delete`, `expressions/export`, `expressions/import`.
+  Expressions" button to the `left_menu` block (line 45). The x-selector's
+  hard-coded `<option value="time">time</option>` becomes `jd`, which is now
+  an ordinary entry in `available_diagnostics` rather than a special case, so
+  the literal option disappears entirely.
+- `diagnostics_app.js`: `navigateDiagnostics()` **loses its branch**. With one
+  URL shape it reduces to a single `replace` pair, and `data-image-url` is no
+  longer needed on `#diag-selector-bar`.
+- `diagnostics/urls.py`: collapse the two display routes into
+  `image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>` plus its `update_plot` and
+  `download_plot` siblings, and **keep `image/<slug:diagnostic_name>` as a
+  redirect** to `x=jd` so existing bookmarks survive. Add `expressions`,
+  `expressions/save`, `expressions/delete`, `expressions/export`,
+  `expressions/import`.
 - `diagnostics/views.py`: re-export the new views through the hub, as it
-  already does for the other modules.
+  already does for the other modules, and drop the re-exports of the deleted
+  `diag_vs_diag_views` names.
 
 ### 7. meson.build (mandatory — sources are listed explicitly, no globs)
 
+> **Partly done**, alongside the changes that needed it:
+> `diagnostics/migrations/meson.build` has `0001_initial.py`, and
+> `diagnostics/meson.build` lost `diag_vs_diag_views.py`. The entries below
+> for files that do not exist yet remain.
+
 - `diagnostics/meson.build`: add `expression_data.py`, `expression_views.py`.
-- `diagnostics/migrations/meson.build`: add `0001_initial.py`.
+- `diagnostics/migrations/meson.build`: `0001_initial.py` — **done**.
 - `diagnostics/templates/diagnostics/meson.build`: add
   `diagnostic_expressions.html`.
 - `diagnostics/static/diagnostics/js/meson.build`: add
@@ -519,24 +989,188 @@ Export format (versioned so it can evolve):
 `documentation/source/diagnostics.rst` is a complete narrative of the
 diagnostics UI and is rendered into `docs/`. Add a section covering: defining
 an expression, which variables are available, the vectorized/aggregate
-semantics, **why aggregates want the `nan*` forms**, building expressions out
-of other expressions, project-availability, and import/export.
+semantics, **why aggregates want the `nan*` forms** — and that a bare one
+usually yields an empty plot rather than an error, because a session normally
+contains images without the diagnostic — building expressions out of other
+expressions, project-availability, and import/export.
+
+### 9. Sorting the series table
+
+> **Done.** Not part of the expression feature — an affordance of the same
+> table §4 and §6 rework, added while that table was open.
+
+The series table is ordered server-side by session, then type, then channel,
+then quantile (`get_available_series`). Anything that cuts across that order
+is then scattered down the table: every channel of one session reads well,
+every session of one channel does not. Clicking a column heading re-keys it.
+
+**Client-side, and by a vendored library rather than by our own code.**
+
+*Client-side* because a row carries state that exists nowhere but in the DOM:
+the `.active` class marking it selected, three live `<input>`s whose current
+values `getSelectedDatasets()` reads straight back out, and the marker
+`<svg>` that `selectSymbol()` swapped in. Re-sorting server-side behind a URL
+parameter would reload the page and discard every one of them, which is why
+the view, its URLs and `rows.sort(...)` are all left exactly as they are —
+they set the order the table *arrives* in, and nothing more is asked of them.
+
+*A library* because sorting a table by its headings is not a problem worth
+solving again: [tofsjonas/sortable](https://github.com/tofsjonas/sortable)
+4.1.7 is 1760 bytes, has no dependencies, needs no init call, and is in the
+public domain (Unlicense), so the vendored copy carries no obligations. The
+BUI already vendors third-party JS in `static/js/` — jQuery and
+`jquery.orgchart` — so this is the established pattern rather than a new one.
+
+The decisive property is *how* it sorts, not its size. It shallow-clones the
+`<tbody>` and appends the **existing `<tr>` nodes** into the clone: rows are
+moved, never rebuilt. Every piece of DOM-only state above therefore survives
+a sort, as do the per-row click listeners `initImageDiagnostics()` attaches.
+The libraries that rebuild rows from parsed cell data — the DataTables
+family, `simple-datatables` — would silently drop all of it. **One thing the
+shallow clone does not carry across is a listener bound to the `<tbody>`
+itself**, so the per-row listeners must stay per-row and not be "simplified"
+into one delegated to the body.
+
+The rest the table already satisfies, or gets for nothing:
+
+- Activation is `class="sortable"` on the `<table>`; the four control columns
+  opt out with `class="no-sort"`. The generated headings stay inside their
+  generic `{% for field in diagnostics_fields %}` loop — all of them sort,
+  so the template still need not know what the fields are.
+- **`class="asc"` as well**, which the library does not default to: without
+  it the *first* click sorts descending, which reads as the table having been
+  shuffled rather than ordered. With it the first click ascends and the
+  second reverses, as everywhere else.
+- `<thead>` and `<tbody>` are required, and both are already there.
+- The comparator is `+a - +b` falling back to `localeCompare`, so Count and
+  Quantile sort numerically without a `data-sort` attribute anywhere.
+- `Array.sort` is stable, so successive clicks compose: session, then
+  channel, gives channel-major with the sessions ordered inside each. This is
+  why no tiebreaker is configured; `data-sort-tbr` on a heading is the escape
+  hatch if one is ever wanted, at the cost of teaching the template which
+  column index each field landed at.
+
+Files:
+
+- `static/js/sortable.min.js` — vendored **pinned to 4.1.7**, not `@latest`,
+  with a provenance comment naming project, version and license, as
+  `jquery.min.js` does. In the shared `static/js/` rather than under
+  `diagnostics/`: it is generic, and the detrending and configuration tables
+  are the obvious next users.
+- `static/js/meson.build` — `'sortable.min.js'`, per §7's rule that sources
+  are listed explicitly.
+- `diagnostics_app.html` — `sortable` on the table, `no-sort` on the Color,
+  Style, Scale and Label headings, and the `<script>` tag. Load order is
+  free: the library registers one delegated listener on `document` and reads
+  the DOM at click time.
+- `diagnostics_app.css` — the arrow indicators only, with the transparent
+  resting arrow kept so sorting does not shift the heading row sideways.
+  **Its stylesheet is deliberately not vendored**: it is a theme — zebra
+  stripes, a grey header background, its own `border-spacing` and `padding`
+  — and every part of that fights LCARS and `table.standard-header`. The
+  selectors are the upstream ones unchanged, so an upgrade stays a diff of
+  one file, and they need no further scoping: `.sortable` is itself the
+  opt-in, so a table without it is left alone.
+- `documentation/source/diagnostics.rst` — a "Choosing what to draw"
+  subsection introducing the table, its four editable columns, and sorting.
+
+Deliberately **not** included: bulk selection. Sorting groups the rows one
+wants together but still leaves a click per row, and the obvious completion
+is a shift-click range select — perhaps ten lines of our own JS, since no
+library is needed for it. Deferred rather than dismissed.
 
 ## Verification
 
-1. **Unit tests** — add to `diagnostics/tests.py` (currently a stub) a Django
-   `TestCase` covering `validate_expression()` accept/reject cases (bad slug,
-   reserved name, statement instead of expression, unknown variable, reference
-   cycle), `get_expression_names()`, `order_expressions()` — a multi-level
-   chain, a diamond where one expression feeds two dependents, a cycle, and
-   the restriction to the target's subtree — the delete-with-dependents
-   refusal, and an export→import round trip of a composed set. Also cover
-   NaN padding and masking on synthetic arrays: a diagnostic missing for some
-   images lands at the right indices, NaN propagates through a composed
-   expression, and the finite mask keeps `image_ids` aligned with the plotted
-   values. These need only the Django DB, no project DB.
-2. **Pipeline tests** unaffected, but run them since `image_diagnostics_views`
-   sits next to shared code:
+1. **NaN-aware aggregates** — assert every name in `nan_aggregates` resolves in
+   a bare `Evaluator()` *and* in a `LightCurveEvaluator`, and that each is the
+   corresponding `numpy` function. This is the check that stops the two
+   evaluators drifting apart again, and it is what makes a future asteval
+   upgrade that drops a name fail loudly rather than silently. Also assert a
+   data key wins over an aggregate of the same name, that a bad expression
+   raises by default in **both** evaluators, and that an explicit
+   `raise_errors=False` still returns `None`.
+1. **Unit tests** covering `check_expression()` accept/reject cases (bad
+   slug, reserved name, statement instead of expression, unknown variable,
+   reference cycle) — which need **no database and no Django**, since tier 1
+   takes its library and known names as arguments, and are correspondingly
+   cheap to write exhaustively. Plus
+   `get_expression_names()`, `get_bare_aggregates()` (flags
+   `median`, ignores `nanmedian`), `order_expressions()` — a chain, a diamond
+   where one expression feeds two dependents, a cycle, and the restriction to
+   the target's subtree — the delete-with-dependents refusal, and an
+   export→import round trip of a composed set. Also cover NaN padding and
+   masking: a diagnostic missing for some images lands at the right indices,
+   NaN propagates through a composed expression, and the finite mask keeps
+   `image_ids` aligned with the plotted values.
+
+   **All of it goes in `autowisp/tests/test_*.py`** — *not* in
+   `diagnostics/tests.py`. The six BUI app `tests.py` files are untouched
+   stubs, and nothing runs them: CI invokes only
+   `python -m autowisp.tests …` plus one direct
+   `python -m unittest autowisp.tests.test_database_migration`, and
+   `start.py` runs `migrate` but never `manage.py test`. A test placed in the
+   app would therefore never execute, in CI or via the documented command.
+   New classes must additionally be imported by name into
+   `autowisp/tests/__main__.py`, which lists test classes explicitly rather
+   than discovering them.
+
+   Four things the fixtures must account for, found while writing the
+   characterization tests:
+
+   - A lazily-initialized project DB creates the schema but seeds **no**
+     `diagnostic_type` rows — `_init_diagnostic_types()` runs only on real
+     project creation — so tests create every type they use. This is also why
+     no `pixel_q*` type exists there: those are made at runtime.
+   - SQLite does not enforce foreign keys, so an `ObservingSession` can carry
+     dummy provenance ids rather than a full
+     `Observer`/`Camera`/`Telescope`/`Mount`/`Observatory`/`Target` chain.
+     `test_error_render.py:68` already relies on this.
+   - Mocking `plot_image_diagnostic_series` keeps `reverse()` — and therefore
+     Django settings — out of figure-level tests entirely, while capturing
+     exactly the values that reach plotting.
+   - **The user data directory is redirected centrally**, so no test has to
+     remember to do it. `autowisp/tests/__init__.py` replaces
+     `platformdirs.user_data_dir` with a session-scoped `TemporaryDirectory`
+     before importing anything else. Django's default database would
+     otherwise be the developer's real
+     `~/.local/share/autowisp/bui_db.sqlite3` — the file holding their
+     project list — and the same lookup also feeds `bui.log`, the default
+     project home in `database/interface.py`, and `run_pipeline.out` in two
+     places, so one redirect covers all five. It lives in the package
+     `__init__` rather than `__main__` because CI also runs
+     `python -m unittest autowisp.tests.…` directly, which never loads
+     `__main__`; and it must precede the other imports because
+     `settings.py` resolves the directory at *import* time.
+   - Configuring Django from `autowisp/tests/` additionally requires
+     `autowisp/browser_interface` on `sys.path`, since
+     `django_project.settings` names its apps bare (`home`, `core`,
+     `diagnostics`, …). A `DiagnosticExpression` test then needs
+     `call_command("migrate", run_syncdb=True, verbosity=0)` against the
+     redirected database.
+1. **The `quantiles` regression test from §4, written and green before the
+   merge**: one series per `pixel_q*` per (session, channel), quantile name
+   in the series id, for both axis orders.
+1. **Merge equivalence, also captured before the merge.** The two behaviours
+   §4 must carry across are exactly the ones no small test project will reveal
+   by eye, so pin them:
+   - `x="jd"` reproduces the old time-series table and figure: one shared
+     offset across all selected series (not per-series), axis label
+     `JD - <min>`, and one subplot per non-overlapping night.
+   - A non-time x collapses to a single axes, because the generalized
+     x-range-overlap grouping finds every range overlapping.
+   - `image/<name>` still resolves, via redirect, to `x=jd`.
+1. **The image-type split**, which needs a fixture no existing test has: one
+   session holding frames of more than one type, with a diagnostic recorded
+   for several of them — `pixel_q*` is the real instance, since `calibrate`
+   runs on dark, flat and object alike. Assert that the series table shows
+   one row per type rather than one lumped row, that a diagnostic recorded
+   for a single type yields exactly the rows it did before, and — the point
+   of the whole change — that `nanmedian` over such a diagnostic is taken
+   within a type rather than across them. The last of those is the only
+   assertion that would catch a regression silently, since the first two
+   merely look untidy when wrong.
+2. **Pipeline tests** unaffected, but run them since the evaluator change in §1
+   is shared pipeline code:
    `python -m autowisp.tests failed_test -v`
 3. **Manual, end to end** — the BUI must run from the *installed* package, and
    not editable for BUI work:
@@ -547,14 +1181,18 @@ of other expressions, project-availability, and import/export.
    Hard-refresh the browser (cached JS/CSS), then, in a project that has been
    through `find_stars` / `solve_astrometry` / `fit_star_shape`:
    - Define `rel_astrom_residual = astrom_residual / diagonal_fov`; confirm it
-     appears in both selectors and plots against time with the right
-     per-series counts.
+     appears in both selectors and plots against `jd` with the right per-series
+     counts.
+   - Confirm `jd` itself appears in both selectors, that `jd` vs a diagnostic
+     is indistinguishable from the old time-series view, and that an expression
+     using `jd` (e.g. `jd - nanmin(jd)`) validates, saves, and plots — the
+     capability the merge unlocks.
    - Define `rel_bg = bg_center - nanmedian(bg_center)` to confirm aggregate
      (vectorized) functions work, and that the median is taken per session
      rather than across sessions. Then define the same thing with plain
-     `median` in a session where some image lacks `bg_center`, and confirm both
-     the plot-time message and the management page report it as all-NaN rather
-     than silently plotting nothing.
+     `median`: confirm the save-time warning appears, that it still saves, and
+     that in a session where some image lacks `bg_center` it occupies a table
+     row and plots empty. The management page must **not** flag it.
    - Confirm a diagnostic recorded for only some images of a session plots at
      the right positions in time (NaN padding must not shift points), and that
      clicking a point still opens the *correct* frame — the masking-vs-`set_urls`
@@ -584,22 +1222,42 @@ of other expressions, project-availability, and import/export.
      is hidden from the selectors but listed (flagged) on the management page,
      and that an expression composed from it is hidden too.
    - Confirm expressions persist across switching projects (they are global).
+   - **Sorting (§9)**, on a table with several sessions and channels: the
+     Channel heading regroups the rows ascending, and clicking it again
+     reverses them; Session then Channel gives channel-major with the
+     sessions still ordered inside each; Count sorts numerically (9 before
+     100, not after); the four control headings neither sort nor show an
+     arrow. Then the check the library was chosen for: **select two rows,
+     change one's colour and type a label, and sort.** The selection, the
+     colour and the label must all survive, and the next row click must still
+     update the plot — that is what proves the rows were moved rather than
+     re-rendered.
+
+     All of that except the appearance was checked headlessly first, by
+     driving the vendored library against the really-rendered table in
+     `jsdom` and asserting on node identity, so the browser pass is about how
+     it looks rather than whether it works. Two things that check caught:
+     the first click sorts *descending* without `class="asc"`, and the
+     composition really does rest on `Array.sort` stability rather than on
+     luck.
 4. **Scaling** — the constraint in *Scaling* has to be checked, not assumed,
    and a small test project will not reveal a violation:
    - Run `EXPLAIN QUERY PLAN` on the canonical-image-list query, the
      availability subquery, and the per-series data query. Each must drive from
      `image` on `observing_session_id` and probe `image_diagnostics` by index;
      any plan that leads with a scan of `image_diagnostics` is a failure.
-   - Confirm the `image_observing_session` index (from the migrations branch)
-     is actually used by these queries, in a project database created before
-     it existed and then migrated.
+   - Confirm the `image_observing_session` index is actually used by these
+     queries in a project database created *before* it existed and then brought
+     forward with `autowisp/database/migrate_cli.py` — not only in a freshly
+     created one, where `create_all` would have supplied it regardless.
    - Synthesise a large `image` / `image_diagnostics` set (a few hundred
      thousand rows across many sessions is enough to show the shape) and
      confirm that opening the series table and the expression management page
      stay responsive, and that their cost does not grow with the number of
      sessions beyond the row count of the table itself.
    - Confirm no code path evaluates an expression outside a session the user
-     selected for plotting, or the one session sampled for the all-NaN check.
+     explicitly selected for plotting. The series table and the management page
+     must both be reachable without a single call into the evaluator.
 5. **Lint/format**: `pylint autowisp/browser_interface/diagnostics/` and Black
    at 80 columns; keep any incidental reformatting as its own commit.
 
@@ -607,3 +1265,25 @@ of other expressions, project-availability, and import/export.
 
 - Expressions over `PhotometryDiagnostics` (recorded by `fit_magnitudes` but
   surfaced nowhere in the BUI) and over the file-based detrending statistics.
+- **Excluding images from magnitude fitting, EPD and TFA** — which is what
+  expressions are ultimately *for*. The natural form is an
+  `--fit-image-condition` beside the existing `--fit-source-condition`,
+  evaluating to zero for images to drop, with the same wording. The tiering
+  in §3 is what keeps this a small addition: tier 1 already evaluates a
+  library against values handed to it, so a step needs only to fetch its
+  diagnostics through tier 2 and apply the result. Deliberately not in this
+  plan, which stops at defining, storing and visualising expressions.
+- **Reaching expressions from the command line.** Command-line processing
+  cannot assume a browser-interface database exists — that database is a
+  browser-interface concept, and the CLI is handed a project home rather
+  than discovering one — so expressions will need to arrive as
+  configuration: a command-line option, or a file named by one.
+
+  This is foreseen rather than solved here, but it shapes one decision that
+  *is* in scope. The export format in §5 should be treated as the eventual
+  configuration format, not merely as an interchange file, since a user
+  exporting their library and pointing the CLI at it is the obvious path.
+  Its version key (`autowisp_diagnostic_expressions: 1`) exists for exactly
+  that reason. Keep it self-contained — a selected-subset export already has
+  to pull in the expressions its selection depends on — so that a file taken
+  from the BUI is directly usable without further resolution.

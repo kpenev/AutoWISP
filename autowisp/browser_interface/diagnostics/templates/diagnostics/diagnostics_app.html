@@ -54,13 +54,16 @@
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
     <div id="diagnostics-table-parent">
-        <table class="lcars-table standard-header">
+        {# "asc": first click sorts ascending, which the library does not
+           default to.  A first click that jumps to descending reads as the
+           table having been shuffled rather than ordered. #}
+        <table class="lcars-table standard-header sortable asc">
             <thead>
                 <tr>
-                    <th>Color</th>
-                    <th>Style</th>
-                    <th>Scale</th>
-                    <th>Label</th>
+                    <th class="no-sort">Color</th>
+                    <th class="no-sort">Style</th>
+                    <th class="no-sort">Scale</th>
+                    <th class="no-sort">Label</th>
                     {% block diagnostics_table_header %}
                     {% for field in diagnostics_fields %}
                     <th>{{ field }}</th>
@@ -120,6 +123,8 @@
 </div>
 
 <script src="{% static 'js/autowisp.util.js' %}"></script>
+{# One delegated listener on document, no init call, so load order is free. #}
+<script src="{% static 'js/sortable.min.js' %}"></script>
 <script src="{% static 'diagnostics/js/diagnostics_app.js' %}"></script>
 {% if update_plot_url %}
 <script type="text/javascript">

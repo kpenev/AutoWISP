@@ -398,6 +398,26 @@ than the images, showing the scatter left after magnitude fitting, EPD
 and TFA. That is where you see whether the detrending stages actually
 improved anything, and by how much, rather than assuming they did.
 
+Choosing what to draw
+---------------------
+
+Whichever plot you are on, the table above it lists what can be drawn: one
+row per observing session, image type and channel -- and per quantile,
+where the quantiles are being plotted. Clicking a row adds its series to
+the figure, and the first four columns of that row are yours to set: the
+colour, the marker, a scale factor and the label the legend will use.
+
+The rows arrive ordered by session, then type, then channel, but any
+column heading re-orders them, ascending on the first click and reversed
+on the next. That is worth knowing when what you want
+to see cuts across the default order -- every channel of one session
+reads well as it comes, but every session of one channel does not, until
+you sort on the channel. Successive clicks compose, so sorting on the
+session and then on the channel gives you the channels grouped with the
+sessions still in order inside each. Sorting only moves the rows: what
+you have already selected stays selected, and the colours and labels you
+have typed stay with their rows.
+
 Every point is a link
 ---------------------
 
