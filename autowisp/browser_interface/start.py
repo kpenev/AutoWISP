@@ -76,8 +76,17 @@ def migrate_and_serve(hostname, port):
         sys.executable,
         os.path.join(os.path.dirname(__file__), "manage.py"),
     ]
+    # --skip-checks because runserver runs the system checks itself a moment
+    # later, and they are far from free: they import the URLconf and through
+    # it every view module, which drags in matplotlib, pandas, astropy and
+    # astroquery.  Unskipped, that import happens twice in two processes,
+    # and it costs several times what the migrations themselves do -- more
+    # still on a machine whose caches are cold, where it reads as a hang.
     subprocess.run(
-        cmd + ["migrate"], check=True, stdout=sys.stdout, stderr=sys.stderr
+        cmd + ["migrate", "--skip-checks"],
+        check=True,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
     )
     sys.stdout.flush()
     sys.stderr.flush()
