@@ -12,6 +12,7 @@ py_src = [
   '0007_drop_condition_fks.py',
   '0008_widen_lc_status_id.py',
   '0009_float_columns_to_double.py',
+  '0010_unique_image_type_name.py',
 ]
 
 py.install_sources(
