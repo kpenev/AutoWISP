@@ -18,6 +18,7 @@ from autowisp.error_context import capture_errors, error_context
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.diagnostics.diagnostic_types import is_quantile_diagnostic
 from autowisp.evaluator import Evaluator
 
 # False positive due to unusual importing
@@ -827,7 +828,7 @@ class ImageProcessingManager(ProcessingManager):
                 )
             )
             if diag_type_id is None:
-                if diag_name.startswith("pixel_q"):
+                if is_quantile_diagnostic(diag_name):
                     quantile_digits = diag_name[len("pixel_q") :]
                     new_type = DiagnosticType(
                         name=diag_name,
@@ -1776,7 +1777,7 @@ class ImageProcessingManager(ProcessingManager):
                 )
                 continue
 
-            (step_name, image_type_name, processing_batches) = (
+            step_name, image_type_name, processing_batches = (
                 self._prepare_processing(step, image_type, limit_to_steps)
             )
             self._logger.debug(

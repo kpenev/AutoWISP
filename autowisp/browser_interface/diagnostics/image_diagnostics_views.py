@@ -30,7 +30,6 @@ from autowisp.database.interface import start_db_session
 from autowisp.diagnostics.expression_series import (
     SeriesKey,
     count_images_with_all,
-    get_known_names,
     get_series_values,
     time_quantity,
 )
@@ -194,8 +193,6 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
 
     quantile_names = get_quantile_names(db_session) if has_quantiles else [None]
 
-    known_names = get_known_names(db_session)
-
     rows = []
     for quantile_name in quantile_names:
         # What an axis *needs* is not what it names: an expression needs the
@@ -209,7 +206,6 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
                 for quantity_name in (x_diagnostic, y_diagnostic)
             ],
             expressions,
-            known_names,
         )
         needed = needed - {time_quantity}
         rows.extend(

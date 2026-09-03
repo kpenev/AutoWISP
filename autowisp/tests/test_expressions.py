@@ -26,9 +26,6 @@ _library = {
     "offset": "rel + bg_center",
 }
 
-#: What the open project is taken to record.
-_known = frozenset({"astrom_residual", "diagonal_fov", "bg_center", "jd"})
-
 
 class TestReferencedNames(unittest.TestCase):
     """Reading the names out of an expression."""
@@ -65,9 +62,7 @@ class TestReachableNames(unittest.TestCase):
         files, so a shared one must not be able to read ``~/.ssh``.
         """
 
-        problems = check_expression(
-            "evil", "open('/etc/passwd').read()", {}, _known
-        )
+        problems = check_expression("evil", "open('/etc/passwd').read()", {})
         self.assertTrue(any("open" in problem for problem in problems))
 
     def test_hidden_filesystem_access_is_refused(self):
@@ -77,16 +72,13 @@ class TestReachableNames(unittest.TestCase):
             "evil",
             "bg_center + len(open('/etc/passwd').read())",
             {},
-            _known,
         )
         self.assertTrue(any("open" in problem for problem in problems))
 
     def test_side_effects_are_refused(self):
         """``print`` returns nothing, so it was never a valid value."""
 
-        self.assertTrue(
-            check_expression("noisy", "print(bg_center)", {}, _known)
-        )
+        self.assertTrue(check_expression("noisy", "print(bg_center)", {}))
 
     def test_the_mathematical_subset_still_works(self):
         """The removals must not cost anything anyone would write."""
@@ -96,7 +88,6 @@ class TestReachableNames(unittest.TestCase):
                 "fine",
                 "bg_center - nanmedian(bg_center) + sqrt(abs(bg_center))",
                 {},
-                _known,
             ),
             [],
         )
@@ -141,13 +132,13 @@ class TestOrdering(unittest.TestCase):
     def test_chain_is_ordered(self):
         """A reference comes before the expression using it."""
 
-        order, _ = order_expressions(["scaled"], _library, _known)
+        order, _ = order_expressions(["scaled"], _library)
         self.assertEqual(order, ["rel", "scaled"])
 
     def test_diamond_places_the_shared_expression_once(self):
         """The property that makes evaluation non-redundant."""
 
-        order, _ = order_expressions(["scaled", "offset"], _library, _known)
+        order, _ = order_expressions(["scaled", "offset"], _library)
         self.assertEqual(order.count("rel"), 1)
         self.assertLess(order.index("rel"), order.index("scaled"))
         self.assertLess(order.index("rel"), order.index("offset"))
@@ -155,27 +146,27 @@ class TestOrdering(unittest.TestCase):
     def test_only_the_targets_subtree_is_ordered(self):
         """Asking for one expression does not drag in the library."""
 
-        order, _ = order_expressions(["offset"], _library, _known)
+        order, _ = order_expressions(["offset"], _library)
         self.assertNotIn("scaled", order)
 
     def test_plain_diagnostic_needs_no_evaluation(self):
         """A target that is simply recorded orders nothing."""
 
-        order, needed = order_expressions(["bg_center"], _library, _known)
+        order, needed = order_expressions(["bg_center"], _library)
         self.assertEqual(order, [])
         self.assertEqual(needed, {"bg_center"})
 
     def test_needed_diagnostics_are_transitive(self):
         """Reported through the chain, not just one level down."""
 
-        _, needed = order_expressions(["scaled"], _library, _known)
+        _, needed = order_expressions(["scaled"], _library)
         self.assertEqual(needed, {"astrom_residual", "diagonal_fov"})
 
     def test_cycle_names_every_expression_involved(self):
         """The whole loop, in the order it closes."""
 
         with self.assertRaises(PipelineError) as caught:
-            order_expressions(["a"], {"a": "b", "b": "c", "c": "a"}, _known)
+            order_expressions(["a"], {"a": "b", "b": "c", "c": "a"})
         for name in ("a", "b", "c"):
             self.assertIn(name, str(caught.exception))
 
@@ -188,7 +179,7 @@ class TestOrdering(unittest.TestCase):
         """
 
         with self.assertRaises(PipelineError) as caught:
-            order_expressions(["d"], {"a": "b", "b": "a", "d": "a + 1"}, _known)
+            order_expressions(["d"], {"a": "b", "b": "a", "d": "a + 1"})
         message = str(caught.exception)
         self.assertIn("a", message)
         self.assertIn("b", message)
@@ -198,14 +189,14 @@ class TestOrdering(unittest.TestCase):
         """And says which expression contains it."""
 
         with self.assertRaises(PipelineError) as caught:
-            order_expressions(["x"], {"x": "no_such + 1"}, _known)
+            order_expressions(["x"], {"x": "no_such + 1"})
         self.assertIn("no_such", str(caught.exception))
 
     def test_unknown_target_is_refused(self):
         """A bookmarked URL naming nothing should not evaluate."""
 
         with self.assertRaises(PipelineError):
-            order_expressions(["no_such"], _library, _known)
+            order_expressions(["no_such"], _library)
 
 
 class TestEvaluation(unittest.TestCase):
@@ -279,6 +270,79 @@ class TestEvaluation(unittest.TestCase):
         self.assertIn("diagonal_fov", str(caught.exception))
 
 
+class TestQuantileNames(unittest.TestCase):
+    """The diagnostics named by a pattern rather than listed.
+
+    ``pixel_q*`` diagnostics are created by ``calibrate`` rather than
+    seeded, so they are the one part of the vocabulary that cannot be
+    enumerated. They must still resolve as variables and still be refused
+    as expression names, and both come from the same predicate.
+    """
+
+    def test_a_quantile_resolves_as_a_variable(self):
+        """Nothing enumerates these, so only the pattern can accept them."""
+
+        self.assertEqual(check_expression("q", "pixel_q999 * 2", {}), [])
+
+    def test_a_quantile_may_not_be_taken_as_a_name(self):
+        """The predicate reserves as well as resolves, which is easy to miss.
+
+        Otherwise an expression could be named ``pixel_q999`` and shadow a
+        real quantile -- ambiguous in a flat name space, and undetectable
+        afterwards because by then both are simply variables.
+        """
+
+        self.assertTrue(check_expression("pixel_q999", "1", {}))
+
+    def test_a_near_miss_is_still_unresolvable(self):
+        """The pattern must not become a licence for anything similar."""
+
+        self.assertTrue(check_expression("q", "pixel_quality * 2", {}))
+
+    def test_a_quantile_survives_the_ordering_pass(self):
+        """A composed expression must not be rejected by the cycle check.
+
+        Ordering and the direct check have to agree about what a name may
+        mean, or ``check_expression`` contradicts itself: accepting a name,
+        then reporting it unresolvable from the pass looking for cycles.
+        One shared predicate is what makes that impossible.
+        """
+
+        library = {"q": "pixel_q999 / pixel_q500"}
+        self.assertEqual(check_expression("q_scaled", "q * 2", library), [])
+
+
+class TestNoProjectNeeded(unittest.TestCase):
+    """Validation is the same everywhere, so it needs no database.
+
+    A ``diagnostic_type`` row can only be seeded from the static catalogue
+    or created by the quantile branch, which refuses every other name. So
+    the vocabulary cannot vary between projects, and an expression means
+    the same thing in all of them -- which is what lets one library be
+    shared.
+    """
+
+    def test_a_catalogue_diagnostic_resolves(self):
+        """Even though nothing here has opened a project database."""
+
+        self.assertEqual(
+            check_expression("rel", "astrom_residual / diagonal_fov", {}), []
+        )
+
+    def test_a_misspelling_does_not(self):
+        """The check is still a check: unknown names are still refused."""
+
+        problems = check_expression("typo", "bg_centre / diagonal_fov", {})
+        self.assertTrue(any("bg_centre" in problem for problem in problems))
+
+    def test_jd_is_a_variable(self):
+        """Not a diagnostic, but a name in the same flat space."""
+
+        self.assertEqual(
+            check_expression("rel_time", "jd - nanmin(jd)", {}), []
+        )
+
+
 class TestChecking(unittest.TestCase):
     """What is reported as wrong with a proposed expression."""
 
@@ -289,7 +353,6 @@ class TestChecking(unittest.TestCase):
             name,
             expression,
             _library if expressions is None else expressions,
-            _known,
         )
 
     def test_a_good_expression_has_no_problems(self):
@@ -329,7 +392,7 @@ class TestChecking(unittest.TestCase):
     def test_cycle_with_an_existing_expression(self):
         """Editing one end of a pair is how a cycle usually arrives."""
 
-        problems = check_expression("rel", "scaled + 1", _library, _known)
+        problems = check_expression("rel", "scaled + 1", _library)
         self.assertTrue(any("cycle" in problem for problem in problems))
 
     def test_problems_accumulate(self):

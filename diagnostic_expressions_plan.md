@@ -525,6 +525,139 @@ Note `Evaluator.__init__` recurses through `self.__init__(...)` for the FITS
 and HDF5 branches, so the binding runs more than once on those paths. Harmless,
 since it is idempotent.
 
+### 1a. `autowisp/diagnostics/diagnostic_types.py` — the vocabulary (new)
+
+> **Done.** The catalogue moved, and the design got simpler than this
+> section first proposed: rather than tier 1 taking *known_names* and
+> *known_patterns* as arguments, `diagnostic_types` answers the question
+> itself through `is_known_quantity()`. See *One predicate, not two
+> parameters* below for why that turned out to be sound rather than merely
+> shorter.
+>
+> Three things beyond what was planned came with it. `time_quantity` moved
+> here too, since tier 1 needs `jd` and cannot import tier 2 — which also
+> ends the duplicate definition §3 noted. `image_processing.py` now asks
+> `is_quantile_diagnostic()` instead of testing `startswith("pixel_q")`,
+> so the code creating quantile rows and the code validating against them
+> share one definition. And `get_known_names()` was deleted from tier 2,
+> having no callers left.
+>
+> One defect was fixed in passing: the continuation line of the
+> `*_map_residual` description was not an f-string, so every project ever
+> created seeded them reading "and smoothed `{param.upper()}` map"
+> literally. `TestCatalogue.test_descriptions_are_fully_interpolated`
+> guards it, since a missing `f` prefix is otherwise silent.
+
+Numbered `1a` rather than renumbering §2–§9, which are cross-referenced
+throughout. Like §1 it is shared pipeline code that happens to be a
+prerequisite here, and lands as its own commit.
+
+**The problem it removes.** Validation currently needs an open project,
+because `check_expression` learns what a name may mean only from
+`get_known_names(db_session)`. That is a false dependency: the diagnostic
+catalogue is a *static list* seeded by `_init_diagnostic_types()`
+(`autowisp/database/initialize_database.py:448`), identical in every
+project. The only genuinely runtime-created names are `pixel_q*`, made by
+`calibrate` rather than seeded — and those are a *pattern*, not a list, so
+no amount of enumeration would have captured them anyway.
+
+So the vocabulary is knowable without a database, and the database module
+should be its consumer rather than its owner.
+
+**Extract the catalogue.** `_init_diagnostic_types()` is a ~90-line literal
+of `(name, description)` pairs wrapped around a single
+`db_session.add(DiagnosticType(...))`. Move the literal into this module;
+the function shrinks to a loop over it and keeps its only real job, which
+is writing rows.
+
+**The description travels with the name.** It has to: leaving descriptions
+behind in `initialize_database.py` would split the catalogue across two
+files that must be edited together, which is the drift the extraction
+exists to prevent. Validation ignores them, but the seeder does not.
+
+**A mapping, not a sequence of pairs.** `DiagnosticType.name` is
+`unique=True` and `description` is non-null, so the catalogue *is* a
+name → description mapping; a list of pairs would silently admit duplicate
+names that the table then rejects at insert time.
+
+**Read-only accessors, not module constants.** A module-level dict is
+mutable, and a caller that mutates the shared catalogue corrupts it for
+every other caller in the process. Expose functions returning immutable
+values instead, following `_evaluator_names()` (`expressions.py:28`), which
+already does exactly this:
+
+```python
+@functools.lru_cache(maxsize=1)
+def standard_diagnostic_types():
+    """Every diagnostic seeded into a new project, name -> description."""
+    return MappingProxyType({...})
+
+
+@functools.lru_cache(maxsize=1)
+def standard_diagnostic_names():
+    """Just the names, which is all validation needs."""
+    return frozenset(standard_diagnostic_types())
+```
+
+`types.MappingProxyType` is what makes the mapping genuinely read-only
+rather than read-only by convention. Caching costs nothing and the values
+never change within a process. The quantile pattern —
+`re.compile(r"pixel_q\d+\Z")` — is a private module constant behind
+`is_quantile_diagnostic()` rather than exposed, since every caller wants
+the question answered rather than the pattern itself.
+
+**Names stay lower case.** `.pylintrc` sets
+`const-rgx=[a-z_][a-z0-9_]{2,30}$`, so the ALL_CAPS spelling would fail
+lint; the existing `_image_order` in `expression_series.py:141` is the
+house style.
+
+**One predicate, not two parameters.** The first draft of this section had
+`check_expression` take *known_names* and a new *known_patterns*, on the
+grounds that a project might carry types outside the catalogue. **It
+cannot**, and the code says so:
+
+```python
+if diag_type_id is None:
+    if is_quantile_diagnostic(diag_name):   # was startswith("pixel_q")
+        ...create the row...
+    else:
+        raise PipelineError(f"Unknown diagnostic type {diag_name!r}")
+```
+
+That branch in `_save_image_diagnostics` is the only creator of
+`DiagnosticType` rows besides the seeder, and it refuses every name that
+is not a quantile. So a project's diagnostic types are *provably* a subset
+of catalogue ∪ `pixel_q*`, `known_names` was a parameter that could never
+carry anything the catalogue does not already imply, and threading it
+around was ceremony.
+
+So the vocabulary answers for itself:
+
+```python
+is_quantile_diagnostic(name)   # the pattern, shared with the creator
+is_diagnostic(name)            # catalogue ∪ quantiles
+is_known_quantity(name)        # the above, plus jd -- what tier 1 checks
+```
+
+`check_expression(name, expression, expressions)`, `order_expressions(targets,
+expressions)` and `_needed_diagnostics` all lose their name arguments.
+Tier 1 gains no database dependency, because the new module is pure data —
+the property §3 separates the tiers for is preserved.
+
+Two consequences worth recording:
+
+- **A name matching the quantile pattern is now reserved as well as
+  resolvable**, closing a hole the old code had: nothing stopped an
+  expression being named `pixel_q999` and shadowing a real quantile.
+- **`order_expressions` no longer rejects a diagnostic that this project
+  has not recorded.** It resolves, and comes back all-NaN from the padding.
+  That is what §Namespace already asks for — an unresolvable bookmark
+  should render an empty table, not a 500 — and `evaluate_expressions`
+  still reports anything for which no values were supplied, with a better
+  message than the old "unresolvable".
+
+**`autowisp/diagnostics/meson.build`** gains `diagnostic_types.py` (§7).
+
 ### 2. Model + migration
 
 > **Done.** `bui_database_plan.md` is complete, and this model derives from
@@ -621,6 +754,14 @@ is proposed. What has to survive the browser interface is the *definitions*
 arriving as configuration instead of from its database — which is tier 3.
 
 #### The tiers
+
+> **Signatures superseded by §1a.** The *known_names* argument described
+> throughout this section is gone: `check_expression(name, expression,
+> expressions)` and `order_expressions(targets, expressions)` now ask
+> `diagnostic_types.is_known_quantity()` instead, and tier 2's
+> `get_known_names()` was deleted. The reasoning below still holds --
+> tier 1 has no database -- but it reaches that through a pure-data module
+> rather than by taking the names from its caller.
 
 **Tier 1 — `autowisp/diagnostics/expressions.py`. Done. No database of any
 kind.** Pure functions over an expression library and already-fetched
@@ -805,6 +946,18 @@ neither knowing what it is for:
 > anywhere. The default `aspect_ratio` is also conditional — 3.0 against
 > time, 1.0 otherwise — preserving the wide time-series and square scatter
 > looks the two modules had separately.
+>
+> **Deviation — one part of this section is not done.** The last paragraph
+> below says `get_available_diagnostics()` "gains `jd` plus the expression
+> names whose referenced diagnostics all exist". The `EXISTS` rework and
+> `jd` both landed; **the expression names did not**. The function takes no
+> `expressions` argument and `display_diagnostics` calls it without one
+> (`image_diagnostics_views.py:676`), so an expression cannot yet be
+> selected for either axis however many are stored. It lands with §5/§6,
+> since it is what makes the library reachable from the plot page at all,
+> and it needs the same `check_expression`-derived resolvability test the
+> management page uses — a name resolves here iff it has no problems
+> against this project's `known_names`.
 
 `image_diagnostics_views.py` and `diag_vs_diag_views.py` were one feature
 wearing two URLs. They already share the template (`diagnostics_app.html`) and
@@ -942,34 +1095,121 @@ quantile last also means the existing characterization assertion — that a
 quantile series id *ends with* its `pixel_q*` name — holds under the new
 encoding as it did under the old, so that test needs no rewriting for this.
 
-### 5. `diagnostics/expression_views.py` (new)
+### 5. `diagnostics/forms.py` + `diagnostics/expression_views.py` (new)
+
+#### Validity is global; availability is per-project
+
+Worth stating plainly, because the two are easily confused and only one of
+them depends on which project is open.
+
+**Validity does not.** After §1a, `check_expression(name, expression,
+expressions)` takes no project input at all: the vocabulary comes from
+`is_known_quantity()`, and no project can contain a diagnostic outside it,
+because the only two creators are the static seeder and the quantile
+branch that refuses everything else. An expression therefore means the
+same thing in every project, which is what makes one shared library
+coherent.
+
+**Availability does.** *Is anything actually recorded here?* is answered by
+`get_available_diagnostics()` (EXISTS probes, drives the dropdowns) and
+`get_expression_availability()` (SQL counts, drives the series table). So
+"hidden where its variables are not recorded" is availability, never
+validity.
+
+Three consequences:
+
+- **The page works with no project open**, which is what a global library
+  ought to do. Views still open `start_db_session()` when they need
+  availability, but validity no longer depends on it, so there is nothing
+  to degrade and nothing to 500 on.
+- **The status column changes meaning, deliberately.** Validity is now
+  project-independent, so "missing variables" fires only for genuinely
+  unknown names — a typo, or a diagnostic no AutoWISP version defines.
+  Whether an expression is usable *here* is a separate question, answered
+  by `get_available_diagnostics()`'s bounded `EXISTS` probes, and shown as
+  availability rather than as brokenness. Today's single status conflates
+  "meaningless" with "no data recorded yet"; these are not the same
+  complaint and should not read as one.
+- Nothing is ever rewritten or removed for being unresolvable or
+  unavailable somewhere. An expression naming a project-specific type still
+  validates wherever that type is seeded and is merely unavailable
+  elsewhere.
+
+#### Outsource to Django wherever Django already knows
+
+The BUI has no `forms.py`, no `ModelForm` and no class-based views today —
+every view is a function doing its own POST handling. A `ModelForm` is
+therefore a new pattern here, adopted deliberately: it deletes code that
+would otherwise have to be maintained and kept correct by hand.
+
+`diagnostics/forms.py` — `DiagnosticExpressionForm(ModelForm)` over
+`DiagnosticExpression`, fields `name`, `expression`, `description`. Django
+then owns:
+
+| Would be hand-rolled | Django built-in |
+| --- | --- |
+| slug charset check | the model's `SlugField` validator |
+| name already taken | `unique=True` → `validate_unique()` |
+| create-vs-update branching | `ModelForm(instance=…)` + `form.save()` |
+| per-field error plumbing | `form.errors`, rendered by the template |
+
+What Django cannot know is whether the expression *means* anything, so
+`clean()` calls `check_expression()` and raises its returned problem
+strings as a `ValidationError`. **This is the one place that adaptation
+happens** — tier 1 returns strings rather than raising precisely so it
+stays usable without Django. `clean()` also records
+`get_bare_aggregates()` on the form for the view to warn about; it is not
+an error, so it must not fail validation.
+
+`expressions` is a constructor keyword argument -- the library the
+expression would join, which the view has and the form does not. No project
+input is needed beyond it, since §1a made validity project-independent.
+
+The name rules are thus checked twice — once by the model field, once by
+`check_expression`. That overlap is deliberate: `check_expression` is the
+authority for every path into the library, including import and, later,
+the command line, none of which pass through this form.
+
+Not outsourceable, and staying custom: the delete-dependents guard, and
+the JSON import/export — `django.core.serializers` emits pk/model-label
+records, which is the wrong shape for a portable file the CLI is meant to
+read (see *Out of scope*).
+
+#### The views
 
 - `list_expressions` — table of expressions with a per-row status computed
   against the open project (OK / missing variables / shadowed by a real
-  diagnostic), plus the create-or-edit form. Show each row's direct
-  dependencies so a composed expression is traceable. **No all-NaN status** —
-  every status here is derived from names alone, so the page costs no
-  evaluation and no per-session query.
-- `save_expression` — POST, `check_expression()` with the open project's
-  `DiagnosticType` names as *known_names*, raising its returned problems as
-  a `ValidationError` (this is the one place that adaptation happens), then
-  `get_bare_aggregates()` → non-blocking `messages.warning` if any, then
-  create/update; `django.contrib.messages.error` on failure, redirect back.
-- `delete_expressions` — POST with checked ids (mirror
-  `home/views.py:delete_projects`), refusing any id that other expressions
-  reference and naming those dependents in the error.
+  diagnostic), plus a blank `DiagnosticExpressionForm`. Status comes from
+  the same `check_expression()` the form uses, so the page and the save
+  path can never disagree. Show each row's direct dependencies so a
+  composed expression is traceable. **No all-NaN status** — every status
+  here is derived from names alone, so the page costs no evaluation and no
+  per-session query.
+- `save_expression` — POST. Build the form with `instance=` the existing
+  row when editing, `expressions=` and `known_names=`; on `is_valid()`,
+  `form.save()` then a non-blocking `messages.warning` per
+  `form.bare_aggregates`. On failure re-render with `form.errors` rather
+  than flattening them into `messages`, so problems land against the field
+  that caused them.
+- `delete_expressions` — POST with checked names (mirror
+  `home/views.py:delete_projects`), refusing any that other expressions
+  reference and naming those dependents in the error. Dependents are judged
+  against *what will remain*, so deleting a whole chain together is allowed
+  while deleting only the bottom of it is not.
 - `export_expressions` — JSON download, following the exact pattern of
   `home/views.py:509 export_master_config`:
   `json.dump` into a `StringIO`, `HttpResponse` with
   `Content-Disposition: attachment; filename="diagnostic_expressions.json"`.
   A selected-subset export must pull in the expressions its selection depends
-  on, or the file will not import cleanly elsewhere.
+  on, or the file will not import cleanly elsewhere — a transitive closure
+  over `get_expression_names`, not just the direct references.
 - `import_expressions` — POST, `json.load(request.FILES["expressions-import"])`,
-  following `configuration/views.py:511 import_survey_info`. Stages the whole
-  incoming set, validates it as a unit against the staged set plus what is
-  already stored (so intra-file references resolve regardless of order),
-  reports per-entry failures via `messages`, and upserts by name with an
-  explicit overwrite-vs-skip choice for names that already exist.
+  following `configuration/views.py:511 import_survey_info`. Refuses a file
+  whose version key it does not recognise. Stages the whole incoming set and
+  validates it as a unit against the staged set laid over what is already
+  stored (so intra-file references resolve regardless of order), reports
+  per-entry failures via `messages`, and upserts by name with an explicit
+  overwrite-vs-skip choice for names that already exist.
 
 Export format (versioned so it can evolve):
 
@@ -1039,7 +1279,8 @@ Export format (versioned so it can evolve):
   `expression_views.py`.
 - `diagnostics/migrations/meson.build`: `0001_initial.py` — **done**.
 - `autowisp/diagnostics/meson.build`: `expression_series.py` — **done**
-  (`expressions.py` landed with tier 1).
+  (`expressions.py` landed with tier 1); add `diagnostic_types.py` (§1a).
+- `diagnostics/meson.build`: add `forms.py` (§5).
 - `autowisp/tests/meson.build`: `test_expression_series.py` — **done**.
 - `browser_interface/static/js/meson.build`: `sortable.min.js` — **done**,
   with §9.
@@ -1153,6 +1394,22 @@ library is needed for it. Deferred rather than dismissed.
    data key wins over an aggregate of the same name, that a bad expression
    raises by default in **both** evaluators, and that an explicit
    `raise_errors=False` still returns `None`.
+1. **The vocabulary (§1a) — done**, in `test_diagnostic_types.py`.
+   `TestSeeding` asserts the catalogue equals what `_init_diagnostic_types()`
+   actually writes, descriptions included, by seeding a project database and
+   comparing the rows: that equality is the whole point of the extraction and
+   the one thing that can silently drift once the literal lives elsewhere.
+   `TestCatalogue` covers immutability (a caller cannot corrupt the shared
+   mapping) and fully-interpolated descriptions; `TestRuntimePatterns` that
+   `pixel_q999` matches while `pixel_quality` does not -- the `\Z`-anchored
+   digits are what stop a plausible diagnostic name being swallowed.
+1. **The predicate (§1a) — done**, in `test_expressions.py`.
+   `TestQuantileNames` covers a quantile resolving as a variable *and* being
+   refused as an expression name, since both directions come from one
+   predicate and only the first is obvious, plus that ordering agrees with
+   the direct check. `TestNoProjectNeeded` runs the project-free path end to
+   end: `bg_center / diagonal_fov` accepted, `bg_centre / diagonal_fov`
+   rejected, `jd` usable as a variable, with no database opened.
 1. **Unit tests** covering `check_expression()` accept/reject cases (bad
    slug, reserved name, statement instead of expression, unknown variable,
    reference cycle) — which need **no database and no Django**, since tier 1

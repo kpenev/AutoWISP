@@ -127,7 +127,6 @@ from autowisp.tests.test_expression_series import (
     TestCanonicalImages,
     TestDiagnosticValues,
     TestSeriesValues,
-    TestKnownNames,
     TestAvailability,
     TestTiedJulianDates,
 )
@@ -144,6 +143,14 @@ from autowisp.tests.test_expressions import (
     TestEvaluation,
     TestChecking,
     TestReachableNames,
+    TestQuantileNames,
+    TestNoProjectNeeded,
+)
+from autowisp.tests.test_diagnostic_types import (
+    TestCatalogue,
+    TestRuntimePatterns,
+    TestVocabulary,
+    TestSeeding,
 )
 from autowisp.tests.test_diagnostic_expressions import (
     TestNameSpace,

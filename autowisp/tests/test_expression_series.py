@@ -37,7 +37,6 @@ from autowisp.diagnostics.expression_series import (
     get_canonical_images,
     get_diagnostic_values,
     get_expression_availability,
-    get_known_names,
     get_series_values,
 )
 from autowisp.tests.test_diagnostics_views import DiagnosticsViewTestCase
@@ -226,18 +225,6 @@ class TestSeriesValues(SeriesValuesTestCase):
             )
 
         self.assertEqual(list(values["scaled"]), [-10.0, 0.0, 10.0])
-
-
-class TestKnownNames(SeriesValuesTestCase):
-    """What an expression may reference, and may not be called."""
-
-    def test_every_diagnostic_and_time(self):
-        """Whatever the project records, plus the one quantity it does not."""
-
-        with start_db_session() as db_session:
-            known = get_known_names(db_session)
-
-        self.assertEqual(known, {"bg_center", "pixel_q99", "pixel_q999", "jd"})
 
 
 class TestAvailability(SeriesValuesTestCase):

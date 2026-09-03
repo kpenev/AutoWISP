@@ -22,12 +22,12 @@ def get_expressions():
     """
     Return the stored library as ``{name: expression}``.
 
-    The whole library, not the part that resolves in the open project: an
+    The whole library, not the part that is usable in the open project: an
     expression naming a diagnostic this project never recorded is not an
-    error but a thing to leave unoffered, and deciding that needs the
-    project's names, which this module does not have. Callers that care ask
-    :func:`autowisp.diagnostics.expression_series.get_known_names` and let
-    tier 1 do the resolving.
+    error but a thing to leave unoffered. Every expression is *valid*
+    everywhere -- the vocabulary is the same in all projects, see
+    :mod:`autowisp.diagnostics.diagnostic_types` -- so what varies is only
+    whether rows exist, which callers that care establish by counting them.
 
     Returns:
         dict:    Every stored expression, keyed by name.

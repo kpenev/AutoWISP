@@ -21,6 +21,7 @@ import re
 
 import numpy
 
+from autowisp.diagnostics.diagnostic_types import is_known_quantity
 from autowisp.evaluator import Evaluator, EvaluatorBase
 from autowisp.exceptions import PipelineError
 
@@ -184,7 +185,7 @@ def _evaluation_order(targets, expressions):
     return order
 
 
-def _needed_diagnostics(targets, references, expressions, known_names):
+def _needed_diagnostics(targets, references, expressions):
     """Return the diagnostics to fetch, rejecting names that resolve to
     nothing.
 
@@ -194,13 +195,13 @@ def _needed_diagnostics(targets, references, expressions, known_names):
     """
 
     builtins = _evaluator_names()
-    needed = {name for name in targets if name in known_names}
+    needed = {name for name in targets if is_known_quantity(name)}
     unresolved = {}
     for name, referenced in references.items():
         for other in referenced:
             if other in expressions:
                 continue
-            if other in known_names:
+            if is_known_quantity(other):
                 needed.add(other)
             elif other not in builtins:
                 unresolved.setdefault(name, set()).add(other)
@@ -219,21 +220,26 @@ def _needed_diagnostics(targets, references, expressions, known_names):
     return needed
 
 
-def order_expressions(targets, expressions, known_names):
+def order_expressions(targets, expressions):
     """
     Return the order to evaluate *targets* in, and what data that needs.
 
     Only the dependency subtree of *targets* is walked, so asking for one
     expression does not evaluate the whole library.
 
+    What a name may mean comes from
+    :func:`~autowisp.diagnostics.diagnostic_types.is_known_quantity` rather
+    than from a project, because it cannot differ between projects: a
+    ``diagnostic_type`` row is either seeded from the static catalogue or
+    created by the quantile branch that refuses every other name. A
+    diagnostic no image here records is therefore accepted and comes back
+    all-NaN, which is what the padding is for.
+
     Args:
         targets:    The quantity names wanted. Any that are not expressions
             are diagnostics, and pass through to the returned set.
 
         expressions(dict):    The library, ``{name: expression}``.
-
-        known_names:    Names that resolve to real data: the diagnostics
-            recorded in the open project, plus ``jd``.
 
     Returns:
         tuple:
@@ -249,7 +255,7 @@ def order_expressions(targets, expressions, known_names):
     unknown = sorted(
         name
         for name in targets
-        if name not in expressions and name not in known_names
+        if name not in expressions and not is_known_quantity(name)
     )
     if unknown:
         raise PipelineError(
@@ -265,10 +271,7 @@ def order_expressions(targets, expressions, known_names):
         name: get_expression_names(expressions[name]) for name in order
     }
 
-    return (
-        order,
-        _needed_diagnostics(targets, references, expressions, known_names),
-    )
+    return order, _needed_diagnostics(targets, references, expressions)
 
 
 def _as_series(values, count):
@@ -315,7 +318,7 @@ def evaluate_expressions(targets, expressions, values):
             lacks a diagnostic the expressions need.
     """
 
-    order, needed = order_expressions(targets, expressions, set(values))
+    order, needed = order_expressions(targets, expressions)
 
     missing = sorted(needed - set(values))
     if missing:
@@ -336,13 +339,26 @@ def evaluate_expressions(targets, expressions, values):
     }
 
 
-def check_expression(name, expression, expressions, known_names):
+def check_expression(name, expression, expressions):
     """
     Return what is wrong with a proposed expression, as plain strings.
 
     Problems are returned rather than raised so that this module stays free
     of any particular presentation: the browser interface turns them into a
     ``ValidationError``, an importer collects them per entry.
+
+    **No project is needed.** What a name may mean comes from
+    :mod:`autowisp.diagnostics.diagnostic_types`, which is complete: a
+    ``diagnostic_type`` row is either seeded from the static catalogue at
+    project creation or created by the ``pixel_q*`` branch of
+    ``_save_image_diagnostics``, which refuses every other name. So no
+    project can contain a diagnostic this does not know, and an expression
+    means the same thing everywhere -- which is what lets one library be
+    shared by every project.
+
+    Whether an expression is *usable* in a particular project is a
+    different question, about whether rows have been recorded, and is
+    answered by counting them rather than here.
 
     Args:
         name(str):    The proposed name.
@@ -352,10 +368,6 @@ def check_expression(name, expression, expressions, known_names):
         expressions(dict):    The library it would join. An existing entry
             of the same name is replaced by the proposed text rather than
             conflicting with it, so an edit can pass the library unchanged.
-
-        known_names:    Names that resolve to real data, which are also the
-            names an expression may not take -- an expression cannot shadow
-            a diagnostic, since both are variables in the same flat space.
 
     Returns:
         list:    Descriptions of the problems; empty if there are none.
@@ -371,7 +383,7 @@ def check_expression(name, expression, expressions, known_names):
             f"{name!r} is not a valid name: use letters, digits, hyphens "
             "and underscores, so that it survives being put in a URL."
         )
-    if name in known_names:
+    if is_known_quantity(name):
         problems.append(
             f"{name!r} is already the name of a diagnostic, and an "
             "expression cannot shadow one."
@@ -390,7 +402,7 @@ def check_expression(name, expression, expressions, known_names):
         other
         for other in referenced
         if other != name
-        and other not in known_names
+        and not is_known_quantity(other)
         and other not in expressions
         and other not in _evaluator_names()
     )
@@ -404,9 +416,7 @@ def check_expression(name, expression, expressions, known_names):
         return problems
 
     try:
-        order_expressions(
-            [name], dict(expressions, **{name: expression}), known_names
-        )
+        order_expressions([name], dict(expressions, **{name: expression}))
     except PipelineError as error:
         problems.append(str(error))
 

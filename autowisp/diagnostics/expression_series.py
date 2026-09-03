@@ -31,17 +31,11 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.diagnostics.diagnostic_types import time_quantity
 from autowisp.diagnostics.expressions import (
     evaluate_expressions,
     order_expressions,
 )
-
-#: The mid-exposure Julian date, available for every image of a session
-#: without consulting ``image_diagnostics``, and so the one quantity that
-#: comes from the image row itself. Plain JD, not barycentric: barycentric
-#: correction depends on where on the sky one points, so BJD is per-source
-#: and undefined for a per-image diagnostic.
-time_quantity = "jd"
 
 
 class SeriesKey(NamedTuple):
@@ -189,27 +183,6 @@ def get_canonical_images(series_key, db_session):
             .order_by(*_image_order)
         ).all()
     )
-
-
-def get_known_names(db_session):
-    """
-    Return the names that resolve to real data in the open project.
-
-    These are both what an expression may reference and what it may not be
-    named, and which they are depends on the project rather than on the
-    expression -- which is why tier 1 takes them as an argument instead of
-    looking them up.
-
-    Args:
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        set:    Every ``diagnostic_type`` name, plus :data:`time_quantity`.
-    """
-
-    return {
-        row[0] for row in db_session.execute(select(DiagnosticType.name)).all()
-    } | {time_quantity}
 
 
 def get_diagnostic_values(series_key, names, db_session):
@@ -368,9 +341,7 @@ def get_series_values(series_key, quantities, expressions, db_session):
             reference each other in a cycle.
     """
 
-    _, needed = order_expressions(
-        quantities, expressions, get_known_names(db_session)
-    )
+    _, needed = order_expressions(quantities, expressions)
     values, image_ids = get_diagnostic_values(series_key, needed, db_session)
 
     return evaluate_expressions(quantities, expressions, values), image_ids
@@ -468,8 +439,6 @@ def get_expression_availability(name, expressions, db_session):
             to nothing, or takes part in a cycle.
     """
 
-    _, needed = order_expressions(
-        [name], expressions, get_known_names(db_session)
-    )
+    _, needed = order_expressions([name], expressions)
 
     return count_images_with_all(needed, db_session)
