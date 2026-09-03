@@ -418,6 +418,76 @@ sessions still in order inside each. Sorting only moves the rows: what
 you have already selected stays selected, and the colours and labels you
 have typed stay with their rows.
 
+Quantities of your own
+----------------------
+
+The two selectors do not offer only what was recorded. Anything you can
+write as a formula over the recorded diagnostics can be given a name and
+plotted exactly like one of them -- a residual as a fraction of the field
+of view, a background relative to its own night, the ratio of two pixel
+quantiles. "Diagnostic Expressions" in the left menu is where they are
+defined, and once defined they appear in both selectors alongside the
+diagnostics themselves, because an expression and a diagnostic are the
+same kind of thing to everything downstream: a name that resolves to one
+number per image.
+
+An expression is ordinary Python arithmetic over the diagnostic names,
+plus the mathematical functions -- ``sqrt``, ``log10``, ``abs``,
+``where`` and the rest. It is evaluated over a whole series at once
+rather than image by image, which is what makes aggregates work::
+
+    rel_astrom_residual = astrom_residual / diagonal_fov
+    rel_bg              = bg_center - nanmedian(bg_center)
+    quantile_contrast   = pixel_q999 / pixel_q99
+
+Expressions may be built out of other expressions, so
+``rel_astrom_residual / nanmedian(rel_astrom_residual)`` is a legitimate
+next step, and the management page shows what each one is built from.
+Renaming one carries its dependents with it; deleting one that others
+still need is refused, and names them.
+
+**An aggregate spans one session, image type and channel** -- the same
+group the table's rows are, and the group a series is drawn from. So
+``nanmedian(bg_center)`` is the median over that night's object frames in
+that channel, not over the whole archive. That is the useful meaning for
+a night-relative quantity, and the only one that stays affordable when
+the archive runs to millions of frames.
+
+.. warning::
+
+   Prefer the ``nan`` forms of the aggregates: ``nanmedian`` over
+   ``median``, ``nanmean`` over ``mean``, and so on.
+
+   A series carries a value for every image of its session, and images
+   for which a diagnostic was never recorded -- because the stage has not
+   run yet, or failed, or does not apply to that frame -- carry ``NaN``.
+   The plain aggregates propagate that, so a single such image makes
+   ``bg_center - median(bg_center)`` undefined *everywhere* and the plot
+   comes out empty rather than wrong. The ``nan`` forms ignore those
+   images, which is almost always what was meant. Saving an expression
+   with a bare aggregate is allowed -- sometimes it is what you want --
+   but it says so at the time.
+
+   ``jd`` is the one exception, since every image on the plot has one:
+   ``jd - min(jd)`` is safe.
+
+An expression is offered only where the project has recorded everything
+it needs, transitively. One built on ``astrom_residual`` will not appear
+until plate solving has run, and neither will anything built on *it*.
+That is availability rather than breakage: the expression is perfectly
+valid, and the management page distinguishes the two -- an unrecorded
+input is reported separately from a name that means nothing at all.
+
+Expressions belong to the interface rather than to any one project, so
+they follow you between projects, and **Export** and **Import** move them
+between installations as a JSON file. Exporting a selection brings along
+whatever it is built from, so the file always stands on its own.
+
+One thing to know about ``pixel_quantiles``: it names the whole family
+and expands to one series per quantile, so selecting it for *both* axes
+draws each quantile against itself -- a diagonal line. To compare two
+quantiles, write the expression: ``pixel_q999 / pixel_q99``.
+
 Every point is a link
 ---------------------
 

@@ -23,6 +23,13 @@ from .image_diagnostics_views import (
     plot_session_key,
 )
 from .preview_calibrated import preview_calibrated_image, get_image_overlay
+from .expression_views import (
+    list_expressions,
+    save_expression,
+    delete_expressions,
+    export_expressions,
+    import_expressions,
+)
 
 # pylint: enable=unused-import
 

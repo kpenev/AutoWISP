@@ -60,6 +60,39 @@ urlpatterns = [
         name="download_diagnostics_plot",
     ),
     path(
+        "expressions",
+        views.list_expressions,
+        name="list_expressions",
+    ),
+    # Under `edit/` rather than `expressions/<name>`, so that an
+    # expression legitimately named "save" or "delete" cannot collide with
+    # a literal route below.
+    path(
+        "expressions/edit/<slug:name>",
+        views.list_expressions,
+        name="edit_expression",
+    ),
+    path(
+        "expressions/save",
+        views.save_expression,
+        name="save_expression",
+    ),
+    path(
+        "expressions/delete",
+        views.delete_expressions,
+        name="delete_expressions",
+    ),
+    path(
+        "expressions/export",
+        views.export_expressions,
+        name="export_expressions",
+    ),
+    path(
+        "expressions/import",
+        views.import_expressions,
+        name="import_expressions",
+    ),
+    path(
         "preview_calibrated/<int:image_id>/<slug:color_channel>",
         views.preview_calibrated_image,
         name="preview_calibrated_image",

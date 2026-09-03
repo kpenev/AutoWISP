@@ -41,6 +41,11 @@
 {% endblock header_bar_extra %}
 
 {% block left_menu %}
+<a href="{% url 'diagnostics:list_expressions' %}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Diagnostic Expressions
+    </div>
+</a>
 {% if download_pdf_url %}
 <a id="download-button" href="{{ download_pdf_url }}">
     <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">

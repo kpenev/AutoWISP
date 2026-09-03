@@ -1,0 +1,183 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}Diagnostic Expressions{% endblock header_title %}
+
+{% block app_title %}Diagnostic Expressions{% endblock app_title %}
+
+{% block extra_head %}
+<style>
+ /* Expressions are code, and reading one depends on telling l from 1. */
+ .expression-text { font-family: monospace; }
+ .expression-problem { color: #ff6f61; }
+ .expression-missing { color: #f3c96b; }
+ .errorlist { color: #ff6f61; list-style: none; margin: 0; padding: 0; }
+ /* A submit button carries the menu's look but also the browser's own
+    button chrome, which nothing else in the menu has. */
+ button.lcars-element { border: none; font: inherit; font-weight: bold; }
+</style>
+{% endblock extra_head %}
+
+{% block left_menu %}
+{# Both buttons drive the table's form from outside it, via `form`, and
+   `formaction` sends each to its own view -- so one set of checkboxes
+   answers for both without a line of JavaScript. #}
+<button type="submit"
+        form="expression-list-form"
+        formaction="{% url 'diagnostics:delete_expressions' %}"
+        class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+    Delete Selected
+</button>
+
+<button type="submit"
+        form="expression-list-form"
+        formaction="{% url 'diagnostics:export_expressions' %}"
+        class="lcars-element button lcars-husk-bg lcars-u-1-2">
+    Export
+</button>
+
+<form enctype="multipart/form-data"
+      action="{% url 'diagnostics:import_expressions' %}"
+      method="post">
+    {% csrf_token %}
+
+    {# Above the button on purpose: choosing a file submits immediately,
+       so this has to be set first to be set at all.  Unticked means keep
+       what is stored. #}
+    <div class="lcars-text" style="text-transform: none;">
+        <input type="checkbox" name="overwrite" id="import-overwrite">
+        <label for="import-overwrite">overwrite existing</label>
+    </div>
+
+    <label for="expressions-import"
+           class="lcars-element button lcars-husk-bg lcars-u-1-2">
+        Import
+    </label>
+
+    <input type="file"
+           name="expressions-import"
+           id="expressions-import"
+           onchange="form.submit()"
+           style="display:none"
+           accept="application/json"/>
+</form>
+
+{{ block.super }}
+{% endblock left_menu %}
+
+{% block main %}
+<div id="active-area" class="lcars-column fill-space">
+
+    <form id="expression-form"
+          method="post"
+          action="{% url 'diagnostics:save_expression' %}">
+        {% csrf_token %}
+        {# Empty when creating; the name of the row being replaced when
+           editing, which is also what makes a rename an edit rather than
+           a second expression. #}
+        <input type="hidden" name="edit_name" value="{{ edit_name }}">
+
+        <table class="lcars-table standard-header">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Expression</th>
+                    <th>Description</th>
+                    <th>{% if edit_name %}Editing {{ edit_name }}{% endif %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </td>
+                    <td>
+                        {{ form.expression }}
+                        {{ form.expression.errors }}
+                    </td>
+                    <td>
+                        {{ form.description }}
+                        {{ form.description.errors }}
+                    </td>
+                    <td>
+                        <button type="submit" id="save-expression">Save</button>
+                        {# Plain navigation back to the blank form, which is
+                           also how an edit is abandoned. #}
+                        <a href="{% url 'diagnostics:list_expressions' %}">
+                            Clear
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+
+    <div class="lcars-bar double-spacer"></div>
+
+    <form id="expression-list-form" method="post">
+        {% csrf_token %}
+        <table class="lcars-table standard-header sortable asc">
+            <thead>
+                <tr>
+                    <th class="no-sort"></th>
+                    <th>Name</th>
+                    <th>Expression</th>
+                    <th>Description</th>
+                    <th>Built from</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody class="lcars-table">
+                {% for row in expression_rows %}
+                <tr class="expression-row">
+                    <td>
+                        <input type="checkbox"
+                               name="expression_names"
+                               value="{{ row.name }}">
+                    </td>
+                    <td>
+                        <a href="{% url 'diagnostics:edit_expression' name=row.name %}">
+                            {{ row.name }}
+                        </a>
+                    </td>
+                    <td class="expression-text">{{ row.expression }}</td>
+                    <td>{{ row.description }}</td>
+                    <td>{{ row.depends_on|join:", " }}</td>
+                    <td>
+                        {% for problem in row.problems %}
+                        <div class="expression-problem">{{ problem }}</div>
+                        {% empty %}
+                        {% if row.missing %}
+                        <div class="expression-missing">
+                            Not recorded in this project:
+                            {{ row.missing|join:", " }}
+                        </div>
+                        {% else %}
+                        OK
+                        {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        No expressions yet. Define one above, or import a file.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if not have_project %}
+        <p class="lcars-text" style="text-transform: none;">
+            No project is open, so nothing is said about which expressions
+            have the data to be drawn. They are valid regardless: an
+            expression means the same thing in every project.
+        </p>
+        {% endif %}
+    </form>
+</div>
+
+{# One delegated listener on document, no init call, so load order is free. #}
+<script src="{% static 'js/sortable.min.js' %}"></script>
+{% endblock main %}

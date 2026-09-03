@@ -133,7 +133,15 @@
                 {% if messages %}
                 <div id="bui-messages">
                     {% for message in messages %}
-                    <div class="bui-message {% if message.level_tag == 'error' %}lcars-red-alert-bg{% else %}lcars-golden-tanoi-bg{% endif %}">
+                    {# One colour per level, from the LCARS palette rather
+                       than invented: red for a failure, orange for a
+                       "this will probably not do what you meant", blue
+                       for something that worked, gold for the rest. #}
+                    <div class="bui-message
+                                {% if message.level_tag == 'error' %}lcars-red-alert-bg
+                                {% elif message.level_tag == 'warning' %}lcars-atomic-tangerine-bg
+                                {% elif message.level_tag == 'success' %}lcars-anakiwa-bg
+                                {% else %}lcars-golden-tanoi-bg{% endif %}">
                         <span class="bui-message-text">{{ message }}</span>
                         {% if message.extra_tags %}
                         <a class="bui-message-link"

@@ -46,8 +46,22 @@ Consequences to handle explicitly:
 - Saving/importing rejects a name that collides with a built-in diagnostic. The
   reserved set is the static list seeded by
   `_init_diagnostic_types()` in `autowisp/database/initialize_database.py:448`,
-  plus `quantiles`, `jd`, and anything matching `pixel_q*`, plus any
-  `DiagnosticType` name present in the currently-open project DB.
+  plus `jd`, anything matching `pixel_q*`, and the family pseudo-name — no
+  project input, per §1a. **Done**, as `is_reserved_name()` in
+  `diagnostic_types`, which `check_expression` asks.
+
+  The family name is the one entry that is reserved without being
+  readable, and it was **renamed `quantiles` → `pixel_quantiles`** while
+  being moved down to tier 1: it belongs beside the `pixel_q*` members it
+  stands for, and the spelling without digits is precisely what keeps it
+  from matching `is_quantile_diagnostic`. It had lived as
+  `_quantiles_quantity` in the browser interface, where tier 1 could not
+  see it — so nothing stopped an expression being named `quantiles` and
+  then being silently swallowed by the fan-out that expands the family
+  into one series per member. The rename touches the selector value, the
+  one `{% url %}` in `processing/progress.html`, and the tests; a
+  bookmark naming the old spelling now reports an unknown quantity, which
+  is the same treatment any other unresolvable name gets.
 - If a future release ships a `DiagnosticType` matching an existing expression
   name, the **real diagnostic wins** at resolution time and the management page
   flags the expression as shadowed. The no-collision rule carries extra weight
@@ -638,8 +652,14 @@ So the vocabulary answers for itself:
 ```python
 is_quantile_diagnostic(name)   # the pattern, shared with the creator
 is_diagnostic(name)            # catalogue ∪ quantiles
-is_known_quantity(name)        # the above, plus jd -- what tier 1 checks
+is_known_quantity(name)        # the above, plus jd -- what may be *read*
+is_reserved_name(name)         # the above, plus the family pseudo-name
 ```
+
+The last two differ by exactly one entry, and deliberately:
+`pixel_quantiles` stands for a family rather than for values, so an
+expression may not read it — but neither may it take the name. Reading
+and shadowing are separate questions and only here do they disagree.
 
 `check_expression(name, expression, expressions)`, `order_expressions(targets,
 expressions)` and `_needed_diagnostics` all lose their name arguments.
@@ -797,6 +817,10 @@ place any of it has to be tested.
 - `get_expression_dependents(name, expressions)` → those referencing
   *name*, for the delete guard. **Takes the library**, rather than fetching
   it.
+- `rename_references(expression, old_name, new_name)` → the text with each
+  reference renamed at its exact source offsets, for the rename cascade in
+  §5. Added after the fact; see *Renaming* there for why a rename may not
+  simply be refused.
 - `evaluate_expressions(targets, expressions, values)` → `{name: array}`.
   *values* is `{diagnostic_name: numpy array}` on a common index, which in
   practice tier 2 built from the canonical image list. Passing it in rather
@@ -949,20 +973,18 @@ neither knowing what it is for:
 > time, 1.0 otherwise — preserving the wide time-series and square scatter
 > looks the two modules had separately.
 >
-> **Deviation — one part of this section is not done.** The last paragraph
-> below says `get_available_diagnostics()` "gains `jd` plus the expression
-> names whose referenced diagnostics all exist". The `EXISTS` rework and
-> `jd` both landed; **the expression names did not**. The function takes no
-> `expressions` argument and `display_diagnostics` calls it without one
-> (`image_diagnostics_views.py:672`), so an expression cannot yet be
-> selected for either axis however many are stored. Nothing else is
-> missing: `get_available_series` and `get_series_data` already resolve
-> expressions, so one typed straight into the URL plots today. It lands
-> with §5/§6, since it is what makes the library reachable from the plot
-> page at all, and populating the selector before §5 exists would offer a
-> library the user has no way to add to.
+> **Deviation — now closed.** The last paragraph below says
+> `get_available_diagnostics()` "gains `jd` plus the expression names whose
+> referenced diagnostics all exist". The `EXISTS` rework and `jd` landed
+> with the merge; the expression names have landed since, as **three**
+> functions rather than one, because §6 wants the two kinds in separate
+> `<optgroup>`s and a single list would have to be split again to render:
+> `get_recorded_diagnostics` (the database half, the raw in-use names),
+> `get_available_diagnostics` (a pure function of those, collapsing the
+> quantiles into the family) and `get_available_expressions`.
+> `display_diagnostics` probes once and hands the result to both.
 >
-> **The test it needs is availability, not validity** — this block was
+> **The test it needed was availability, not validity** — this block was
 > written in the §1a commit itself and its first draft said otherwise. §1a
 > made `check_expression` project-independent, so filtering the dropdown by
 > it would filter *nothing*: every stored expression is valid in every
@@ -1114,6 +1136,45 @@ encoding as it did under the old, so that test needs no rewriting for this.
 
 ### 5. `diagnostics/forms.py` + `diagnostics/expression_views.py` (new)
 
+> **Done**, together with §6, and **with no JavaScript of its own** — the
+> largest departure from what this section and §6 first described. Three
+> things were handed back to Django once it was asked what actually needed
+> a client:
+>
+> - **Editing is a URL**, `expressions/edit/<slug:name>`, rendering the
+>   same page with the form bound to that row, rather than a click that
+>   fills the form from `data-` attributes. Linkable, survives a refresh,
+>   works with JavaScript off, and it stops the form's field ids being
+>   hard-coded in a second place. Under `edit/` rather than
+>   `expressions/<name>` so an expression named `save` or `delete` cannot
+>   collide with a literal route. A stale link 404s, which the error
+>   middleware deliberately leaves to Django.
+> - **Delete and Export are two submit buttons on one form**, using
+>   HTML5's `form=` to sit in the left menu and `formaction=` to go to
+>   their own views. One set of checkboxes serves both with no query
+>   string built by hand. The consequence is that **export is a POST**;
+>   nothing is lost, since the URL of a download whose content depends on
+>   what is ticked is not worth bookmarking.
+> - **The empty-selection case is the view's**, which says so, rather than
+>   a client-side guard that swallowed the click.
+>
+> What stays client-side is table sorting only, for §9's reason: it moves
+> the existing rows rather than rebuilding them.
+>
+> `_render_list` takes the library from `form.expressions` rather than
+> fetching it again: the form was built with the library this request is
+> about, and on a failed save the table must show what is *stored* rather
+> than what was typed. Descriptions are the one stored column no rule is
+> derived from, so they come from a separate `values_list` and are merged
+> into each row.
+>
+> **No automated tests for the views**, deliberately. Standing Django up
+> to drive them is more gymnastics than the coverage is worth, and the
+> logic they call is tested where it lives and needs neither Django nor a
+> project: `rename_references`, `check_expression`, `order_expressions`
+> and the availability filter. What is left in the views is plumbing, and
+> the manual pass under *Verification* covers it.
+
 #### Validity is global; availability is per-project
 
 Worth stating plainly, because the two are easily confused and only one of
@@ -1209,7 +1270,9 @@ read (see *Out of scope*).
   `form.save()` then a non-blocking `messages.warning` per
   `form.bare_aggregates`. On failure re-render with `form.errors` rather
   than flattening them into `messages`, so problems land against the field
-  that caused them.
+  that caused them. Editing is keyed by an `edit_name` POST field rather
+  than by primary key, so the page is driven entirely by the names it
+  shows and **a rename is an edit** — see below.
 - `delete_expressions` — POST with checked names (mirror
   `home/views.py:delete_projects`), refusing any that other expressions
   reference and naming those dependents in the error. Dependents are judged
@@ -1229,6 +1292,42 @@ read (see *Out of scope*).
   stored (so intra-file references resolve regardless of order), reports
   per-entry failures via `messages`, and upserts by name with an explicit
   overwrite-vs-skip choice for names that already exist.
+
+#### Renaming — the cascade the delete guard does not cover
+
+Not in the first draft of this plan, and the gap only shows up once
+editing is keyed by name: **renaming an expression others reference
+orphans them**, which is the delete guard's hazard reached from the other
+side. Nothing rewrites expression text at resolution time, so a dependent
+goes on naming the old spelling and is simply broken by it.
+
+Blocking it the way deletion is blocked was the obvious first answer and
+is the wrong one, because unlike a delete there is no gesture that makes
+it legal: the dependent's *reference* is what has to change, and pointing
+it at the new name will not validate while that name does not yet exist.
+The only route left is copy under the new name → repoint each dependent →
+delete the original, which is three steps and discoverable by nobody.
+
+So the rename **succeeds and carries its dependents with it**, in one
+transaction, and the page reports which expressions it updated. The delete
+guard stays the only refusal.
+
+- `rename_references(expression, old_name, new_name)` joins tier 1. Splices
+  the new identifier in at the exact source offsets `ast` reports for each
+  matching `ast.Name`, right to left, leaving every other byte alone.
+- **Not `str.replace`**, which would corrupt `rel` inside `rel_bg`, inside
+  a string literal, or a keyword argument's name. Only `ast.Name` nodes
+  move, so all three are untouched by construction.
+- **Not `ast.unparse`** either, which would reformat and re-parenthesise
+  the user's text — the thing *Composition* rules out. This is a source
+  edit the user asked for, not a resolution step, and what comes back is
+  what they will edit next.
+- Offsets from `ast` count **utf-8 bytes**, not characters, so the splice
+  is done on the encoded text; otherwise a non-ASCII character earlier in
+  the line shifts every offset after it.
+- The dependents are written with `QuerySet.update()`, which the
+  `modified` trigger covers where `auto_now` would not — see
+  `core/models.py`.
 
 Export format (versioned so it can evolve):
 
@@ -1258,6 +1357,30 @@ Export format (versioned so it can evolve):
 > Keeping the redirect turned out to be load-bearing rather than courteous:
 > `processing/progress.html` reverses `display_image_diagnostics` six times,
 > so the URL *name* had to survive, not just the path.
+>
+> **Now done, with two changes to what is below.**
+>
+> - **No `<optgroup>`s, and no second list.** Expressions join
+>   `available_diagnostics` itself. Splitting them would contradict what
+>   §Namespace rests on: an axis reads *a name*, and a recorded diagnostic
+>   is an expression of itself as far as anything downstream is concerned.
+>   That is the same flatness that makes an expression shadowing a
+>   diagnostic ambiguous, so the selector should not imply two kinds.
+>   `get_available_diagnostics(recorded, expressions)` therefore returns
+>   one list and the template loop is untouched.
+> - **No `diagnostic.expressions.js`.** See §5 — the edit/delete row
+>   interactions it was to carry are a URL and two submit buttons.
+>
+> The left-menu "Diagnostic Expressions" button and the `expressions/*`
+> routes landed as described, plus `expressions/edit/<slug:name>`.
+>
+> One thing outside this section came with it: `core/lcars_app.html` now
+> colours a message by level — red for error, atomic tangerine for
+> warning, anakiwa for success, golden tanoi otherwise — all from the
+> LCARS palette rather than invented. Warnings previously rendered
+> identically to information, which this feature makes untenable: the
+> bare-aggregate advice and the "renamed, and updated …" confirmation are
+> not the same kind of thing.
 
 - New `diagnostics/templates/diagnostics/diagnostic_expressions.html`
   extending `core/lcars_app.html`. Use the hidden-file-input +
@@ -1288,11 +1411,12 @@ Export format (versioned so it can evolve):
 
 ### 7. meson.build (mandatory — sources are listed explicitly, no globs)
 
-> **Partly done**, alongside the changes that needed it: every file that
-> exists is listed. The entries below for files that do not exist yet
-> remain. Note this section covers more than §6 anticipated, since §3's
-> tiers brought `autowisp/diagnostics/` and `autowisp/tests/` entries of
-> their own.
+> **Done.** Every file this plan adds is listed. Two entries below were
+> never needed: `diagnostic.expressions.js`, since §5/§6 need no
+> JavaScript, and therefore nothing in
+> `diagnostics/static/diagnostics/js/meson.build`. Note this section
+> covers more than §6 anticipated, since §3's tiers brought
+> `autowisp/diagnostics/` and `autowisp/tests/` entries of their own.
 
 - `diagnostics/meson.build`: `expression_data.py` — **done**; add
   `expression_views.py`.
@@ -1310,6 +1434,13 @@ Export format (versioned so it can evolve):
 
 ### 8. Documentation
 
+> **Done**, as a "Quantities of your own" section between *Choosing what
+> to draw* and *Every point is a link* — expressions are a way of choosing
+> what to draw, so that is where a reader meets them. Covers defining one,
+> composition, the per-(session, type, channel) span of an aggregate, the
+> `nan*` warning with `jd` named as the one exception, availability versus
+> validity, import/export, and the `pixel_quantiles`-on-both-axes note.
+
 `documentation/source/diagnostics.rst` is a complete narrative of the
 diagnostics UI and is rendered into `docs/`. Add a section covering: defining
 an expression, which variables are available, the vectorized/aggregate
@@ -1317,6 +1448,16 @@ semantics, **why aggregates want the `nan*` forms** — and that a bare one
 usually yields an empty plot rather than an error, because a session normally
 contains images without the diagnostic — building expressions out of other
 expressions, project-availability, and import/export.
+
+Two things the rest of the page needs to say once expressions exist:
+
+- **`jd` is the one quantity that is never NaN**, so it is the sole
+  legitimate exception to the "prefer `nan*`" guidance. It will otherwise
+  look inconsistent.
+- **`pixel_quantiles` is one quantile per series**, so selecting it for
+  *both* axes draws each quantile against itself — the identity line.
+  Pre-existing behaviour, deliberately left alone, and the answer is an
+  expression: `pixel_q999 / pixel_q99` compares two of them properly.
 
 ### 9. Sorting the series table
 
@@ -1438,7 +1579,11 @@ library is needed for it. Deferred rather than dismissed.
    `median`, ignores `nanmedian`), `order_expressions()` — a chain, a diamond
    where one expression feeds two dependents, a cycle, and the restriction to
    the target's subtree — the delete-with-dependents refusal, and an
-   export→import round trip of a composed set. Also cover NaN padding and
+   export→import round trip of a composed set. Plus
+   `rename_references()`: a name used twice in one expression, a name that
+   is a *substring* of another (`rel` inside `rel_bg` — the case that kills
+   a textual replace), one inside a string literal, and the rename carried
+   through the view so the dependents really are updated in the database. Also cover NaN padding and
    masking: a diagnostic missing for some images lands at the right indices,
    NaN propagates through a composed expression, and the finite mask keeps
    `image_ids` aligned with the plotted values.
@@ -1549,6 +1694,10 @@ library is needed for it. Deferred rather than dismissed.
      `rel_astrom_residual` is refused while it is referenced.
    - Try to save a cycle (`a = b + 1`, then edit `b` to `a + 1`) and confirm it
      is rejected with a clear message.
+   - Rename `rel_astrom_residual` and confirm the composed expression that
+     references it is rewritten to match, still plots, and that the page
+     says which expressions it updated. Then rename an expression nothing
+     references, which must simply work and report nothing.
    - Plot `rel_astrom_residual` vs `bg_center`, `bg_center` vs
      `rel_astrom_residual`, and `rel_astrom_residual` vs `rel_bg`; click a
      point and confirm it still opens the calibrated-frame preview.

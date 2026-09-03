@@ -4,6 +4,8 @@ py_src = [
   'apps.py',
   'detrending_diagnostics_views.py',
   'expression_data.py',
+  'expression_views.py',
+  'forms.py',
   'image_diagnostics_views.py',
   'models.py',
   'preview_calibrated.py',
