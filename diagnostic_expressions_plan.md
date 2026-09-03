@@ -402,10 +402,12 @@ Four properties worth naming:
 
 The additions this requires, beyond what is already planned:
 
-- `order_expressions(targets, expressions, known_names)` → `(evaluation_order,
+- `order_expressions(targets, expressions)` → `(evaluation_order,
   needed_diagnostics)`. The depth-first post-order above, restricted to the
   dependency subtree of *targets* so plotting one expression does not evaluate
-  the whole library. Raises on a cycle or an unresolvable name.
+  the whole library. Raises on a cycle or an unresolvable name. (What a name
+  may mean comes from `diagnostic_types.is_known_quantity()`, so no project
+  input is needed — see §1a.)
 - `check_expression()` additionally accepts other expression names as valid
   variables, and reports a cycle among its problems.
 - Deleting an expression that others reference is **blocked**, with the error
@@ -952,12 +954,27 @@ neither knowing what it is for:
 > names whose referenced diagnostics all exist". The `EXISTS` rework and
 > `jd` both landed; **the expression names did not**. The function takes no
 > `expressions` argument and `display_diagnostics` calls it without one
-> (`image_diagnostics_views.py:676`), so an expression cannot yet be
-> selected for either axis however many are stored. It lands with §5/§6,
-> since it is what makes the library reachable from the plot page at all,
-> and it needs the same `check_expression`-derived resolvability test the
-> management page uses — a name resolves here iff it has no problems
-> against this project's `known_names`.
+> (`image_diagnostics_views.py:672`), so an expression cannot yet be
+> selected for either axis however many are stored. Nothing else is
+> missing: `get_available_series` and `get_series_data` already resolve
+> expressions, so one typed straight into the URL plots today. It lands
+> with §5/§6, since it is what makes the library reachable from the plot
+> page at all, and populating the selector before §5 exists would offer a
+> library the user has no way to add to.
+>
+> **The test it needs is availability, not validity** — this block was
+> written in the §1a commit itself and its first draft said otherwise. §1a
+> made `check_expression` project-independent, so filtering the dropdown by
+> it would filter *nothing*: every stored expression is valid in every
+> project, and all of them would be offered everywhere, which is the
+> opposite of what §Namespace asks for. Instead take the transitive
+> `needed` set `order_expressions([name], expressions)` already returns and
+> offer the name iff `needed - {jd}` is a subset of the names this project
+> actually records — which the `EXISTS` probes have already computed by
+> that point. That filter must consult the **raw** in-use set, before
+> `pixel_q*` collapses into `quantiles`, since an expression may reference
+> a concrete `pixel_q999`; and it must treat a `PipelineError` as
+> unavailable, so a stored cycle cannot 500 the plot page.
 
 `image_diagnostics_views.py` and `diag_vs_diag_views.py` were one feature
 wearing two URLs. They already share the template (`diagnostics_app.html`) and
@@ -1178,15 +1195,17 @@ read (see *Out of scope*).
 #### The views
 
 - `list_expressions` — table of expressions with a per-row status computed
-  against the open project (OK / missing variables / shadowed by a real
-  diagnostic), plus a blank `DiagnosticExpressionForm`. Status comes from
+  from `check_expression` alone (OK / missing variables / shadowed by a
+  real diagnostic) — project-independent since §1a, with availability shown
+  separately per *Validity is global; availability is per-project* above —
+  plus a blank `DiagnosticExpressionForm`. Status comes from
   the same `check_expression()` the form uses, so the page and the save
   path can never disagree. Show each row's direct dependencies so a
   composed expression is traceable. **No all-NaN status** — every status
   here is derived from names alone, so the page costs no evaluation and no
   per-session query.
 - `save_expression` — POST. Build the form with `instance=` the existing
-  row when editing, `expressions=` and `known_names=`; on `is_valid()`,
+  row when editing and `expressions=` the library; on `is_valid()`,
   `form.save()` then a non-blocking `messages.warning` per
   `form.bare_aggregates`. On failure re-render with `form.errors` rather
   than flattening them into `messages`, so problems land against the field
