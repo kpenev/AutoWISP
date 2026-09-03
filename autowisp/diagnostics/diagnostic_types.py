@@ -196,9 +196,8 @@ def is_known_quantity(name):
     """
     Whether *name* resolves to data an expression may read.
 
-    The whole resolvable vocabulary: every diagnostic, plus the time. This
-    is what tier 1 checks a referenced name against, and what it refuses to
-    let an expression be named.
+    The whole readable vocabulary: every diagnostic, plus the time. This is
+    what tier 1 checks a referenced name against.
 
     Args:
         name(str):    The name to test.
@@ -208,3 +207,33 @@ def is_known_quantity(name):
     """
 
     return name == time_quantity or is_diagnostic(name)
+
+
+#: The pseudo-quantity offered in place of the individual quantiles, which
+#: expands to one plotted series per ``pixel_q*`` rather than standing for
+#: values of its own. Deliberately spelled without digits, so that it does
+#: not match :func:`is_quantile_diagnostic` -- it names the family, and is
+#: never one of its members.
+quantiles_quantity = "pixel_quantiles"
+
+
+def is_reserved_name(name):
+    """
+    Whether something already answers to *name*, so an expression may not.
+
+    Wider than :func:`is_known_quantity` by exactly one entry, and the
+    asymmetry is the point: :data:`quantiles_quantity` cannot be *read* by
+    an expression, since it stands for a family rather than for values, but
+    neither may it be shadowed by one. Expressions, diagnostics and the
+    family name share one flat name space -- it is what lets a selector and
+    a URL treat them alike -- so a name meaning one thing to the selector
+    and another inside an expression would be ambiguous in both.
+
+    Args:
+        name(str):    The proposed expression name.
+
+    Returns:
+        bool:    Whether the name is taken.
+    """
+
+    return name == quantiles_quantity or is_known_quantity(name)

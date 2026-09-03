@@ -52,7 +52,7 @@ class SeriesKey(NamedTuple):
     getting an argument order wrong.
 
     ``quantile_name`` is the odd one out: it says which ``pixel_q*`` a
-    series stands for when a caller has expanded the ``quantiles`` family
+    series stands for when a caller has expanded the ``pixel_quantiles`` family
     into one series per member, and by the time values are read the
     quantity it selects is already a concrete name. Nothing in this module
     consults it -- as nothing but the image list consults the channel -- but

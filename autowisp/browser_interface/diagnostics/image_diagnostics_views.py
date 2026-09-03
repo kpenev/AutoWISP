@@ -1,8 +1,8 @@
 """Views for displaying per-image diagnostics.
 
 One quantity may be plotted against another, where a quantity is a
-``DiagnosticType`` name, the ``quantiles`` pseudo-name expanding to one
-series per ``pixel_q*``, or ``jd``.  Plotting against time is not a separate
+``DiagnosticType`` name, the ``pixel_quantiles`` pseudo-name expanding to
+one series per ``pixel_q*``, or ``jd``.  Plotting against time is not a separate
 mode: it is ``x="jd"``, which resolves through the same path as everything
 else because the canonical image list already carries the Julian dates.
 """
@@ -33,7 +33,12 @@ from autowisp.diagnostics.expression_series import (
     get_series_values,
     time_quantity,
 )
+from autowisp.diagnostics.diagnostic_types import (
+    is_quantile_diagnostic,
+    quantiles_quantity,
+)
 from autowisp.diagnostics.expressions import order_expressions
+from autowisp.exceptions import PipelineError
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -43,13 +48,6 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
-
-#: Pseudo-quantity expanding to one series per ``pixel_q*`` diagnostic.
-#: Purely a selector convenience -- it names a family rather than a
-#: quantity, so it is resolved to a concrete ``pixel_q*`` before anything
-#: below the view sees it, and the layer that reads values knows nothing
-#: about it.
-_quantiles_quantity = "quantiles"
 
 
 def make_series(session_label, series_key, count):
@@ -87,12 +85,24 @@ def make_series(session_label, series_key, count):
     }
 
 
-def get_available_diagnostics(db_session):
-    """Return the quantity names that can be plotted in this project.
+def get_recorded_diagnostics(db_session):
+    """
+    Return the ``DiagnosticType`` names anything has recorded in this project.
 
     A per-type ``EXISTS`` probe rather than a ``GROUP BY`` over the whole of
     ``image_diagnostics``: the question is only which names are in use, and
     the grouped form has to walk every row to answer it.
+
+    The names come back raw, individual ``pixel_q*`` entries included --
+    before :func:`get_available_diagnostics` collapses them into the family
+    name.  That is what an expression has to be judged against, since one
+    may reference a concrete quantile.
+
+    Args:
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        list:    The names in use, in ``DiagnosticType`` order.
     """
 
     names = []
@@ -111,20 +121,90 @@ def get_available_diagnostics(db_session):
         if in_use:
             names.append(name)
 
-    result = [time_quantity] + [
-        name for name in names if not name.startswith("pixel_q")
-    ]
-    if any(name.startswith("pixel_q") for name in names):
-        result.append(_quantiles_quantity)
+    return names
 
-    return result
+
+def get_available_diagnostics(recorded, expressions):
+    """
+    Return every quantity an axis may be set to.
+
+    One flat list rather than diagnostics and expressions kept apart: an
+    axis reads a name, and a recorded diagnostic is simply an expression of
+    itself as far as anything downstream is concerned.  Sharing one name
+    space is what lets the selectors, the URL and the series table treat
+    all of them alike, and it is why an expression may not take a
+    diagnostic's name.
+
+    Args:
+        recorded(list):    What :func:`get_recorded_diagnostics` found.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        list:    ``jd``, then every recorded diagnostic -- with the
+            individual quantiles standing down in favour of the family name
+            that expands to one series per member -- then the expressions
+            this project has the data to draw.
+    """
+
+    result = [time_quantity] + [
+        name for name in recorded if not is_quantile_diagnostic(name)
+    ]
+    if any(is_quantile_diagnostic(name) for name in recorded):
+        result.append(quantiles_quantity)
+
+    return result + get_available_expressions(expressions, recorded)
+
+
+def get_available_expressions(expressions, recorded):
+    """
+    Return the expressions this project has the data to draw.
+
+    Availability, not validity.  Every stored expression is valid in every
+    project -- the vocabulary is the same everywhere, see
+    :mod:`autowisp.diagnostics.diagnostic_types` -- so filtering by
+    :func:`~autowisp.diagnostics.expressions.check_expression` would filter
+    nothing and offer all of them everywhere.  What decides whether one is
+    offered *here* is whether the diagnostics it reaches, transitively, have
+    actually been recorded.
+
+    Args:
+        expressions(dict):    The library, ``{name: expression}``.
+
+        recorded(list):    What :func:`get_recorded_diagnostics` found.
+            The raw names, since an expression may reference a concrete
+            ``pixel_q*`` rather than the family.
+
+    Returns:
+        list:    The names whose every diagnostic is recorded here,
+            alphabetically.
+    """
+
+    recorded = set(recorded)
+
+    available = []
+    for name in sorted(expressions):
+        try:
+            _, needed = order_expressions([name], expressions)
+        except PipelineError:
+            # A stored cycle, or a name no version of AutoWISP defines.
+            # Saying so is the management page's business; here it is
+            # merely not offered, so that one broken expression cannot stop
+            # the plot page rendering.
+            continue
+        # jd is known for every image of the canonical list, so it never
+        # counts against availability.
+        if needed - {time_quantity} <= recorded:
+            available.append(name)
+
+    return available
 
 
 def resolve_quantity(quantity_name, quantile_name):
     """
     Map an axis name onto the concrete quantity for one series.
 
-    ``quantiles`` names a family rather than a quantity: each series picks
+    ``pixel_quantiles`` names a family rather than a quantity: each series picks
     one ``pixel_q*`` member of it, recorded in the series id.  Resolving
     that here, once, is what lets everything downstream handle a single
     concrete name -- leaving ``jd`` as the only quantity that still needs a
@@ -141,7 +221,7 @@ def resolve_quantity(quantity_name, quantile_name):
         str:    The quantity to actually read.
     """
 
-    if quantity_name == _quantiles_quantity:
+    if quantity_name == quantiles_quantity:
         return quantile_name
     return quantity_name
 
@@ -189,7 +269,7 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
         PipelineError:    If an axis names nothing that resolves.
     """
 
-    has_quantiles = _quantiles_quantity in (x_diagnostic, y_diagnostic)
+    has_quantiles = quantiles_quantity in (x_diagnostic, y_diagnostic)
 
     quantile_names = get_quantile_names(db_session) if has_quantiles else [None]
 
@@ -669,7 +749,9 @@ def display_diagnostics(request, x_diagnostic, y_diagnostic, expressions):
         context = get_available_series(
             x_diagnostic, y_diagnostic, expressions, db_session
         )
-        context["available_diagnostics"] = get_available_diagnostics(db_session)
+        context["available_diagnostics"] = get_available_diagnostics(
+            get_recorded_diagnostics(db_session), expressions
+        )
 
     context["x_diagnostic"] = x_diagnostic
     context["y_diagnostic"] = y_diagnostic

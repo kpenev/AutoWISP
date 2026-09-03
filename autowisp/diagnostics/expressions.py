@@ -21,7 +21,10 @@ import re
 
 import numpy
 
-from autowisp.diagnostics.diagnostic_types import is_known_quantity
+from autowisp.diagnostics.diagnostic_types import (
+    is_known_quantity,
+    is_reserved_name,
+)
 from autowisp.evaluator import Evaluator, EvaluatorBase
 from autowisp.exceptions import PipelineError
 
@@ -105,6 +108,66 @@ def get_bare_aggregates(expression):
         and isinstance(node.func, ast.Name)
         and node.func.id in bare
     }
+
+
+def rename_references(expression, old_name, new_name):
+    """
+    Return *expression* with every reference to *old_name* renamed.
+
+    A source-level edit, and the only rewriting anywhere in this feature.
+    It does not contradict the rule that nothing is rewritten -- that is
+    about *resolution*, where an ``ast.unparse`` roundtrip would leave a
+    stored text and a resolved text to keep straight. Here the user has
+    asked for the change, and what comes back is what they will read and
+    edit from then on.
+
+    So it must not reformat: the new identifier is spliced in at the exact
+    source offsets ``ast`` reports, leaving every other byte alone. That is
+    also what makes it safe where a textual replace is not -- ``rel``
+    inside ``rel_bg``, inside a string literal, or as a keyword argument's
+    name is left untouched, because only ``ast.Name`` nodes are moved.
+
+    Args:
+        expression(str):    The expression text to rewrite.
+
+        old_name(str):    The name being renamed.
+
+        new_name(str):    What to call it instead.
+
+    Returns:
+        str:    The text with those references renamed, and identical
+            everywhere else.
+
+    Raises:
+        SyntaxError:    As for :func:`get_expression_names`.
+    """
+
+    # The offsets `ast` reports count utf-8 bytes rather than characters,
+    # so the splicing happens on the encoded text: a non-ASCII character
+    # earlier in the line would otherwise shift every offset after it.
+    encoded = expression.encode("utf-8")
+
+    line_starts = []
+    offset = 0
+    for line in encoded.splitlines(keepends=True):
+        line_starts.append(offset)
+        offset += len(line)
+
+    spans = sorted(
+        (
+            line_starts[node.lineno - 1] + node.col_offset,
+            line_starts[node.end_lineno - 1] + node.end_col_offset,
+        )
+        for node in ast.walk(ast.parse(expression, mode="eval"))
+        if isinstance(node, ast.Name) and node.id == old_name
+    )
+
+    # Right to left, so that an earlier span's offsets are still valid
+    # after a later one has changed the length of the text.
+    for start, end in reversed(spans):
+        encoded = encoded[:start] + new_name.encode("utf-8") + encoded[end:]
+
+    return encoded.decode("utf-8")
 
 
 def get_expression_dependents(name, expressions):
@@ -383,10 +446,10 @@ def check_expression(name, expression, expressions):
             f"{name!r} is not a valid name: use letters, digits, hyphens "
             "and underscores, so that it survives being put in a URL."
         )
-    if is_known_quantity(name):
+    if is_reserved_name(name):
         problems.append(
-            f"{name!r} is already the name of a diagnostic, and an "
-            "expression cannot shadow one."
+            f"{name!r} already names a diagnostic, or the family of them "
+            "the selectors offer, and an expression cannot shadow either."
         )
 
     try:

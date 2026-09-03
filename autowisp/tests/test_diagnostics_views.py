@@ -2,7 +2,7 @@
 
 These pin the behaviours that must survive merging
 ``image_diagnostics_views`` and ``diag_vs_diag_views`` into a single
-x-versus-y path: how the ``quantiles`` pseudo-name expands into series, and
+x-versus-y path: how the ``pixel_quantiles`` pseudo-name expands into series, and
 how the time-series figure offsets and groups its series.  They are written
 against the *current* code, so they must pass before the merge starts.
 
@@ -46,7 +46,10 @@ from autowisp.diagnostics.expression_series import (
 from autowisp.exceptions import PipelineError
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     create_diagnostics_figure,
+    get_available_diagnostics,
+    get_available_expressions,
     get_available_series,
+    get_recorded_diagnostics,
     get_series_data,
     group_series_by_x_overlap,
 )
@@ -238,8 +241,143 @@ class TestSeriesId(unittest.TestCase):
         )
 
 
+class TestAvailableQuantities(DiagnosticsViewTestCase):
+    """What the two axis selectors offer, given what this project holds.
+
+    Availability rather than validity: every stored expression is valid in
+    every project, so the only question a selector can usefully ask is
+    whether the diagnostics an expression reaches have actually been
+    recorded here.
+    """
+
+    def _recorded(self):
+        """Return the raw in-use diagnostic names."""
+
+        with start_db_session() as db_session:
+            return get_recorded_diagnostics(db_session)
+
+    def test_recorded_names_are_raw(self):
+        """The individual quantiles, not the family that replaces them.
+
+        This is the set an expression is judged against, and one may
+        reference a concrete ``pixel_q999``, so the collapse must happen
+        after rather than before.
+        """
+
+        self.assertEqual(sorted(self._recorded()), sorted(_diagnostic_names))
+
+    def test_selector_offers_the_family_not_its_members(self):
+        """One entry expanding to a series per quantile, and ``jd`` first."""
+
+        available = get_available_diagnostics(self._recorded(), {})
+
+        self.assertEqual(available[0], "jd")
+        self.assertIn("pixel_quantiles", available)
+        self.assertIn("bg_center", available)
+        for name in _quantile_names:
+            self.assertNotIn(name, available)
+
+    def test_expressions_join_the_same_flat_list(self):
+        """Not a second list beside it.
+
+        An axis reads one name, and a recorded diagnostic is an expression
+        of itself as far as everything downstream is concerned -- which is
+        the same flat name space that stops an expression taking a
+        diagnostic's name.
+        """
+
+        available = get_available_diagnostics(
+            self._recorded(), {"rel_bg": "bg_center * 2"}
+        )
+
+        self.assertIn("rel_bg", available)
+        self.assertIn("bg_center", available)
+
+    def test_expression_offered_where_its_inputs_are_recorded(self):
+        """The ordinary case, and the composed one behind it."""
+
+        library = {
+            "rel_bg": "bg_center - nanmedian(bg_center)",
+            "twice_rel_bg": "rel_bg * 2",
+        }
+
+        self.assertEqual(
+            get_available_expressions(library, self._recorded()),
+            ["rel_bg", "twice_rel_bg"],
+        )
+
+    def test_expression_hidden_where_an_input_is_not_recorded(self):
+        """Not an error -- ``astrom_residual`` is real, merely unrecorded.
+
+        The distinction the whole design rests on: this expression is valid
+        here and would be offered in a project that had run plate solving.
+        """
+
+        library = {"rel": "astrom_residual / diagonal_fov"}
+
+        self.assertEqual(
+            get_available_expressions(library, self._recorded()), []
+        )
+
+    def test_a_dependency_makes_its_dependents_unavailable(self):
+        """Availability follows the whole subtree, not the direct names."""
+
+        library = {
+            "rel": "astrom_residual / diagonal_fov",
+            "scaled": "rel * 2",
+        }
+
+        self.assertEqual(
+            get_available_expressions(library, self._recorded()), []
+        )
+
+    def test_a_concrete_quantile_is_judged_against_the_raw_names(self):
+        """Which is why the family collapse happens after this check.
+
+        Against the collapsed list ``pixel_q999`` would look unrecorded and
+        a perfectly drawable expression would go missing from the selector.
+        """
+
+        library = {"contrast": "pixel_q999 / pixel_q99"}
+
+        self.assertEqual(
+            get_available_expressions(library, self._recorded()), ["contrast"]
+        )
+
+    def test_a_jd_only_expression_is_always_available(self):
+        """``jd`` exists for every image of the canonical list."""
+
+        library = {"night_time": "jd - nanmin(jd)"}
+
+        self.assertEqual(
+            get_available_expressions(library, self._recorded()), ["night_time"]
+        )
+
+    def test_a_broken_expression_is_hidden_rather_than_raised(self):
+        """A stored cycle must not stop the plot page rendering.
+
+        Saying what is wrong with it belongs to the management page; here
+        the only sane answer is not to offer it.
+        """
+
+        library = {"a": "b + 1", "b": "a + 1", "rel_bg": "bg_center * 2"}
+
+        self.assertEqual(
+            get_available_expressions(library, self._recorded()), ["rel_bg"]
+        )
+
+    def test_an_unknown_name_is_hidden_too(self):
+        """A typo no version of AutoWISP defines, rather than a cycle."""
+
+        library = {"typo": "bg_centre * 2"}
+
+        self.assertEqual(
+            get_available_expressions(library, self._recorded()), []
+        )
+
+
 class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
-    """``quantiles`` expands to one series per ``pixel_q*``, either axis."""
+    """``pixel_quantiles`` expands to one series per ``pixel_q*``, either axis."""
 
     def _series_ids(self, x_diagnostic, y_diagnostic):
         """Return the series ids offered for the given axis pair."""
@@ -253,7 +391,7 @@ class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
     def test_quantiles_on_x_axis(self):
         """One series per quantile per (session, channel), name in the id."""
 
-        series_ids = self._series_ids("quantiles", "bg_center")
+        series_ids = self._series_ids("pixel_quantiles", "bg_center")
 
         self.assertEqual(len(series_ids), 2 * len(_quantile_names))
         for name in _quantile_names:
@@ -267,8 +405,8 @@ class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
         """Reversing the axes yields the same expansion."""
 
         self.assertEqual(
-            sorted(self._series_ids("bg_center", "quantiles")),
-            sorted(self._series_ids("quantiles", "bg_center")),
+            sorted(self._series_ids("bg_center", "pixel_quantiles")),
+            sorted(self._series_ids("pixel_quantiles", "bg_center")),
         )
 
     def test_quantile_column_present(self):
@@ -276,7 +414,7 @@ class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
 
         with start_db_session() as db_session:
             context = get_available_series(
-                "quantiles", "bg_center", {}, db_session
+                "pixel_quantiles", "bg_center", {}, db_session
             )
         self.assertIn("Quantile", context["diagnostics_fields"])
 
@@ -375,7 +513,8 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
         """Only object frames record the quantiles, so only they appear."""
 
         types = {
-            key.image_type for key in self._series_for("quantiles", "bg_center")
+            key.image_type
+            for key in self._series_for("pixel_quantiles", "bg_center")
         }
         self.assertEqual(types, {"object"})
 

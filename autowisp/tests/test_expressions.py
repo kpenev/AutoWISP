@@ -9,6 +9,7 @@ import unittest
 
 import numpy
 
+from autowisp.diagnostics.diagnostic_types import quantiles_quantity
 from autowisp.diagnostics.expressions import (
     check_expression,
     evaluate_expressions,
@@ -16,6 +17,7 @@ from autowisp.diagnostics.expressions import (
     get_expression_dependents,
     get_expression_names,
     order_expressions,
+    rename_references,
 )
 from autowisp.exceptions import PipelineError
 
@@ -124,6 +126,70 @@ class TestDependents(unittest.TestCase):
         """Deleting this one would break nothing."""
 
         self.assertEqual(get_expression_dependents("scaled", _library), set())
+
+
+class TestRenamingReferences(unittest.TestCase):
+    """Carrying dependents through a rename.
+
+    The one place expression text is rewritten, so what it must *not* touch
+    matters as much as what it must.
+    """
+
+    def test_every_use_is_renamed(self):
+        """Including two uses in the one expression."""
+
+        self.assertEqual(
+            rename_references("rel / nanmedian(rel)", "rel", "relative"),
+            "relative / nanmedian(relative)",
+        )
+
+    def test_a_longer_name_containing_it_is_untouched(self):
+        """The case that kills a textual replace.
+
+        ``rel_bg`` merely starts with ``rel``; renaming ``rel`` must leave
+        it alone, and only ``ast`` knows where one identifier ends.
+        """
+
+        self.assertEqual(
+            rename_references("rel_bg + rel", "rel", "r"), "rel_bg + r"
+        )
+
+    def test_a_string_literal_is_untouched(self):
+        """Text that merely looks like the name is not a reference."""
+
+        self.assertEqual(
+            rename_references("where(flag == 'rel', rel, 0)", "rel", "r"),
+            "where(flag == 'rel', r, 0)",
+        )
+
+    def test_spacing_and_parentheses_survive(self):
+        """Splicing rather than unparsing, so nothing is reformatted."""
+
+        original = "( rel+1 )*2  # keep me"
+        self.assertEqual(
+            rename_references(original, "rel", "r"), "( r+1 )*2  # keep me"
+        )
+
+    def test_offsets_survive_a_non_ascii_character(self):
+        """``ast`` counts utf-8 bytes, so the splice has to as well.
+
+        A multi-byte character earlier in the line shifts every offset
+        after it, and getting this wrong corrupts the text rather than
+        failing.
+        """
+
+        self.assertEqual(
+            rename_references("where(unit == 'µm', rel, 0)", "rel", "r"),
+            "where(unit == 'µm', r, 0)",
+        )
+
+    def test_an_unmentioned_name_changes_nothing(self):
+        """Every expression in a library is offered to this, not just the
+        dependents."""
+
+        self.assertEqual(
+            rename_references("bg_center * 2", "rel", "r"), "bg_center * 2"
+        )
 
 
 class TestOrdering(unittest.TestCase):
@@ -298,6 +364,26 @@ class TestQuantileNames(unittest.TestCase):
         """The pattern must not become a licence for anything similar."""
 
         self.assertTrue(check_expression("q", "pixel_quality * 2", {}))
+
+    def test_the_family_name_may_not_be_taken_either(self):
+        """``pixel_quantiles`` is a selector name, so it is reserved too.
+
+        It is the one reserved name that is not a readable quantity: it
+        stands for the whole ``pixel_q*`` family, expanding to one series
+        per member.  An expression allowed to take it would be swallowed by
+        that expansion and silently never drawn.
+        """
+
+        self.assertTrue(check_expression(quantiles_quantity, "1", {}))
+
+    def test_the_family_name_does_not_resolve_as_a_variable(self):
+        """Reserved is not the same as readable, and here they differ.
+
+        A family has no values of its own, so an expression referencing it
+        is a mistake rather than a way of reaching every quantile at once.
+        """
+
+        self.assertTrue(check_expression("q", f"{quantiles_quantity} * 2", {}))
 
     def test_a_quantile_survives_the_ordering_pass(self):
         """A composed expression must not be rejected by the cycle check.
