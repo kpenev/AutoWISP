@@ -163,6 +163,9 @@ from autowisp.tests.test_bui_db_config import (
     TestUrlTranslation,
     TestMysqlDriver,
 )
+from autowisp.tests.test_templates import (
+    TestTemplateComments,
+)
 from autowisp.tests.test_bui_models import (
     TestModelBase,
     TestModifiedIsMaintained,

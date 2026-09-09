@@ -59,9 +59,9 @@
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
     <div id="diagnostics-table-parent">
-        {# "asc": first click sorts ascending, which the library does not
+        {% comment %} "asc": first click sorts ascending, which the library does not
            default to.  A first click that jumps to descending reads as the
-           table having been shuffled rather than ordered. #}
+           table having been shuffled rather than ordered. {% endcomment %}
         <table class="lcars-table standard-header sortable asc">
             <thead>
                 <tr>

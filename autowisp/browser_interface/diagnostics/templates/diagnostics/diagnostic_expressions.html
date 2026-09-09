@@ -19,9 +19,9 @@
 {% endblock extra_head %}
 
 {% block left_menu %}
-{# Both buttons drive the table's form from outside it, via `form`, and
+{% comment %} Both buttons drive the table's form from outside it, via `form`, and
    `formaction` sends each to its own view -- so one set of checkboxes
-   answers for both without a line of JavaScript. #}
+   answers for both without a line of JavaScript. {% endcomment %}
 <button type="submit"
         form="expression-list-form"
         formaction="{% url 'diagnostics:delete_expressions' %}"
@@ -41,9 +41,9 @@
       method="post">
     {% csrf_token %}
 
-    {# Above the button on purpose: choosing a file submits immediately,
+    {% comment %} Above the button on purpose: choosing a file submits immediately,
        so this has to be set first to be set at all.  Unticked means keep
-       what is stored. #}
+       what is stored. {% endcomment %}
     <div class="lcars-text" style="text-transform: none;">
         <input type="checkbox" name="overwrite" id="import-overwrite">
         <label for="import-overwrite">overwrite existing</label>
@@ -72,9 +72,9 @@
           method="post"
           action="{% url 'diagnostics:save_expression' %}">
         {% csrf_token %}
-        {# Empty when creating; the name of the row being replaced when
+        {% comment %} Empty when creating; the name of the row being replaced when
            editing, which is also what makes a rename an edit rather than
-           a second expression. #}
+           a second expression. {% endcomment %}
         <input type="hidden" name="edit_name" value="{{ edit_name }}">
 
         <table class="lcars-table standard-header">
@@ -102,8 +102,8 @@
                     </td>
                     <td>
                         <button type="submit" id="save-expression">Save</button>
-                        {# Plain navigation back to the blank form, which is
-                           also how an edit is abandoned. #}
+                        {% comment %} Plain navigation back to the blank form, which is
+                           also how an edit is abandoned. {% endcomment %}
                         <a href="{% url 'diagnostics:list_expressions' %}">
                             Clear
                         </a>

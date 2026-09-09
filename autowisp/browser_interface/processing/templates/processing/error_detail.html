@@ -9,8 +9,8 @@ AutoWISP Error {{ error_id }}
 Error {{ error_id }}
 {% endblock app_title %}
 
-{# Navigation lives in the side bar; view-state actions (toggle detail,
-   resolve, delete) live in the header bar below. #}
+{% comment %} Navigation lives in the side bar; view-state actions (toggle detail,
+   resolve, delete) live in the header bar below. {% endcomment %}
 {% block left_menu %}
 <a href="{% url 'processing:error_list' %}">
     <div class="lcars-element button lcars-chestnut-rose-bg lcars-u-1-2">
