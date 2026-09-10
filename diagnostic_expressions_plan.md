@@ -1544,6 +1544,462 @@ wants together but still leaves a click per row, and the obvious completion
 is a shift-click range select — perhaps ten lines of our own JS, since no
 library is needed for it. Deferred rather than dismissed.
 
+### 10. Channel slots
+
+> **Not started.** Everything above works, and the limitation this removes
+> was found by using it: an expression is evaluated *within one channel*, so
+> the most useful cross-channel quantity of all — the colour of the sky —
+> cannot be written. Written as its own section rather than folded into
+> §1a/§3/§4 because it changes the meaning of a *series*, which those three
+> share.
+>
+> The evaluation design below was arrived at by running it rather than by
+> arguing about it, and the working sketch is checked in as
+> `diagnostic_slots_prototype.py` at the repository root — outside the
+> package, installed by nothing, and **to be deleted once this section
+> lands** in `autowisp/diagnostics/expressions.py`. It pins the four cases
+> worth keeping as tests, including the two that would otherwise fail
+> silently.
+
+`bg_center` means "bg_center in this series' channel", because a series is
+`(session, image type, channel)` and §Alignment makes the channel the one
+field the value query filters on. There is no way to say "bg_center in R
+over bg_center in B".
+
+**Naming the channel does not work.** Channel names are *per-camera project
+data* — `camera_channel.name` is a free-text `String(10)` entered per
+camera type
+(`autowisp/database/data_model/provenance/camera_channel.py:23`), with no
+enumeration anywhere, no foreign key from `image_diagnostics.channel`, and
+no default set: the `R`/`G`/`B` in `core/plot_utils.py:14` is a colour hint
+that falls back to white for anything else. One camera may name its
+channels `B,G1,G2,R` and another `B0,G0,G1,R0`, in the same project. So
+`bg_center|R` would mean different things, or nothing, in different
+projects — and §5 rests on the opposite: *validity is global, availability
+is per-project*, which §1a bought by making the vocabulary static.
+
+So an expression names an **abstract slot**, and the binding to a real
+channel is chosen when plotting:
+
+```
+sky_color[1,2] = bg_center[1] / bg_center[2]
+```
+
+Bind 1→R and 2→B on a Bayer camera, 1→R0 and 2→B0 elsewhere. Slots are
+static tokens, so `check_expression` still needs no project and one library
+still means the same thing everywhere — the property §1a exists to protect,
+kept rather than traded away.
+
+#### Every quantity takes slots, and a subscript is always written
+
+A slot is a subscript, and it is never optional:
+
+```
+sky_color[1,2] = bg_center[1] / bg_center[2]
+silly[1,2,3]   = sky_color[1,2] - sky_color[2,3]
+```
+
+The numbers in a definition's header are **formal parameters**, matched
+positionally at the point of use — which is why `sky_color[2,3]` is
+perfectly valid despite the definition writing `[1,2]`. That single
+property is what makes the whole design compose, and it is the reason to
+prefer it over writing the slot into the name.
+
+**Parameters are derived from the body**, as the sorted set of slot
+literals it mentions: `bg_center[1] / bg_center[2]` gives `(1, 2)`, and
+`sky_color[1,2] - sky_color[2,3]` gives `(1, 2, 3)`. The header is
+therefore optional, and when written is *checked* against the derived set
+rather than being the source of truth — it catches the typo where `[3]`
+was meant to be `[2]`. The stored name stays a plain slug, so §2's model,
+§5's management page and §6's URLs are untouched.
+
+So **every quantity has an arity**, and that is the whole of what the table
+has to bind:
+
+| quantity | arity |
+| --- | --- |
+| `jd` | 0 — one value per image, no channel |
+| a diagnostic | 1 |
+| an expression | however many slots its body mentions |
+
+There is **no bare form**. `bg_center` alone is not a reference, because the
+name is bound to a mapping rather than to an array — see below — and
+allowing both spellings would mean rewriting the expression to disambiguate
+them. `bg_center[0] - nanmedian(bg_center[0])` is the price, paid in the
+common one-channel case, for never touching what the user wrote.
+
+Slot numbers are labels rather than a sequence: nothing requires them to
+start at 0 or to be contiguous, and a gap is not a mistake.
+
+#### Nothing is rewritten: dictionaries in the symbol table
+
+A subscript is ordinary Python, so `ast.parse` needs no help — and asteval
+evaluates `bg_center[2] / bg_center[1]` natively if the name is bound to a
+mapping. **The stored text is therefore evaluated verbatim**, with no
+rewriting of source or tree anywhere in this section. `get_expression_names`
+and `rename_references` are unchanged.
+
+**A name is bound to a mapping, not to an array**, which is why there is no
+bare form: one name cannot be both the mapping a subscript reaches into and
+the array `nanmedian` expects, and making it both would mean rewriting the
+expression to tell the two spellings apart. How that mapping answers is the
+next subsection; what it means is here.
+
+The numbers in a body are **that expression's own parameters, never the
+caller's**, and assuming otherwise is the easy mistake. Plotting `silly`
+with its three parameters bound to `(B, G0, G1)`:
+
+```
+ silly, bound {1:B, 2:G0, 3:G1}
+     body sky_color[1,2] - sky_color[2,3]
+       [1,2] -> through this binding, the channels (B, G0)
+       [2,3] -> through this binding, the channels (G0, G1)
+
+     sky_color, bound {1:B, 2:G0}
+         body bg_center[1] / bg_center[2]
+           [1] -> B        [2] -> G0
+
+     sky_color, bound {1:G0, 2:G1}
+         body bg_center[1] / bg_center[2]      <- the same stored text,
+           [1] -> G0       [2] -> G1              a different binding
+```
+
+Two things to read off it. `sky_color`'s body is subscripted `1, 2` **both
+times** — its own parameters — resolving to different channels; the numbers
+`(1,2)` and `(2,3)` exist only in *silly's* body. And a reference's
+arguments are resolved through the *calling* body's binding before being
+matched positionally onto the callee's parameters, which is the whole of
+what "formal parameter" means here.
+
+A diagnostic is a leaf: its mapping is what tier 2 fetched, and the
+subscript picks the channel.
+
+#### Evaluation is a real-time lookup, as lightcurves already do
+
+Instantiation needs no ordering pass of its own, no pre-built view, and no
+evaluation function. Put a **lookup object** in the symbol table for each
+name and let the evaluator ask it as it goes — the pattern
+`LightCurveLookUp` (`autowisp/evaluator.py:128`) already uses for datasets,
+with `__getitem__` in place of `__getattr__`.
+
+**One class serves both kinds**, because a diagnostic is the degenerate
+case of an expression: every instantiation of it is known before
+evaluation starts, so it arrives with its cache already full and its text
+never consulted. Each lookup owns its text, its parameters and the
+instantiations it has computed; a plain list shared between them holds the
+slot→channel maps of the bodies currently in flight, innermost last.
+
+```
+class QuantityLookUp:
+    def __getitem__(self, slots):        # what the body wrote
+        return self.at(tuple(stack[-1][slot] for slot in as_tuple(slots)))
+
+    def at(self, channels):              # what it means
+        if channels not in self.computed:
+            if self.text is None:        # a diagnostic: nothing to compute
+                raise PipelineError(f"No values supplied for {self.name} ...")
+            stack.append(dict(zip(self.parameters, channels)))
+            try:     self.computed[channels] = evaluate(self.text)
+            finally: stack.pop()
+        return self.computed[channels]
+```
+
+The cache is §Composition's "computed once", carried over per
+instantiation. For a diagnostic it is also the whole of the answer, so a
+miss means the values were never fetched — a fault in whatever decided
+what to fetch, reported with the wording tier 1 already uses for it.
+
+**Asking the top-level lookup for its channels is the evaluation.** There
+is no recursion to write and no state to thread: the symbol table *is* the
+state.
+
+**Nothing here re-detects cycles.** `order_expressions` refuses one
+statically, on names, and that is exact rather than conservative for the
+reason given below — so a second check during evaluation could never fire.
+Leaving it out is what reduces the binding stack to a plain list, and it
+also removes the only thing a lookup would have raised: asteval wraps
+whatever comes out of one, so a cycle reported from in here would arrive
+nested inside its own message, less clearly than the static check states
+it. The requirements walk needs the static check first in any case, since
+it traverses the same graph before anything is evaluated.
+
+Four things fall out of putting it here rather than assembling values
+first:
+
+- Python hands `__getitem__` exactly what was written — `1` for
+  `bg_center[1]`, `(1, 2)` for `sky_color[1,2]` — so the key shapes take
+  care of themselves. Building a view by hand has to reproduce that rule,
+  and get it right.
+- **A diagnostic and an expression answer the same `at(channels)`**, so
+  resolving the two axes of a plot is one dictionary comprehension over
+  the quantities the table bound, whichever kind each is. That falls out
+  of their being one class rather than being arranged.
+- **When something does raise in here, asteval's wrapping helps.** A
+  missing channel reached through a body comes back as the body's text
+  with a caret under the offending subscript, then the message — which is
+  more than the bare error would say.
+- Only what is actually reached is computed.
+- The lookups hold **no binding of their own** — they read the stack — so
+  the one genuinely broken arrangement is unreachable by construction. That
+  arrangement is a lookup with a *frozen* slot→channel map shared across
+  levels, where evaluating a nested expression rebinds names mid-flight:
+
+  ```
+  inner[1,2] = bg_center[1] / bg_center[2]
+  outer[1,2] = inner[2,1] + bg_center[1]
+  ```
+
+  returns a wrong number rather than an error. The stack is sound because
+  nesting is strictly LIFO — a nested evaluation finishes inside
+  `__getitem__`, before the outer body's next operand is touched — and
+  `outer` is worth pinning in a test regardless, since the failure it
+  guards against is silent.
+
+**The evaluator itself never leaves.** It is what the lookups ask to run a
+body; handing it back would hand back a symbol table full of lookups, and
+with it a way to evaluate arbitrary text with none of the parameter
+machinery.
+
+What must happen *before* any of this is collecting the
+`(diagnostic, channel)` pairs to fetch, since tier 2 reads them in one
+query. That is the same walk with the evaluation left out, and it is the
+one place a subscript walk is genuinely needed.
+
+#### Ordering — availability still asks a channel-free question
+
+`order_expressions` is untouched, and answers the question that has no
+bindings in it: *which diagnostics does this expression need at all*, for
+§4's availability filter and the series table. Erase the subscripts and the
+graph is the one §Composition already walks:
+
+```
+sky_color[1,2] = bg_center[1] / bg_center[2]
+silly[1,2,3]   = sky_color[1,2] - sky_color[2,3]
+
+        erased, for ordering purposes only:
+
+sky_color      = bg_center / bg_center
+silly          = sky_color - sky_color
+```
+
+`silly` needs `sky_color` whatever the bindings, so the dependency graph is
+the same one with or without slots, and `get_expression_names` needs no
+change to produce it. A name is asked for `is_diagnostic` after its
+subscript is dropped, and that is the whole of the change here.
+
+Cycle detection on names also stays exact rather than becoming
+conservative: substitution permutes a finite parameter set and introduces
+no new symbols, so a cycle among instantiations exists precisely when there
+is one among names. Availability therefore reports a cycle without needing
+any binding, as it does today.
+
+#### Composition — slots are local, so nothing has to be coordinated
+
+Because the numbers in a definition are formal parameters, an expression
+may be used at **two different bindings in one expression**:
+
+```
+silly[1,2,3] = sky_color[1,2] - sky_color[2,3]
+```
+
+and two independently written expressions compose without their authors
+having agreed on numbering. If `sky_color` was written meaning "first over
+second" and `focus_ratio` likewise, `sky_color[1,2] * focus_ratio[3,4]` is
+simply a four-slot quantity. Nothing has to be renumbered, and there is no
+global slot space to collide in — which is the limitation a name-embedded
+slot (`bg_center_1`) would have carried permanently.
+
+Two consequences worth stating:
+
+- **Editing a dependency can change its dependents' arity.** Adding a
+  `bg_center[4]` to `sky_color` makes every expression built on it wider,
+  and a plot already bound to three channels is short one. §5's management
+  page already lists what each expression is built from; it should show the
+  arity beside that, so the change is visible where it is made.
+- **The availability filter must look at the diagnostic, not the
+  reference.** `get_available_expressions` tests what an expression needs
+  against the diagnostics a project records; those needs are now
+  `(diagnostic, slot)` pairs, so the diagnostic has to be taken out of the
+  pair before the comparison. Without that, every expression would look
+  unavailable in every project.
+
+#### What tier 2 and the table become
+
+- The canonical image list is **already channel-independent**
+  (`get_canonical_images` ignores the channel, §Alignment), which is exactly
+  why cross-channel arrays need no join: index *i* is the same exposure in
+  every one of them. This is the single largest reason the change is
+  contained.
+- `get_diagnostic_values` keeps its signature; its one outer join becomes
+  one aliased outer join per distinct bound channel, each with `channel`
+  pinned. The result is still one row per (image, name) — the unique index
+  guarantees it — so the reshape is untouched and only the column count
+  grows. *Scaling*'s plan requirement is unchanged: still driving from
+  `image` on `image_observing_session`.
+- `SeriesKey.channel` becomes `channels`, a tuple holding one channel per
+  bound parameter, in the order the table shows them. It is built from the
+  posted bindings rather than unpacked from the series id — see *the round
+  trip* below for why the id stops carrying them, and what that costs.
+  `to_id`'s loud failure on a field containing the separator stays: it is
+  the guard that stops a camera's channel naming scheme producing an
+  ambiguous key.
+- Counts stay SQL aggregates, per *Series table semantics*, and split into
+  two questions: what a slot may be bound to (today's
+  `count_images_with_all`, filling the dropdown options) and how many images
+  a completed binding has (new, cross-channel, and not needed at all for a
+  single-slot quantity). The pre-existing missing `observing_session_id`
+  filter on the first — noted under *Scaling* as a known limit, and in
+  contradiction with *Query discipline* — is fixed in the same pass, since
+  this multiplies how often it runs.
+- The table gains **one dropdown per parameter of each axis** — the x
+  quantity's arity plus the y quantity's, concatenated rather than merged.
+  They are not shared: an expression's numbers are formal parameters, so
+  slot 1 of the x quantity and slot 1 of the y quantity are unrelated, and
+  pretending otherwise would silently tie two axes together. Plotting
+  `bg_center` against `bg_center` therefore offers two dropdowns, which is
+  exactly how a diagnostic is compared between channels.
+- Arity is a static property of the axis pair, so the table's shape still
+  costs no evaluation and is known when `display_diagnostics(x, y)` renders.
+- The table **starts empty**: one unbound row per (session, type), and
+  completing a row's bindings summons a fresh spare below it, so a second
+  binding of the same quantity can be built and drawn on the same figure.
+  Enumerating instead would be a cartesian product.
+- **A partly bound row is inert.** Until every channel the axes require has
+  been chosen there is nothing to fetch, nothing to count and nothing to
+  draw, so choosing one of several dropdowns changes nothing but that
+  dropdown — no round trip, no re-render. The server is asked only when a
+  change leaves the row **fully bound**, which is the first moment it means
+  anything.
+
+#### The round trip, and what it costs §9
+
+Most of it exists: `update_plot_view` already stores the whole POST in the
+session and already rebuilds `series_list` **purely from the posted
+`datasets`** keyed by series id, and `create_diagnostics_figure` never
+consults the series table. So encoding bindings in the id makes the existing
+path work nearly unchanged. What is added is that *every* row is posted, not
+only the active ones, and that a binding change asks for the table back
+alongside the figure.
+
+**When it fires** is decided on the client, because the client can see it:
+a row knows how many dropdowns it has and which are still empty. So
+
+| the change leaves the row | what comes back |
+| --- | --- |
+| still missing a channel | nothing — the dropdown alone, no request |
+| fully bound for the first time | that row's count, one spare row to append, the figure |
+| fully bound, and it already was | that row's count and the figure |
+
+The middle case is the only one that grows the table, so the spare arrives
+exactly when the previous row became plottable and never before. The last
+is a rebinding of a finished row: it changes what the row means, so it must
+be recounted and redrawn, but needs no second spare — one is already
+waiting.
+
+**Nothing is ever re-rendered in place, so the table never reorders.**
+Choosing channels is the same kind of act as toggling a row on, and that
+has never disturbed the order; it must not start. So the response carries
+only what changed — the completed row's count, and the markup for one new
+spare row to append — and the client updates one cell and appends one row.
+Every other row keeps its node, and with it its `.active` class, the values
+typed into its three inputs, the marker swapped into it, and its position
+under whatever sort the user chose. §9's rationale survives intact rather
+than "for the frequent path": rows are still moved, never rebuilt.
+
+This costs one thing, and it revises §4. **The series id can no longer
+carry the channels**, because a row's id would then change the moment it
+became bound — taking with it the four element ids derived from it
+(`plot-color:`, `marker-button:`, `scale:`, `label:`) and the key the
+client posts it under. So a row's id becomes stable at render —
+`session|type|quantile|<ordinal>`, the ordinal distinguishing rows of one
+group — and the **bindings are posted as their own field**, read from the
+row's `<select>`s. `SeriesKey` is then built server-side from the posted
+bindings rather than unpacked from the id.
+
+§4 argued for deriving the key from the id rather than from what the client
+echoes, so that there is one source of truth. That still holds for
+everything the id keeps — session, type, quantile are not editable in the
+table — and the part that moved out is precisely the part that is now
+editable there. A binding read from anywhere but the dropdown the user just
+changed would be the stale one.
+
+#### What `check_expression` says, still without a project
+
+| written | verdict |
+| --- | --- |
+| `bg_center` | error — a diagnostic is a mapping; say which slot |
+| `jd[1]` | error — `jd` is one value per image, so its arity is 0 |
+| `sky_color[1]` where `sky_color` takes two | error — arity, named in the message |
+| `bg_center[1,2]` | error — a diagnostic takes exactly one slot |
+| `bg_center[i]`, `bg_center[1.5]`, `bg_center[1:2]` | error — a slot is an integer literal |
+| `bg_centre[1]` | error — the ordinary "not a diagnostic, an expression or a function" a typo gets |
+| header `sky_color[1,3]` over a body using 1 and 2 | error — the header is checked, which is its only job |
+| `bg_center[1]` and `bg_center[3]`, no `[2]` | fine; slot numbers are labels |
+
+#### Rejected
+
+- **Naming channels in the expression** (`bg_center[R]`). The reason is at
+  the top of this section, and it is the whole reason slots exist.
+- **`bg_center|1`**, a separator between name and slot. `|` is a real
+  Python operator binding **looser than arithmetic**, so
+  `bg_center|1 / bg_center|2` parses as `bg_center | (1 / bg_center) | 2` —
+  not a syntax error but a *wrong* one. Fixing it means collapsing tokens
+  before `ast.parse`, which shifts source offsets and so drags
+  `rename_references` into position arithmetic whose failure mode is
+  silently corrupting an expression.
+- **`bg_center_1`**, the slot written into the name. It parses natively and
+  needs no rewriting, but slot numbers would then be **global to the
+  library**: one expression could not be used at two bindings, independently
+  written expressions would have to agree on numbering, and no diagnostic
+  could ever be named ending in `_<digits>`. Subscripts cost about fifty
+  more lines in tier 1 and remove all three.
+- **A bare `bg_center` meaning slot 0.** It would keep the common case
+  terse, at the cost of the name being both a mapping and an array — which
+  can only be resolved by rewriting the expression before evaluating it.
+  Evaluating exactly what the user wrote is worth the subscript.
+- **Seeding the single-slot table one row per channel**, as §4's table does
+  today. It would have kept the familiar workflow for the common case, at
+  the price of two behaviours in one table; the model is unified instead,
+  and every row is built by binding.
+
+#### Staging
+
+Each stands on its own, and the first three need neither Django nor a
+browser:
+
+1. **Slots in tier 1** — `expressions.py`: read subscripts out of the AST,
+   derive an expression's parameters, check a written header against them,
+   the walk collecting the `(diagnostic, channel)` pairs to fetch, and the
+   lookup class with its shared binding stack. `get_expression_names`,
+   `order_expressions` and `rename_references` are untouched;
+   `is_diagnostic` is asked about a name with its subscript dropped.
+   `diagnostic_types.py` gains only arity: `jd` is 0, a diagnostic is 1.
+2. **`SeriesKey` and multi-channel fetching** — `expression_series.py`: the
+   `channels` tuple, the `,` sub-encoding, the aliased joins. `__new__` must
+   reject a bare `str`, or `channels="R"` would leave `channels[0]` working
+   while `",".join("R")` silently gave `"G,1"` for a two-character channel.
+3. **Counts** — the cross-channel aggregate, and the session anchor on
+   `count_images_with_all`.
+4. **The table and the round trip** — `image_diagnostics_views.py`,
+   `views.py`, a `_series_row.html` partial rendering **one** row (the unit
+   the response appends), and `diagnostics_app.js`. The slot `<select>`s
+   need `event.stopPropagation()`: the row listener fires for clicks on
+   descendants, so opening a dropdown would otherwise toggle the row.
+5. **Docs, meson, lint** — §8's section gains slots; §7's rule covers the
+   new partial. No URL change is needed at any point: an axis is still
+   named by a bare slug, because binding happens in the table rather than
+   in the address.
+
+Five checks are worth naming because they fail silently otherwise: that
+`sky_color[1,2] - sky_color[2,3]` really instantiates the same expression
+twice at different channels rather than once; that an instantiation wanted
+by two expressions is computed once (patch the evaluator and count); that a
+partly bound row provokes no request at all, and a completed one exactly
+one; that binding a row leaves **every other row's node identical** — the
+assertion that pins "the table never reorders", and the one a browser
+would show but a test can state; and that the table is built with no call
+into the evaluator at all, which is *Scaling*'s rule made testable at last.
+
 ## Verification
 
 1. **NaN-aware aggregates** — assert every name in `nan_aggregates` resolves in
