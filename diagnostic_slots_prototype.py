@@ -34,50 +34,76 @@ from autowisp.exceptions import PipelineError
 # The class exists to answer one subscript; that is the whole interface.
 # pylint: disable=too-few-public-methods
 class QuantityLookUp:
-    """One name an expression may read, resolved when it is asked for."""
+    """One name an expression may read, resolved when it is asked for.
 
-    # Each names one thing a quantity needs, and the last three are what
-    # tell a diagnostic from an expression; collecting them into an object
-    # would only move the same list one step away.
-    # pylint: disable=too-many-arguments
-    def __init__(
-        self,
-        name,
-        stack,
-        evaluator,
-        *,
-        text=None,
-        parameters=(),
-        computed=None,
-    ):
+    Built through :meth:`library` rather than one at a time: the lookups
+    of one evaluation have to share a binding stack and an evaluator, and
+    both are this class's business rather than its caller's.
+    """
+
+    def __init__(self, name, shared, *, definition=None, computed=None):
         """
         Args:
             name(str):    What the expressions call it, for error messages
                 only -- nothing resolves by it.
 
-            stack(list):    The slot->channel maps of the bodies currently
-                being evaluated, innermost last.  Shared by every lookup.
+            shared(tuple):    The binding stack and evaluator this
+                evaluation's lookups share, from :meth:`library`.
 
-            evaluator:    What runs a body.  Shared likewise, and never
-                handed out above this layer.
-
-            text(str):    The stored expression, or ``None`` for a
-                diagnostic, which is never evaluated.
-
-            parameters(tuple):    The slots the body reads, in order.
+            definition(tuple):    The stored text and its parameters, as
+                the library holds them, or ``None`` for a diagnostic --
+                which is never evaluated, so it has neither.
 
             computed(dict):    ``channels -> array`` known in advance: the
                 whole of a diagnostic, and empty for an expression.
         """
 
         self._name = name
-        self._stack = stack
-        self._evaluator = evaluator
-        self._text = text
-        self._parameters = parameters
+        self._stack, self._evaluator = shared
+        self._text, self._parameters = definition or (None, ())
         self._computed = dict(computed or {})
 
-    # pylint: enable=too-many-arguments
+    @classmethod
+    def library(cls, expressions, values):
+        """
+        Return ``{name: lookup}`` for one evaluation, ready to be asked.
+
+        The stack and the evaluator are created here and captured by the
+        lookups, so neither appears outside this class.  The stack in
+        particular is how a lookup finds the binding of the body asking it,
+        which is nobody else's concern; and it must belong to **one
+        evaluation**, not to the class, or two plots drawn at once would
+        interleave their bindings on it.
+
+        The evaluator does not come back out either: handing it over would
+        hand over a symbol table full of lookups, and with it a way to
+        evaluate arbitrary text with none of the parameter machinery.
+
+        Args:
+            expressions(dict):    ``name -> (text, parameters)``.
+
+            values(dict):    ``diagnostic -> {channel: array}``, fetched.
+        """
+
+        shared = ([], Evaluator({}))
+        lookups = {
+            name: cls(
+                name,
+                shared,
+                computed={
+                    (channel,): array for channel, array in by_channel.items()
+                },
+            )
+            for name, by_channel in values.items()
+        }
+        lookups.update(
+            {
+                name: cls(name, shared, definition=definition)
+                for name, definition in expressions.items()
+            }
+        )
+        shared[1].symtable.update(lookups)
+        return lookups
 
     def __getitem__(self, slots):
         """Resolve ``name[slots]`` as the body being evaluated means it.
@@ -127,39 +153,6 @@ class QuantityLookUp:
 # pylint: enable=too-few-public-methods
 
 
-def _build_lookups(library, values):
-    """Return ``{name: lookup}``, wired to one evaluator between them.
-
-    The evaluator does not come back out: handing it over would hand over a
-    symbol table full of lookups, and with it a way to evaluate arbitrary
-    text with none of the parameter machinery.
-    """
-
-    stack = []
-    evaluator = Evaluator({})
-    lookups = {
-        name: QuantityLookUp(
-            name,
-            stack,
-            evaluator,
-            computed={
-                (channel,): array for channel, array in by_channel.items()
-            },
-        )
-        for name, by_channel in values.items()
-    }
-    lookups.update(
-        {
-            name: QuantityLookUp(
-                name, stack, evaluator, text=text, parameters=parameters
-            )
-            for name, (text, parameters) in library.items()
-        }
-    )
-    evaluator.symtable.update(lookups)
-    return lookups
-
-
 def evaluate_quantities(wanted, library, values):
     """Return ``{quantity: array}`` for the quantities of one series.
 
@@ -172,7 +165,7 @@ def evaluate_quantities(wanted, library, values):
         values(dict):    ``diagnostic -> {channel: array}``, from tier 2.
     """
 
-    lookups = _build_lookups(library, values)
+    lookups = QuantityLookUp.library(library, values)
     return {
         name: lookups[name].at(channels) for name, channels in wanted.items()
     }
@@ -211,7 +204,7 @@ if __name__ == "__main__":
         + VALUES["bg_center"]["R"],
     )
 
-    LOOKUPS = _build_lookups(LIBRARY, VALUES)
+    LOOKUPS = QuantityLookUp.library(LIBRARY, VALUES)
     LOOKUPS["twice"].at(("B", "G0"))
     # pylint: disable=protected-access
     print("\nsky_color computed at:", list(LOOKUPS["sky_color"]._computed))
