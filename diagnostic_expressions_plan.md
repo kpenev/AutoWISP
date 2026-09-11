@@ -1860,10 +1860,36 @@ Two consequences worth stating:
   exactly how a diagnostic is compared between channels.
 - Arity is a static property of the axis pair, so the table's shape still
   costs no evaluation and is known when `display_diagnostics(x, y)` renders.
-- The table **starts empty**: one unbound row per (session, type), and
-  completing a row's bindings summons a fresh spare below it, so a second
-  binding of the same quantity can be built and drawn on the same figure.
-  Enumerating instead would be a cartesian product.
+- **Nothing arrives bound, where there is anything to bind.** The table
+  lists the series it always did — one row per (session, image type) — but
+  every dropdown starts unset, and completing a row's bindings summons a
+  fresh spare below it, so a second binding of the same quantity can be
+  built and drawn on the same figure. Pre-binding instead would mean
+  enumerating a cartesian product of the channels across the axes'
+  parameters.
+- **No spare row once every possible binding is present.** With one slot
+  and four channels there is no fifth combination to build, and an
+  unfillable row is just clutter. True of any channel count, and it is what
+  makes the case below need no special handling.
+- **A slot with no choice is text, not a dropdown.** A monochrome camera
+  defines exactly one channel — zero is not a working configuration, since
+  `_get_split_channels` would be empty and the per-channel loop in
+  `processing.py` would process nothing — so every slot of such a session
+  has one possible value. Showing a control that offers no choice, on every
+  row, and demanding a click of it before anything can be drawn, is
+  ceremony. Instead the channel is rendered as text and the row arrives
+  bound, with a count: **exactly §4's table**, for a project that never had
+  a channel to choose.
+
+  Keyed on **how many channels the session's camera defines**, not on how
+  many the dropdown currently offers. Those differ: a Bayer camera part way
+  through processing has one channel with data and three to come, and
+  binding that one as though it were the only possibility would be wrong by
+  tomorrow. The camera's channel count does not move.
+
+  A project mixing monochrome and colour sessions therefore renders its
+  rows differently, which reports what is true of each rather than being
+  inconsistent.
 - **A partly bound row is inert.** Until every channel the axes require has
   been chosen there is nothing to fetch, nothing to count and nothing to
   draw, so choosing one of several dropdowns changes nothing but that
@@ -1960,7 +1986,12 @@ changed would be the stale one.
 - **Seeding the single-slot table one row per channel**, as §4's table does
   today. It would have kept the familiar workflow for the common case, at
   the price of two behaviours in one table; the model is unified instead,
-  and every row is built by binding.
+  and a row is built by binding wherever there is a binding to make.
+
+  Not to be confused with the monochrome case above, which is the opposite
+  situation rather than an exception to it: there the camera defines one
+  channel, so there is no choice to seed a guess for — the row is
+  displaying a constant, not a default.
 
 #### Staging
 
@@ -1999,6 +2030,13 @@ one; that binding a row leaves **every other row's node identical** — the
 assertion that pins "the table never reorders", and the one a browser
 would show but a test can state; and that the table is built with no call
 into the evaluator at all, which is *Scaling*'s rule made testable at last.
+
+One more needs a fixture rather than an assertion about mechanism: a
+session whose camera defines a **single** channel must produce §4's table
+unchanged — rows bound on arrival, counts filled, no dropdown and no
+spare — while a four-channel session in the same project still starts
+unbound. That is the case most likely to be broken by someone tidying the
+two paths into one.
 
 ## Verification
 
