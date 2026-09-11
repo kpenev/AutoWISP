@@ -1622,6 +1622,10 @@ has to bind:
 | a diagnostic | 1 |
 | an expression | however many slots its body mentions |
 
+Two of those three are constants, so this is a rule rather than anything
+to store: only an expression's arity is data, and it is derived from the
+body along with the parameters themselves.
+
 There is **no bare form**. `bg_center` alone is not a reference, because the
 name is bound to a mapping rather than to an array — see below — and
 allowing both spellings would mean rewriting the expression to disambiguate
@@ -2004,7 +2008,17 @@ browser:
    lookup class with its shared binding stack. `get_expression_names`,
    `order_expressions` and `rename_references` are untouched;
    `is_diagnostic` is asked about a name with its subscript dropped.
-   `diagnostic_types.py` gains only arity: `jd` is 0, a diagnostic is 1.
+
+   **`diagnostic_types.py` gains nothing.** Arity looks like something it
+   should own and is not: for a diagnostic it is the constant 1 rather
+   than per-name data, and `jd[1]` needs no arity to refuse, since a
+   subscript is valid only on a diagnostic or an expression and
+   `is_diagnostic("jd")` is already `False`. What the *table* needs — how
+   many dropdowns an axis wants — is `len(parameters)` for an expression
+   and 1 for a diagnostic, so it belongs beside where parameters are
+   derived, in tier 1. Nothing in evaluation asks at all: a lookup
+   resolves whatever subscript reaches it, and a wrong count cannot reach
+   it because `check_expression` refused it.
 2. **`SeriesKey` and multi-channel fetching** — `expression_series.py`: the
    `channels` tuple, the `,` sub-encoding, the aliased joins. `__new__` must
    reject a bare `str`, or `channels="R"` would leave `channels[0]` working
