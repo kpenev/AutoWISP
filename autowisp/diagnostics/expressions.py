@@ -22,8 +22,10 @@ import re
 import numpy
 
 from autowisp.diagnostics.diagnostic_types import (
+    is_diagnostic,
     is_known_quantity,
     is_reserved_name,
+    time_quantity,
 )
 from autowisp.evaluator import Evaluator, EvaluatorBase
 from autowisp.exceptions import PipelineError
@@ -74,6 +76,144 @@ def get_expression_names(expression):
         for node in ast.walk(ast.parse(expression, mode="eval"))
         if isinstance(node, ast.Name)
     }
+
+
+def get_expression_references(expression):
+    """
+    Return what one expression reads, and in which channel slots.
+
+    A slot is written as a subscript -- ``bg_center[1]``, or
+    ``sky_color[1,2]`` for a quantity taking two -- and the numbers are
+    that expression's own formal parameters, bound to real channels only
+    when something is plotted. So this reports the *shape* of what the
+    text asks for, and says nothing about channels.
+
+    Args:
+        expression(str):    The expression text.
+
+    Returns:
+        list:    ``(name, slots)`` pairs in the order they appear, *slots*
+            always a tuple however many were written. Repeats are kept:
+            ``sky_color[1,2] - sky_color[2,3]`` reads one name at two
+            different slot pairs, which is the whole point of the
+            parameters being formal.
+
+    Raises:
+        SyntaxError:    As for :func:`get_expression_names`.
+
+        PipelineError:    If a subscript is not a plain name indexed by
+            integer literals. Anything else -- ``bg_center[i]``,
+            ``bg_center[1:2]``, ``sky_color[1][2]`` -- cannot name a
+            channel slot, and saying so here is clearer than letting it
+            fail as an unresolvable name later.
+    """
+
+    references = []
+    for node in ast.walk(ast.parse(expression, mode="eval")):
+        if not isinstance(node, ast.Subscript):
+            continue
+        if not isinstance(node.value, ast.Name):
+            raise PipelineError(
+                f"{ast.unparse(node)!r} does not name a channel slot: only "
+                "a diagnostic or an expression can take one.",
+                details={"subscript": ast.unparse(node)},
+            )
+        try:
+            slots = ast.literal_eval(node.slice)
+        except ValueError as error:
+            raise PipelineError(
+                f"{ast.unparse(node)!r} does not name a channel slot: a "
+                "slot is written as a whole number, as in bg_center[1].",
+                details={"subscript": ast.unparse(node)},
+            ) from error
+        if not isinstance(slots, tuple):
+            slots = (slots,)
+        if not slots or not all(
+            isinstance(slot, int) and not isinstance(slot, bool)
+            for slot in slots
+        ):
+            raise PipelineError(
+                f"{ast.unparse(node)!r} does not name a channel slot: a "
+                "slot is written as a whole number, as in bg_center[1].",
+                details={"subscript": ast.unparse(node)},
+            )
+        references.append((node.value.id, slots))
+
+    return references
+
+
+def get_expression_parameters(expression):
+    """
+    Return the channel slots one expression takes, in order.
+
+    Derived from the body rather than declared: the parameters *are* the
+    slot numbers it mentions, so there is nothing to keep in step and
+    nothing extra to store. ``bg_center[1] / bg_center[2]`` takes ``(1,
+    2)``; ``sky_color[1,2] - sky_color[2,3]`` takes ``(1, 2, 3)``.
+
+    Sorted, which is what makes the order well defined when a body writes
+    its slots out of sequence -- and the order matters, since a reference's
+    arguments are matched onto these positionally.
+
+    Args:
+        expression(str):    The expression text.
+
+    Returns:
+        tuple:    The distinct slot numbers, ascending. Empty for an
+            expression that reads no channel at all.
+
+    Raises:
+        SyntaxError, PipelineError:    As for
+            :func:`get_expression_references`.
+    """
+
+    return tuple(
+        sorted(
+            {
+                slot
+                for _, slots in get_expression_references(expression)
+                for slot in slots
+            }
+        )
+    )
+
+
+def get_quantity_arity(name, expressions):
+    """
+    Return how many channels *name* has to be bound to before it can be read.
+
+    Only one of the three answers is data. A diagnostic is recorded once
+    per channel, so it takes exactly one; :data:`time_quantity` is recorded
+    once per image and takes none; and an expression takes however many
+    slots its body mentions, which is the only part worth deriving.
+
+    The table above a plot asks this to know how many channel dropdowns an
+    axis needs.
+
+    Args:
+        name(str):    A diagnostic, an expression, or
+            :data:`time_quantity`.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        int:    The number of channels to bind.
+
+    Raises:
+        PipelineError:    If *name* is neither a diagnostic nor an
+            expression nor the time.
+    """
+
+    if name in expressions:
+        return len(get_expression_parameters(expressions[name]))
+    if name == time_quantity:
+        return 0
+    if is_diagnostic(name):
+        return 1
+    raise PipelineError(
+        f"Cannot plot {name}: no such diagnostic or expression.",
+        details={"unknown": [name]},
+    )
 
 
 def get_bare_aggregates(expression):
@@ -359,6 +499,16 @@ def evaluate_expressions(targets, expressions, values):
     """
     Evaluate the wanted quantities against already-fetched values.
 
+    **Superseded by :func:`evaluate_quantities`**, which reads a channel
+    per quantity instead of assuming one for the whole series. This one
+    stays only because it still has a caller --
+    ``expression_series.get_series_values`` -- and goes when that moves
+    over, taking its tests with it. Until then the two coexist: the
+    expressions this evaluates name a diagnostic **bare**, which the
+    channel-slot scheme does not allow, so the rules
+    :func:`check_expression` applies cannot flip while this path is what
+    draws the plots.
+
     Every expression in the dependency subtree is computed once, its result
     assigned back into the same symbol table, so one used twice -- or shared
     by several dependents -- is not recomputed. Passing several *targets*
@@ -399,6 +549,313 @@ def evaluate_expressions(targets, expressions, values):
     return {
         target: _as_series(evaluate.symtable[target], count)
         for target in targets
+    }
+
+
+class QuantityLookUp:
+    """
+    One name an expression may read, resolved when it is asked for.
+
+    Everything a quantity needs is held here: a diagnostic owns the values
+    fetched for it, an expression owns its text and the instantiations it
+    has computed. Asking the top-level lookup for its channels is
+    therefore the whole of evaluation -- there is no separate pass, and no
+    state threaded through one.
+
+    A diagnostic is the degenerate case rather than a second kind of
+    thing: every instantiation of it is known before evaluation starts, so
+    it arrives with its cache full and its text never consulted.
+
+    Built through :meth:`library` rather than one at a time, because the
+    lookups of one evaluation share a binding stack and an evaluator, and
+    both are this class's business rather than its caller's.
+    """
+
+    def __init__(self, name, shared, *, definition=None, computed=None):
+        """
+        Args:
+            name(str):    What the expressions call it, used for error
+                messages only -- nothing resolves by it.
+
+            shared(tuple):    The binding stack and evaluator this
+                evaluation's lookups share, from :meth:`library`.
+
+            definition(tuple):    The expression text and its parameters,
+                or ``None`` for a diagnostic, which has neither because it
+                is never evaluated.
+
+            computed(dict):    ``channels -> array`` known in advance: the
+                whole of a diagnostic, and empty for an expression.
+        """
+
+        self._name = name
+        self._stack, self._evaluator = shared
+        self._text, self._parameters = definition or (None, ())
+        self._computed = dict(computed or {})
+
+    @classmethod
+    def library(cls, expressions, values):
+        """
+        Return ``{name: lookup}`` for one evaluation, ready to be asked.
+
+        The binding stack and the evaluator are created here and captured
+        by the lookups, so neither is named outside this class. The stack
+        is how a lookup finds the binding of the body asking it, which is
+        nobody else's concern; and it must belong to **one evaluation**
+        rather than to the class, or two plots drawn at once would
+        interleave their bindings on it and return wrong numbers rather
+        than failing.
+
+        The evaluator does not come back out either: handing it over would
+        hand over a symbol table full of lookups, and with it a way to
+        evaluate arbitrary text with none of the parameter machinery.
+
+        Args:
+            expressions(dict):    The library, ``{name: expression}``.
+
+            values(dict):    ``{name: {channels: array}}``, as fetched for
+                one series, keyed exactly as
+                :func:`get_needed_values` asked.
+
+        Returns:
+            dict:    A lookup per name, sharing one evaluation's state.
+        """
+
+        shared = ([], Evaluator({}))
+        lookups = {
+            name: cls(name, shared, computed=by_channels)
+            for name, by_channels in values.items()
+        }
+        lookups.update(
+            {
+                name: cls(
+                    name,
+                    shared,
+                    definition=(text, get_expression_parameters(text)),
+                )
+                for name, text in expressions.items()
+            }
+        )
+
+        symtable = shared[1].symtable
+        symtable.update(lookups)
+
+        # A quantity binding no channels -- the time, and any expression
+        # over it alone -- is written without a subscript, there being
+        # nothing to subscript it with. A lookup resolves on
+        # ``__getitem__`` and a bare name never calls one, so such a
+        # quantity has to be its *values* here, or it would reach the
+        # arithmetic as the object itself. The time first, then the
+        # expressions over it, each after what it reads.
+        for name, by_channels in values.items():
+            if () in by_channels:
+                symtable[name] = by_channels[()]
+
+        channel_free = [
+            name
+            for name, text in expressions.items()
+            if not get_expression_parameters(text)
+        ]
+        for name in _evaluation_order(channel_free, expressions):
+            symtable[name] = lookups[name].at(())
+
+        return lookups
+
+    def __getitem__(self, slots):
+        """
+        Resolve ``name[slots]`` as the body being evaluated means it.
+
+        Python passes ``1`` for ``x[1]`` and ``(1, 2)`` for ``x[1,2]``, so
+        the shapes take care of themselves. The binding read is the top of
+        the stack, which is always the body asking: a nested evaluation
+        finishes in here before the outer body's next operand is touched.
+        """
+
+        if not isinstance(slots, tuple):
+            slots = (slots,)
+        binding = self._stack[-1]
+        return self.at(tuple(binding[slot] for slot in slots))
+
+    def at(self, channels):
+        """
+        Return this quantity with its parameters bound to *channels*.
+
+        The cache is what makes an instantiation wanted twice -- by two
+        references, or by two different expressions -- computed once. For a
+        diagnostic it is also the whole of the answer, so a miss means the
+        values were never fetched rather than that something needs
+        computing, and is reported rather than repaired: it means
+        :func:`get_needed_values` and whatever fetched disagree.
+
+        Nothing here guards against a reference cycle:
+        :func:`order_expressions` refuses one statically, on names, and
+        that is exact rather than conservative, since substitution permutes
+        a finite parameter set and introduces no new symbols.
+
+        Args:
+            channels(tuple):    One channel per parameter, in order.
+
+        Returns:
+            numpy.ndarray:    The values, over the canonical image list.
+
+        Raises:
+            PipelineError:    If a diagnostic was not fetched for this
+                channel.
+        """
+
+        if channels not in self._computed:
+            if self._text is None:
+                raise PipelineError(
+                    f"No values supplied for {self._name} in "
+                    + ", ".join(channels)
+                    + ".",
+                    details={"missing": [self._name], "channels": channels},
+                )
+            self._stack.append(dict(zip(self._parameters, channels)))
+            try:
+                self._computed[channels] = self._evaluator(self._text)
+            finally:
+                self._stack.pop()
+        return self._computed[channels]
+
+
+def _visit_needed(name, channels, expressions, needed):
+    """Add what *name* bound to *channels* reads, recursively."""
+
+    expected = get_quantity_arity(name, expressions)
+    if len(channels) != expected:
+        raise PipelineError(
+            f"{name} takes {expected} channel(s), not {len(channels)}.",
+            details={"quantity": name, "channels": list(channels)},
+        )
+
+    if name not in expressions:
+        # A diagnostic, or the time -- either way a leaf, and either way
+        # named by the channels it is read in, which for the time is none.
+        needed.setdefault(name, set()).add(channels)
+        return
+
+    text = expressions[name]
+    binding = dict(zip(get_expression_parameters(text), channels))
+    for referenced, slots in get_expression_references(text):
+        _visit_needed(
+            referenced,
+            tuple(binding[slot] for slot in slots),
+            expressions,
+            needed,
+        )
+
+
+def get_needed_values(wanted, expressions):
+    """
+    Return the diagnostics to read, and in which channels.
+
+    Runs before anything is evaluated, for two callers that both need the
+    answer without it:
+
+    * whatever reads the values does so for a whole series in one query,
+      so it cannot discover them as it goes;
+    * the table above a plot counts the images recording all of them,
+      which is a question about rows and must never evaluate an
+      expression -- there is a table row per observing session and image
+      type, so evaluating per row would be work proportional to the whole
+      image collection.
+
+    It walks what evaluation walks, resolving each reference's arguments
+    through the binding of the body holding it, and stops at the
+    diagnostics.
+
+    Args:
+        wanted(dict):    ``{quantity: channels}``, one channel per
+            parameter of that quantity.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        dict:    ``{name: set of channel tuples}`` -- one entry per
+            diagnostic read, holding every combination it is read in, plus
+            :data:`time_quantity` with the empty tuple where an expression
+            reads the time. Keyed the same way throughout, so what this
+            asks for and what an evaluation touches can be compared
+            directly.
+
+    Raises:
+        PipelineError:    On a reference cycle, on a name that resolves to
+            nothing, or on a binding of the wrong length for what it binds.
+    """
+
+    # Refuses a cycle and an unresolvable name, so the walk below cannot
+    # recurse for ever and neither it nor the evaluation need check again.
+    _, channel_free = order_expressions(list(wanted), expressions)
+
+    needed = {}
+
+    # The time is the one quantity read without a subscript -- it binds no
+    # channel -- so the walk below, which follows subscripts, never reaches
+    # it, and a reference to it can be several expressions away:
+    # ``bg_center[1] * night`` reads it only through ``night``. No walk is
+    # needed to find it, though, precisely because it takes no channel:
+    # order_expressions already reports it, having flattened bare and
+    # subscripted names alike. And nothing else can hide behind a bare
+    # reference, since reading a diagnostic takes a subscript, which would
+    # give the expression holding it a parameter of its own.
+    if time_quantity in channel_free:
+        needed[time_quantity] = {()}
+
+    for quantity, channels in wanted.items():
+        _visit_needed(quantity, tuple(channels), expressions, needed)
+
+    return needed
+
+
+def _canonical_length(values):
+    """Return the length of the image list *values* are padded onto."""
+
+    for by_channels in values.values():
+        for array in by_channels.values():
+            return numpy.size(array)
+    return 0
+
+
+def evaluate_quantities(wanted, expressions, values):
+    """
+    Evaluate the quantities of one series, each bound to its channels.
+
+    Args:
+        wanted(dict):    ``{quantity: channels}``, one channel per
+            parameter of that quantity, as the table bound them. Asking
+            for both axes at once is what lets an instantiation they share
+            be computed once.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        values(dict):    ``{name: {channels: array}}``, every array on one
+            canonical image list, holding what
+            :func:`get_needed_values` asked for and keyed the same way.
+
+    Returns:
+        dict:    ``{quantity: array}``, all of the same length.
+
+    Raises:
+        PipelineError:    If a quantity resolves to nothing, if the
+            expressions reference each other in a cycle, or if *values*
+            lacks something they read.
+    """
+
+    # Only what these quantities reach. The library may hold dozens of
+    # expressions about other diagnostics entirely, and nothing was fetched
+    # for those -- so building lookups for them would at best be waste, and
+    # for a channel-free one, which is evaluated on sight, an error about
+    # values nobody asked for.
+    order, _ = order_expressions(list(wanted), expressions)
+    lookups = QuantityLookUp.library(
+        {name: expressions[name] for name in order}, values
+    )
+    count = _canonical_length(values)
+
+    return {
+        quantity: _as_series(lookups[quantity].at(tuple(channels)), count)
+        for quantity, channels in wanted.items()
     }
 
 

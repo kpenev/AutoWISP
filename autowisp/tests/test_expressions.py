@@ -9,13 +9,22 @@ import unittest
 
 import numpy
 
-from autowisp.diagnostics.diagnostic_types import quantiles_quantity
+from autowisp.diagnostics.diagnostic_types import (
+    quantiles_quantity,
+    time_quantity,
+)
 from autowisp.diagnostics.expressions import (
+    QuantityLookUp,
     check_expression,
     evaluate_expressions,
+    evaluate_quantities,
     get_bare_aggregates,
     get_expression_dependents,
     get_expression_names,
+    get_expression_parameters,
+    get_expression_references,
+    get_needed_values,
+    get_quantity_arity,
     order_expressions,
     rename_references,
 )
@@ -485,6 +494,286 @@ class TestChecking(unittest.TestCase):
         """A bad name and a bad body are both worth saying at once."""
 
         self.assertGreater(len(self.check("not a slug", "no_such")), 1)
+
+
+class SlotTestCase(unittest.TestCase):
+    """What the channel-slot tests share.
+
+    The library exercises every shape a slot comes in: two slots; one
+    expression used at two different bindings, and one used twice at the
+    same; a nested expression binding the slots the other way round; a
+    quantity over the time alone, one built on that, and one mixing a
+    subscripted diagnostic with a bare reference.
+    """
+
+    library = {
+        "sky_color": "bg_center[1] / bg_center[2]",
+        "silly": "sky_color[1,2] - sky_color[2,3]",
+        "twice": "sky_color[1,2] + sky_color[1,2]",
+        "inner": "bg_center[1] / bg_center[2]",
+        "outer": "inner[2,1] + bg_center[1]",
+        "night": "jd - nanmin(jd)",
+        "scaled_night": "night * 2",
+        "mixed": "bg_center[1] * night",
+    }
+
+    #: Two images' worth, distinct per channel so that reading the wrong
+    #: one cannot pass by coincidence.
+    jd = numpy.array([1.0, 3.0])
+    bg = {
+        "B": numpy.array([4.0, 3.7]),
+        "R": numpy.array([3.9, 2.3]),
+        "G0": numpy.array([3.0, 1.0]),
+    }
+
+    def needed(self, wanted):
+        """Return what has to be read for *wanted*."""
+
+        return get_needed_values(wanted, self.library)
+
+    def fetch(self, wanted):
+        """Return exactly the values :meth:`needed` asks for.
+
+        Deliberately not "every channel available": supplying more would
+        hide a walk that under-reports, and that walk answers the series
+        table as well as the fetch, so an omission there is a wrong count
+        rather than merely a missing array.
+        """
+
+        return {
+            name: {
+                channels: (
+                    self.jd if name == time_quantity else self.bg[channels[0]]
+                )
+                for channels in channel_set
+            }
+            for name, channel_set in self.needed(wanted).items()
+        }
+
+    def evaluate(self, wanted):
+        """Evaluate *wanted* against exactly what the walk asked for."""
+
+        return evaluate_quantities(wanted, self.library, self.fetch(wanted))
+
+
+class TestSlotSyntax(SlotTestCase):
+    """Reading channel slots out of an expression."""
+
+    def test_references_keep_their_slots_and_repeats(self):
+        """One name at two bindings is the point of the parameters."""
+
+        self.assertEqual(
+            get_expression_references(self.library["silly"]),
+            [("sky_color", (1, 2)), ("sky_color", (2, 3))],
+        )
+
+    def test_one_slot_is_still_a_tuple(self):
+        """So no caller has to care how many were written."""
+
+        self.assertEqual(
+            get_expression_references("bg_center[1]"), [("bg_center", (1,))]
+        )
+
+    def test_parameters_are_derived_and_ordered(self):
+        """Nothing is declared, so nothing can drift out of step."""
+
+        self.assertEqual(
+            get_expression_parameters(self.library["silly"]), (1, 2, 3)
+        )
+        self.assertEqual(get_expression_parameters("jd * 2"), ())
+
+    def test_parameters_are_sorted_whatever_order_the_body_uses(self):
+        """The order is what a reference's arguments are matched onto."""
+
+        self.assertEqual(
+            get_expression_parameters("bg_center[3] - bg_center[1]"), (1, 3)
+        )
+
+    def test_a_slot_must_be_a_whole_number(self):
+        """Anything else cannot name a channel, and says so here rather
+        than failing later as an unresolvable name."""
+
+        for text in (
+            "bg_center[i]",
+            "bg_center[1.5]",
+            "bg_center[1:2]",
+            "bg_center[1][2]",
+        ):
+            with self.subTest(text=text):
+                with self.assertRaises(PipelineError):
+                    get_expression_references(text)
+
+    def test_arity_is_a_rule_not_a_table(self):
+        """Two of the three answers are constants."""
+
+        self.assertEqual(get_quantity_arity("bg_center", self.library), 1)
+        self.assertEqual(get_quantity_arity(time_quantity, self.library), 0)
+        self.assertEqual(get_quantity_arity("silly", self.library), 3)
+        with self.assertRaises(PipelineError):
+            get_quantity_arity("no_such", self.library)
+
+
+class TestNeededValues(SlotTestCase):
+    """What has to be read before anything is evaluated.
+
+    Answered for two callers at once -- whatever reads a series in one
+    query, and the table counting the images that record all of it without
+    evaluating anything -- so it has to be exact in both directions. The
+    assertions compare whole dictionaries for that reason: what is *not*
+    needed matters as much, since over-reporting makes a count wrong
+    rather than merely fetching too much.
+    """
+
+    def test_one_expression_at_two_bindings_needs_both(self):
+        """The channels come from resolving each reference's arguments."""
+
+        self.assertEqual(
+            self.needed({"silly": ("B", "R", "G0")}),
+            {"bg_center": {("B",), ("R",), ("G0",)}},
+        )
+
+    def test_slots_bound_the_other_way_round_are_followed(self):
+        """``inner[2,1]`` reads the outer binding reversed."""
+
+        self.assertEqual(
+            self.needed({"outer": ("R", "B")}),
+            {"bg_center": {("R",), ("B",)}},
+        )
+
+    def test_the_time_is_found_through_a_bare_reference(self):
+        """``mixed`` reads the time only by way of ``night``.
+
+        The time is the one quantity written without a subscript, so the
+        walk over subscripts never reaches it however deep it lies.
+        """
+
+        self.assertEqual(
+            self.needed({"mixed": ("B",)}),
+            {time_quantity: {()}, "bg_center": {("B",)}},
+        )
+
+    def test_a_binding_of_the_wrong_length_is_refused(self):
+        """Too few or too many: either would plot something else.
+
+        Too many is the one that could pass unnoticed -- the extra channel
+        binds no parameter, so it would simply be dropped.
+        """
+
+        for channels in (("B",), ("B", "R", "G0")):
+            with self.subTest(channels=channels):
+                with self.assertRaises(PipelineError):
+                    self.needed({"sky_color": channels})
+
+
+class TestSlotEvaluation(SlotTestCase):
+    """Evaluating quantities against the values the walk asked for.
+
+    Every case here fetches exactly what the walk reported, so each also
+    asserts the two agree -- the pairing that would otherwise drift apart
+    unnoticed.
+    """
+
+    def test_one_body_evaluated_at_two_bindings(self):
+        """``sky_color`` is B/R in one term and R/G0 in the other."""
+
+        numpy.testing.assert_allclose(
+            self.evaluate({"silly": ("B", "R", "G0")})["silly"],
+            self.bg["B"] / self.bg["R"] - self.bg["R"] / self.bg["G0"],
+        )
+
+    def test_a_nested_binding_is_not_the_callers(self):
+        """``outer[1,2] = inner[2,1] + bg_center[1]``.
+
+        The case that returns a wrong number rather than an error if a
+        lookup ever holds a binding of its own instead of reading the one
+        belonging to the body being evaluated.
+        """
+
+        numpy.testing.assert_allclose(
+            self.evaluate({"outer": ("R", "B")})["outer"],
+            self.bg["B"] / self.bg["R"] + self.bg["R"],
+        )
+
+    def test_an_instantiation_is_computed_once(self):
+        """Asked for twice, the *same array* comes back.
+
+        Identity rather than equality, and rather than the size of the
+        cache: re-evaluating would overwrite the one entry with an equal
+        but distinct array, so only identity tells the two apart.
+        """
+
+        lookups = QuantityLookUp.library(
+            {"sky_color": self.library["sky_color"]},
+            {"bg_center": {("B",): self.bg["B"], ("R",): self.bg["R"]}},
+        )
+
+        self.assertIs(
+            lookups["sky_color"].at(("B", "R")),
+            lookups["sky_color"].at(("B", "R")),
+        )
+
+    def test_both_axes_at_once_share_their_instantiations(self):
+        """Which is why the two are resolved in one call, not one each."""
+
+        drawn = self.evaluate({"sky_color": ("B", "R"), "twice": ("B", "R")})
+        numpy.testing.assert_allclose(drawn["twice"], 2 * drawn["sky_color"])
+
+    def test_a_quantity_over_the_time_alone(self):
+        """Written bare, there being no channel to subscript it with."""
+
+        numpy.testing.assert_allclose(
+            self.evaluate({"night": ()})["night"], self.jd - self.jd.min()
+        )
+
+    def test_a_chain_of_channel_free_expressions(self):
+        """``scaled_night`` reads ``night`` reads the time, all bare.
+
+        Each has to be a value in the symbol table rather than a lookup,
+        since a bare name never reaches ``__getitem__``, and in an order
+        that respects what they read.
+        """
+
+        numpy.testing.assert_allclose(
+            self.evaluate({"scaled_night": ()})["scaled_night"],
+            2 * (self.jd - self.jd.min()),
+        )
+
+    def test_slotted_and_channel_free_in_one_expression(self):
+        """``mixed`` subscripts one quantity and reads another bare."""
+
+        numpy.testing.assert_allclose(
+            self.evaluate({"mixed": ("B",)})["mixed"],
+            self.bg["B"] * (self.jd - self.jd.min()),
+        )
+
+    def test_a_plain_diagnostic_is_a_quantity_too(self):
+        """One channel, no expression, and the same call resolves it."""
+
+        numpy.testing.assert_allclose(
+            self.evaluate({"bg_center": ("R",)})["bg_center"], self.bg["R"]
+        )
+
+    def test_only_what_is_reached_is_built(self):
+        """The library holds expressions about data nobody fetched.
+
+        Building those would waste work, and for one read bare -- which is
+        evaluated on sight, so that it can be a value -- would raise about
+        values nobody asked for.
+        """
+
+        self.assertNotIn(time_quantity, self.fetch({"silly": ("B", "R", "G0")}))
+        self.evaluate({"silly": ("B", "R", "G0")})
+
+    def test_an_unfetched_channel_is_reported(self):
+        """A miss means the walk and the fetch disagree, which is a fault
+        in the pair rather than something to repair here."""
+
+        with self.assertRaises(PipelineError):
+            evaluate_quantities(
+                {"sky_color": ("B", "R")},
+                self.library,
+                {"bg_center": {("B",): self.bg["B"]}},
+            )
 
 
 if __name__ == "__main__":

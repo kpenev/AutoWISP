@@ -139,12 +139,16 @@ from autowisp.tests.test_expressions import (
     TestReferencedNames,
     TestBareAggregates,
     TestDependents,
+    TestRenamingReferences,
     TestOrdering,
     TestEvaluation,
     TestChecking,
     TestReachableNames,
     TestQuantileNames,
     TestNoProjectNeeded,
+    TestSlotSyntax,
+    TestNeededValues,
+    TestSlotEvaluation,
 )
 from autowisp.tests.test_diagnostic_types import (
     TestCatalogue,

@@ -1553,13 +1553,28 @@ library is needed for it. Deferred rather than dismissed.
 > §1a/§3/§4 because it changes the meaning of a *series*, which those three
 > share.
 >
-> The evaluation design below was arrived at by running it rather than by
-> arguing about it, and the working sketch is checked in as
-> `diagnostic_slots_prototype.py` at the repository root — outside the
-> package, installed by nothing, and **to be deleted once this section
-> lands** in `autowisp/diagnostics/expressions.py`. It pins the four cases
-> worth keeping as tests, including the two that would otherwise fail
-> silently.
+> **Stage 1 is done**: `expressions.py` reads subscripts, derives an
+> expression's parameters, answers arity, walks what has to be fetched,
+> and evaluates through `QuantityLookUp`. `get_expression_names`,
+> `order_expressions` and `rename_references` are untouched, and nothing
+> yet calls the new path, so the shipped plot page is unchanged — tier 2
+> still uses `evaluate_expressions`, which is marked superseded and goes
+> with stage 2, taking `TestEvaluation` with it. Until then both paths
+> live, which is also why `check_expression`'s rules cannot flip yet: the
+> expressions it validates today name a diagnostic bare.
+>
+> The prototype that stood in for this is deleted, its cases now tests.
+>
+> Two things the implementation settled that the design had not. **A
+> definition's header has nowhere to be written** -- the model holds a
+> slug name and an expression, and `sky_color[1,2]` is not a slug -- so
+> parameters are derived, full stop, and the checked header this section
+> proposed does not exist. And **the time is reached through bare references**,
+> which the subscript walk cannot see; it comes instead from the
+> channel-free set `order_expressions` already returns, which is complete
+> because nothing else can hide behind a bare name: reading a diagnostic
+> takes a subscript, and that would give the expression holding it a
+> parameter.
 
 `bg_center` means "bg_center in this series' channel", because a series is
 `(session, image type, channel)` and §Alignment makes the channel the one
@@ -1607,11 +1622,17 @@ prefer it over writing the slot into the name.
 
 **Parameters are derived from the body**, as the sorted set of slot
 literals it mentions: `bg_center[1] / bg_center[2]` gives `(1, 2)`, and
-`sky_color[1,2] - sky_color[2,3]` gives `(1, 2, 3)`. The header is
-therefore optional, and when written is *checked* against the derived set
-rather than being the source of truth — it catches the typo where `[3]`
-was meant to be `[2]`. The stored name stays a plain slug, so §2's model,
-§5's management page and §6's URLs are untouched.
+`sky_color[1,2] - sky_color[2,3]` gives `(1, 2, 3)`. The stored name stays
+a plain slug, so §2's model, §5's management page and §6's URLs are
+untouched.
+
+**There is therefore no header**, though the definitions above are written
+with one and it reads naturally. There is nowhere to put it: a definition
+is a slug `name` and an `expression`, and `sky_color[1,2]` is not a slug.
+Adding a field to carry a declaration that could only ever be checked
+against the body — and that would be one more thing to keep in step — buys
+nothing, so `sky_color[1,2] = …` stays a way of writing a definition down
+rather than a way of storing one.
 
 So **every quantity has an arity**, and that is the whole of what the table
 has to bind:
@@ -1963,7 +1984,6 @@ changed would be the stale one.
 | `bg_center[1,2]` | error — a diagnostic takes exactly one slot |
 | `bg_center[i]`, `bg_center[1.5]`, `bg_center[1:2]` | error — a slot is an integer literal |
 | `bg_centre[1]` | error — the ordinary "not a diagnostic, an expression or a function" a typo gets |
-| header `sky_color[1,3]` over a body using 1 and 2 | error — the header is checked, which is its only job |
 | `bg_center[1]` and `bg_center[3]`, no `[2]` | fine; slot numbers are labels |
 
 #### Rejected
@@ -2002,12 +2022,13 @@ changed would be the stale one.
 Each stands on its own, and the first three need neither Django nor a
 browser:
 
-1. **Slots in tier 1** — `expressions.py`: read subscripts out of the AST,
-   derive an expression's parameters, check a written header against them,
-   the walk collecting the `(diagnostic, channel)` pairs to fetch, and the
-   lookup class with its shared binding stack. `get_expression_names`,
-   `order_expressions` and `rename_references` are untouched;
-   `is_diagnostic` is asked about a name with its subscript dropped.
+1. **Slots in tier 1 — done.** `expressions.py`: read subscripts out of
+   the AST, derive an expression's parameters, answer arity, walk the
+   `(diagnostic, channel)` pairs to fetch, and the lookup class with its
+   shared binding stack. `get_expression_names`, `order_expressions` and
+   `rename_references` are untouched; `is_diagnostic` is asked about a
+   name with its subscript dropped. No header is checked, there being
+   nowhere to write one.
 
    **`diagnostic_types.py` gains nothing.** Arity looks like something it
    should own and is not: for a diagnostic it is the constant 1 rather
