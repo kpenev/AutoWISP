@@ -36,6 +36,7 @@ from autowisp.diagnostics.expression_series import (
     SeriesKey,
     _diagnostic_values_query,
     count_images_with_all,
+    count_images_with_channels,
     get_canonical_images,
     get_diagnostic_values,
     get_expression_availability,
@@ -364,12 +365,11 @@ class TestAvailability(SeriesValuesTestCase):
 
 
 class TestCrossChannelValues(unittest.TestCase):
-    """An expression reading one diagnostic in two channels.
+    """Reading one diagnostic in several channels, and counting by binding.
 
     Its own fixture rather than the shared one, which records a single
     channel: giving that one a second would change what every series-table
-    test sees.  Two channels of three frames is the smallest thing that can
-    tell a cross-channel quantity from a per-channel one.
+    test sees.
     """
 
     @classmethod
@@ -386,17 +386,38 @@ class TestCrossChannelValues(unittest.TestCase):
     def tearDownClass(cls):
         cls._tmp.cleanup()
 
-    #: ``bg_center`` per channel, chosen so that every pairing of them
-    #: gives a distinct ratio -- reading the wrong channel cannot land on
-    #: the right answer by luck.
-    values_of = {"R": [8.0, 6.0, 4.0], "B": [2.0, 3.0, 1.0]}
+    #: ``bg_center`` in each channel, per frame.  Chosen so that every
+    #: pairing of the two gives a distinct ratio: reading the wrong channel
+    #: cannot land on the right answer by luck.
+    values_of = {
+        "R": [8.0, 6.0, 4.0, 9.0],
+        "B": [2.0, 3.0, 8.0, 5.0],
+    }
 
-    #: A channel this camera never recorded, for the undefined case.
+    #: One observing session per position of the gap in channel ``B`` --
+    #: first frame, middle, last -- so the same assertions can be made
+    #: with it moved.  A gap only ever at the end would survive a column
+    #: shifted by a frame; moving it is what pins the value to its own
+    #: image, and a plot drawn from the wrong pairing looks entirely
+    #: reasonable.
+    #:
+    #: The gap is also what makes the two ways of counting differ: without
+    #: it, counting across channels and counting within one give the same
+    #: number.
+    hole_positions = (0, 1, 3)
+
+    #: The one the tests about values use, the gap in the middle.
+    hole = 1
+
+    #: A channel this camera never recorded at all, for the case where a
+    #: whole slot resolves to nothing.
     missing_channel = "G"
 
     @classmethod
     def _fill_database(cls):
-        """Three frames, each recording ``bg_center`` in two channels."""
+        """One session per gap position, four frames of two channels each."""
+
+        cls.session_of = {}
 
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
@@ -412,51 +433,95 @@ class TestCrossChannelValues(unittest.TestCase):
             ).scalar()
             image_type_id = db_session.execute(select(ImageType.id)).scalar()
 
-            session = ObservingSession(
-                observer_id=1,
-                camera_id=1,
-                telescope_id=1,
-                mount_id=1,
-                observatory_id=1,
-                target_id=1,
-                label="colour",
-                start_time_utc=datetime(2023, 3, 1, 20, 0, 0),
-                end_time_utc=datetime(2023, 3, 1, 23, 0, 0),
-            )
-            db_session.add(session)
-            db_session.flush()
-
-            for index in range(3):
-                image = Image(
-                    raw_fname=f"/data/raw/colour_{index}.fits",
-                    image_type_id=image_type_id,
-                    observing_session_id=session.id,
-                    jd=2460000.5 + 0.05 * index,
+            for night, hole in enumerate(cls.hole_positions):
+                session = ObservingSession(
+                    observer_id=1,
+                    camera_id=1,
+                    telescope_id=1,
+                    mount_id=1,
+                    observatory_id=1,
+                    target_id=1,
+                    label=f"gap_at_{hole}",
+                    start_time_utc=datetime(2023, 3, 1 + night, 20, 0, 0),
+                    end_time_utc=datetime(2023, 3, 1 + night, 23, 0, 0),
                 )
-                db_session.add(image)
+                db_session.add(session)
                 db_session.flush()
-                for channel, values in cls.values_of.items():
-                    db_session.add(
-                        ImageDiagnostics(
-                            image_id=image.id,
-                            channel=channel,
-                            diagnostic_id=diagnostic_id,
-                            value=values[index],
-                        )
+                cls.session_of[hole] = session.id
+
+                for index in range(len(cls.values_of["R"])):
+                    image = Image(
+                        raw_fname=f"/data/raw/gap{hole}_{index}.fits",
+                        image_type_id=image_type_id,
+                        observing_session_id=session.id,
+                        jd=2460000.5 + night + 0.05 * index,
                     )
-            cls.session_id = session.id
+                    db_session.add(image)
+                    db_session.flush()
+
+                    for channel, values in cls.values_of.items():
+                        if channel == "B" and index == hole:
+                            continue
+                        db_session.add(
+                            ImageDiagnostics(
+                                image_id=image.id,
+                                channel=channel,
+                                diagnostic_id=diagnostic_id,
+                                value=values[index],
+                            )
+                        )
         # pylint: enable=not-callable
 
-    def key(self, channels):
-        """Return the series binding *channels*."""
+    def expected(self, channel, hole):
+        """Return what *channel* reads for the session with that gap."""
 
-        return SeriesKey(self.session_id, "object", channels)
+        return [
+            numpy.nan if channel == "B" and index == hole else value
+            for index, value in enumerate(self.values_of[channel])
+        ]
+
+    def key(self, channels, hole=None):
+        """Return the series binding *channels*, of the session with *hole*."""
+
+        return SeriesKey(
+            self.session_of[self.hole if hole is None else hole],
+            "object",
+            channels,
+        )
+
+    def test_a_value_stays_with_its_own_image(self):
+        """The gap moved through the column, one session per position.
+
+        What is pinned is *where* the gap lands, not that dividing by NaN
+        gives NaN.  The values are read as a column and reshaped, so a
+        column out by a frame would move every value onto its neighbour --
+        and nothing downstream could tell, since the result is the right
+        length and full of plausible numbers.
+        """
+
+        for hole in self.hole_positions:
+            with self.subTest(hole=hole), start_db_session() as db_session:
+                values, image_ids = get_diagnostic_values(
+                    self.key(("R", "B"), hole),
+                    {"bg_center": {("R",), ("B",)}},
+                    db_session,
+                )
+
+                self.assertEqual(image_ids.size, len(self.values_of["R"]))
+                for channel in ("R", "B"):
+                    numpy.testing.assert_allclose(
+                        values["bg_center"][(channel,)],
+                        self.expected(channel, hole),
+                        equal_nan=True,
+                    )
 
     def test_a_ratio_between_two_channels(self):
         """The quantity the whole of section 10 exists for.
 
         Both columns are read against the same images, so the ratio is
-        meaningful without anything being joined or matched up.
+        meaningful without anything being joined or matched up -- and is
+        undefined on the frame recording only one of them, rather than
+        silently pairing that value with another frame's.
         """
 
         with start_db_session() as db_session:
@@ -467,8 +532,14 @@ class TestCrossChannelValues(unittest.TestCase):
                 db_session,
             )
 
-        self.assertEqual(image_ids.size, 3)
-        self.assertEqual(list(values["sky_color"]), [4.0, 2.0, 4.0])
+        self.assertEqual(image_ids.size, len(self.values_of["R"]))
+        numpy.testing.assert_allclose(
+            values["sky_color"],
+            numpy.divide(
+                self.expected("R", self.hole), self.expected("B", self.hole)
+            ),
+            equal_nan=True,
+        )
 
     def test_the_binding_decides_which_way_round(self):
         """The same expression, the channels swapped, is the reciprocal."""
@@ -481,13 +552,20 @@ class TestCrossChannelValues(unittest.TestCase):
                 db_session,
             )
 
-        self.assertEqual(list(values["sky_color"]), [0.25, 0.5, 0.25])
+        numpy.testing.assert_allclose(
+            values["sky_color"],
+            numpy.divide(
+                self.expected("B", self.hole), self.expected("R", self.hole)
+            ),
+            equal_nan=True,
+        )
 
     def test_an_aggregate_spans_one_channel(self):
         """Each slot is read on its own, so a median is per channel.
 
-        Were the two pooled, the median of all six values would be 5,
-        making this 0 rather than 4, and nothing would say so.
+        R reads 8, 6, 4, 9 and B reads 2, 8, 5, so the medians are 7 and 5.
+        Pool them and the median of all seven is 6, making this 1 rather
+        than 2, and nothing would say so.
         """
 
         with start_db_session() as db_session:
@@ -502,7 +580,9 @@ class TestCrossChannelValues(unittest.TestCase):
                 db_session,
             )
 
-        self.assertEqual(list(values["relative"]), [4.0, 4.0, 4.0])
+        numpy.testing.assert_allclose(
+            values["relative"], [2.0] * len(self.values_of["R"])
+        )
 
     def test_a_channel_never_recorded_is_undefined(self):
         """Not an error: the expression is simply NaN throughout.
@@ -548,11 +628,90 @@ class TestCrossChannelValues(unittest.TestCase):
                 event.remove(db_session.bind, "before_cursor_execute", record)
 
         self.assertEqual(list(values["bg_center"]), self.values_of["R"])
-        self.assertEqual(list(values["sky_color"]), [4.0, 2.0, 4.0])
-        self.assertEqual(image_ids.size, 3)
+        numpy.testing.assert_allclose(
+            values["sky_color"],
+            numpy.divide(
+                self.expected("R", self.hole), self.expected("B", self.hole)
+            ),
+            equal_nan=True,
+        )
+        self.assertEqual(image_ids.size, len(self.values_of["R"]))
         self.assertEqual(
             len(issued), 1, f"both axes should share one read: {issued}"
         )
+
+
+class TestCrossChannelCounts(TestCrossChannelValues):
+    """Counting the images a *binding* draws, once the channels are chosen.
+
+    Shares the fixture above because the gap is what makes the question
+    non-trivial: a session where every frame records both channels counts
+    the same whichever way you ask.
+    """
+
+    def counts_of(self, rows):
+        """Return ``{session label: count}`` from what a counter returned."""
+
+        return {row[0]: row[-1] for row in rows}
+
+    def test_a_binding_counts_the_images_having_all_of_it(self):
+        """The intersection, not either channel's own total.
+
+        Each session records four frames in R and three in B, so a
+        quantity reading both draws three -- and a count that quietly took
+        one channel's would claim four.
+        """
+
+        with start_db_session() as db_session:
+            both = self.counts_of(
+                count_images_with_channels(
+                    {("bg_center", "R"), ("bg_center", "B")}, db_session
+                )
+            )
+            red = self.counts_of(
+                count_images_with_channels({("bg_center", "R")}, db_session)
+            )
+
+        for hole in self.hole_positions:
+            with self.subTest(hole=hole):
+                self.assertEqual(both[f"gap_at_{hole}"], 3)
+                self.assertEqual(red[f"gap_at_{hole}"], 4)
+
+    def test_a_channel_never_recorded_counts_nothing(self):
+        """And says so by absence rather than by a row reading zero."""
+
+        with start_db_session() as db_session:
+            rows = count_images_with_channels(
+                {("bg_center", self.missing_channel)}, db_session
+            )
+
+        self.assertEqual(rows, [])
+
+    def test_one_channel_agrees_with_counting_within_a_channel(self):
+        """The two questions only differ where more than one is involved.
+
+        Asked about a single channel, the cross-channel count must give
+        what the per-channel one gives for that channel -- otherwise one
+        of them is wrong in a way no other test here would show.
+        """
+
+        with start_db_session() as db_session:
+            across = self.counts_of(
+                count_images_with_channels({("bg_center", "B")}, db_session)
+            )
+            within = {
+                row[0]: row[-1]
+                for row in count_images_with_all({"bg_center"}, db_session)
+                if row[3] == "B"
+            }
+
+        self.assertEqual(across, within)
+
+    def test_nothing_required_counts_nothing(self):
+        """A plot of the time against the time constrains no image."""
+
+        with start_db_session() as db_session:
+            self.assertEqual(count_images_with_channels(set(), db_session), [])
 
 
 class TestTiedJulianDates(unittest.TestCase):

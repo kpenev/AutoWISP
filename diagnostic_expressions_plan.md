@@ -1872,10 +1872,19 @@ Two consequences worth stating:
   two questions: what a slot may be bound to (today's
   `count_images_with_all`, filling the dropdown options) and how many images
   a completed binding has (new, cross-channel, and not needed at all for a
-  single-slot quantity). The pre-existing missing `observing_session_id`
-  filter on the first — noted under *Scaling* as a known limit, and in
-  contradiction with *Query discipline* — is fixed in the same pass, since
-  this multiplies how often it runs.
+  single-slot quantity).
+
+  **An earlier draft said the first should gain the
+  `observing_session_id` filter it lacks.** It should not, and cannot: the
+  series table's purpose is to enumerate *every* session, so there is no
+  one session to anchor to. Nor is it the scan that reading feared —
+  `EXPLAIN` shows it reaching `image_diagnostics` through the
+  `(diagnostic_id, value)` index and `image` by primary key. *Query
+  discipline* asks for that filter on the per-series **value** queries,
+  which is what its own next sentence describes; this is instead the
+  second thing §Scaling names and puts out of scope, an availability
+  aggregate whose cost is proportional to the images carrying the
+  diagnostic, where enumerating *is* the task and so no index helps.
 - The table gains **one dropdown per parameter of each axis** — the x
   quantity's arity plus the y quantity's, concatenated rather than merged.
   They are not shared: an expression's numbers are formal parameters, so
@@ -2059,8 +2068,16 @@ browser:
    MariaDB CI job of `mariadb_pipeline_tests_plan.md` lands, an `EXPLAIN`
    check belongs there. Index existence is already covered by
    `test_database_migration.py`.
-3. **Counts** — the cross-channel aggregate, and the session anchor on
-   `count_images_with_all`.
+3. **Counts — done.** `count_images_with_channels`, the exact count for a
+   binding. `count_images_with_all` keeps its meaning; see the counts note
+   above for why the anchor an earlier draft asked for is neither possible
+   nor wanted.
+
+   The two share a private builder, differing only in what they match, how
+   many matches an image owes, and whether the channel is part of the
+   answer or fixed by the caller. That also retired a `COUNT(DISTINCT
+   diagnostic_type.id)`: the unique index already forbids a duplicate
+   within a group, so counting rows says the same thing.
 4. **The table and the round trip** — `image_diagnostics_views.py`,
    `views.py`, a `_series_row.html` partial rendering **one** row (the unit
    the response appends), and `diagnostics_app.js`. The slot `<select>`s
