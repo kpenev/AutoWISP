@@ -2078,13 +2078,14 @@ browser:
    answer or fixed by the caller. That also retired a `COUNT(DISTINCT
    diagnostic_type.id)`: the unique index already forbids a duplicate
    within a group, so counting rows says the same thing.
-4. **Slots reach the browser interface.** Split in two, because the
-   halves are large and each has to leave the page working -- doing them
-   together would mean a commit in which nothing can be plotted.
+4. **Slots reach the browser interface.** Split in two for reviewing
+   rather than for working order: the page is expected to be broken
+   between them, since validation starts requiring subscripts before the
+   table can bind a second channel. Nothing is **pushed** until both are
+   done and it draws again.
 
-   **4a -- the server side, with the page unchanged.** Every quantity's
-   channels come from its arity rather than from the series, and the old
-   path dies.
+   **4a -- the server side.** Every quantity's channels come from its
+   arity rather than from the series, and the old path dies.
 
    - `check_expression` gains the refusals §What check_expression says
      lists: a diagnostic read **bare** (say which channel), `jd` given a
@@ -2100,18 +2101,14 @@ browser:
    - `get_series_data` builds `{quantity: channels}` -- `()` where the
      arity is 0, `(series_key.channel,)` where it is 1 -- and calls
      `get_quantity_values`.
-   - `get_available_expressions` additionally hides anything of arity
-     above 1: the table cannot bind a second channel yet, so offering one
-     would be offering something undrawable.
-   - `get_available_series` keeps its shape. While every offered quantity
-     binds at most one channel, `count_images_with_all` is still exactly
-     the right question, and the rows it returns are already keyed by a
-     one-channel tuple.
+   - `get_available_series` keeps `count_images_with_all` for what a slot
+     may be bound to, and gains `count_images_with_channels` for a row
+     whose binding is complete.
    - Tests: the expressions in the view and series fixtures gain their
      subscripts.
 
-   **4b -- the table and the round trip**, which is what lifts the arity
-   limit 4a imposes. `image_diagnostics_views.py`, `views.py`, a
+   **4b -- the table and the round trip.**
+   `image_diagnostics_views.py`, `views.py`, a
    `_series_row.html` partial rendering **one** row (the unit the response
    appends), `diagnostics_app.html` and `diagnostics_app.js`.
 
