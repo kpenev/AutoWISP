@@ -78,7 +78,7 @@ def get_expression_names(expression):
     }
 
 
-def get_expression_references(expression):
+def get_indexed_names(expression):
     """
     Return what one expression reads, and in which channel slots.
 
@@ -120,12 +120,10 @@ def get_expression_references(expression):
             )
         try:
             slots = ast.literal_eval(node.slice)
-        except ValueError as error:
-            raise PipelineError(
-                f"{ast.unparse(node)!r} does not name a channel slot: a "
-                "slot is written as a whole number, as in bg_center[1].",
-                details={"subscript": ast.unparse(node)},
-            ) from error
+        except ValueError:
+            # Non-literal channel indices is a sub-case of what is handled
+            # below.
+            slots = None
         if not isinstance(slots, tuple):
             slots = (slots,)
         if not slots or not all(
@@ -140,6 +138,30 @@ def get_expression_references(expression):
         references.append((node.value.id, slots))
 
     return references
+
+
+def _get_bare_names(expression):
+    """Return the names *expression* reads without a subscript.
+
+    The complement of :func:`get_indexed_names`, so between them every
+    ``ast.Name`` is accounted for once. Mostly functions.
+    """
+
+    tree = ast.parse(expression, mode="eval")
+
+    # The nodes rather than their ids: one name may be read both ways, and
+    # ``bg_center[1] - bg_center`` has to report the second.
+    subscripted = {
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name)
+    }
+
+    return {
+        node.id
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node not in subscripted
+    }
 
 
 def get_expression_parameters(expression):
@@ -164,14 +186,14 @@ def get_expression_parameters(expression):
 
     Raises:
         SyntaxError, PipelineError:    As for
-            :func:`get_expression_references`.
+            :func:`get_indexed_names`.
     """
 
     return tuple(
         sorted(
             {
                 slot
-                for _, slots in get_expression_references(expression)
+                for _, slots in get_indexed_names(expression)
                 for slot in slots
             }
         )
@@ -495,63 +517,6 @@ def _as_series(values, count):
     )
 
 
-def evaluate_expressions(targets, expressions, values):
-    """
-    Evaluate the wanted quantities against already-fetched values.
-
-    **Superseded by :func:`evaluate_quantities`**, which reads a channel
-    per quantity instead of assuming one for the whole series. This one
-    stays only because it still has a caller --
-    ``expression_series.get_series_values`` -- and goes when that moves
-    over, taking its tests with it. Until then the two coexist: the
-    expressions this evaluates name a diagnostic **bare**, which the
-    channel-slot scheme does not allow, so the rules
-    :func:`check_expression` applies cannot flip while this path is what
-    draws the plots.
-
-    Every expression in the dependency subtree is computed once, its result
-    assigned back into the same symbol table, so one used twice -- or shared
-    by several dependents -- is not recomputed. Passing several *targets*
-    rather than calling once per target is what extends that across the two
-    axes of a plot.
-
-    Args:
-        targets:    The quantity names wanted.
-
-        expressions(dict):    The library, ``{name: expression}``.
-
-        values(dict):    ``{diagnostic_name: array}``, all on a common
-            index -- in practice one canonical image list.
-
-    Returns:
-        dict:    ``{target: array}``, each of the same length as *values*.
-
-    Raises:
-        PipelineError:    As for :func:`order_expressions`, or if *values*
-            lacks a diagnostic the expressions need.
-    """
-
-    order, needed = order_expressions(targets, expressions)
-
-    missing = sorted(needed - set(values))
-    if missing:
-        raise PipelineError(
-            "No values supplied for " + ", ".join(missing) + ".",
-            details={"missing": missing},
-        )
-
-    count = numpy.size(next(iter(values.values()))) if values else 0
-
-    evaluate = Evaluator(dict(values))
-    for name in order:
-        evaluate.symtable[name] = evaluate(expressions[name])
-
-    return {
-        target: _as_series(evaluate.symtable[target], count)
-        for target in targets
-    }
-
-
 class QuantityLookUp:
     """
     One name an expression may read, resolved when it is asked for.
@@ -737,7 +702,7 @@ def _visit_needed(name, channels, expressions, needed):
 
     text = expressions[name]
     binding = dict(zip(get_expression_parameters(text), channels))
-    for referenced, slots in get_expression_references(text):
+    for referenced, slots in get_indexed_names(text):
         _visit_needed(
             referenced,
             tuple(binding[slot] for slot in slots),
@@ -859,7 +824,80 @@ def evaluate_quantities(wanted, expressions, values):
     }
 
 
-def check_expression(name, expression, expressions):
+def _spell_slots(count):
+    """Return *count* channel slots, spelled for a message."""
+
+    return "1 channel slot" if count == 1 else f"{count} channel slots"
+
+
+def _slot_problems(expression, library):
+    """
+    Return what is wrong with how *expression* reads its quantities.
+
+    One rule: a quantity is read with exactly as many channel slots as it
+    takes, and one taking none is read bare. The first half is what makes
+    a reference's arguments match a definition's parameters positionally;
+    the second is what lets :func:`get_needed_values` and
+    :meth:`QuantityLookUp.library` treat a bare name as a value and still
+    know they have seen everything.
+
+    Only names resolving to a quantity are judged, in either direction:
+    the evaluator's own arrays can be indexed too, and most bare names are
+    its functions.
+
+    Args:
+        expression(str):    The proposed text.
+
+        library(dict):    The library it would join, ``{name: expression}``,
+            *including* the proposed expression, so that a self-reference
+            has an arity.
+
+    Returns:
+        list:    Descriptions of the problems; empty if there are none.
+
+    Raises:
+        PipelineError:    From :func:`get_indexed_names`, if an index does
+            not name a channel slot at all.
+    """
+
+    def is_quantity(candidate):
+        """Whether *candidate* reads data, rather than being a function."""
+
+        return candidate in library or is_known_quantity(candidate)
+
+    problems = []
+
+    for referenced, slots in get_indexed_names(expression):
+        if not is_quantity(referenced):
+            continue
+        written = f"{referenced}[{', '.join(str(slot) for slot in slots)}]"
+        arity = get_quantity_arity(referenced, library)
+        if arity == 0:
+            problems.append(
+                f"{referenced} takes no channel slot, being one value per "
+                f"image: write {referenced} rather than {written}."
+            )
+        elif arity != len(slots):
+            problems.append(
+                f"{referenced} takes {_spell_slots(arity)}, not "
+                f"{len(slots)}: {written}."
+            )
+
+    for referenced in sorted(_get_bare_names(expression)):
+        if not is_quantity(referenced):
+            continue
+        arity = get_quantity_arity(referenced, library)
+        if arity:
+            sample = ", ".join(str(slot) for slot in range(1, arity + 1))
+            problems.append(
+                f"{referenced} takes {_spell_slots(arity)}, so it cannot be "
+                f"read on its own: write {referenced}[{sample}]."
+            )
+
+    return problems
+
+
+def check_expression(name, expression, current_library):
     """
     Return what is wrong with a proposed expression, as plain strings.
 
@@ -885,9 +923,10 @@ def check_expression(name, expression, expressions):
 
         expression(str):    The proposed text.
 
-        expressions(dict):    The library it would join. An existing entry
-            of the same name is replaced by the proposed text rather than
-            conflicting with it, so an edit can pass the library unchanged.
+        current_library(dict):    The library it would join, as it stands.
+            An existing entry of the same name is replaced by the proposed
+            text rather than conflicting with it, so an edit can pass the
+            library unchanged.
 
     Returns:
         list:    Descriptions of the problems; empty if there are none.
@@ -918,12 +957,26 @@ def check_expression(name, expression, expressions):
         )
         return problems
 
+    # What the library would become if this were saved, which is what the
+    # two checks below judge against: an expression may reference itself
+    # right up to the cycle check that refuses it.
+    new_library = dict(current_library, **{name: expression})
+
+    # Before the unresolvable names, so ``bg_center[i]`` is told what a
+    # slot looks like rather than that ``i`` is not a diagnostic. Safe in
+    # that order because only names that resolve are asked for an arity.
+    try:
+        problems.extend(_slot_problems(expression, new_library))
+    except PipelineError as error:
+        problems.append(str(error))
+        return problems
+
     unresolvable = sorted(
         other
         for other in referenced
         if other != name
         and not is_known_quantity(other)
-        and other not in expressions
+        and other not in current_library
         and other not in _evaluator_names()
     )
     if unresolvable:
@@ -936,7 +989,7 @@ def check_expression(name, expression, expressions):
         return problems
 
     try:
-        order_expressions([name], dict(expressions, **{name: expression}))
+        order_expressions([name], new_library)
     except PipelineError as error:
         problems.append(str(error))
 

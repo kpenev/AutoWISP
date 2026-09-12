@@ -2,9 +2,10 @@
 
 These pin the behaviours that must survive merging
 ``image_diagnostics_views`` and ``diag_vs_diag_views`` into a single
-x-versus-y path: how the ``pixel_quantiles`` pseudo-name expands into series, and
-how the time-series figure offsets and groups its series.  They are written
-against the *current* code, so they must pass before the merge starts.
+x-versus-y path: how the ``pixel_quantiles`` pseudo-name expands into
+series, and how the time-series figure offsets and groups its series.  They
+are written against the *current* code, so they must pass before the merge
+starts.
 
 Uses a throwaway project database, following ``test_error_render``.
 """
@@ -377,7 +378,11 @@ class TestAvailableQuantities(DiagnosticsViewTestCase):
 
 
 class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
-    """``pixel_quantiles`` expands to one series per ``pixel_q*``, either axis."""
+    """``pixel_quantiles`` expands to one series per ``pixel_q*``.
+
+    On either axis, since the expansion happens where the series are built
+    rather than per axis.
+    """
 
     def _series_ids(self, x_diagnostic, y_diagnostic):
         """Return the series ids offered for the given axis pair."""
@@ -581,9 +586,9 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
     #: Referenced by every test here; ``bg_center`` is recorded for both
     #: image types, so the availability answer is interesting.
     library = {
-        "rel_bg": "bg_center - nanmedian(bg_center)",
-        "scaled_bg": "rel_bg * 10",
-        "q_ratio": "pixel_q999 / pixel_q99",
+        "rel_bg": "bg_center[1] - nanmedian(bg_center[1])",
+        "scaled_bg": "rel_bg[1] * 10",
+        "q_ratio": "pixel_q999[1] / pixel_q99[1]",
     }
 
     def _series_for(self, x_diagnostic, y_diagnostic):

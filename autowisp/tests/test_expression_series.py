@@ -41,7 +41,6 @@ from autowisp.diagnostics.expression_series import (
     get_diagnostic_values,
     get_expression_availability,
     get_quantity_values,
-    get_series_values,
 )
 from autowisp.tests.test_diagnostics_views import DiagnosticsViewTestCase
 
@@ -268,11 +267,14 @@ class TestSeriesValues(SeriesValuesTestCase):
     """Resolving quantities, which is where expressions enter."""
 
     def test_plain_diagnostics_need_no_library(self):
-        """The browser interface's present caller passes an empty one."""
+        """A diagnostic and the time, which is every plot's usual x axis."""
 
         with start_db_session() as db_session:
-            values, image_ids = get_series_values(
-                self.objects, ["jd", "bg_center"], {}, db_session
+            values, image_ids = get_quantity_values(
+                self.objects,
+                {"jd": (), "bg_center": self.objects.channels},
+                {},
+                db_session,
             )
 
         self.assertEqual(sorted(values), ["bg_center", "jd"])
@@ -287,49 +289,39 @@ class TestSeriesValues(SeriesValuesTestCase):
         """
 
         with start_db_session() as db_session:
-            values, _ = get_series_values(
+            values, _ = get_quantity_values(
                 self.objects,
-                ["rel_bg"],
-                {"rel_bg": "bg_center - nanmedian(bg_center)"},
+                {"rel_bg": self.objects.channels},
+                {"rel_bg": "bg_center[1] - nanmedian(bg_center[1])"},
                 db_session,
             )
 
         self.assertEqual(list(values["rel_bg"]), [-1.0, 0.0, 1.0])
 
     def test_both_axes_resolve_together(self):
-        """Two quantities, one call -- the point of taking a sequence."""
+        """Two quantities, one call -- the point of asking for both."""
 
         with start_db_session() as db_session:
-            values, _ = get_series_values(
+            values, _ = get_quantity_values(
                 self.objects,
-                ["jd", "twice_bg"],
-                {"twice_bg": "bg_center * 2"},
+                {"jd": (), "twice_bg": self.objects.channels},
+                {"twice_bg": "bg_center[1] * 2"},
                 db_session,
             )
 
         self.assertEqual(sorted(values), ["jd", "twice_bg"])
         self.assertEqual(list(values["twice_bg"]), [200.0, 202.0, 204.0])
 
-    def test_a_quantity_may_be_asked_for_twice(self):
-        """Plotting something against itself is a request, not a mistake."""
-
-        with start_db_session() as db_session:
-            values, _ = get_series_values(
-                self.objects, ["bg_center", "bg_center"], {}, db_session
-            )
-
-        self.assertEqual(list(values["bg_center"]), [100.0, 101.0, 102.0])
-
     def test_a_composed_expression_resolves_its_dependency(self):
         """Tier 1 orders them; this checks the values reach it to do so."""
 
         with start_db_session() as db_session:
-            values, _ = get_series_values(
+            values, _ = get_quantity_values(
                 self.objects,
-                ["scaled"],
+                {"scaled": self.objects.channels},
                 {
-                    "rel_bg": "bg_center - nanmedian(bg_center)",
-                    "scaled": "rel_bg * 10",
+                    "rel_bg": "bg_center[1] - nanmedian(bg_center[1])",
+                    "scaled": "rel_bg[1] * 10",
                 },
                 db_session,
             )
@@ -345,7 +337,7 @@ class TestAvailability(SeriesValuesTestCase):
 
         with start_db_session() as db_session:
             available = get_expression_availability(
-                "twice_bg", {"twice_bg": "bg_center * 2"}, db_session
+                "twice_bg", {"twice_bg": "bg_center[1] * 2"}, db_session
             )
             directly = count_images_with_all({"bg_center"}, db_session)
 
@@ -357,7 +349,7 @@ class TestAvailability(SeriesValuesTestCase):
         with start_db_session() as db_session:
             available = get_expression_availability(
                 "q_ratio",
-                {"q_ratio": "pixel_q999 / pixel_q99"},
+                {"q_ratio": "pixel_q999[1] / pixel_q99[1]"},
                 db_session,
             )
 

@@ -39,7 +39,6 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 from autowisp.diagnostics.diagnostic_types import time_quantity
 from autowisp.diagnostics.expressions import (
-    evaluate_expressions,
     evaluate_quantities,
     get_needed_values,
     order_expressions,
@@ -460,96 +459,17 @@ def get_diagnostic_values(series_key, needed, db_session):
     return values, image_ids
 
 
-def get_series_values(series_key, quantities, expressions, db_session):
-    """
-    Return every wanted quantity for one series, and the images behind them.
-
-    *quantities* is a sequence rather than a single name because the figure
-    wants both axes of the same series, and resolving them one at a time
-    would waste the two properties this arrangement exists for: the
-    diagnostics both axes need are read in **one** query for their union,
-    and a subexpression the two axes share is evaluated **once**, in one
-    symbol table, rather than once per axis.
-
-    The image ids come from the same query as the values, so no two results
-    have to agree about the order of images sharing a Julian date.
-
-    The arrays are returned unmasked. Dropping the non-finite entries is the
-    caller's business, because the mask has to be taken across both axes at
-    once and the image ids masked with it.
-
-    Args:
-        series_key(SeriesKey):    The series to read the values of.
-
-        quantities:    The names to resolve: diagnostics, expressions or
-            :data:`time_quantity`, in any mixture. Repeats are harmless --
-            plotting a quantity against itself asks for one array twice.
-
-        expressions(dict):    The library, ``{name: expression}``. Empty
-            where the caller has none, which resolves plain diagnostics and
-            :data:`time_quantity` and nothing else.
-
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        tuple:
-            dict:    ``{quantity: array}``, all of the same length.
-
-            numpy.ndarray:    The image ids that length runs over.
-
-    Raises:
-        PipelineError:    If a quantity names nothing, or the expressions
-            reference each other in a cycle.
-    """
-
-    _, names = order_expressions(quantities, expressions)
-
-    # Every diagnostic in the series' own single channel, which is the whole
-    # of what an expression written without channel slots can mean.
-    #
-    # This exists for the *view* layer, not for stored data: the table
-    # binds one channel per series rather than per quantity, so there is
-    # nothing for it to pass until that changes, and this fills it in
-    # meanwhile. It is not a compatibility shim -- expressions written
-    # without subscripts are expected to be rewritten, the library being
-    # empty until someone types one -- and it goes, with
-    # ``evaluate_expressions``, when the table starts binding channels
-    # itself.
-    combination = {
-        name: () if name == time_quantity else (series_key.channel,)
-        for name in names
-    }
-
-    values, image_ids = get_diagnostic_values(
-        series_key,
-        {name: {channels} for name, channels in combination.items()},
-        db_session,
-    )
-
-    return (
-        evaluate_expressions(
-            quantities,
-            expressions,
-            # Indexed by what was asked for rather than taken as "the only
-            # one there", so that a fetch returning anything else says so.
-            {
-                name: by_channels[combination[name]]
-                for name, by_channels in values.items()
-            },
-        ),
-        image_ids,
-    )
-
-
 def get_quantity_values(series_key, wanted, expressions, db_session):
     """
     Return the quantities of one series as the table bound them.
 
-    The channel-slot counterpart of :func:`get_series_values`, and what
-    replaces it once the browser interface binds channels per quantity
-    rather than per series. Both axes are resolved together for the same
-    two reasons: one query for the union of what they read, and one
-    evaluation of anything they share.
+    *wanted* holds both axes rather than one, because resolving them one at
+    a time would waste the two properties this arrangement exists for: the
+    diagnostics both axes read are fetched in **one** query for their
+    union, and an instantiation the two share is evaluated **once**.
+
+    The image ids come from the same query as the values, so no two results
+    have to agree about the order of images sharing a Julian date.
 
     Args:
         series_key(SeriesKey):    The series to read the values of.

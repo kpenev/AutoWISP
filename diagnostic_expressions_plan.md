@@ -1546,22 +1546,20 @@ library is needed for it. Deferred rather than dismissed.
 
 ### 10. Channel slots
 
-> **Not started.** Everything above works, and the limitation this removes
-> was found by using it: an expression is evaluated *within one channel*, so
-> the most useful cross-channel quantity of all — the colour of the sky —
-> cannot be written. Written as its own section rather than folded into
-> §1a/§3/§4 because it changes the meaning of a *series*, which those three
-> share.
+> **Stages 1 to 4a are done; 4b is next.** Everything above works, and the
+> limitation this removes was found by using it: an expression is evaluated
+> *within one channel*, so the most useful cross-channel quantity of all —
+> the colour of the sky — cannot be written. Written as its own section
+> rather than folded into §1a/§3/§4 because it changes the meaning of a
+> *series*, which those three share.
 >
-> **Stage 1 is done**: `expressions.py` reads subscripts, derives an
-> expression's parameters, answers arity, walks what has to be fetched,
-> and evaluates through `QuantityLookUp`. `get_expression_names`,
-> `order_expressions` and `rename_references` are untouched, and nothing
-> yet calls the new path, so the shipped plot page is unchanged — tier 2
-> still uses `evaluate_expressions`, which is marked superseded and goes
-> with stage 2, taking `TestEvaluation` with it. Until then both paths
-> live, which is also why `check_expression`'s rules cannot flip yet: the
-> expressions it validates today name a diagnostic bare.
+> Tier 1 reads subscripts, derives parameters, answers arity, walks what
+> has to be fetched, evaluates through `QuantityLookUp`, and now refuses a
+> quantity read with the wrong number of slots. Tier 2 fetches and
+> evaluates by binding, the old per-series path having gone. The plot page
+> passes a binding per quantity, but the table still binds one channel per
+> **row**, so a cross-channel expression validates and cannot yet be drawn
+> — the state 4b ends, and the reason nothing is pushed before it does.
 >
 > The prototype that stood in for this is deleted, its cases now tests.
 >
@@ -2052,7 +2050,7 @@ browser:
 2. **`SeriesKey` and multi-channel fetching — done.**
    `expression_series.py`: the `channels` tuple, the `,` sub-encoding, the
    aliased joins, and `get_quantity_values` beside the old
-   `get_series_values`, which stays until the table binds channels itself.
+   `get_series_values`, which 4a then removed.
 
    Refusing a bare `str` needs `__new__`, but `typing.NamedTuple` prohibits
    both it and `__init__` in a class body, so the fields live in a private
@@ -2084,14 +2082,22 @@ browser:
    table can bind a second channel. Nothing is **pushed** until both are
    done and it draws again.
 
-   **4a -- the server side.** Every quantity's channels come from its
-   arity rather than from the series, and the old path dies.
+   **4a -- the server side, done.** Every quantity's channels come from
+   its arity rather than from the series, and the old path dies.
+
+   `get_expression_references` was renamed `get_indexed_names`: it reports
+   syntax rather than meaning -- an index is not necessarily a channel
+   slot, since the evaluator's own arrays can be indexed too -- and the
+   name now says so, pairing with the `_get_bare_names` the bare-reference
+   refusal needed. Both refusals fall out of one rule stated once: a
+   quantity is read with exactly as many slots as it takes, and a quantity
+   taking none is read bare.
 
    - `check_expression` gains the refusals §What check_expression says
      lists: a diagnostic read **bare** (say which channel), `jd` given a
      subscript, an expression given one, a reference whose subscript count
      does not match what it references, and a malformed subscript --
-     `get_expression_references` raises `PipelineError` for the last, so
+     `get_indexed_names` raises `PipelineError` for the last, so
      it is caught and reported as a problem rather than escaping.
    - **The old path goes**: `get_series_values` from tier 2,
      `evaluate_expressions` from tier 1 (`_as_series` stays, being what
@@ -2101,9 +2107,6 @@ browser:
    - `get_series_data` builds `{quantity: channels}` -- `()` where the
      arity is 0, `(series_key.channel,)` where it is 1 -- and calls
      `get_quantity_values`.
-   - `get_available_series` keeps `count_images_with_all` for what a slot
-     may be bound to, and gains `count_images_with_channels` for a row
-     whose binding is complete.
    - Tests: the expressions in the view and series fixtures gain their
      subscripts.
 
@@ -2114,6 +2117,10 @@ browser:
 
    - Dropdown columns from the axes' arities, x's then y's, concatenated
      rather than merged; slot columns are `no-sort`.
+   - `get_available_series` keeps `count_images_with_all` for what a slot
+     may be bound to, and gains `count_images_with_channels` for a row
+     whose binding is complete. Not in 4a: every row there binds one
+     channel, where the two ask the same question and agree.
    - Rows arrive unbound, except where the session's camera defines a
      single channel -- then the channel is text and the row arrives bound
      with a count. No spare row once every possible binding is present.

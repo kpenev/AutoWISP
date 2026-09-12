@@ -30,14 +30,17 @@ from autowisp.database.interface import start_db_session
 from autowisp.diagnostics.expression_series import (
     SeriesKey,
     count_images_with_all,
-    get_series_values,
+    get_quantity_values,
     time_quantity,
 )
 from autowisp.diagnostics.diagnostic_types import (
     is_quantile_diagnostic,
     quantiles_quantity,
 )
-from autowisp.diagnostics.expressions import order_expressions
+from autowisp.diagnostics.expressions import (
+    get_quantity_arity,
+    order_expressions,
+)
 from autowisp.exceptions import PipelineError
 
 # False positive due to unusual importing
@@ -291,9 +294,7 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
         rows.extend(
             (
                 session_label,
-                SeriesKey(
-                    session_id, image_type, (channel,), quantile_name
-                ),
+                SeriesKey(session_id, image_type, (channel,), quantile_name),
                 count,
             )
             for session_label, session_id, image_type, channel, count in (
@@ -359,8 +360,19 @@ def get_series_data(
         for quantity_name in (x_diagnostic, y_diagnostic)
     ]
 
-    values, image_ids = get_series_values(
-        series_key, quantities, expressions, db_session
+    values, image_ids = get_quantity_values(
+        series_key,
+        # As many of the series' channels as each quantity takes: none for
+        # the time, one for a diagnostic. A quantity taking two is refused
+        # until the table binds a channel per slot rather than per row.
+        {
+            quantity: series_key.channels[
+                : get_quantity_arity(quantity, expressions)
+            ]
+            for quantity in quantities
+        },
+        expressions,
+        db_session,
     )
 
     # Indexed rather than unpacked: the two axes may name one quantity,

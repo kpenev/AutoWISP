@@ -143,7 +143,6 @@ from autowisp.tests.test_expressions import (
     TestDependents,
     TestRenamingReferences,
     TestOrdering,
-    TestEvaluation,
     TestChecking,
     TestReachableNames,
     TestQuantileNames,

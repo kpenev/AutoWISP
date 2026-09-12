@@ -16,13 +16,12 @@ from autowisp.diagnostics.diagnostic_types import (
 from autowisp.diagnostics.expressions import (
     QuantityLookUp,
     check_expression,
-    evaluate_expressions,
     evaluate_quantities,
     get_bare_aggregates,
     get_expression_dependents,
     get_expression_names,
     get_expression_parameters,
-    get_expression_references,
+    get_indexed_names,
     get_needed_values,
     get_quantity_arity,
     order_expressions,
@@ -31,10 +30,12 @@ from autowisp.diagnostics.expressions import (
 from autowisp.exceptions import PipelineError
 
 #: A small library with a diamond in it: two expressions share ``rel``.
+#: Everything is read in slot 1, this being about composition rather than
+#: about channels; the slot classes below bind several.
 _library = {
-    "rel": "astrom_residual / diagonal_fov",
-    "scaled": "rel / nanmedian(rel)",
-    "offset": "rel + bg_center",
+    "rel": "astrom_residual[1] / diagonal_fov[1]",
+    "scaled": "rel[1] / nanmedian(rel[1])",
+    "offset": "rel[1] + bg_center[1]",
 }
 
 
@@ -97,7 +98,8 @@ class TestReachableNames(unittest.TestCase):
         self.assertEqual(
             check_expression(
                 "fine",
-                "bg_center - nanmedian(bg_center) + sqrt(abs(bg_center))",
+                "bg_center[1] - nanmedian(bg_center[1]) "
+                "+ sqrt(abs(bg_center[1]))",
                 {},
             ),
             [],
@@ -274,77 +276,6 @@ class TestOrdering(unittest.TestCase):
             order_expressions(["no_such"], _library)
 
 
-class TestEvaluation(unittest.TestCase):
-    """Turning a library plus values into arrays."""
-
-    def setUp(self):
-        self.values = {
-            "astrom_residual": numpy.array([1.0, 2.0, numpy.nan, 4.0]),
-            "diagonal_fov": numpy.full(4, 2.0),
-            "bg_center": numpy.array([10.0, 20.0, 30.0, 40.0]),
-        }
-
-    def test_composed_expression(self):
-        """``rel`` is 0.5, 1, nan, 2, whose nanmedian is 1."""
-
-        result = evaluate_expressions(["scaled"], _library, self.values)
-        numpy.testing.assert_allclose(
-            result["scaled"], [0.5, 1.0, numpy.nan, 2.0]
-        )
-
-    def test_nan_propagates_through_composition(self):
-        """An image missing an input is undefined, not zero."""
-
-        result = evaluate_expressions(["offset"], _library, self.values)
-        self.assertTrue(numpy.isnan(result["offset"][2]))
-        self.assertFalse(numpy.any(numpy.isnan(result["offset"][[0, 1, 3]])))
-
-    def test_bare_aggregate_poisons_everything(self):
-        """Why ``get_bare_aggregates`` exists, stated as behaviour.
-
-        A plain ``median`` over an array with one NaN is NaN, so the whole
-        series is, even for the images that do have the diagnostic.
-        """
-
-        result = evaluate_expressions(
-            ["bad"],
-            {"bad": "astrom_residual - median(astrom_residual)"},
-            self.values,
-        )
-        self.assertTrue(numpy.all(numpy.isnan(result["bad"])))
-
-    def test_several_targets_at_once(self):
-        """What lets the two axes of a plot share one pass."""
-
-        result = evaluate_expressions(
-            ["scaled", "offset"], _library, self.values
-        )
-        self.assertEqual(set(result), {"scaled", "offset"})
-
-    def test_plain_diagnostic_passes_through(self):
-        """An axis need not be an expression."""
-
-        result = evaluate_expressions(["bg_center"], _library, self.values)
-        numpy.testing.assert_allclose(
-            result["bg_center"], self.values["bg_center"]
-        )
-
-    def test_constant_expression_is_broadcast(self):
-        """It still has to plot as a series."""
-
-        result = evaluate_expressions(["k"], {"k": "3.5"}, self.values)
-        numpy.testing.assert_allclose(result["k"], numpy.full(4, 3.5))
-
-    def test_missing_values_are_refused(self):
-        """Rather than evaluating to something meaningless."""
-
-        with self.assertRaises(PipelineError) as caught:
-            evaluate_expressions(
-                ["rel"], _library, {"astrom_residual": numpy.zeros(4)}
-            )
-        self.assertIn("diagonal_fov", str(caught.exception))
-
-
 class TestQuantileNames(unittest.TestCase):
     """The diagnostics named by a pattern rather than listed.
 
@@ -357,7 +288,7 @@ class TestQuantileNames(unittest.TestCase):
     def test_a_quantile_resolves_as_a_variable(self):
         """Nothing enumerates these, so only the pattern can accept them."""
 
-        self.assertEqual(check_expression("q", "pixel_q999 * 2", {}), [])
+        self.assertEqual(check_expression("q", "pixel_q999[1] * 2", {}), [])
 
     def test_a_quantile_may_not_be_taken_as_a_name(self):
         """The predicate reserves as well as resolves, which is easy to miss.
@@ -403,8 +334,8 @@ class TestQuantileNames(unittest.TestCase):
         One shared predicate is what makes that impossible.
         """
 
-        library = {"q": "pixel_q999 / pixel_q500"}
-        self.assertEqual(check_expression("q_scaled", "q * 2", library), [])
+        library = {"q": "pixel_q999[1] / pixel_q500[1]"}
+        self.assertEqual(check_expression("q_scaled", "q[1] * 2", library), [])
 
 
 class TestNoProjectNeeded(unittest.TestCase):
@@ -421,7 +352,8 @@ class TestNoProjectNeeded(unittest.TestCase):
         """Even though nothing here has opened a project database."""
 
         self.assertEqual(
-            check_expression("rel", "astrom_residual / diagonal_fov", {}), []
+            check_expression("rel", "astrom_residual[1] / diagonal_fov[1]", {}),
+            [],
         )
 
     def test_a_misspelling_does_not(self):
@@ -453,7 +385,7 @@ class TestChecking(unittest.TestCase):
     def test_a_good_expression_has_no_problems(self):
         """The case that must not produce noise."""
 
-        self.assertEqual(self.check("rel_doubled", "rel * 2"), [])
+        self.assertEqual(self.check("rel_doubled", "rel[1] * 2"), [])
 
     def test_name_must_be_a_slug(self):
         """Anything else could be stored but never put in a URL."""
@@ -487,7 +419,7 @@ class TestChecking(unittest.TestCase):
     def test_cycle_with_an_existing_expression(self):
         """Editing one end of a pair is how a cycle usually arrives."""
 
-        problems = check_expression("rel", "scaled + 1", _library)
+        problems = check_expression("rel", "scaled[1] + 1", _library)
         self.assertTrue(any("cycle" in problem for problem in problems))
 
     def test_problems_accumulate(self):
@@ -563,7 +495,7 @@ class TestSlotSyntax(SlotTestCase):
         """One name at two bindings is the point of the parameters."""
 
         self.assertEqual(
-            get_expression_references(self.library["silly"]),
+            get_indexed_names(self.library["silly"]),
             [("sky_color", (1, 2)), ("sky_color", (2, 3))],
         )
 
@@ -571,7 +503,7 @@ class TestSlotSyntax(SlotTestCase):
         """So no caller has to care how many were written."""
 
         self.assertEqual(
-            get_expression_references("bg_center[1]"), [("bg_center", (1,))]
+            get_indexed_names("bg_center[1]"), [("bg_center", (1,))]
         )
 
     def test_parameters_are_derived_and_ordered(self):
@@ -601,7 +533,7 @@ class TestSlotSyntax(SlotTestCase):
         ):
             with self.subTest(text=text):
                 with self.assertRaises(PipelineError):
-                    get_expression_references(text)
+                    get_indexed_names(text)
 
     def test_arity_is_a_rule_not_a_table(self):
         """Two of the three answers are constants."""
