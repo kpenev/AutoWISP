@@ -1569,8 +1569,8 @@ library is needed for it. Deferred rather than dismissed.
 > definition's header has nowhere to be written** -- the model holds a
 > slug name and an expression, and `sky_color[1,2]` is not a slug -- so
 > parameters are derived, full stop, and the checked header this section
-> proposed does not exist. And **the time is reached through bare references**,
-> which the subscript walk cannot see; it comes instead from the
+> proposed does not exist. And **the time is reached through bare
+> references**, which the subscript walk cannot see; it comes from the
 > channel-free set `order_expressions` already returns, which is complete
 > because nothing else can hide behind a bare name: reading a diagnostic
 > takes a subscript, and that would give the expression holding it a
@@ -2078,11 +2078,62 @@ browser:
    answer or fixed by the caller. That also retired a `COUNT(DISTINCT
    diagnostic_type.id)`: the unique index already forbids a duplicate
    within a group, so counting rows says the same thing.
-4. **The table and the round trip** — `image_diagnostics_views.py`,
-   `views.py`, a `_series_row.html` partial rendering **one** row (the unit
-   the response appends), and `diagnostics_app.js`. The slot `<select>`s
-   need `event.stopPropagation()`: the row listener fires for clicks on
-   descendants, so opening a dropdown would otherwise toggle the row.
+4. **Slots reach the browser interface.** Split in two, because the
+   halves are large and each has to leave the page working -- doing them
+   together would mean a commit in which nothing can be plotted.
+
+   **4a -- the server side, with the page unchanged.** Every quantity's
+   channels come from its arity rather than from the series, and the old
+   path dies.
+
+   - `check_expression` gains the refusals §What check_expression says
+     lists: a diagnostic read **bare** (say which channel), `jd` given a
+     subscript, an expression given one, a reference whose subscript count
+     does not match what it references, and a malformed subscript --
+     `get_expression_references` raises `PipelineError` for the last, so
+     it is caught and reported as a problem rather than escaping.
+   - **The old path goes**: `get_series_values` from tier 2,
+     `evaluate_expressions` from tier 1 (`_as_series` stays, being what
+     `evaluate_quantities` broadcasts with), and `TestEvaluation` with
+     them. Stored expressions written without subscripts stop validating,
+     which is intended -- the library is empty and unreleased.
+   - `get_series_data` builds `{quantity: channels}` -- `()` where the
+     arity is 0, `(series_key.channel,)` where it is 1 -- and calls
+     `get_quantity_values`.
+   - `get_available_expressions` additionally hides anything of arity
+     above 1: the table cannot bind a second channel yet, so offering one
+     would be offering something undrawable.
+   - `get_available_series` keeps its shape. While every offered quantity
+     binds at most one channel, `count_images_with_all` is still exactly
+     the right question, and the rows it returns are already keyed by a
+     one-channel tuple.
+   - Tests: the expressions in the view and series fixtures gain their
+     subscripts.
+
+   **4b -- the table and the round trip**, which is what lifts the arity
+   limit 4a imposes. `image_diagnostics_views.py`, `views.py`, a
+   `_series_row.html` partial rendering **one** row (the unit the response
+   appends), `diagnostics_app.html` and `diagnostics_app.js`.
+
+   - Dropdown columns from the axes' arities, x's then y's, concatenated
+     rather than merged; slot columns are `no-sort`.
+   - Rows arrive unbound, except where the session's camera defines a
+     single channel -- then the channel is text and the row arrives bound
+     with a count. No spare row once every possible binding is present.
+   - A partly bound row is inert: the client decides, since it can see
+     which of its dropdowns are empty, and asks the server only when a
+     change leaves a row **fully** bound.
+   - The response carries that row's count, the markup for one spare row
+     to append, and the figure -- never a re-render, so the table never
+     reorders and no row loses what was typed into it.
+   - Row ids become stable (`session|type|quantile|ordinal`) and the
+     **bindings post as their own field**; `SeriesKey` is built from
+     those. `update_plot_view` gains an optional `extra` merged into the
+     JSON response.
+   - `collect_series_data` skips rows that are unselected or not fully
+     bound; the slot `<select>`s need `event.stopPropagation()`, since the
+     row listener fires for clicks on descendants and opening a dropdown
+     would otherwise toggle the row.
 5. **Docs, meson, lint** — §8's section gains slots; §7's rule covers the
    new partial. No URL change is needed at any point: an axis is still
    named by a bare slug, because binding happens in the table rather than
