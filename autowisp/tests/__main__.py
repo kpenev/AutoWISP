@@ -127,6 +127,7 @@ from autowisp.tests.test_expression_series import (
     TestCanonicalImages,
     TestDiagnosticValues,
     TestSeriesValues,
+    TestCrossChannelValues,
     TestAvailability,
     TestTiedJulianDates,
 )

@@ -291,7 +291,9 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
         rows.extend(
             (
                 session_label,
-                SeriesKey(session_id, image_type, channel, quantile_name),
+                SeriesKey(
+                    session_id, image_type, (channel,), quantile_name
+                ),
                 count,
             )
             for session_label, session_id, image_type, channel, count in (

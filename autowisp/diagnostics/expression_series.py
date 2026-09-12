@@ -4,8 +4,8 @@ Tier 2 of the expression layer: it knows the project database and nothing
 else. Above it, the browser interface adds Django and a way of editing the
 library; below it, :mod:`autowisp.diagnostics.expressions` knows what an
 expression *means* and has no database at all. This module is the join
-between them -- it turns a session, image type and channel into the
-``{name: array}`` that tier 1 evaluates against.
+between them -- it turns a session, an image type and the channels a series
+binds into the ``{name: {channels: array}}`` that tier 1 evaluates against.
 
 Everything here is built on **one canonical image list per session and image
 type**, ordered by Julian date, with ``NaN`` wherever a value is not
@@ -13,11 +13,17 @@ recorded. Alignment is then structural: index *i* is the same image in every
 array, so two quantities need no join to be plotted against each other, and
 an aggregate is taken over one population rather than over a mixture of
 frame types.
+
+The list deliberately does not depend on the channel, which is what makes
+reading one diagnostic in several of them cheap: the columns arrive side by
+side against the same images, so a quantity comparing channels is ordinary
+arithmetic rather than a join.
 """
 
 from typing import NamedTuple
 
 from sqlalchemy import select, func
+from sqlalchemy.orm import aliased
 import numpy
 
 # False positive due to unusual importing
@@ -34,35 +40,54 @@ from autowisp.database.data_model import (
 from autowisp.diagnostics.diagnostic_types import time_quantity
 from autowisp.diagnostics.expressions import (
     evaluate_expressions,
+    evaluate_quantities,
+    get_needed_values,
     order_expressions,
 )
 
 
-class SeriesKey(NamedTuple):
+class _SeriesKeyFields(NamedTuple):
+    """The fields of a :class:`SeriesKey`, kept apart only to be checked.
+
+    ``typing.NamedTuple`` prohibits ``__new__`` and ``__init__`` in a class
+    body, so the check below cannot go there; deriving from this is what
+    gives :class:`SeriesKey` somewhere to put it.
+    """
+
+    session_id: int
+    image_type: str
+    channels: tuple
+    quantile_name: str = None
+
+
+class SeriesKey(_SeriesKeyFields):
     """What one series is, and what its id encodes.
 
     The image type is part of the key because a session holds frames of
     several types and a diagnostic rarely means the same thing across them
     -- some are only defined for object frames, and one recorded for both
     would have its aggregates taken over a mixture, making
-    ``nanmedian(bg_center)`` a median of object and flat frames together.
+    ``nanmedian(bg_center[1])`` a median of object and flat frames
+    together.
+
+    ``channels`` holds one channel per parameter of what the series draws,
+    in the order those parameters are numbered: one for an ordinary
+    diagnostic, several where an expression compares channels, and none for
+    a quantity over the time alone.
 
     Every function here takes one of these rather than the fields
     separately, so a caller cannot pair a channel with the wrong session by
     getting an argument order wrong.
 
     ``quantile_name`` is the odd one out: it says which ``pixel_q*`` a
-    series stands for when a caller has expanded the ``pixel_quantiles`` family
-    into one series per member, and by the time values are read the
+    series stands for when a caller has expanded the ``pixel_quantiles``
+    family into one series per member, and by the time values are read the
     quantity it selects is already a concrete name. Nothing in this module
-    consults it -- as nothing but the image list consults the channel -- but
-    it belongs to the identity of the series, and so to its id.
+    consults it -- as nothing but the image list consults the channels --
+    but it belongs to the identity of the series, and so to its id.
     """
 
-    session_id: int
-    image_type: str
-    channel: str
-    quantile_name: str = None
+    __slots__ = ()
 
     #: Separates the fields of an id.  Not the underscore the encoding used
     #: to use: ``pixel_q*`` names contain those, so unpacking had to guess
@@ -71,6 +96,51 @@ class SeriesKey(NamedTuple):
     #: none of them contain this one.  Not annotated, so it stays a class
     #: attribute rather than becoming a fifth field.
     id_separator = "|"
+
+    #: Separates the channels *within* that field, so an id keeps its four
+    #: parts however many channels a series binds -- and so a series
+    #: binding one encodes exactly as it did before there could be more.
+    channel_separator = ","
+
+    def __new__(cls, session_id, image_type, channels, quantile_name=None):
+        """
+        Build the key, refusing a bare string where a tuple belongs.
+
+        ``__new__`` rather than a check further on because it has to
+        *coerce* as well: bindings reach this from a JSON post as a list,
+        and a list in that field makes the key unhashable, which is how it
+        is used everywhere.
+
+        The string case is worth refusing loudly because it fails silently
+        and selectively: ``channels="R"`` leaves ``channels[0]`` reading
+        ``"R"`` and joins to the same id, so a one-character channel
+        behaves correctly, while ``"G1"`` becomes the two channels ``G``
+        and ``1`` somewhere much later.
+        """
+
+        if isinstance(channels, str):
+            raise TypeError(
+                f"channels={channels!r} is a string: a series binds a "
+                "*tuple* of channels, one per parameter of what it draws."
+            )
+        return super().__new__(
+            cls, session_id, image_type, tuple(channels), quantile_name
+        )
+
+    @property
+    def channel(self):
+        """
+        The one channel a whole series can be said to belong to, or ``""``.
+
+        There is not really such a thing once a series can bind several --
+        that is the point of ``channels`` -- but two things need one
+        anyway, and neither is about the data: the frame a click on a point
+        opens, and the colour the series is drawn in. Both take the first,
+        for want of a better answer. A series binding no channel at all has
+        none to give.
+        """
+
+        return self.channels[0] if self.channels else ""
 
     def to_id(self):
         """
@@ -81,36 +151,57 @@ class SeriesKey(NamedTuple):
         client posts back, so it has to survive that round trip unchanged.
 
         Raises:
-            ValueError:    If a field contains :data:`id_separator`, which
+            ValueError:    If any part contains either separator, which
                 would make the id ambiguous.  Worth failing on rather than
-                trusting, since a channel naming scheme is not this module's
-                to control and the alternative is plots that silently pair
-                the wrong data.
+                trusting, since a channel naming scheme is not this
+                module's to control and the alternative is plots that
+                silently pair the wrong data.
         """
 
-        fields = (
-            str(self.session_id),
+        parts = (
             self.image_type,
-            self.channel,
+            *self.channels,
             self.quantile_name or "",
         )
-        ambiguous = [field for field in fields if self.id_separator in field]
+        ambiguous = [
+            part
+            for part in parts
+            if self.id_separator in part or self.channel_separator in part
+        ]
         if ambiguous:
             raise ValueError(
-                f"Cannot build a series id from {fields!r}: "
-                f"{', '.join(repr(field) for field in ambiguous)} contains "
-                f"the {self.id_separator!r} that separates its fields."
+                f"Cannot build a series id from {parts!r}: "
+                f"{', '.join(repr(part) for part in ambiguous)} contains "
+                f"{self.id_separator!r} or {self.channel_separator!r}, "
+                "which separate its parts."
             )
-        return self.id_separator.join(fields)
+
+        return self.id_separator.join(
+            (
+                str(self.session_id),
+                self.image_type,
+                self.channel_separator.join(self.channels),
+                self.quantile_name or "",
+            )
+        )
 
     @classmethod
     def from_id(cls, series_id):
         """Return the key an id was built from, the inverse of `to_id`."""
 
-        session_id, image_type, channel, quantile_name = series_id.split(
+        session_id, image_type, channels, quantile_name = series_id.split(
             cls.id_separator
         )
-        return cls(int(session_id), image_type, channel, quantile_name or None)
+
+        return cls(
+            int(session_id),
+            image_type,
+            # Not ``"".split(",")``, which is one empty channel rather than
+            # none -- the difference between a series binding nothing and
+            # one binding a channel with no name.
+            tuple(channels.split(cls.channel_separator)) if channels else (),
+            quantile_name or None,
+        )
 
 
 def _of_one_type(series_key):
@@ -185,24 +276,99 @@ def get_canonical_images(series_key, db_session):
     )
 
 
-def get_diagnostic_values(series_key, names, db_session):
+def _diagnostic_values_query(series_key, names, channels):
     """
-    Return the named diagnostics for one series, NaN-padded and aligned.
+    Return the statement reading *names* in *channels* for one series.
+
+    Separate from running it so that what it asks the database for can be
+    inspected without a database: the predicates below are what keep this
+    affordable on an archive too large to scan, and they are this module's
+    to get right, unlike which index a particular server then chooses.
+
+    Args:
+        series_key(SeriesKey):    The series, for its session and type.
+
+        names(list):    The ``diagnostic_type`` names to read.
+
+        channels(list):    The channels to read them in, one outer join
+            each.
+
+    Returns:
+        The SQLAlchemy select, ordered by name and then canonically.
+    """
+
+    # One alias per channel, so a diagnostic wanted in several arrives as
+    # several columns of the one row rather than as several queries. Each
+    # pins all three columns of the unique index -- image, channel and
+    # diagnostic -- since dropping the channel would match every channel's
+    # row, which is both wrong and a scan.
+    reads = {channel: aliased(ImageDiagnostics) for channel in channels}
+
+    query = (
+        select(
+            Image.id,  # pylint: disable=no-member
+            Image.jd,  # pylint: disable=no-member
+            DiagnosticType.name,
+            *(reads[channel].value for channel in channels),
+        )
+        # Explicit, because diagnostic_type joins on no relation to any of
+        # the others and SQLAlchemy cannot pick the left side on its own.
+        .select_from(Image).join(
+            ImageType,
+            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
+        )
+        # No ON condition but the name filter: this is the cross join that
+        # turns "the values that exist" into "one row per image per name",
+        # which is what makes the result paddable.
+        .join(DiagnosticType, DiagnosticType.name.in_(names))
+    )
+
+    for channel in channels:
+        read = reads[channel]
+        query = query.join(
+            read,
+            (
+                (read.image_id == Image.id)  # pylint: disable=no-member
+                & (read.diagnostic_id == DiagnosticType.id)
+                & (read.channel == channel)
+            ),
+            isouter=True,
+        )
+
+    return (
+        query.where(*_of_one_type(series_key))
+        # Name first: the blocks the result is read back in are per name,
+        # and order_by appends rather than replaces, so a name added after
+        # the image order would sort within it instead of above it.
+        .order_by(DiagnosticType.name, *_image_order)
+    )
+
+
+def get_diagnostic_values(series_key, needed, db_session):
+    """
+    Return the wanted diagnostics for one series, NaN-padded and aligned.
 
     One query, and nothing to match up afterwards. A cross join pairs every
     wanted diagnostic with every image of the series, and an outer join
     attaches the values, leaving ``NULL`` where nothing was recorded -- so
     the padding is what the database returns rather than something assembled
     from it. The unique index on ``(image_id, channel, diagnostic_id)`` is
-    what makes that sound: no image contributes two rows for one diagnostic,
-    so the result is exactly one row per image per name.
+    what makes that sound: no image contributes two rows for one diagnostic
+    in one channel, so the result is exactly one row per image per name.
 
-    Being a rectangle is what lets the values become arrays in one step: the
-    column is read out whole and reshaped into one row per name, rather than
-    accumulated name by name. Each block's name is taken from its first row
-    rather than from a sorted list of the names asked for, so nothing
-    depends on the database's collation ordering strings the way Python
-    does.
+    **Several channels at once, still one query.** An expression comparing
+    channels needs the same diagnostic read more than once, so there is one
+    outer join per distinct channel, each with the channel pinned. That
+    keeps the result a rectangle -- the joins only widen it, adding a value
+    column per channel rather than rows -- and keeps every probe on the
+    unique index, whose second column is exactly what is being pinned.
+
+    Being a rectangle is what lets the values become arrays in one step: a
+    column is read out whole and reshaped into one row per name, rather
+    than accumulated name by name. Each block's name is taken from its
+    first row rather than from a sorted list of the names asked for, so
+    nothing depends on the database's collation ordering strings the way
+    Python does.
 
     The image ids come back alongside, because the same query already
     carries them and a caller that needs them should not have to ask again
@@ -211,90 +377,85 @@ def get_diagnostic_values(series_key, names, db_session):
     is asked for by name like anything else, and arrives in the dictionary.
 
     Args:
-        series_key(SeriesKey):    The series to read the values of.
+        series_key(SeriesKey):    The series to read the values of. Its
+            channels are not consulted; what to read in is *needed*, since
+            a quantity may be bound to channels other than the series'
+            own.
 
-        names:    The ``diagnostic_type`` names wanted. May include
-            :data:`time_quantity`, which is taken from the image row rather
-            than from ``image_diagnostics``.
+        needed(dict):    ``{name: set of channel tuples}``, from
+            :func:`~autowisp.diagnostics.expressions.get_needed_values`.
+            May include :data:`time_quantity` at the empty tuple, which is
+            taken from the image row rather than from ``image_diagnostics``.
 
         db_session:    An active SQLAlchemy database session.
 
     Returns:
         tuple:
-            dict:    An array per name, every one the length of the
-                canonical image list, ``NaN`` where the diagnostic is not
-                recorded. A name no ``diagnostic_type`` has is all ``NaN``.
+            dict:    ``{name: {channels: array}}``, keyed exactly as
+                *needed* asked, every array the length of the canonical
+                image list and ``NaN`` where nothing is recorded. A name no
+                ``diagnostic_type`` has is all ``NaN``.
 
             numpy.ndarray:    The image ids, in canonical order.
     """
 
-    wanted = set(names) - {time_quantity}
+    names = sorted(set(needed) - {time_quantity})
+    channels = sorted(
+        {
+            channel
+            for name in names
+            for combination in needed[name]
+            for channel in combination
+        }
+    )
 
-    if not wanted:
+    if not names:
         image_ids, jd_values = get_canonical_images(series_key, db_session)
         return (
-            {time_quantity: jd_values} if time_quantity in names else {},
+            {time_quantity: {(): jd_values}} if time_quantity in needed else {},
             image_ids,
         )
 
     rows = db_session.execute(
-        select(
-            Image.id,  # pylint: disable=no-member
-            Image.jd,  # pylint: disable=no-member
-            DiagnosticType.name,
-            ImageDiagnostics.value,
-        )
-        # Explicit, because diagnostic_type joins on no relation to any of
-        # the others and SQLAlchemy cannot pick the left side on its own.
-        .select_from(Image)
-        .join(
-            ImageType,
-            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
-        )
-        # No ON condition but the name filter: this is the cross join that
-        # turns "the values that exist" into "one row per image per name",
-        # which is what makes the result paddable.
-        .join(DiagnosticType, DiagnosticType.name.in_(wanted))
-        .join(
-            ImageDiagnostics,
-            (
-                # pylint: disable=no-member
-                (ImageDiagnostics.image_id == Image.id)
-                # pylint: enable=no-member
-                & (ImageDiagnostics.diagnostic_id == DiagnosticType.id)
-                & (ImageDiagnostics.channel == series_key.channel)
-            ),
-            isouter=True,
-        )
-        .where(*_of_one_type(series_key))
-        # Name first: the blocks this is read back in are per name, and
-        # order_by appends rather than replaces, so a name added after the
-        # image order would sort within it instead of above it.
-        .order_by(DiagnosticType.name, *_image_order)
+        _diagnostic_values_query(series_key, names, channels)
     ).all()
 
-    # From the rows rather than from len(wanted): a name no diagnostic_type
+    # From the rows rather than from len(names): a name no diagnostic_type
     # has contributes no block at all, and would otherwise throw the shape
     # out for every other name.
     blocks = len({row[2] for row in rows})
     per_block = len(rows) // blocks if blocks else 0
 
-    values = dict(
-        zip(
-            (rows[start][2] for start in range(0, len(rows), per_block or 1)),
-            numpy.fromiter(
-                (numpy.nan if row[3] is None else row[3] for row in rows),
-                dtype=float,
-                count=len(rows),
-            ).reshape(blocks or 0, per_block),
-        )
-    )
-    image_ids, jd_values = _as_arrays(rows[:per_block])
+    read_names = [
+        rows[start][2] for start in range(0, len(rows), per_block or 1)
+    ]
+    columns = {
+        channel: numpy.fromiter(
+            (
+                numpy.nan if row[3 + offset] is None else row[3 + offset]
+                for row in rows
+            ),
+            dtype=float,
+            count=len(rows),
+        ).reshape(blocks or 0, per_block)
+        for offset, channel in enumerate(channels)
+    }
 
-    for name in wanted - set(values):
-        values[name] = numpy.full(per_block, numpy.nan)
-    if time_quantity in names:
-        values[time_quantity] = jd_values
+    values = {
+        name: {
+            combination: (
+                columns[combination[0]][read_names.index(name)]
+                if name in read_names
+                else numpy.full(per_block, numpy.nan)
+            )
+            for combination in needed[name]
+        }
+        for name in names
+    }
+
+    image_ids, jd_values = _as_arrays(rows[:per_block])
+    if time_quantity in needed:
+        values[time_quantity] = {(): jd_values}
 
     return values, image_ids
 
@@ -341,10 +502,85 @@ def get_series_values(series_key, quantities, expressions, db_session):
             reference each other in a cycle.
     """
 
-    _, needed = order_expressions(quantities, expressions)
-    values, image_ids = get_diagnostic_values(series_key, needed, db_session)
+    _, names = order_expressions(quantities, expressions)
 
-    return evaluate_expressions(quantities, expressions, values), image_ids
+    # Every diagnostic in the series' own single channel, which is the whole
+    # of what an expression written without channel slots can mean.
+    #
+    # This exists for the *view* layer, not for stored data: the table
+    # binds one channel per series rather than per quantity, so there is
+    # nothing for it to pass until that changes, and this fills it in
+    # meanwhile. It is not a compatibility shim -- expressions written
+    # without subscripts are expected to be rewritten, the library being
+    # empty until someone types one -- and it goes, with
+    # ``evaluate_expressions``, when the table starts binding channels
+    # itself.
+    combination = {
+        name: () if name == time_quantity else (series_key.channel,)
+        for name in names
+    }
+
+    values, image_ids = get_diagnostic_values(
+        series_key,
+        {name: {channels} for name, channels in combination.items()},
+        db_session,
+    )
+
+    return (
+        evaluate_expressions(
+            quantities,
+            expressions,
+            # Indexed by what was asked for rather than taken as "the only
+            # one there", so that a fetch returning anything else says so.
+            {
+                name: by_channels[combination[name]]
+                for name, by_channels in values.items()
+            },
+        ),
+        image_ids,
+    )
+
+
+def get_quantity_values(series_key, wanted, expressions, db_session):
+    """
+    Return the quantities of one series as the table bound them.
+
+    The channel-slot counterpart of :func:`get_series_values`, and what
+    replaces it once the browser interface binds channels per quantity
+    rather than per series. Both axes are resolved together for the same
+    two reasons: one query for the union of what they read, and one
+    evaluation of anything they share.
+
+    Args:
+        series_key(SeriesKey):    The series to read the values of.
+
+        wanted(dict):    ``{quantity: channels}``, one channel per
+            parameter of that quantity.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        tuple:
+            dict:    ``{quantity: array}``, all of the same length, and
+                unmasked -- dropping the non-finite entries is the
+                caller's business, since the mask has to be taken across
+                both axes at once and the image ids masked with it.
+
+            numpy.ndarray:    The image ids that length runs over.
+
+    Raises:
+        PipelineError:    If a quantity names nothing, if the expressions
+            reference each other in a cycle, or if a binding is the wrong
+            length for what it binds.
+    """
+
+    values, image_ids = get_diagnostic_values(
+        series_key, get_needed_values(wanted, expressions), db_session
+    )
+
+    return evaluate_quantities(wanted, expressions, values), image_ids
 
 
 def count_images_with_all(needed, db_session):

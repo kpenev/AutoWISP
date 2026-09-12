@@ -2040,10 +2040,25 @@ browser:
    derived, in tier 1. Nothing in evaluation asks at all: a lookup
    resolves whatever subscript reaches it, and a wrong count cannot reach
    it because `check_expression` refused it.
-2. **`SeriesKey` and multi-channel fetching** — `expression_series.py`: the
-   `channels` tuple, the `,` sub-encoding, the aliased joins. `__new__` must
-   reject a bare `str`, or `channels="R"` would leave `channels[0]` working
-   while `",".join("R")` silently gave `"G,1"` for a two-character channel.
+2. **`SeriesKey` and multi-channel fetching — done.**
+   `expression_series.py`: the `channels` tuple, the `,` sub-encoding, the
+   aliased joins, and `get_quantity_values` beside the old
+   `get_series_values`, which stays until the table binds channels itself.
+
+   Refusing a bare `str` needs `__new__`, but `typing.NamedTuple` prohibits
+   both it and `__init__` in a class body, so the fields live in a private
+   base the public class derives from. `__new__` rather than a check
+   elsewhere because it has to *coerce* as well: bindings arrive from a
+   JSON post as a list, and a list in that field makes the key unhashable.
+
+   The query is built by a helper separate from running it, so a test can
+   assert **what it asks for** without a database: the session filter, and
+   all three columns of the unique index pinned per channel. Asserting the
+   *plan* instead would have been SQLite's answer to a question that only
+   matters on the MariaDB servers holding the large archives; when the
+   MariaDB CI job of `mariadb_pipeline_tests_plan.md` lands, an `EXPLAIN`
+   check belongs there. Index existence is already covered by
+   `test_database_migration.py`.
 3. **Counts** — the cross-channel aggregate, and the session anchor on
    `count_images_with_all`.
 4. **The table and the round trip** — `image_diagnostics_views.py`,

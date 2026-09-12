@@ -207,7 +207,7 @@ class TestSeriesId(unittest.TestCase):
     def test_plain_series(self):
         """No quantile: the field is empty rather than missing."""
 
-        key = SeriesKey(7, "object", "R")
+        key = SeriesKey(7, "object", ("R",))
         self.assertEqual(self.round_trip(*key), key)
 
     def test_quantile_series(self):
@@ -217,27 +217,27 @@ class TestSeriesId(unittest.TestCase):
         which underscores separated fields and which belonged to the name.
         """
 
-        key = SeriesKey(7, "object", "R", "pixel_q999")
+        key = SeriesKey(7, "object", ("R",), "pixel_q999")
         self.assertEqual(self.round_trip(*key), key)
 
     def test_underscores_anywhere_are_harmless(self):
         """Neither the channel nor the image type has to avoid them."""
 
-        key = SeriesKey(7, "twilight_flat", "odd_channel", "pixel_q999")
+        key = SeriesKey(7, "twilight_flat", ("odd_channel",), "pixel_q999")
         self.assertEqual(self.round_trip(*key), key)
 
     def test_an_ambiguous_field_is_refused(self):
         """Failing loudly beats an id that silently pairs wrong data."""
 
         with self.assertRaises(ValueError):
-            SeriesKey(7, "object", "we|rd").to_id()
+            SeriesKey(7, "object", ("we|rd",)).to_id()
 
     def test_the_image_type_is_part_of_the_identity(self):
         """Two types in one session must not collide on one id."""
 
         self.assertNotEqual(
-            SeriesKey(7, "object", "R").to_id(),
-            SeriesKey(7, "flat", "R").to_id(),
+            SeriesKey(7, "object", ("R",)).to_id(),
+            SeriesKey(7, "flat", ("R",)).to_id(),
         )
 
 
@@ -535,7 +535,7 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
         with start_db_session() as db_session:
             for image_type in ("object", "flat"):
                 image_ids, _ = get_canonical_images(
-                    SeriesKey(2, image_type, "R"), db_session
+                    SeriesKey(2, image_type, ("R",)), db_session
                 )
                 self.assertEqual(
                     image_ids.tolist(), self.images_of[1, image_type]
@@ -549,7 +549,9 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
         flats -- silently, and wrongly.
         """
 
-        series = self._series_for("jd", "bg_center")[SeriesKey(2, "flat", "R")]
+        series = self._series_for("jd", "bg_center")[
+            SeriesKey(2, "flat", ("R",))
+        ]
         with start_db_session() as db_session:
             _, y_values, image_ids = get_series_data(
                 series, "jd", "bg_center", {}, db_session
@@ -627,7 +629,9 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
     def test_the_values_are_the_expression_evaluated(self):
         """End to end: an expression axis produces its own numbers."""
 
-        series = self._series_for("jd", "rel_bg")[SeriesKey(2, "object", "R")]
+        series = self._series_for("jd", "rel_bg")[
+            SeriesKey(2, "object", ("R",))
+        ]
         with start_db_session() as db_session:
             _, y_values, _ = get_series_data(
                 series, "jd", "rel_bg", self.library, db_session
@@ -640,7 +644,7 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
         """Both axes at once, one of each kind, sharing a query."""
 
         series = self._series_for("bg_center", "rel_bg")[
-            SeriesKey(2, "object", "R")
+            SeriesKey(2, "object", ("R",))
         ]
         with start_db_session() as db_session:
             x_values, y_values, _ = get_series_data(
