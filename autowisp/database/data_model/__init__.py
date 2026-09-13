@@ -26,6 +26,13 @@ def timestamp_trigger_ddl(table, key_columns, dialect):
     :mod:`autowisp.database.migrate` reinstates them afterwards from here
     rather than from a copy of its own.
 
+    Table and column names are quoted, because some of them are reserved
+    words: ``condition`` is one in MariaDB, so ``ON condition`` is a syntax
+    error rather than a table reference.  SQLite reserves a different set
+    and forgave that one, which is why only the MariaDB job caught it --
+    and why quoting has to happen for both dialects rather than the one
+    that complained.
+
     Args:
         table(str):    Name of the table the trigger belongs to.
 
@@ -41,28 +48,37 @@ def timestamp_trigger_ddl(table, key_columns, dialect):
             this dialect needs no trigger or the table cannot have one.
     """
 
-    name = f"update_{table}_timestamp"
+    if dialect == "mysql":
+        quote = "`{}`".format
+    elif dialect == "sqlite":
+        quote = '"{}"'.format
+    else:
+        return None
+
+    name = quote(f"update_{table}_timestamp")
+    stamp = quote("timestamp")
+
     if dialect == "mysql":
         # Assigning to NEW in a BEFORE trigger writes the row once, so
-        # there is nothing to key on and no recursion to avoid.
+        # there is nothing to key on and no recursion to avoid -- and so
+        # no key columns to quote, only the table and the column written.
         return (
-            f"CREATE TRIGGER {name} BEFORE UPDATE ON {table} "
-            "FOR EACH ROW SET NEW.timestamp = CURRENT_TIMESTAMP"
+            f"CREATE TRIGGER {name} BEFORE UPDATE ON {quote(table)} "
+            f"FOR EACH ROW SET NEW.{stamp} = CURRENT_TIMESTAMP"
         )
-    if dialect == "sqlite":
-        if not key_columns:
-            return None
-        match = " AND ".join(
-            f"{column} = NEW.{column}" for column in key_columns
-        )
-        # SQLite has no BEFORE-UPDATE assignment, so the row is written a
-        # second time and has to be addressed by its key.
-        return (
-            f"CREATE TRIGGER {name} AFTER UPDATE ON {table} FOR EACH ROW "
-            f"BEGIN UPDATE {table} SET timestamp = CURRENT_TIMESTAMP "
-            f"WHERE {match}; END"
-        )
-    return None
+
+    if not key_columns:
+        return None
+    match = " AND ".join(
+        f"{quote(column)} = NEW.{quote(column)}" for column in key_columns
+    )
+    # SQLite has no BEFORE-UPDATE assignment, so the row is written a
+    # second time and has to be addressed by its key.
+    return (
+        f"CREATE TRIGGER {name} AFTER UPDATE ON {quote(table)} FOR EACH ROW "
+        f"BEGIN UPDATE {quote(table)} SET {stamp} = CURRENT_TIMESTAMP "
+        f"WHERE {match}; END"
+    )
 
 
 # TODO: merge with data_model/provenance/__init__.py

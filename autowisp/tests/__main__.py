@@ -56,6 +56,7 @@ from autowisp.tests.test_parse_config_overwrites import (
 from autowisp.tests.test_parameter_description_length import (
     TestParameterDescriptionLength,
 )
+from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
 from autowisp.tests.test_database_migration import (
     TestAdditiveMigrations,
     TestRevisionChain,
