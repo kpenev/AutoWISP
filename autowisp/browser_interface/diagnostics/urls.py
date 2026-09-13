@@ -93,6 +93,11 @@ urlpatterns = [
         name="import_expressions",
     ),
     path(
+        "expressions/import/confirm",
+        views.confirm_import_expressions,
+        name="confirm_import_expressions",
+    ),
+    path(
         "preview_calibrated/<int:image_id>/<slug:color_channel>",
         views.preview_calibrated_image,
         name="preview_calibrated_image",

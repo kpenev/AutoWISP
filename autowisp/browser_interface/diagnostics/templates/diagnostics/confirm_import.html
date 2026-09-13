@@ -1,0 +1,79 @@
+{% extends 'core/lcars_app.html' %}
+
+{% block header_title %}Confirm Import{% endblock header_title %}
+
+{% block app_title %}REPLACE EXPRESSIONS?{% endblock app_title %}
+
+{% block extra_head %}
+<style>
+ /* Expressions are code, and reading one depends on telling l from 1 --
+    which is the whole of what this page asks the user to do. */
+ .expression-text { font-family: monospace; }
+ .expression-stored { color: #f3c96b; }
+ button.lcars-element { border: none; font: inherit; font-weight: bold; }
+</style>
+{% endblock extra_head %}
+
+{% block left_menu %}
+{% comment %} Replacing is the only answer that does anything, so it is the
+   only button: keeping what is stored is leaving, and says so.
+{% endcomment %}
+<button type="submit"
+        form="confirm-import"
+        class="lcars-element button lcars-chestnut-rose-bg lcars-u-1-2">
+    Replace
+</button>
+
+<a href="{% url 'diagnostics:list_expressions' %}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Keep Stored
+    </div>
+</a>
+
+{{ block.super }}
+{% endblock left_menu %}
+
+{% block main %}
+<div id="active-area" class="lcars-column fill-space">
+    <p class="lcars-text" style="text-transform: none;">
+        The file names {{ clashes|length }} expression(s) you already have.
+        Everything else in it has been imported. Replacing keeps the file's
+        version of these; keeping stores nothing and leaves them as they
+        are.
+    </p>
+
+    <form id="confirm-import"
+          method="post"
+          action="{% url 'diagnostics:confirm_import_expressions' %}">
+        {% csrf_token %}
+        {% comment %} The whole of the pending import, carried by the page
+           that asks about it: an import abandoned here leaves nothing
+           behind to expire, and a second tab cannot answer for this one.
+        {% endcomment %}
+        <input type="hidden" name="clashes" value="{{ clashes_json }}">
+
+        <table class="lcars-table standard-header">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Stored now</th>
+                    <th>In the file</th>
+                    <th>Description in the file</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for clash in clashes %}
+                <tr>
+                    <td>{{ clash.name }}</td>
+                    <td class="expression-text expression-stored">
+                        {{ clash.stored }}
+                    </td>
+                    <td class="expression-text">{{ clash.incoming }}</td>
+                    <td>{{ clash.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+{% endblock main %}

@@ -30,6 +30,7 @@ from .expression_views import (
     delete_expressions,
     export_expressions,
     import_expressions,
+    confirm_import_expressions,
 )
 
 # pylint: enable=unused-import

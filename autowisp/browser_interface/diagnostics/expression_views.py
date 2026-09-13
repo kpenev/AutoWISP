@@ -450,6 +450,24 @@ def _staged_expressions(entries):
     return staged
 
 
+def _write_expressions(entries):
+    """Store *entries*, returning how many were new and how many replaced."""
+
+    added, updated = 0, 0
+    for name, entry in entries.items():
+        # pylint: disable=no-member
+        _, created = DiagnosticExpression.objects.update_or_create(
+            name=name, defaults=entry
+        )
+        # pylint: enable=no-member
+        if created:
+            added += 1
+        else:
+            updated += 1
+
+    return added, updated
+
+
 def import_expressions(request):
     """
     Add expressions from a JSON file written by :func:`export_expressions`.
@@ -458,6 +476,13 @@ def import_expressions(request):
     checked, so that expressions referencing each other validate whatever
     order they appear in.  Entries are then written one at a time, and one
     that does not validate is reported rather than aborting the rest.
+
+    A file naming an expression that already exists is the one thing this
+    cannot decide alone, so it asks: everything uncontested is written,
+    and the clashes go to :func:`confirm_import_expressions` with both
+    versions shown.  Asking only when it happens is why there is no
+    setting to get wrong beforehand -- one that is read once in a hundred
+    imports would be forgotten in the other ninety-nine.
     """
 
     assert request.method == "POST"
@@ -474,7 +499,6 @@ def import_expressions(request):
         messages.error(request, f"Not a diagnostic expression file: {error}.")
         return redirect("diagnostics:list_expressions")
 
-    overwrite = bool(request.POST.get("overwrite"))
     stored = get_expressions()
     # What each entry is checked against: the file laid over the library,
     # so an intra-file reference resolves whether or not its target has
@@ -484,42 +508,96 @@ def import_expressions(request):
         **{name: entry["expression"] for name, entry in staged.items()},
     )
 
-    added, updated, skipped, refused = 0, 0, [], []
+    fresh, clashing, refused = {}, {}, []
     for name, entry in staged.items():
         problems = check_expression(name, entry["expression"], library)
         if problems:
             refused.append(f"{name} ({' '.join(problems)})")
-        elif name in stored and not overwrite:
-            skipped.append(name)
+        elif name in stored:
+            clashing[name] = entry
         else:
-            # pylint: disable=no-member
-            _, created = DiagnosticExpression.objects.update_or_create(
-                name=name, defaults=entry
-            )
-            # pylint: enable=no-member
-            if created:
-                added += 1
-            else:
-                updated += 1
+            fresh[name] = entry
 
-    # Only what actually happened: "imported 0, updated 0" beside a list of
-    # what was kept instead says the same thing twice, the second time
+    added, _ = _write_expressions(fresh)
+
+    # Only what actually happened: "imported 0" beside a question about
+    # what to do with the rest says the same thing twice, the second time
     # wrongly.
-    if added or updated:
-        messages.info(
-            request, f"Imported {added} expression(s), updated {updated}."
-        )
+    if added:
+        messages.info(request, f"Imported {added} expression(s).")
     elif not staged:
         messages.info(request, "That file listed no expressions.")
-
-    if skipped:
-        messages.warning(
-            request,
-            "Kept the stored version of "
-            + ", ".join(sorted(skipped))
-            + "; tick 'overwrite existing' to replace them instead.",
-        )
     if refused:
         messages.error(request, "Refused " + "; ".join(sorted(refused)) + ".")
+
+    if not clashing:
+        return redirect("diagnostics:list_expressions")
+
+    return render(
+        request,
+        "diagnostics/confirm_import.html",
+        {
+            "clashes": [
+                {
+                    "name": name,
+                    "stored": stored[name],
+                    "incoming": entry["expression"],
+                    "description": entry["description"],
+                }
+                for name, entry in sorted(clashing.items())
+            ],
+            # Carried through the answer rather than kept server-side: the
+            # page is the whole of the pending state, so an abandoned
+            # import leaves nothing behind to expire or collide with a
+            # second tab's.
+            "clashes_json": json.dumps(clashing, sort_keys=True),
+        },
+    )
+
+
+def confirm_import_expressions(request):
+    """
+    Replace the stored expressions an import was asked about.
+
+    Reached only from :func:`import_expressions`' question, and only by
+    the answer that changes something -- keeping the stored versions is a
+    link back to the list, there being nothing to do.
+    """
+
+    assert request.method == "POST"
+
+    try:
+        clashing = _staged_expressions(
+            [
+                {"name": name, **entry}
+                for name, entry in json.loads(
+                    request.POST.get("clashes", "{}")
+                ).items()
+            ]
+        )
+    except (ValueError, AttributeError, TypeError) as error:
+        messages.error(request, f"Could not read what to replace: {error}.")
+        return redirect("diagnostics:list_expressions")
+
+    # Checked again rather than trusted: what comes back is a form field,
+    # and the library may have moved on while the question was open.
+    library = dict(
+        get_expressions(),
+        **{name: entry["expression"] for name, entry in clashing.items()},
+    )
+    writable, refused = {}, []
+    for name, entry in sorted(clashing.items()):
+        problems = check_expression(name, entry["expression"], library)
+        if problems:
+            refused.append(f"{name} ({' '.join(problems)})")
+        else:
+            writable[name] = entry
+
+    _, updated = _write_expressions(writable)
+
+    if updated:
+        messages.info(request, f"Replaced {updated} expression(s).")
+    if refused:
+        messages.error(request, "Refused " + "; ".join(refused) + ".")
 
     return redirect("diagnostics:list_expressions")

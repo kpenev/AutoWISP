@@ -41,14 +41,9 @@
       method="post">
     {% csrf_token %}
 
-    {% comment %} Above the button on purpose: choosing a file submits immediately,
-       so this has to be set first to be set at all.  Unticked means keep
-       what is stored. {% endcomment %}
-    <div class="lcars-text" style="text-transform: none;">
-        <input type="checkbox" name="overwrite" id="import-overwrite">
-        <label for="import-overwrite">overwrite existing</label>
-    </div>
-
+    {% comment %} No option to set beforehand: a file naming something
+       already stored is asked about when it happens, which is the only
+       time the answer means anything. {% endcomment %}
     <label for="expressions-import"
            class="lcars-element button lcars-husk-bg lcars-u-1-2">
         Import
