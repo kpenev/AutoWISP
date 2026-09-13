@@ -459,8 +459,8 @@ def get_slot_options(slot_needs, db_session):
 
     Returns:
         tuple:
-            dict:    ``{needed: {(session_id, image_type): {channel:
-                count}}}``, one entry per distinct set of needs.
+            dict:    One entry per distinct set of needs, holding
+                ``{(session_id, image_type): {channel: count}}``.
 
             dict:    ``{session_id: label}``, the same whatever is read.
     """

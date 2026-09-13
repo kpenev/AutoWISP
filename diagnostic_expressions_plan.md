@@ -2177,10 +2177,26 @@ browser:
      the fixture needs two channels and a camera of each kind, and
      giving the shared one a second channel would change what every
      other series-table test sees.
-5. **Docs, meson, lint** — §8's section gains slots; §7's rule covers the
-   new partial. No URL change is needed at any point: an axis is still
-   named by a bare slug, because binding happens in the table rather than
-   in the address.
+5. **Docs, meson, lint** — §7's rule covers the new partial. No URL
+   change is needed at any point: an axis is still named by a bare slug,
+   because binding happens in the table rather than in the address.
+
+   **§8's section has gained slots — done.** Every example in
+   `diagnostics.rst` was invalid the moment 4a landed, so the pass was
+   not optional: all of them now write the subscript, and a new part of
+   *Quantities of your own* says why the number is a slot rather than a
+   channel name (one library, many cameras, `B,G1,G2,R` here and
+   `B0,G0,G1,R0` there), that the numbers are arbitrary and only their
+   order counts, and that `jd` takes none. *Choosing what to draw*
+   describes the channel columns, the spare row a completed binding
+   summons, and the monochrome case that arrives bound.
+
+   The examples are checked rather than trusted: every expression the
+   page shows was run through `check_expression`, and the two the prose
+   calls out as bare aggregates are the two `get_bare_aggregates`
+   flags. `pixel_quantiles` on both axes needed correcting while there --
+   it is no longer only a diagonal, since the two columns may take
+   different channels.
 
    **`image_diagnostics_views.py` is split — done.** Stage 4b left it
    four hundred lines over pylint's 1000-line default, and the seam was
