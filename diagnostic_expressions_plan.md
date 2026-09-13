@@ -1546,20 +1546,26 @@ library is needed for it. Deferred rather than dismissed.
 
 ### 10. Channel slots
 
-> **Stages 1 to 4b are done; stage 5 is next.** Everything above works,
-> and the limitation this removes was found by using it: an expression
-> was evaluated *within one channel*, so the most useful cross-channel
-> quantity of all — the sky's colour — could not be written. Written as
-> its own section rather than folded into §1a/§3/§4 because it changes
-> the meaning of a *series*, which those three share.
+> **Done, and drawn in a browser.** The limitation this removed was found
+> by using it: an expression was evaluated *within one channel*, so the
+> most useful cross-channel quantity of all — the sky's colour — could
+> not be written. Written as its own section rather than folded into
+> §1a/§3/§4 because it changes the meaning of a *series*, which those
+> three share.
 >
 > Tier 1 reads subscripts, derives parameters, answers arity, walks what
 > has to be fetched, evaluates through `QuantityLookUp`, and refuses a
 > quantity read with the wrong number of slots. Tier 2 fetches and
 > evaluates by binding. The table offers a channel column per parameter of
 > each axis, binds them a row at a time, and grows a row whenever one is
-> completed. What remains is stage 5, and the manual pass below: nothing
-> here has yet been drawn in a browser.
+> completed.
+>
+> The manual pass found two things, neither of them in the plot itself.
+> A cached copy of the old script posted no channels and got Django's
+> error page back, which the client could only report as a JSON parse
+> failure — so a row binding nothing is now skipped rather than read.
+> And the import checkbox described below went, along with the idea of
+> asking in advance.
 >
 > The prototype that stood in for this is deleted, its cases now tests.
 >
@@ -2177,9 +2183,18 @@ browser:
      the fixture needs two channels and a camera of each kind, and
      giving the shared one a second channel would change what every
      other series-table test sees.
-5. **Docs, meson, lint** — §7's rule covers the new partial. No URL
-   change is needed at any point: an axis is still named by a bare slug,
-   because binding happens in the table rather than in the address.
+5. **Docs, meson, lint — done.** §7's rule covers the new partials. No
+   URL change was needed at any point: an axis is still named by a bare
+   slug, because binding happens in the table rather than in the address.
+
+   **The manual pass is done**, and the two things it found are recorded
+   at the head of this section. Both were outside the plot: a stale
+   script, and a question the interface was asking at the wrong time.
+   The table itself -- columns, counts, spare rows, the monochrome case
+   -- drew as designed. What has *not* been through a browser is what
+   came after the pass: the import confirmation page, and the split of
+   `image_diagnostics_views.py`, which is a refactor but a reinstalled
+   one.
 
    **§8's section has gained slots — done.** Every example in
    `diagnostics.rst` was invalid the moment 4a landed, so the pass was
@@ -2355,8 +2370,11 @@ two paths into one.
    pip install .
    wisp-bui            # runs manage.py migrate, then runserver
    ```
-   Hard-refresh the browser (cached JS/CSS), then, in a project that has been
-   through `find_stars` / `solve_astrometry` / `fit_star_shape`:
+   Hard-refresh the browser (cached JS/CSS) -- a stale script is what the
+   pass actually tripped over. The expressions below predate §10 and are
+   written without their channel slots; read them as `bg_center[0]` and
+   so on, which is what validation now requires. Then, in a project that
+   has been through `find_stars` / `solve_astrometry` / `fit_star_shape`:
    - Define `rel_astrom_residual = astrom_residual / diagonal_fov`; confirm it
      appears in both selectors and plots against `jd` with the right per-series
      counts.
