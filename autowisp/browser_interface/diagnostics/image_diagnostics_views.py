@@ -1157,8 +1157,11 @@ def collect_series_data(
             continue
         if not series.get("marker", "").strip():
             continue
+        # ``not channels`` as well as ``all``, which an empty list passes:
+        # a page whose script predates the channel columns posts none at
+        # all, and binding nothing is not a binding.
         channels = series.get("channels", ())
-        if not all(channels):
+        if not channels or not all(channels):
             continue
         x_values, y_values, image_ids = get_series_data(
             series, x_diagnostic, y_diagnostic, expressions, db_session

@@ -330,11 +330,15 @@ class TestTwoChannelRow(unittest.TestCase):
         )
 
     def test_which_rows_are_drawn(self):
-        """Every row is posted, so three of them have to be skipped here.
+        """Every row is posted, so four of them have to be skipped here.
 
-        An unbound row names no data at all; the other two are the user
-        saying not to draw it. Defaulting ``selected`` to true keeps a
-        payload stored before the table posted every row still plotting.
+        Two are the user saying not to draw it, and two name no data: a
+        row still to be bound, and one from a page whose script predates
+        the channel columns, which posts no channels at all. That last is
+        skipped rather than refused -- a stale page should draw nothing,
+        not turn the response into an error page. Defaulting ``selected``
+        to true keeps a payload stored before the table posted every row
+        still plotting.
         """
 
         rows = {
@@ -342,6 +346,7 @@ class TestTwoChannelRow(unittest.TestCase):
             "not selected": {"channels": ["R"], "selected": False},
             "no marker": {"channels": ["R"], "marker": " "},
             "not yet bound": {"channels": [""], "selected": True},
+            "from a page with no channel columns": {"channels": []},
             "from an older payload": {"channels": ["B"]},
         }
         series_list = [
