@@ -3,6 +3,7 @@ py_src = [
   'admin.py',
   'apps.py',
   'models.py',
+  'tests.py',
   'urls.py',
   'views.py'
 ]

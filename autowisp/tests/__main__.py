@@ -130,7 +130,6 @@ from autowisp.tests.test_expression_series import (
     TestSeriesValues,
     TestCrossChannelValues,
     TestCrossChannelCounts,
-    TestAvailability,
     TestTiedJulianDates,
 )
 from autowisp.tests.test_evaluator import (

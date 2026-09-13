@@ -39,7 +39,6 @@ from autowisp.diagnostics.expression_series import (
     count_images_with_channels,
     get_canonical_images,
     get_diagnostic_values,
-    get_expression_availability,
     get_quantity_values,
 )
 from autowisp.tests.test_diagnostics_views import DiagnosticsViewTestCase
@@ -334,33 +333,6 @@ class TestSeriesValues(SeriesValuesTestCase):
         self.assertEqual(
             list(values["scaled"][self.objects.channels]), [-10.0, 0.0, 10.0]
         )
-
-
-class TestAvailability(SeriesValuesTestCase):
-    """Which series an expression can be drawn for, counted in SQL."""
-
-    def test_it_counts_what_the_expression_reaches(self):
-        """An expression is available wherever its diagnostics are."""
-
-        with start_db_session() as db_session:
-            available = get_expression_availability(
-                "twice_bg", {"twice_bg": "bg_center[1] * 2"}, db_session
-            )
-            directly = count_images_with_all({"bg_center"}, db_session)
-
-        self.assertEqual(available, directly)
-
-    def test_a_quantile_expression_is_offered_for_objects_only(self):
-        """Only object frames record the quantiles in the fixture."""
-
-        with start_db_session() as db_session:
-            available = get_expression_availability(
-                "q_ratio",
-                {"q_ratio": "pixel_q999[1] / pixel_q99[1]"},
-                db_session,
-            )
-
-        self.assertEqual({row[2] for row in available}, {"object"})
 
 
 class TestCrossChannelValues(unittest.TestCase):

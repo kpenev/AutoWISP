@@ -205,7 +205,7 @@ todo_include_todos = True
 
 autodoc_default_flags = ["members", "undoc-members", "show-inheritance"]
 
-autodoc_mock_imports = ["autowisp.database.DbSource", "autowisp.Dump2hdf5"]
+autodoc_mock_imports = ["autowisp.database.DbSource"]
 
 # Napolean extension defined names.
 # pylint: disable=invalid-name

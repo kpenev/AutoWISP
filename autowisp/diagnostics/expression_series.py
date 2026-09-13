@@ -41,7 +41,6 @@ from autowisp.diagnostics.diagnostic_types import time_quantity
 from autowisp.diagnostics.expressions import (
     evaluate_quantities,
     get_needed_values,
-    order_expressions,
 )
 
 
@@ -595,33 +594,3 @@ def count_images_with_channels(requirements, db_session):
         False,
         db_session,
     )
-
-
-def get_expression_availability(name, expressions, db_session):
-    """
-    Return the series one expression can be plotted for, and how many images.
-
-    The count comes from the SQL aggregate rather than from evaluating
-    anything: the question is how many images record every diagnostic the
-    expression reaches, which is a question about rows. It is an upper bound
-    on the points drawn, since the arithmetic can still yield ``NaN``.
-
-    Args:
-        name(str):    The expression to report on.
-
-        expressions(dict):    The library, ``{name: expression}``.
-
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        list:    ``(session_label, session_id, image_type, channel, count)``
-            tuples, empty where the expression needs nothing recorded.
-
-    Raises:
-        PipelineError:    If the expression references a name that resolves
-            to nothing, or takes part in a cycle.
-    """
-
-    _, needed = order_expressions([name], expressions)
-
-    return count_images_with_all(needed, db_session)

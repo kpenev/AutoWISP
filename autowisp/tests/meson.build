@@ -1,3 +1,9 @@
+# Two files in this directory are deliberately not listed:
+# `generate_catalog_test_data.py` and `update_hdf5_contents.py`. Both are
+# tools for *making* and *manipulating* the test data rather than part of
+# the suite -- worth keeping in the repository and pointless to ship. An
+# audit comparing this list against the directory will flag them; they are
+# meant to be flagged and left.
 py_src = [
   '__init__.py',
   '__main__.py',
