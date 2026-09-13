@@ -20,6 +20,7 @@ from .image_diagnostics_views import (
     update_plot_view,
     download_plot_view,
     create_diagnostics_figure,
+    get_binding_response,
     plot_session_key,
 )
 from .preview_calibrated import preview_calibrated_image, get_image_overlay
@@ -52,6 +53,7 @@ def update_diagnostics_plot(request, x_diagnostic, y_diagnostic):
         request,
         create_diagnostics_figure,
         session_key=plot_session_key,
+        extra=get_binding_response,
         x_diagnostic=x_diagnostic,
         y_diagnostic=y_diagnostic,
         expressions=get_expressions(),

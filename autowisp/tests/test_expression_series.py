@@ -272,7 +272,7 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, image_ids = get_quantity_values(
                 self.objects,
-                {"jd": (), "bg_center": self.objects.channels},
+                {"jd": {()}, "bg_center": {self.objects.channels}},
                 {},
                 db_session,
             )
@@ -291,12 +291,14 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, _ = get_quantity_values(
                 self.objects,
-                {"rel_bg": self.objects.channels},
+                {"rel_bg": {self.objects.channels}},
                 {"rel_bg": "bg_center[1] - nanmedian(bg_center[1])"},
                 db_session,
             )
 
-        self.assertEqual(list(values["rel_bg"]), [-1.0, 0.0, 1.0])
+        self.assertEqual(
+            list(values["rel_bg"][self.objects.channels]), [-1.0, 0.0, 1.0]
+        )
 
     def test_both_axes_resolve_together(self):
         """Two quantities, one call -- the point of asking for both."""
@@ -304,13 +306,16 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, _ = get_quantity_values(
                 self.objects,
-                {"jd": (), "twice_bg": self.objects.channels},
+                {"jd": {()}, "twice_bg": {self.objects.channels}},
                 {"twice_bg": "bg_center[1] * 2"},
                 db_session,
             )
 
         self.assertEqual(sorted(values), ["jd", "twice_bg"])
-        self.assertEqual(list(values["twice_bg"]), [200.0, 202.0, 204.0])
+        self.assertEqual(
+            list(values["twice_bg"][self.objects.channels]),
+            [200.0, 202.0, 204.0],
+        )
 
     def test_a_composed_expression_resolves_its_dependency(self):
         """Tier 1 orders them; this checks the values reach it to do so."""
@@ -318,7 +323,7 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, _ = get_quantity_values(
                 self.objects,
-                {"scaled": self.objects.channels},
+                {"scaled": {self.objects.channels}},
                 {
                     "rel_bg": "bg_center[1] - nanmedian(bg_center[1])",
                     "scaled": "rel_bg[1] * 10",
@@ -326,7 +331,9 @@ class TestSeriesValues(SeriesValuesTestCase):
                 db_session,
             )
 
-        self.assertEqual(list(values["scaled"]), [-10.0, 0.0, 10.0])
+        self.assertEqual(
+            list(values["scaled"][self.objects.channels]), [-10.0, 0.0, 10.0]
+        )
 
 
 class TestAvailability(SeriesValuesTestCase):
@@ -481,6 +488,20 @@ class TestCrossChannelValues(unittest.TestCase):
             channels,
         )
 
+    def drawn(self, quantity, channels, expressions, db_session):
+        """Return one quantity's values, bound to *channels*.
+
+        Sugar for the usual case here: a series binding exactly what the
+        quantity is read in. Values come back keyed by quantity *and*
+        binding, since two axes may be one quantity in two channels.
+        """
+
+        values, _ = get_quantity_values(
+            self.key(channels), {quantity: {channels}}, expressions, db_session
+        )
+
+        return values[quantity][channels]
+
     def test_a_value_stays_with_its_own_image(self):
         """The gap moved through the column, one session per position.
 
@@ -517,35 +538,59 @@ class TestCrossChannelValues(unittest.TestCase):
         """
 
         with start_db_session() as db_session:
-            values, image_ids = get_quantity_values(
-                self.key(("R", "B")),
-                {"sky_color": ("R", "B")},
+            sky_color = self.drawn(
+                "sky_color",
+                ("R", "B"),
                 {"sky_color": "bg_center[1] / bg_center[2]"},
                 db_session,
             )
 
-        self.assertEqual(image_ids.size, len(self.values_of["R"]))
+        self.assertEqual(sky_color.size, len(self.values_of["R"]))
         numpy.testing.assert_allclose(
-            values["sky_color"],
+            sky_color,
             numpy.divide(
                 self.expected("R", self.hole), self.expected("B", self.hole)
             ),
             equal_nan=True,
         )
 
+    def test_one_diagnostic_read_in_two_channels(self):
+        """The plainest colour plot, with no expression in it at all.
+
+        Both axes are ``bg_center``, told apart only by what the table
+        bound each to. Asking per quantity rather than per binding would
+        keep one of them and draw it on both axes -- a diagonal line where
+        a colour-colour plot belongs.
+        """
+
+        with start_db_session() as db_session:
+            values, _ = get_quantity_values(
+                self.key(("R", "B")),
+                {"bg_center": {("R",), ("B",)}},
+                {},
+                db_session,
+            )
+
+        for channel in ("R", "B"):
+            numpy.testing.assert_allclose(
+                values["bg_center"][(channel,)],
+                self.expected(channel, self.hole),
+                equal_nan=True,
+            )
+
     def test_the_binding_decides_which_way_round(self):
         """The same expression, the channels swapped, is the reciprocal."""
 
         with start_db_session() as db_session:
-            values, _ = get_quantity_values(
-                self.key(("B", "R")),
-                {"sky_color": ("B", "R")},
+            sky_color = self.drawn(
+                "sky_color",
+                ("B", "R"),
                 {"sky_color": "bg_center[1] / bg_center[2]"},
                 db_session,
             )
 
         numpy.testing.assert_allclose(
-            values["sky_color"],
+            sky_color,
             numpy.divide(
                 self.expected("B", self.hole), self.expected("R", self.hole)
             ),
@@ -561,9 +606,9 @@ class TestCrossChannelValues(unittest.TestCase):
         """
 
         with start_db_session() as db_session:
-            values, _ = get_quantity_values(
-                self.key(("R", "B")),
-                {"relative": ("R", "B")},
+            relative = self.drawn(
+                "relative",
+                ("R", "B"),
                 {
                     "relative": (
                         "nanmedian(bg_center[1]) - nanmedian(bg_center[2])"
@@ -573,7 +618,7 @@ class TestCrossChannelValues(unittest.TestCase):
             )
 
         numpy.testing.assert_allclose(
-            values["relative"], [2.0] * len(self.values_of["R"])
+            relative, [2.0] * len(self.values_of["R"])
         )
 
     def test_a_channel_never_recorded_is_undefined(self):
@@ -584,14 +629,14 @@ class TestCrossChannelValues(unittest.TestCase):
         """
 
         with start_db_session() as db_session:
-            values, _ = get_quantity_values(
-                self.key(("R", self.missing_channel)),
-                {"sky_color": ("R", self.missing_channel)},
+            sky_color = self.drawn(
+                "sky_color",
+                ("R", self.missing_channel),
                 {"sky_color": "bg_center[1] / bg_center[2]"},
                 db_session,
             )
 
-        self.assertTrue(numpy.all(numpy.isnan(values["sky_color"])))
+        self.assertTrue(numpy.all(numpy.isnan(sky_color)))
 
     def test_two_axes_of_different_kinds_resolve_in_one_query(self):
         """A plain diagnostic against a cross-channel expression.
@@ -612,16 +657,16 @@ class TestCrossChannelValues(unittest.TestCase):
             try:
                 values, image_ids = get_quantity_values(
                     self.key(("R", "B")),
-                    {"bg_center": ("R",), "sky_color": ("R", "B")},
+                    {"bg_center": {("R",)}, "sky_color": {("R", "B")}},
                     {"sky_color": "bg_center[1] / bg_center[2]"},
                     db_session,
                 )
             finally:
                 event.remove(db_session.bind, "before_cursor_execute", record)
 
-        self.assertEqual(list(values["bg_center"]), self.values_of["R"])
+        self.assertEqual(list(values["bg_center"][("R",)]), self.values_of["R"])
         numpy.testing.assert_allclose(
-            values["sky_color"],
+            values["sky_color"][("R", "B")],
             numpy.divide(
                 self.expected("R", self.hole), self.expected("B", self.hole)
             ),

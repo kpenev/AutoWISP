@@ -8,6 +8,7 @@ py_src = [
   'test_bui_models.py',
   'test_calibrate.py',
   'test_catalog.py',
+  'test_channel_binding.py',
   'test_crash_report.py',
   'test_create_lightcurves.py',
   'test_database_migration.py',

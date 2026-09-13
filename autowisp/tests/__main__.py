@@ -116,13 +116,14 @@ from autowisp.tests.test_error_context import (
     TestNestingGuard,
 )
 from autowisp.tests.test_diagnostics_views import (
-    TestSeriesId,
+    TestRowId,
     TestQuantileSeriesExpansion,
     TestSharedTimeOffset,
     TestSeriesGrouping,
     TestImageTypeSplit,
     TestExpressionAxis,
 )
+from autowisp.tests.test_channel_binding import TestTwoChannelRow
 from autowisp.tests.test_expression_series import (
     TestCanonicalImages,
     TestDiagnosticValues,

@@ -15,6 +15,11 @@ canonical image list so that index *i* is the same image in every one of
 them -- belongs to the layer above.
 """
 
+# Over pylint's 1000-line default, and left there: the split that suggests
+# itself -- reading expression text apart from evaluating it -- would put
+# most of the reading half on the evaluating half's import list.
+# pylint: disable=too-many-lines
+
 import ast
 import functools
 import re
@@ -82,8 +87,8 @@ def get_indexed_names(expression):
     """
     Return what one expression reads, and in which channel slots.
 
-    A slot is written as a subscript -- ``bg_center[1]``, or
-    ``sky_color[1,2]`` for a quantity taking two -- and the numbers are
+    A slot is written as a subscript -- ``bg_center[0]``, or
+    ``sky_color[0,1]`` for a quantity taking two -- and the numbers are
     that expression's own formal parameters, bound to real channels only
     when something is plotted. So this reports the *shape* of what the
     text asks for, and says nothing about channels.
@@ -94,7 +99,7 @@ def get_indexed_names(expression):
     Returns:
         list:    ``(name, slots)`` pairs in the order they appear, *slots*
             always a tuple however many were written. Repeats are kept:
-            ``sky_color[1,2] - sky_color[2,3]`` reads one name at two
+            ``sky_color[0,1] - sky_color[1,2]`` reads one name at two
             different slot pairs, which is the whole point of the
             parameters being formal.
 
@@ -132,7 +137,7 @@ def get_indexed_names(expression):
         ):
             raise PipelineError(
                 f"{ast.unparse(node)!r} does not name a channel slot: a "
-                "slot is written as a whole number, as in bg_center[1].",
+                "slot is written as a whole number, as in bg_center[0].",
                 details={"subscript": ast.unparse(node)},
             )
         references.append((node.value.id, slots))
@@ -150,7 +155,7 @@ def _get_bare_names(expression):
     tree = ast.parse(expression, mode="eval")
 
     # The nodes rather than their ids: one name may be read both ways, and
-    # ``bg_center[1] - bg_center`` has to report the second.
+    # ``bg_center[0] - bg_center`` has to report the second.
     subscripted = {
         node.value
         for node in ast.walk(tree)
@@ -170,8 +175,8 @@ def get_expression_parameters(expression):
 
     Derived from the body rather than declared: the parameters *are* the
     slot numbers it mentions, so there is nothing to keep in step and
-    nothing extra to store. ``bg_center[1] / bg_center[2]`` takes ``(1,
-    2)``; ``sky_color[1,2] - sky_color[2,3]`` takes ``(1, 2, 3)``.
+    nothing extra to store. ``bg_center[0] / bg_center[1]`` takes ``(0,
+    1)``; ``sky_color[0,1] - sky_color[1,2]`` takes ``(0, 1, 2)``.
 
     Sorted, which is what makes the order well defined when a body writes
     its slots out of sequence -- and the order matters, since a reference's
@@ -731,18 +736,20 @@ def get_needed_values(wanted, expressions):
     diagnostics.
 
     Args:
-        wanted(dict):    ``{quantity: channels}``, one channel per
-            parameter of that quantity.
+        wanted(dict):    ``{quantity: set of channel tuples}``, each tuple
+            holding one channel per parameter of that quantity. A *set*
+            because one quantity may be wanted at two bindings at once:
+            ``bg_center`` in R against ``bg_center`` in B is a plot of a
+            diagnostic between channels.
 
         expressions(dict):    The library, ``{name: expression}``.
 
     Returns:
-        dict:    ``{name: set of channel tuples}`` -- one entry per
-            diagnostic read, holding every combination it is read in, plus
-            :data:`time_quantity` with the empty tuple where an expression
-            reads the time. Keyed the same way throughout, so what this
-            asks for and what an evaluation touches can be compared
-            directly.
+        dict:    ``{name: set of channel tuples}`` -- the same shape it
+            takes, which is what it means: what is wanted, resolved into
+            what must be read. One entry per diagnostic, holding every
+            combination it is read in, plus :data:`time_quantity` with the
+            empty tuple where an expression reads the time.
 
     Raises:
         PipelineError:    On a reference cycle, on a name that resolves to
@@ -755,20 +762,19 @@ def get_needed_values(wanted, expressions):
 
     needed = {}
 
-    # The time is the one quantity read without a subscript -- it binds no
-    # channel -- so the walk below, which follows subscripts, never reaches
-    # it, and a reference to it can be several expressions away:
-    # ``bg_center[1] * night`` reads it only through ``night``. No walk is
-    # needed to find it, though, precisely because it takes no channel:
-    # order_expressions already reports it, having flattened bare and
-    # subscripted names alike. And nothing else can hide behind a bare
-    # reference, since reading a diagnostic takes a subscript, which would
-    # give the expression holding it a parameter of its own.
+    # The time is the one quantity read without a subscript, so the walk
+    # below never reaches it however deep it lies: ``bg_center[0] * night``
+    # reads it only through ``night``. Taking no channel is also why no
+    # walk is needed -- order_expressions already reports it, having
+    # flattened bare and subscripted names alike -- and why nothing else
+    # can hide behind a bare reference, reading a diagnostic taking a
+    # subscript that would give its expression a parameter.
     if time_quantity in channel_free:
         needed[time_quantity] = {()}
 
-    for quantity, channels in wanted.items():
-        _visit_needed(quantity, tuple(channels), expressions, needed)
+    for quantity, bindings in wanted.items():
+        for channels in bindings:
+            _visit_needed(quantity, tuple(channels), expressions, needed)
 
     return needed
 
@@ -787,10 +793,10 @@ def evaluate_quantities(wanted, expressions, values):
     Evaluate the quantities of one series, each bound to its channels.
 
     Args:
-        wanted(dict):    ``{quantity: channels}``, one channel per
-            parameter of that quantity, as the table bound them. Asking
-            for both axes at once is what lets an instantiation they share
-            be computed once.
+        wanted(dict):    ``{quantity: set of channel tuples}``, as the
+            table bound them and as :func:`get_needed_values` takes them.
+            Asking for both axes at once is what lets an instantiation
+            they share be computed once.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -799,7 +805,9 @@ def evaluate_quantities(wanted, expressions, values):
             :func:`get_needed_values` asked for and keyed the same way.
 
     Returns:
-        dict:    ``{quantity: array}``, all of the same length.
+        dict:    ``{quantity: {channels: array}}``, all of the same
+            length -- the shape *values* arrives in, being the same kind
+            of thing: a quantity read in the channels asked for.
 
     Raises:
         PipelineError:    If a quantity resolves to nothing, if the
@@ -819,8 +827,13 @@ def evaluate_quantities(wanted, expressions, values):
     count = _canonical_length(values)
 
     return {
-        quantity: _as_series(lookups[quantity].at(tuple(channels)), count)
-        for quantity, channels in wanted.items()
+        quantity: {
+            tuple(channels): _as_series(
+                lookups[quantity].at(tuple(channels)), count
+            )
+            for channels in bindings
+        }
+        for quantity, bindings in wanted.items()
     }
 
 
@@ -888,7 +901,7 @@ def _slot_problems(expression, library):
             continue
         arity = get_quantity_arity(referenced, library)
         if arity:
-            sample = ", ".join(str(slot) for slot in range(1, arity + 1))
+            sample = ", ".join(str(slot) for slot in range(arity))
             problems.append(
                 f"{referenced} takes {_spell_slots(arity)}, so it cannot be "
                 f"read on its own: write {referenced}[{sample}]."

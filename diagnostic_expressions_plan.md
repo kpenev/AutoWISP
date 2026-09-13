@@ -1546,20 +1546,20 @@ library is needed for it. Deferred rather than dismissed.
 
 ### 10. Channel slots
 
-> **Stages 1 to 4a are done; 4b is next.** Everything above works, and the
-> limitation this removes was found by using it: an expression is evaluated
-> *within one channel*, so the most useful cross-channel quantity of all —
-> the colour of the sky — cannot be written. Written as its own section
-> rather than folded into §1a/§3/§4 because it changes the meaning of a
-> *series*, which those three share.
+> **Stages 1 to 4b are done; stage 5 is next.** Everything above works,
+> and the limitation this removes was found by using it: an expression
+> was evaluated *within one channel*, so the most useful cross-channel
+> quantity of all — the sky's colour — could not be written. Written as
+> its own section rather than folded into §1a/§3/§4 because it changes
+> the meaning of a *series*, which those three share.
 >
 > Tier 1 reads subscripts, derives parameters, answers arity, walks what
-> has to be fetched, evaluates through `QuantityLookUp`, and now refuses a
+> has to be fetched, evaluates through `QuantityLookUp`, and refuses a
 > quantity read with the wrong number of slots. Tier 2 fetches and
-> evaluates by binding, the old per-series path having gone. The plot page
-> passes a binding per quantity, but the table still binds one channel per
-> **row**, so a cross-channel expression validates and cannot yet be drawn
-> — the state 4b ends, and the reason nothing is pushed before it does.
+> evaluates by binding. The table offers a channel column per parameter of
+> each axis, binds them a row at a time, and grows a row whenever one is
+> completed. What remains is stage 5, and the manual pass below: nothing
+> here has yet been drawn in a browser.
 >
 > The prototype that stood in for this is deleted, its cases now tests.
 >
@@ -1863,9 +1863,11 @@ Two consequences worth stating:
   bound parameter, in the order the table shows them. It is built from the
   posted bindings rather than unpacked from the series id — see *the round
   trip* below for why the id stops carrying them, and what that costs.
-  `to_id`'s loud failure on a field containing the separator stays: it is
-  the guard that stops a camera's channel naming scheme producing an
-  ambiguous key.
+  Once the id no longer carries them, tier 2 has no id at all: `to_id` and
+  `from_id` went with the channels, and what a *row* is called became the
+  browser interface's business, which is the only place it was ever used.
+  Its loud failure on a field containing the separator went with it — the
+  row id keeps that guard, now over the image type and the quantile.
 - Counts stay SQL aggregates, per *Series table semantics*, and split into
   two questions: what a slot may be bound to (today's
   `count_images_with_all`, filling the dropdown options) and how many images
@@ -2138,10 +2140,63 @@ browser:
      bound; the slot `<select>`s need `event.stopPropagation()`, since the
      row listener fires for clicks on descendants and opening a dropdown
      would otherwise toggle the row.
+
+   **What 4b settled that the design had not.**
+
+   - **What is wanted is a binding *set* per quantity**, not a binding.
+     The plainest cross-channel plot of all is `bg_center` against
+     `bg_center` in another channel, and a mapping from quantity to
+     channels cannot hold it: the second axis silently replaces the
+     first, and the figure draws one binding twice -- a diagonal line,
+     with nothing anywhere to say so. So `get_needed_values` and
+     `evaluate_quantities` take `{quantity: {channels, ...}}` and
+     `evaluate_quantities` returns `{quantity: {channels: array}}`,
+     which is the shape `values` already had: what is wanted, resolved
+     into what must be read, in one shape throughout.
+   - **Slot numbers are suggested from zero**, following Python, which
+     the subscript borrows its spelling from. Nothing enforces it -- the
+     numbers are formal parameters, and `bg_center[3] / bg_center[7]` is
+     as valid as ever -- so this is what the messages and the docs
+     write, not a rule.
+   - **Columns are positional, and named for their axis**: `x:
+     bg_center`, or `y: sky_color[3]` where an axis binds several, since
+     two axes may name one quantity. What the walk reports is the
+     *column* each diagnostic is read in, so a definition's own
+     numbering never has to line up with anything.
+   - **The spare row is decided on the server**, from what every row
+     posted: one is sent when the bound row is the last of its group and
+     the group's bindings are not all present. The client needs no
+     memory of which rows were bound when, and rebinding an older row
+     summons nothing, there being a spare below it already.
+   - **A colour and a label follow the binding only until they are
+     touched**: each input carries what it was rendered with, and the
+     response replaces it only where the two still agree.
+   - Deciding the spare is kept apart from rendering it, so that the
+     rule is testable where every other rule in the module is -- without
+     Django. `test_channel_binding.py` is a second test module because
+     the fixture needs two channels and a camera of each kind, and
+     giving the shared one a second channel would change what every
+     other series-table test sees.
 5. **Docs, meson, lint** — §8's section gains slots; §7's rule covers the
    new partial. No URL change is needed at any point: an axis is still
    named by a bare slug, because binding happens in the table rather than
    in the address.
+
+   **Split `image_diagnostics_views.py`**, which stage 4b left four
+   hundred lines over pylint's 1000-line default. The seam is already
+   visible in the file: the series table -- row ids, slots, options,
+   counts, availability and the binding response -- on one side, and the
+   figure with the Django views on the other. The first half knows what
+   a row means and never draws; the second draws and never asks what is
+   available. Neither is a browser-interface tier of its own: both sit
+   above tier 2 and below Django's URL layer, so this is one module
+   outgrowing its file rather than a new layer.
+
+   `expressions.py` is four lines over and keeps a `too-many-lines`
+   disable instead. The split that suggests itself there -- reading
+   expression text apart from evaluating it -- would put most of the
+   reading half on the evaluating half's import list, which is a worse
+   file than a long one.
 
 Five checks are worth naming because they fail silently otherwise: that
 `sky_color[1,2] - sky_color[2,3]` really instantiates the same expression

@@ -487,6 +487,18 @@ class SlotTestCase(unittest.TestCase):
 
         return evaluate_quantities(wanted, self.library, self.fetch(wanted))
 
+    def evaluate_one(self, quantity, channels):
+        """Return the values of a single instantiation.
+
+        Sugar for the common case: everything takes and returns one
+        binding *set* per quantity, which is what lets two axes be one
+        quantity in two channels, and most cases here want neither.
+        """
+
+        return self.evaluate({quantity: {tuple(channels)}})[quantity][
+            tuple(channels)
+        ]
+
 
 class TestSlotSyntax(SlotTestCase):
     """Reading channel slots out of an expression."""
@@ -560,7 +572,20 @@ class TestNeededValues(SlotTestCase):
         """The channels come from resolving each reference's arguments."""
 
         self.assertEqual(
-            self.needed({"silly": ("B", "R", "G0")}),
+            self.needed({"silly": {("B", "R", "G0")}}),
+            {"bg_center": {("B",), ("R",), ("G0",)}},
+        )
+
+    def test_one_quantity_asked_for_at_two_bindings(self):
+        """Both are walked, neither replacing the other.
+
+        The two axes of a plot may be one quantity read in two channels --
+        which is how a diagnostic is compared between them -- so what is
+        wanted cannot be one binding per quantity.
+        """
+
+        self.assertEqual(
+            self.needed({"sky_color": {("B", "R"), ("R", "G0")}}),
             {"bg_center": {("B",), ("R",), ("G0",)}},
         )
 
@@ -568,7 +593,7 @@ class TestNeededValues(SlotTestCase):
         """``inner[2,1]`` reads the outer binding reversed."""
 
         self.assertEqual(
-            self.needed({"outer": ("R", "B")}),
+            self.needed({"outer": {("R", "B")}}),
             {"bg_center": {("R",), ("B",)}},
         )
 
@@ -580,7 +605,7 @@ class TestNeededValues(SlotTestCase):
         """
 
         self.assertEqual(
-            self.needed({"mixed": ("B",)}),
+            self.needed({"mixed": {("B",)}}),
             {time_quantity: {()}, "bg_center": {("B",)}},
         )
 
@@ -594,7 +619,7 @@ class TestNeededValues(SlotTestCase):
         for channels in (("B",), ("B", "R", "G0")):
             with self.subTest(channels=channels):
                 with self.assertRaises(PipelineError):
-                    self.needed({"sky_color": channels})
+                    self.needed({"sky_color": {channels}})
 
 
 class TestSlotEvaluation(SlotTestCase):
@@ -609,7 +634,7 @@ class TestSlotEvaluation(SlotTestCase):
         """``sky_color`` is B/R in one term and R/G0 in the other."""
 
         numpy.testing.assert_allclose(
-            self.evaluate({"silly": ("B", "R", "G0")})["silly"],
+            self.evaluate_one("silly", ("B", "R", "G0")),
             self.bg["B"] / self.bg["R"] - self.bg["R"] / self.bg["G0"],
         )
 
@@ -622,7 +647,7 @@ class TestSlotEvaluation(SlotTestCase):
         """
 
         numpy.testing.assert_allclose(
-            self.evaluate({"outer": ("R", "B")})["outer"],
+            self.evaluate_one("outer", ("R", "B")),
             self.bg["B"] / self.bg["R"] + self.bg["R"],
         )
 
@@ -647,14 +672,31 @@ class TestSlotEvaluation(SlotTestCase):
     def test_both_axes_at_once_share_their_instantiations(self):
         """Which is why the two are resolved in one call, not one each."""
 
-        drawn = self.evaluate({"sky_color": ("B", "R"), "twice": ("B", "R")})
-        numpy.testing.assert_allclose(drawn["twice"], 2 * drawn["sky_color"])
+        drawn = self.evaluate(
+            {"sky_color": {("B", "R")}, "twice": {("B", "R")}}
+        )
+        numpy.testing.assert_allclose(
+            drawn["twice"][("B", "R")], 2 * drawn["sky_color"][("B", "R")]
+        )
+
+    def test_one_diagnostic_drawn_in_two_channels(self):
+        """``bg_center`` against ``bg_center``, which is a colour plot.
+
+        Both come back, told apart by the binding that asked for each. A
+        result keyed by quantity alone would hold one of them and draw it
+        on both axes, which looks like a perfectly good plot.
+        """
+
+        drawn = self.evaluate({"bg_center": {("B",), ("R",)}})
+
+        numpy.testing.assert_allclose(drawn["bg_center"][("B",)], self.bg["B"])
+        numpy.testing.assert_allclose(drawn["bg_center"][("R",)], self.bg["R"])
 
     def test_a_quantity_over_the_time_alone(self):
         """Written bare, there being no channel to subscript it with."""
 
         numpy.testing.assert_allclose(
-            self.evaluate({"night": ()})["night"], self.jd - self.jd.min()
+            self.evaluate_one("night", ()), self.jd - self.jd.min()
         )
 
     def test_a_chain_of_channel_free_expressions(self):
@@ -666,7 +708,7 @@ class TestSlotEvaluation(SlotTestCase):
         """
 
         numpy.testing.assert_allclose(
-            self.evaluate({"scaled_night": ()})["scaled_night"],
+            self.evaluate_one("scaled_night", ()),
             2 * (self.jd - self.jd.min()),
         )
 
@@ -674,7 +716,7 @@ class TestSlotEvaluation(SlotTestCase):
         """``mixed`` subscripts one quantity and reads another bare."""
 
         numpy.testing.assert_allclose(
-            self.evaluate({"mixed": ("B",)})["mixed"],
+            self.evaluate_one("mixed", ("B",)),
             self.bg["B"] * (self.jd - self.jd.min()),
         )
 
@@ -682,7 +724,7 @@ class TestSlotEvaluation(SlotTestCase):
         """One channel, no expression, and the same call resolves it."""
 
         numpy.testing.assert_allclose(
-            self.evaluate({"bg_center": ("R",)})["bg_center"], self.bg["R"]
+            self.evaluate_one("bg_center", ("R",)), self.bg["R"]
         )
 
     def test_only_what_is_reached_is_built(self):
@@ -693,8 +735,10 @@ class TestSlotEvaluation(SlotTestCase):
         values nobody asked for.
         """
 
-        self.assertNotIn(time_quantity, self.fetch({"silly": ("B", "R", "G0")}))
-        self.evaluate({"silly": ("B", "R", "G0")})
+        self.assertNotIn(
+            time_quantity, self.fetch({"silly": {("B", "R", "G0")}})
+        )
+        self.evaluate_one("silly", ("B", "R", "G0"))
 
     def test_an_unfetched_channel_is_reported(self):
         """A miss means the walk and the fetch disagree, which is a fault
@@ -702,7 +746,7 @@ class TestSlotEvaluation(SlotTestCase):
 
         with self.assertRaises(PipelineError):
             evaluate_quantities(
-                {"sky_color": ("B", "R")},
+                {"sky_color": {("B", "R")}},
                 self.library,
                 {"bg_center": {("B",): self.bg["B"]}},
             )

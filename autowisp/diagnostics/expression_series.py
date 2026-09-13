@@ -60,13 +60,13 @@ class _SeriesKeyFields(NamedTuple):
 
 
 class SeriesKey(_SeriesKeyFields):
-    """What one series is, and what its id encodes.
+    """What one series is: a population of images and a binding.
 
     The image type is part of the key because a session holds frames of
     several types and a diagnostic rarely means the same thing across them
     -- some are only defined for object frames, and one recorded for both
     would have its aggregates taken over a mixture, making
-    ``nanmedian(bg_center[1])`` a median of object and flat frames
+    ``nanmedian(bg_center[0])`` a median of object and flat frames
     together.
 
     ``channels`` holds one channel per parameter of what the series draws,
@@ -83,23 +83,10 @@ class SeriesKey(_SeriesKeyFields):
     family into one series per member, and by the time values are read the
     quantity it selects is already a concrete name. Nothing in this module
     consults it -- as nothing but the image list consults the channels --
-    but it belongs to the identity of the series, and so to its id.
+    but it belongs to the identity of the series.
     """
 
     __slots__ = ()
-
-    #: Separates the fields of an id.  Not the underscore the encoding used
-    #: to use: ``pixel_q*`` names contain those, so unpacking had to guess
-    #: which underscores were separators, and adding a field would have made
-    #: the guess wrong.  A session id, a channel and a diagnostic name can
-    #: none of them contain this one.  Not annotated, so it stays a class
-    #: attribute rather than becoming a fifth field.
-    id_separator = "|"
-
-    #: Separates the channels *within* that field, so an id keeps its four
-    #: parts however many channels a series binds -- and so a series
-    #: binding one encodes exactly as it did before there could be more.
-    channel_separator = ","
 
     def __new__(cls, session_id, image_type, channels, quantile_name=None):
         """
@@ -140,67 +127,6 @@ class SeriesKey(_SeriesKeyFields):
         """
 
         return self.channels[0] if self.channels else ""
-
-    def to_id(self):
-        """
-        Return the opaque string identifying this series to a client.
-
-        The browser interface makes it an HTML element id, builds four more
-        element ids from it, and keys by it the ``datasets`` object the
-        client posts back, so it has to survive that round trip unchanged.
-
-        Raises:
-            ValueError:    If any part contains either separator, which
-                would make the id ambiguous.  Worth failing on rather than
-                trusting, since a channel naming scheme is not this
-                module's to control and the alternative is plots that
-                silently pair the wrong data.
-        """
-
-        parts = (
-            self.image_type,
-            *self.channels,
-            self.quantile_name or "",
-        )
-        ambiguous = [
-            part
-            for part in parts
-            if self.id_separator in part or self.channel_separator in part
-        ]
-        if ambiguous:
-            raise ValueError(
-                f"Cannot build a series id from {parts!r}: "
-                f"{', '.join(repr(part) for part in ambiguous)} contains "
-                f"{self.id_separator!r} or {self.channel_separator!r}, "
-                "which separate its parts."
-            )
-
-        return self.id_separator.join(
-            (
-                str(self.session_id),
-                self.image_type,
-                self.channel_separator.join(self.channels),
-                self.quantile_name or "",
-            )
-        )
-
-    @classmethod
-    def from_id(cls, series_id):
-        """Return the key an id was built from, the inverse of `to_id`."""
-
-        session_id, image_type, channels, quantile_name = series_id.split(
-            cls.id_separator
-        )
-
-        return cls(
-            int(session_id),
-            image_type,
-            # Not ``"".split(",")``, which is one empty channel rather than
-            # none -- the difference between a series binding nothing and
-            # one binding a channel with no name.
-            tuple(channels.split(cls.channel_separator)) if channels else (),
-            quantile_name or None,
-        )
 
 
 def _of_one_type(series_key):
@@ -474,8 +400,10 @@ def get_quantity_values(series_key, wanted, expressions, db_session):
     Args:
         series_key(SeriesKey):    The series to read the values of.
 
-        wanted(dict):    ``{quantity: channels}``, one channel per
-            parameter of that quantity.
+        wanted(dict):    ``{quantity: set of channel tuples}``, each tuple
+            holding one channel per parameter of that quantity. A set of
+            them because the two axes may be one quantity read in two
+            channels, which is how a diagnostic is compared between them.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -483,10 +411,10 @@ def get_quantity_values(series_key, wanted, expressions, db_session):
 
     Returns:
         tuple:
-            dict:    ``{quantity: array}``, all of the same length, and
-                unmasked -- dropping the non-finite entries is the
-                caller's business, since the mask has to be taken across
-                both axes at once and the image ids masked with it.
+            dict:    ``{quantity: {channels: array}}``, all of the same
+                length, and unmasked -- dropping the non-finite entries is
+                the caller's business, since the mask has to be taken
+                across both axes at once and the image ids masked with it.
 
             numpy.ndarray:    The image ids that length runs over.
 
