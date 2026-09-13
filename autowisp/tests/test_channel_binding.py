@@ -39,9 +39,11 @@ from autowisp.database.data_model.provenance import (
 # pylint: enable=no-name-in-module
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     collect_series_data,
+    get_series_data,
+)
+from autowisp.browser_interface.diagnostics.series_table import (
     get_available_series,
     get_axes_slot_needs,
-    get_series_data,
     get_slot_options,
     make_row_id,
     plan_spare_row,

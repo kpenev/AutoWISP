@@ -20,9 +20,9 @@ from .image_diagnostics_views import (
     update_plot_view,
     download_plot_view,
     create_diagnostics_figure,
-    get_binding_response,
     plot_session_key,
 )
+from .series_table import get_binding_response
 from .preview_calibrated import preview_calibrated_image, get_image_overlay
 from .expression_views import (
     list_expressions,

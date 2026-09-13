@@ -31,7 +31,7 @@ from autowisp.diagnostics.expressions import (
 
 from .expression_data import get_expressions
 from .forms import DiagnosticExpressionForm
-from .image_diagnostics_views import get_recorded_diagnostics
+from .series_table import get_recorded_diagnostics
 from .models import DiagnosticExpression
 
 #: Marks an export file as ours and says which shape it is in.  A file

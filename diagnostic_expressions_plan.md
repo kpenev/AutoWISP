@@ -2182,15 +2182,20 @@ browser:
    named by a bare slug, because binding happens in the table rather than
    in the address.
 
-   **Split `image_diagnostics_views.py`**, which stage 4b left four
-   hundred lines over pylint's 1000-line default. The seam is already
-   visible in the file: the series table -- row ids, slots, options,
-   counts, availability and the binding response -- on one side, and the
-   figure with the Django views on the other. The first half knows what
-   a row means and never draws; the second draws and never asks what is
-   available. Neither is a browser-interface tier of its own: both sit
-   above tier 2 and below Django's URL layer, so this is one module
-   outgrowing its file rather than a new layer.
+   **`image_diagnostics_views.py` is split — done.** Stage 4b left it
+   four hundred lines over pylint's 1000-line default, and the seam was
+   already visible in the file: everything from the row id to the
+   binding response went to `series_table.py` (909 lines), and
+   `get_series_data` onwards stayed (581). The halves came out
+   contiguous, so the move was a slice rather than a rearrangement.
+
+   The boundary is the *Scaling* rule made structural: the table half
+   never evaluates an expression and never draws, because there is a row
+   per observing session and image type and evaluating one to fill the
+   table would be work proportional to the whole image collection. Every
+   question it answers is a SQL aggregate. The figure half evaluates and
+   draws, and asks the other what is available. Neither is a new tier:
+   both sit above tier 2 and below Django's URL layer.
 
    `expressions.py` is four lines over and keeps a `too-many-lines`
    disable instead. The split that suggests itself there -- reading

@@ -47,13 +47,15 @@ from autowisp.diagnostics.expression_series import (
 from autowisp.exceptions import PipelineError
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     create_diagnostics_figure,
+    get_series_data,
+    group_series_by_x_overlap,
+)
+from autowisp.browser_interface.diagnostics.series_table import (
     get_available_diagnostics,
     get_available_expressions,
     get_available_series,
     get_recorded_diagnostics,
-    get_series_data,
     get_series_key,
-    group_series_by_x_overlap,
     make_row_id,
     split_row_id,
 )

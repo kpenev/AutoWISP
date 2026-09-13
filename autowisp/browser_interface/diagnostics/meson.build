@@ -9,6 +9,7 @@ py_src = [
   'image_diagnostics_views.py',
   'models.py',
   'preview_calibrated.py',
+  'series_table.py',
   'tests.py',
   'urls.py',
   'views.py',
