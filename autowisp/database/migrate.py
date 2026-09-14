@@ -20,8 +20,6 @@ singular Alembic APIs are used throughout: ``get_current_revision`` and
 ``get_current_head`` rather than their plural counterparts. Both raise if a
 fork ever reaches them, which is the behaviour wanted -- a fork is a mistake
 to surface, not a state to support.
-
-See ``project_db_migrations_plan.md`` for the reasoning.
 """
 
 import os

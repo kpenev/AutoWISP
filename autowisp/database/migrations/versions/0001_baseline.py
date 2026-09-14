@@ -8,7 +8,7 @@ its own and its true age is unknowable (the installed AutoWISP version
 describes the code, not the database). Rather than trying to identify what a
 project is, ``migrate_project()`` brings it to a known state with
 ``apply_additive_migrations()`` and stamps it here, then applies everything
-that follows. See ``project_db_migrations_plan.md``.
+that follows.
 """
 
 # revision identifiers, used by Alembic.
