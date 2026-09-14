@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from os import environ, path
 from pathlib import Path
+from unittest import mock
 
 _browser_interface = Path(__file__).resolve().parents[1] / "browser_interface"
 if str(_browser_interface) not in sys.path:
@@ -25,7 +26,11 @@ class DbConfigTestCase(unittest.TestCase):
     """Base giving each test an empty data directory and no environment."""
 
     def setUp(self):
+        # Closed by addCleanup rather than by a context manager, setUp
+        # having nothing to wrap.
+        # pylint: disable=consider-using-with
         self._tmp = tempfile.TemporaryDirectory()
+        # pylint: enable=consider-using-with
         self.data_dir = self._tmp.name
         self._saved = environ.pop(db_config.url_env_var, None)
         self.addCleanup(self._tmp.cleanup)
@@ -104,6 +109,22 @@ class TestDefaultDatabase(DbConfigTestCase):
 class TestUrlTranslation(DbConfigTestCase):
     """A URL becomes Django's DATABASES dictionary."""
 
+    def translate(self, url):
+        """Return the ``default`` entry *url* maps to, driver aside.
+
+        Whether a driver can be loaded is :class:`TestMysqlDriver`'s
+        question, and it is stubbed out here so that this one -- pure
+        string handling -- is answered everywhere rather than only where a
+        driver happens to be installed. Which is one cell of the test
+        grid: ``pip install .`` brings neither ``mysqlclient`` nor
+        ``pymysql``, a MySQL browser-interface database being an option
+        rather than the default.
+        """
+
+        environ[db_config.url_env_var] = url
+        with mock.patch.object(db_config, "_ensure_mysql_driver"):
+            return db_config.get_databases(self.data_dir)["default"]
+
     def test_sqlite_url_supplies_the_path(self):
         """An explicit SQLite file may live outside the data directory."""
 
@@ -117,10 +138,9 @@ class TestUrlTranslation(DbConfigTestCase):
     def test_mysql_url_is_mapped_field_by_field(self):
         """The spelling matches the project database's own URLs."""
 
-        environ[db_config.url_env_var] = (
+        databases = self.translate(
             "mysql+pymysql://someone:secret@db.example.org:3307/autowisp_bui"
         )
-        databases = db_config.get_databases(self.data_dir)["default"]
         self.assertEqual(databases["ENGINE"], "django.db.backends.mysql")
         self.assertEqual(databases["NAME"], "autowisp_bui")
         self.assertEqual(databases["USER"], "someone")
@@ -131,10 +151,7 @@ class TestUrlTranslation(DbConfigTestCase):
     def test_mariadb_uses_the_same_backend(self):
         """MariaDB is MySQL as far as Django is concerned."""
 
-        environ[db_config.url_env_var] = (
-            "mariadb+pymysql://u:p@host/autowisp_bui"
-        )
-        databases = db_config.get_databases(self.data_dir)["default"]
+        databases = self.translate("mariadb+pymysql://u:p@host/autowisp_bui")
         self.assertEqual(databases["ENGINE"], "django.db.backends.mysql")
         self.assertEqual(databases["PORT"], "")
 
