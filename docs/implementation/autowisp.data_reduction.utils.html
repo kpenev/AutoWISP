@@ -209,12 +209,12 @@ _add_shapefit_sources().</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>result_tree</strong> (<em>astrowisp.IOTree</em>) – The tree to extract quantities to
 add.</p></li>
-<li><p><strong>num_sources</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of sources (assumed to be ththe
+<li><p><strong>num_sources</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of sources (assumed to be ththe
 length of all datasets).</p></li>
 <li><p><strong>skip_quantities</strong> (<em>compiled rex matcher</em>) – Quantities matching this
 regular expression will not be added to the DR file by this
 function.</p></li>
-<li><p><strong>image_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – For quantities which are split by image, only
+<li><p><strong>image_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – For quantities which are split by image, only
 the values associated to this image index will be added.</p></li>
 </ul>
 </dd>
@@ -278,11 +278,11 @@ dependence.</p>
 <li><p><strong>apphot_result_tree</strong> – (astrowisp.IOTree):    The tree which
 was passed to the :class:astrowisp.SubPixPhot instance which did
 the aperture photometry (i.e. where the results were added).</p></li>
-<li><p><strong>num_sources</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of sources for which aperture
+<li><p><strong>num_sources</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of sources for which aperture
 photometry was done. The same as the number of sources the star
 shape fitting which was used by the aperture photometry was
 performed on for the photometered image.</p></li>
-<li><p><strong>num_apertures</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of apertures for which photometry
+<li><p><strong>num_apertures</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of apertures for which photometry
 was extracted.</p></li>
 </ul>
 </dd>
@@ -301,9 +301,9 @@ was extracted.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>shape_fit_result_tree</strong> (<em>astrowisp.IOTree</em>) – The return
 value of a successful call of astrowisp.FitStarShape.fit().</p></li>
-<li><p><strong>num_sources</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of surces used in the fit (used to
+<li><p><strong>num_sources</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of surces used in the fit (used to
 determine the expected size of datasets).</p></li>
-<li><p><strong>image_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index of the image whose DR file is being
+<li><p><strong>image_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index of the image whose DR file is being
 filled within the input list of images passed to PSF/PRF
 fitting.</p></li>
 <li><p><strong>fit_variables</strong> (<em>iterable</em>) – The variables that were used in the
@@ -336,12 +336,12 @@ fit in the order in which they appear in the tree.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tree</strong> (<em>astrowisp.IOTree</em>) – The tree to fill.</p></li>
-<li><p><strong>shapefit_version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the star shape fit results
+<li><p><strong>shapefit_version</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the star shape fit results
 stored in the file to use when initializing the tree.</p></li>
-<li><p><strong>srcproj_version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the projected sources to
+<li><p><strong>srcproj_version</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the projected sources to
 assume was used for shape fitting, and to use for aperture
 photometry.</p></li>
-<li><p><strong>background_version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the background extraction
+<li><p><strong>background_version</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the background extraction
 to assume was used for shape fitting, and to use for aperture
 photometry.</p></li>
 </ul>
@@ -350,7 +350,7 @@ photometry.</p></li>
 <dd class="field-even"><p>The number of sources added to the tree.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -376,7 +376,7 @@ passable to that method through dict unpacking.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>

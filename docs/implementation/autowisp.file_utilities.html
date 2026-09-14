@@ -171,9 +171,10 @@
 <span id="autowisp-file-utilities-module"></span><h1>autowisp.file_utilities module<a class="headerlink" href="#module-autowisp.file_utilities" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-57997f9090a33fa131460b2a77327eac9a3bbcb0.png" alt="Inheritance diagram of Evaluator, partial" usemap="#inheritance091635f925" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-7fd7836bce1a0990a2571648975a65fc24626a5b.png" alt="Inheritance diagram of Evaluator, partial" usemap="#inheritance091635f925" class="inheritance graphviz" /></div>
 <map id="inheritance091635f925" name="inheritance091635f925">
-<area shape="rect" id="node2" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="5,80,195,107"/>
+<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="5,80,225,107"/>
+<area shape="rect" id="node2" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="20,155,210,181"/>
 </map><p>A collection of functions for finding files to process.</p>
 </section>
 <dl class="py function">
@@ -183,13 +184,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
+<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
 search for suitable files. For directories, images with ‘.fits’ or
 ‘fits.fz’ extensions are selected.</p></li>
-<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
+<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
 images that evaluates to True/False if a particular image from the
 specified image collection should/should not be processed.</p></li>
-<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
+<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
 images or just their top level.</p></li>
 <li><p><strong>search_wildcards</strong> (<em>str iter</em>) – Filename wildcards to search for.</p></li>
 </ul>
@@ -208,13 +209,13 @@ given condition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
+<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
 search for suitable files. For directories, images with ‘.fits’ or
 ‘fits.fz’ extensions are selected.</p></li>
-<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
+<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
 images that evaluates to True/False if a particular image from the
 specified image collection should/should not be processed.</p></li>
-<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
+<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
 images or just their top level.</p></li>
 <li><p><strong>search_wildcards</strong> (<em>str iter</em>) – Filename wildcards to search for.</p></li>
 </ul>
@@ -233,13 +234,13 @@ given condition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
+<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
 search for suitable files. For directories, images with ‘.fits’ or
 ‘fits.fz’ extensions are selected.</p></li>
-<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
+<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
 images that evaluates to True/False if a particular image from the
 specified image collection should/should not be processed.</p></li>
-<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
+<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
 images or just their top level.</p></li>
 <li><p><strong>search_wildcards</strong> (<em>str iter</em>) – Filename wildcards to search for.</p></li>
 </ul>
@@ -264,13 +265,13 @@ given condition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
+<li><p><strong>data_collection</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of directories or individual images to
 search for suitable files. For directories, images with ‘.fits’ or
 ‘fits.fz’ extensions are selected.</p></li>
-<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
+<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Expression involving the header of the
 images that evaluates to True/False if a particular image from the
 specified image collection should/should not be processed.</p></li>
-<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
+<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should directories be searched recursively for
 images or just their top level.</p></li>
 <li><p><strong>search_wildcards</strong> (<em>str iter</em>) – Filename wildcards to search for.</p></li>
 </ul>
@@ -289,10 +290,10 @@ given condition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_collection</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A set of patterns passed directly to glob to
+<li><p><strong>data_collection</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A set of patterns passed directly to glob to
 search for suitable files.</p></li>
-<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should inputs globs be searched recursively?</p></li>
-<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – See find_data_fnames()</p></li>
+<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should inputs globs be searched recursively?</p></li>
+<li><p><strong>include_condition</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – See find_data_fnames()</p></li>
 </ul>
 </dd>
 <dt class="field-even">Yields<span class="colon">:</span></dt>

@@ -166,7 +166,7 @@
   <h1>Source code for autowisp.database.data_model.provenance.telescope_type</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Define the telescope type dataset table for the pipeline&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Float</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Double</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">relationship</span>
 
@@ -195,10 +195,10 @@
         <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The version of the telescope&quot;</span>
     <span class="p">)</span>
     <span class="n">f_ratio</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">Float</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The focal ratio of the telescope&quot;</span>
+        <span class="n">Double</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The focal ratio of the telescope&quot;</span>
     <span class="p">)</span>
     <span class="n">focal_length</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">Float</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The focal length of the telescope in mm&quot;</span>
+        <span class="n">Double</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The focal length of the telescope in mm&quot;</span>
     <span class="p">)</span>
     <span class="n">notes</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>

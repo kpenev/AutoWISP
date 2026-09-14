@@ -261,13 +261,15 @@ def create_plot(session_detrending):
             label=photref_info["label"],
         )
         gaia_ids = data.index if hasattr(data, "index") else data["ID"]
-        collection.set_urls([
-            reverse(
-                "results:display_lightcurve_for_star",
-                kwargs={"gaia_id": int(gid)},
-            )
-            for gid in gaia_ids
-        ])
+        collection.set_urls(
+            [
+                reverse(
+                    "results:display_lightcurve_for_star",
+                    kwargs={"gaia_id": int(gid)},
+                )
+                for gid in gaia_ids
+            ]
+        )
 
     axes.set_yscale("log")
 

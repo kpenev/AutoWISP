@@ -197,7 +197,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.initialize_database.StepCreator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">StepCreator</span></span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#StepCreator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.StepCreator" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <div class="graphviz"><img src="../_images/inheritance-fcfcf7517b18e3655a24cb828f187eb3788bab16.png" alt="Inheritance diagram of autowisp.database.initialize_database.StepCreator" usemap="#inheritance30bb9c2be6" class="inheritance graphviz" /></div>
 <map id="inheritance30bb9c2be6" name="inheritance30bb9c2be6">
 <area shape="rect" id="node1" href="#autowisp.database.initialize_database.StepCreator" target="_top" title="Add steps to the database one by one." alt="" coords="5,5,321,32"/>
@@ -220,6 +220,10 @@
 <dt class="sig sig-object py" id="autowisp.database.initialize_database._init_diagnostic_types">
 <span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">_init_diagnostic_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#_init_diagnostic_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database._init_diagnostic_types" title="Link to this definition"></a></dt>
 <dd><p>Pre-populate the diagnostic_names table with known diagnostics.</p>
+<p>The catalogue itself lives in
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#module-autowisp.diagnostics.diagnostic_types" title="autowisp.diagnostics.diagnostic_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.diagnostic_types</span></code></a>, because validating a
+diagnostic expression needs to know the names without opening any
+project. This function’s job is only to write the rows.</p>
 </dd></dl>
 
 <dl class="py function">

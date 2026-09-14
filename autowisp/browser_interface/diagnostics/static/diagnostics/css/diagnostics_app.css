@@ -41,6 +41,41 @@
     background-color: #99f;
 }
 
+/* Sort indicators for sortable.min.js.  Its own stylesheet is a theme
+ * rather than a set of indicators -- zebra stripes, a grey header
+ * background, its own border-spacing and padding -- all of which would
+ * fight LCARS, so only these arrow rules are taken from it.  The selectors
+ * are the upstream ones unchanged, so an upgrade stays a diff of one file;
+ * no further scoping is needed, since the .sortable class is itself the
+ * opt-in and a table without it is left alone.
+ */
+.sortable thead th:not(.no-sort) {
+    cursor: pointer;
+}
+
+.sortable thead th:not(.no-sort)::after {
+    margin-left: 0.25rem;
+    /* Reserves the arrow's width at all times, so sorting a column does
+     * not shift the header row sideways.
+     */
+    color: transparent;
+    content: "\25b8";
+}
+
+.sortable thead th:not(.no-sort):hover::after {
+    color: inherit;
+}
+
+.sortable thead th:not(.no-sort)[aria-sort="ascending"]::after {
+    color: inherit;
+    content: "\25b4";
+}
+
+.sortable thead th:not(.no-sort)[aria-sort="descending"]::after {
+    color: inherit;
+    content: "\25be";
+}
+
 #diagnostics-display {
     flex: 1;
     overflow: auto;

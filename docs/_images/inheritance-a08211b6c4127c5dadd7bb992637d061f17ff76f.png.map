@@ -1,0 +1,5 @@
+<map id="inheritancea1edfe50cf" name="inheritancea1edfe50cf">
+<area shape="rect" id="node1" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="5,5,344,32"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_database_migration.TestConcurrentMigration" target="_top" title="Two migrators racing on one database must not corrupt or crash it." alt="" coords="111,80,510,107"/>
+<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="368,5,525,32"/>
+</map>

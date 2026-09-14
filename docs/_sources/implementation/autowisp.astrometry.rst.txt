@@ -15,6 +15,5 @@ Submodules
    autowisp.astrometry.astrometry
    autowisp.astrometry.astrometry_max_mag_estimate
    autowisp.astrometry.astrometry_net_client
-   autowisp.astrometry.healpix_utilities
    autowisp.astrometry.map_projections
    autowisp.astrometry.transformation

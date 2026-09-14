@@ -22,7 +22,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.tests.test_exception_hierarchy module" href="autowisp.tests.test_exception_hierarchy.html" />
+    <link rel="next" title="autowisp.tests.test_evaluator module" href="autowisp.tests.test_evaluator.html" />
     <link rel="prev" title="autowisp.tests.test_error_persistence module" href="autowisp.tests.test_error_persistence.html" /> 
 </head>
 
@@ -172,7 +172,7 @@
 <span id="autowisp-tests-test-error-render-module"></span><h1>autowisp.tests.test_error_render module<a class="headerlink" href="#module-autowisp.tests.test_error_render" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-e9893b705a8288d5066a21a8b9cd03d2db37a034.png" alt="Inheritance diagram of Error, FileKind, Image, PipelineError, RelatedFile, StackToMasterError, TestErrorCounts, TestErrorDetail, TestErrorListRows, TestErrorSummary, TestFormatDetailText, ViewError, _RenderTestCase, datetime, timezone" usemap="#inheritance5826a9dfed" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-681e988a1ef1dc59eae542260a094ddf2d1b6a24.png" alt="Inheritance diagram of Error, FileKind, Image, PipelineError, RelatedFile, StackToMasterError, TestErrorCounts, TestErrorDetail, TestErrorListRows, TestErrorSummary, TestFormatDetailText, ViewError, _RenderTestCase, datetime, timezone" usemap="#inheritance5826a9dfed" class="inheritance graphviz" /></div>
 <map id="inheritance5826a9dfed" name="inheritance5826a9dfed">
 <area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="224,304,554,331"/>
 <area shape="rect" id="node5" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="110,379,373,405"/>
@@ -187,7 +187,7 @@
 <area shape="rect" id="node10" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1480,5,1571,32"/>
 <area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1595,5,1805,32"/>
 <area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.StackToMasterError" target="_top" title="Failure stacking calibration frames into a master." alt="" coords="1175,155,1435,181"/>
-<area shape="rect" id="node16" href="#autowisp.tests.test_error_render.TestErrorCounts" target="_top" title="error_count / error_counts_by_step / the step filter." alt="" coords="1754,80,2062,107"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_error_render.TestErrorCounts" target="_top" title="The badge counts / error_counts_by_step / the step filter." alt="" coords="1754,80,2062,107"/>
 <area shape="rect" id="node18" href="#autowisp.tests.test_error_render.TestErrorDetail" target="_top" title="error_detail: user vs developer views, remediation, degradation." alt="" coords="2010,5,2310,32"/>
 <area shape="rect" id="node19" href="#autowisp.tests.test_error_render.TestErrorListRows" target="_top" title="error_list_rows: the cheap, inline&#45;only list&#45;view projection." alt="" coords="2333,5,2653,32"/>
 <area shape="rect" id="node20" href="#autowisp.tests.test_error_render.TestErrorSummary" target="_top" title="error_summary: one&#45;line component/step/artifact/message." alt="" coords="2678,5,2999,32"/>
@@ -205,15 +205,21 @@
 <dt class="sig sig-object py" id="autowisp.tests.test_error_render.TestErrorCounts">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_error_render.</span></span><span class="sig-name descname"><span class="pre">TestErrorCounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_render.html#TestErrorCounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_render.TestErrorCounts" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-9b3b1cf55d82eefc9484cb1fbd5736d93ef17ad3.png" alt="Inheritance diagram of autowisp.tests.test_error_render.TestErrorCounts" usemap="#inheritancee9eb472a43" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-40ff868e9d55d9cebcbd4b88da9fc347ca750087.png" alt="Inheritance diagram of autowisp.tests.test_error_render.TestErrorCounts" usemap="#inheritancee9eb472a43" class="inheritance graphviz" /></div>
 <map id="inheritancee9eb472a43" name="inheritancee9eb472a43">
-<area shape="rect" id="node1" href="#autowisp.tests.test_error_render.TestErrorCounts" target="_top" title="error_count / error_counts_by_step / the step filter." alt="" coords="5,80,313,107"/>
-</map><p>error_count / error_counts_by_step / the step filter.</p>
+<area shape="rect" id="node1" href="#autowisp.tests.test_error_render.TestErrorCounts" target="_top" title="The badge counts / error_counts_by_step / the step filter." alt="" coords="5,80,313,107"/>
+</map><p>The badge counts / error_counts_by_step / the step filter.</p>
 <p>Fresh project per test, since these assert exact counts.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_error_render.TestErrorCounts.setUp">
 <span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_render.html#TestErrorCounts.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_render.TestErrorCounts.setUp" title="Link to this definition"></a></dt>
 <dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_error_render.TestErrorCounts.test_all_resolved_keeps_total">
+<span class="sig-name descname"><span class="pre">test_all_resolved_keeps_total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_render.html#TestErrorCounts.test_all_resolved_keeps_total"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_render.TestErrorCounts.test_all_resolved_keeps_total" title="Link to this definition"></a></dt>
+<dd><p>With everything resolved the history is still reachable.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -267,7 +273,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_error_render.TestErrorCounts.test_total_count">
 <span class="sig-name descname"><span class="pre">test_total_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_error_render.html#TestErrorCounts.test_total_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_error_render.TestErrorCounts.test_total_count" title="Link to this definition"></a></dt>
-<dd><p>error_count totals every recorded error, any component.</p>
+<dd><p>The counts total every recorded error, any component.</p>
 </dd></dl>
 
 </dd></dl>
@@ -398,7 +404,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.tests.test_error_persistence.html" class="btn btn-neutral float-left" title="autowisp.tests.test_error_persistence module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.tests.test_exception_hierarchy.html" class="btn btn-neutral float-right" title="autowisp.tests.test_exception_hierarchy module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.tests.test_evaluator.html" class="btn btn-neutral float-right" title="autowisp.tests.test_evaluator module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

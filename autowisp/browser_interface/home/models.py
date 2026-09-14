@@ -1,7 +1,11 @@
+"""Models describing the projects known to the browser interface."""
+
 from django.db import models
 
+from core.models import BuiModelBase
 
-class Project(models.Model):
+
+class Project(BuiModelBase):
     """Model to represent a project."""
 
     name = models.CharField(
@@ -15,13 +19,6 @@ class Project(models.Model):
     path = models.TextField(
         help_text="The project root directory",
     )
-    created = models.DateTimeField(
-        auto_now_add=True,
-        help_text="The date and time the project was created",
-    )
 
     def __str__(self):
-        return self.name
-
-
-# Create your models here.
+        return str(self.name)

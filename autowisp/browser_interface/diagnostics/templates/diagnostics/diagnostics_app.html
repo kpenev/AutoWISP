@@ -15,8 +15,7 @@
 {% if available_diagnostics %}
 <div class="lcars-bar horizontal"
      id="diag-selector-bar"
-     data-image-url="{% url 'diagnostics:display_image_diagnostics' diagnostic_name='YPLACEHOLDER' %}"
-     data-diag-vs-diag-url="{% url 'diagnostics:display_diag_vs_diag' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
+     data-diagnostics-url="{% url 'diagnostics:display_diagnostics' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
     <select id="diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
             onchange="navigateDiagnostics()">
@@ -30,7 +29,6 @@
     <select id="x-diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
             onchange="navigateDiagnostics()">
-        <option value="time" {% if not x_diagnostic %}selected{% endif %}>time</option>
         {% for diag_name in available_diagnostics %}
         <option value="{{ diag_name }}"
                 {% if diag_name == x_diagnostic %}selected{% endif %}>
@@ -43,6 +41,11 @@
 {% endblock header_bar_extra %}
 
 {% block left_menu %}
+<a href="{% url 'diagnostics:list_expressions' %}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Diagnostic Expressions
+    </div>
+</a>
 {% if download_pdf_url %}
 <a id="download-button" href="{{ download_pdf_url }}">
     <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
@@ -56,59 +59,28 @@
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
     <div id="diagnostics-table-parent">
-        <table class="lcars-table standard-header">
+        {% comment %} "asc": first click sorts ascending, which the library does not
+           default to.  A first click that jumps to descending reads as the
+           table having been shuffled rather than ordered. {% endcomment %}
+        <table class="lcars-table standard-header sortable asc">
             <thead>
                 <tr>
-                    <th>Color</th>
-                    <th>Style</th>
-                    <th>Scale</th>
-                    <th>Label</th>
-                    {% block diagnostics_table_header %}
+                    <th class="no-sort">Color</th>
+                    <th class="no-sort">Style</th>
+                    <th class="no-sort">Scale</th>
+                    <th class="no-sort">Label</th>
                     {% for field in diagnostics_fields %}
-                    <th>{{ field }}</th>
+                    {% comment %} A channel column holds a dropdown, which
+                       sorts by nothing useful. {% endcomment %}
+                    <th{% if field in slot_headings %} class="no-sort"{% endif %}>
+                        {{ field }}
+                    </th>
                     {% endfor %}
-                    {% endblock diagnostics_table_header %}
                 </tr>
             </thead>
             <tbody class="lcars-table select-row">
                 {% for diagnostic in diagnostics_list %}
-                <tr class="diagnostic-row" id="{{ diagnostic.id }}" channel="{{ diagnostic.channel }}">
-                    <td>
-                        <input type="color"
-                               id="plot-color:{{ diagnostic.id }}"
-                               value="{{ diagnostic.color|default:'#ffffff' }}">
-                    </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="dropbtn selected-marker"
-                                    id="marker-button:{{ diagnostic.id }}">
-                                {% include "core/plot_marker.html" with symb=diagnostic.marker size="30" svg="T" %}
-                            </button>
-                            <div class="dropdown-content"
-                                 id="marker:{{ diagnostic.id }}">
-                                {% for symb in " x+osv^<>" %}
-                                {% include "core/plot_marker.html" with symb=symb size="30" svg="T" %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <input type="text"
-                               id="scale:{{ diagnostic.id }}"
-                               value="{{ diagnostic.scale|default:'1.0' }}">
-                    </td>
-                    <td>
-                        <input class="param"
-                               id="label:{{ diagnostic.id }}"
-                               type="text"
-                               value="{{ diagnostic.label|default:'' }}">
-                    </td>
-                    {% block diagnostics_table_row %}
-                    {% for field in diagnostic.info %}
-                    <td>{{ field }}</td>
-                    {% endfor %}
-                    {% endblock diagnostics_table_row %}
-                </tr>
+                {% include "diagnostics/_series_row.html" %}
                 {% endfor %}
             </tbody>
         </table>
@@ -122,6 +94,8 @@
 </div>
 
 <script src="{% static 'js/autowisp.util.js' %}"></script>
+{# One delegated listener on document, no init call, so load order is free. #}
+<script src="{% static 'js/sortable.min.js' %}"></script>
 <script src="{% static 'diagnostics/js/diagnostics_app.js' %}"></script>
 {% if update_plot_url %}
 <script type="text/javascript">

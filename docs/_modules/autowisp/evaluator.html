@@ -178,9 +178,89 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
 
 
+<div class="viewcode-block" id="EvaluatorBase">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EvaluatorBase</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Asteval interpreter with the symbols all AutoWISP expressions share.&quot;&quot;&quot;</span>
+
+    <span class="c1"># The NaN-ignoring aggregates available to every user expression. Listed</span>
+    <span class="c1"># explicitly rather than derived from ``dir(numpy)`` so that the names</span>
+    <span class="c1"># users can rely on are a property of AutoWISP and not of whichever numpy</span>
+    <span class="c1"># or asteval version happens to be installed. Asteval&#39;s default symtable</span>
+    <span class="c1"># supplies only some of these, and which ones has varied between releases.</span>
+    <span class="n">nan_aggregates</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;nanmean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanmedian&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanstd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanvar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nansum&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanprod&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanmin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanmax&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanpercentile&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanquantile&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanargmin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanargmax&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nancumsum&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nancumprod&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Names asteval offers that an AutoWISP expression has no business</span>
+    <span class="c1"># using. Asteval is a genuine sandbox against code execution -- no</span>
+    <span class="c1"># imports, no eval/exec/getattr, no dunder traversal, and it refuses</span>
+    <span class="c1"># every file mode but reading -- but reading is enough: `open` lets an</span>
+    <span class="c1"># expression pull the contents of any file the user can read, and</span>
+    <span class="c1"># expressions now travel between installations in export files.</span>
+    <span class="c1"># `print` is a side effect rather than a value, so an expression using</span>
+    <span class="c1"># it was a mistake in any case.</span>
+    <span class="n">removed_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;open&quot;</span><span class="p">,</span> <span class="s2">&quot;print&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EvaluatorBase.__init__">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an interpreter with AutoWISP&#39;s symbol table.</span>
+
+<span class="sd">        Sub-classes should add their data to the symbol table after invoking</span>
+<span class="sd">        this, so a variable named like one of the aggregates shadows the</span>
+<span class="sd">        function rather than the other way around.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">func_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">removed_names</span><span class="p">:</span>
+            <span class="c1"># Absent rather than asserted, so that an asteval release which</span>
+            <span class="c1"># drops one of these on its own is not an error here.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EvaluatorBase.__call__">
+<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the expression, raising rather than returning None on error.</span>
+
+<span class="sd">        Asteval defaults to printing the error and returning ``None``, which</span>
+<span class="sd">        only relocates the failure: the ``None`` flows on and breaks somewhere</span>
+<span class="sd">        unrelated, long after the message about the offending expression has</span>
+<span class="sd">        scrolled away. Callers wanting the permissive behaviour can still pass</span>
+<span class="sd">        ``raise_errors=False`` explicitly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;raise_errors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;raise_errors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="Evaluator">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.Evaluator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Evaluator</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Evaluator</span><span class="p">(</span><span class="n">EvaluatorBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluator for expressions involving fields of numpy array or headers.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Evaluator.__init__">
@@ -220,16 +300,6 @@
                 <span class="k">for</span> <span class="n">hdr_key</span><span class="p">,</span> <span class="n">hdr_val</span> <span class="ow">in</span> <span class="n">data_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="n">hdr_key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hdr_val</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">units</span></div>
-
-
-<div class="viewcode-block" id="Evaluator.__call__">
-<a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.Evaluator.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the expression enabling error.&quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="s2">&quot;raise_errors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;raise_errors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 </div>
 
 
@@ -276,7 +346,7 @@
 
 <div class="viewcode-block" id="LightCurveEvaluator">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LightCurveEvaluator</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LightCurveEvaluator</span><span class="p">(</span><span class="n">EvaluatorBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluator for expressions involving lightcurve datasets.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -294,8 +364,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lightcurve</span> <span class="o">=</span> <span class="n">lightcurve</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lc_substitutions</span> <span class="o">=</span> <span class="n">lc_substitutions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lc_points_selection</span> <span class="o">=</span> <span class="n">lc_points_selection</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;nanmean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmean</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;nanmedian&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extra_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
             <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">lightcurve</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
         <span class="p">)</span>

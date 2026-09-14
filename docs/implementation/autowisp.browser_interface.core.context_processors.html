@@ -173,12 +173,12 @@
 <span id="autowisp-browser-interface-core-context-processors-module"></span><h1>autowisp.browser_interface.core.context_processors module<a class="headerlink" href="#module-autowisp.browser_interface.core.context_processors" title="Link to this heading"></a></h1>
 <p>Define context processors for the entire interface.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.core.context_processors._project_error_count">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.core.context_processors.</span></span><span class="sig-name descname"><span class="pre">_project_error_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/core/context_processors.html#_project_error_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.core.context_processors._project_error_count" title="Link to this definition"></a></dt>
-<dd><p>Return the recorded-error count for the active project, else 0.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.core.context_processors._project_error_counts">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.core.context_processors.</span></span><span class="sig-name descname"><span class="pre">_project_error_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/core/context_processors.html#_project_error_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.core.context_processors._project_error_counts" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(open,</span> <span class="pre">total)</span></code> recorded errors for the active project.</p>
 <p>Runs on every page, so it must never raise: with no project selected
-(or any query failure) it quietly reports 0 rather than breaking the
-page.</p>
+(or any query failure) it quietly reports zeros rather than breaking
+the page.</p>
 </dd></dl>
 
 <dl class="py function">

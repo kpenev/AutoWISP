@@ -1,0 +1,16 @@
+<map id="inheritance193ccbe0f2" name="inheritance193ccbe0f2">
+<area shape="rect" id="node1" title="Represent an Alembic configuration." alt="" coords="5,5,153,32"/>
+<area shape="rect" id="node2" title="Represent the database state made available to a migration" alt="" coords="177,5,450,32"/>
+<area shape="rect" id="node3" title="Provides operations upon an Alembic script directory." alt="" coords="474,5,700,32"/>
+<area shape="rect" id="node4" title="Base command error for all exceptions" alt="" coords="724,5,928,32"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="644,304,975,331"/>
+<area shape="rect" id="node6" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="426,229,804,256"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="828,229,1181,256"/>
+<area shape="rect" id="node8" title="Base class used for declarative class definitions." alt="" coords="872,155,1136,181"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1158,5,1392,32"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1166,80,1384,107"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="1161,155,1389,181"/>
+<area shape="rect" id="node12" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="450,155,780,181"/>
+<area shape="rect" id="node13" title="define a class as inspectable." alt="" coords="894,80,1114,107"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="952,5,1057,32"/>
+</map>

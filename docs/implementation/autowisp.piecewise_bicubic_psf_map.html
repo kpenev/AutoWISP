@@ -189,7 +189,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.piecewise_bicubic_psf_map.</span></span><span class="sig-name descname"><span class="pre">PiecewiseBicubicPSFMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/piecewise_bicubic_psf_map.html#PiecewiseBicubicPSFMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <div class="graphviz"><img src="../_images/inheritance-31cca6255f49cded1832bad6469defd8d7ba55f6.png" alt="Inheritance diagram of autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap" usemap="#inheritance53e7d16ff4" class="inheritance graphviz" /></div>
 <map id="inheritance53e7d16ff4" name="inheritance53e7d16ff4">
 <area shape="rect" id="node1" href="#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap" target="_top" title="Fit and use piecewise bicubic PSF maps." alt="" coords="5,5,404,32"/>
@@ -234,20 +234,20 @@ variables required to evaluate the shape term expression
 specified on __init__(). It must also include <code class="docutils literal notranslate"><span class="pre">'x'</span></code> and
 <code class="docutils literal notranslate"><span class="pre">'y'</span></code> fields, even if those are not required to evaluate the
 terms.</p></li>
-<li><p><strong>shape_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – An expression specifying the terms
+<li><p><strong>shape_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – An expression specifying the terms
 PSF/PRF parameters are allowed to dependend on. May involve
 arbitrary catalogque position and other external variables. See
 fit_expression.Interface for details.</p></li>
-<li><p><strong>background_annulus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The inner radius and difference
+<li><p><strong>background_annulus</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The inner radius and difference
 between inner and outer radius of the annulus around each source
 where background is measured. See astrowisp.BackgroundExtractor
 for details.</p></li>
-<li><p><strong>require_convergence</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – See same name argument to
+<li><p><strong>require_convergence</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – See same name argument to
 astrowisp.FitStarShape.fit()</p></li>
 <li><p><strong>output_dr_fnames</strong> (<em>str iterable</em>) – If not None, should specify one
 data reduction file for each input frame where the fit results
 are saved.</p></li>
-<li><p><strong>background_version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>)</em><em>, </em><em>shapefit_version</em><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>) </em><em>srcproj_version</em><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version numbers to use when saving projected
+<li><p><strong>background_version</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>)</em><em>, </em><em>shapefit_version</em><em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>) </em><em>srcproj_version</em><em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version numbers to use when saving projected
 photometry sources, background extraciton, and PSF/PRF fitting
 results.</p></li>
 <li><p><strong>fit_star_shape_config</strong> – Any required configuration by

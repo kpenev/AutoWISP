@@ -205,7 +205,7 @@ the artifact row is gone, and to <code class="docutils literal notranslate"><spa
 <dd class="field-even"><p>e.g. <code class="docutils literal notranslate"><span class="pre">&quot;image</span> <span class="pre">'/data/raw/x.fits'&quot;</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -216,25 +216,6 @@ the artifact row is gone, and to <code class="docutils literal notranslate"><spa
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">{host,</span> <span class="pre">process_id,</span> <span class="pre">code_version}</span></code> for the error’s run.</p>
 <p>Empty dict when the error has no pipeline run (standalone CLI/BUI) or
 the run row is gone.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.error_render.error_count">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_render.</span></span><span class="sig-name descname"><span class="pre">error_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_render.html#error_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_render.error_count" title="Link to this definition"></a></dt>
-<dd><p>Return the number of open (unresolved) errors.</p>
-<p>This is what the error badge shows – resolved errors are kept as
-history but no longer counted.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>db_session</strong> – Optional active session; one is opened if omitted.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The open-error count (0 if none).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -251,7 +232,7 @@ errors with no step (pipeline/BUI) are excluded.</p>
 <dd class="field-even"><p>Mapping of step name to its open-error count.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -272,14 +253,14 @@ sidecar-backed fields are simply absent / empty).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>error_row</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" title="autowisp.database.data_model.Error"><em>Error</em></a>) – The error row to render.</p></li>
 <li><p><strong>db_session</strong> – Optional active session; one is opened if omitted.</p></li>
-<li><p><strong>developer</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Include the technical fields.</p></li>
+<li><p><strong>developer</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Include the technical fields.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The structured detail view.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -294,8 +275,8 @@ stays cheap regardless of how many errors there are.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>db_session</strong> – Optional active session; one is opened if omitted.</p></li>
-<li><p><strong>pipeline_run_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>None</em>) – If given, restrict to that run.</p></li>
-<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – If given, restrict to that step.</p></li>
+<li><p><strong>pipeline_run_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>None</em>) – If given, restrict to that run.</p></li>
+<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – If given, restrict to that step.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -307,7 +288,7 @@ and a one-line <code class="docutils literal notranslate"><span class="pre">summ
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,7 +311,7 @@ clause is omitted when none is linked).</p>
 <dd class="field-even"><p>The one-line summary.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -344,13 +325,38 @@ fields themselves). Only the keys present in <code class="docutils literal notra
 the same function serves both the user and developer views.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>detail</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The result of <a class="reference internal" href="#autowisp.error_render.error_detail" title="autowisp.error_render.error_detail"><code class="xref py py-func docutils literal notranslate"><span class="pre">error_detail()</span></code></a>.</p>
+<dd class="field-odd"><p><strong>detail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The result of <a class="reference internal" href="#autowisp.error_render.error_detail" title="autowisp.error_render.error_detail"><code class="xref py py-func docutils literal notranslate"><span class="pre">error_detail()</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A multi-line, human-readable rendering.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.error_render.open_and_total_error_count">
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_render.</span></span><span class="sig-name descname"><span class="pre">open_and_total_error_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_render.html#open_and_total_error_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_render.open_and_total_error_count" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(open_count,</span> <span class="pre">total_count)</span></code> in a single query.</p>
+<p>The error badge needs both on every page render – the open count to
+display, and the total to decide whether the (possibly all-resolved)
+history is worth linking to at all. Resolved errors are kept as
+history, so the two differ once anything has been resolved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>db_session</strong> – Optional active session; one is opened if omitted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The open-error count and the count including</dt><dd><p>resolved errors.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -380,7 +386,7 @@ full run (every step).</p></li>
 <dd class="field-even"><p>The number of open errors relevant to the launch.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>

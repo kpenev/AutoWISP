@@ -56,6 +56,7 @@ from autowisp.tests.test_parse_config_overwrites import (
 from autowisp.tests.test_parameter_description_length import (
     TestParameterDescriptionLength,
 )
+from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
 from autowisp.tests.test_database_migration import (
     TestAdditiveMigrations,
     TestRevisionChain,
@@ -114,6 +115,67 @@ from autowisp.tests.test_error_context import (
     TestPoolPropagation,
     TestProcessQueuePropagation,
     TestNestingGuard,
+)
+from autowisp.tests.test_diagnostics_views import (
+    TestRowId,
+    TestQuantileSeriesExpansion,
+    TestSharedTimeOffset,
+    TestSeriesGrouping,
+    TestImageTypeSplit,
+    TestExpressionAxis,
+)
+from autowisp.tests.test_channel_binding import TestTwoChannelRow
+from autowisp.tests.test_expression_series import (
+    TestCanonicalImages,
+    TestDiagnosticValues,
+    TestSeriesValues,
+    TestCrossChannelValues,
+    TestCrossChannelCounts,
+    TestTiedJulianDates,
+)
+from autowisp.tests.test_evaluator import (
+    TestNanAggregates,
+    TestRemovedNames,
+    TestErrorHandling,
+)
+from autowisp.tests.test_expressions import (
+    TestReferencedNames,
+    TestBareAggregates,
+    TestDependents,
+    TestRenamingReferences,
+    TestOrdering,
+    TestChecking,
+    TestReachableNames,
+    TestQuantileNames,
+    TestNoProjectNeeded,
+    TestSlotSyntax,
+    TestNeededValues,
+    TestSlotEvaluation,
+)
+from autowisp.tests.test_diagnostic_types import (
+    TestCatalogue,
+    TestRuntimePatterns,
+    TestVocabulary,
+    TestSeeding,
+)
+from autowisp.tests.test_diagnostic_expressions import (
+    TestNameSpace,
+    TestStoredFields,
+    TestLibraryAccess,
+)
+from autowisp.tests.test_bui_db_config import (
+    TestDiscovery,
+    TestDefaultDatabase,
+    TestUrlTranslation,
+    TestMysqlDriver,
+)
+from autowisp.tests.test_templates import (
+    TestTemplateComments,
+)
+from autowisp.tests.test_bui_models import (
+    TestModelBase,
+    TestModifiedIsMaintained,
+    TestMigrationCarriesExistingRows,
 )
 
 # pylint: enable=unused-import

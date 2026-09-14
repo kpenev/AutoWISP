@@ -1,0 +1,7 @@
+autowisp.tests.test\_bui\_models module
+=======================================
+
+.. automodule:: autowisp.tests.test_bui_models
+   :members:
+   :undoc-members:
+   :show-inheritance:

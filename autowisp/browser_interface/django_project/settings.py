@@ -14,6 +14,13 @@ from pathlib import Path
 
 import platformdirs
 
+# Relative, because this module is imported under two different names: as
+# ``django_project.settings`` by manage.py, which runs with
+# ``browser_interface`` as sys.path[0], and as
+# ``autowisp.browser_interface.django_project.settings`` by start.py, which
+# does not.  A bare ``django_project`` resolves only in the first.
+from .db_config import get_databases
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -92,12 +99,9 @@ WSGI_APPLICATION = "django_project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "bui_db.sqlite3",
-    }
-}
+# An SQLite file in BASE_DIR unless a URL says otherwise; see db_config for
+# where that URL is looked for and why it is one database per host.
+DATABASES = get_databases(BASE_DIR)
 
 
 # Password validation

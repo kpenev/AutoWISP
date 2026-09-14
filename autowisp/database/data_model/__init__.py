@@ -16,6 +16,71 @@ from autowisp.database.data_model.steps_and_parameters import (
 __all__ = []
 
 
+def timestamp_trigger_ddl(table, key_columns, dialect):
+    """
+    Return the DDL creating one table's update-timestamp trigger.
+
+    The single definition of what these triggers are.  They are installed
+    on ``CREATE TABLE`` by the event listeners below, but a table rebuilt
+    by a migration is created without going through those, so
+    :mod:`autowisp.database.migrate` reinstates them afterwards from here
+    rather than from a copy of its own.
+
+    Table and column names are quoted, because some of them are reserved
+    words: ``condition`` is one in MariaDB, so ``ON condition`` is a syntax
+    error rather than a table reference.  SQLite reserves a different set
+    and forgave that one, which is why only the MariaDB job caught it --
+    and why quoting has to happen for both dialects rather than the one
+    that complained.
+
+    Args:
+        table(str):    Name of the table the trigger belongs to.
+
+        key_columns:    The table's primary key columns, used by the SQLite
+            form to address the updated row.  Derived rather than assumed
+            to be ``id``: assuming it is what
+            ``0003_repair_timestamp_triggers`` had to repair.
+
+        dialect(str):    Name of the dialect to render for.
+
+    Returns:
+        str or None:    The ``CREATE TRIGGER`` statement, or ``None`` if
+            this dialect needs no trigger or the table cannot have one.
+    """
+
+    if dialect == "mysql":
+        quote = "`{}`".format
+    elif dialect == "sqlite":
+        quote = '"{}"'.format
+    else:
+        return None
+
+    name = quote(f"update_{table}_timestamp")
+    stamp = quote("timestamp")
+
+    if dialect == "mysql":
+        # Assigning to NEW in a BEFORE trigger writes the row once, so
+        # there is nothing to key on and no recursion to avoid -- and so
+        # no key columns to quote, only the table and the column written.
+        return (
+            f"CREATE TRIGGER {name} BEFORE UPDATE ON {quote(table)} "
+            f"FOR EACH ROW SET NEW.{stamp} = CURRENT_TIMESTAMP"
+        )
+
+    if not key_columns:
+        return None
+    match = " AND ".join(
+        f"{quote(column)} = NEW.{quote(column)}" for column in key_columns
+    )
+    # SQLite has no BEFORE-UPDATE assignment, so the row is written a
+    # second time and has to be addressed by its key.
+    return (
+        f"CREATE TRIGGER {name} AFTER UPDATE ON {quote(table)} FOR EACH ROW "
+        f"BEGIN UPDATE {quote(table)} SET {stamp} = CURRENT_TIMESTAMP "
+        f"WHERE {match}; END"
+    )
+
+
 # TODO: merge with data_model/provenance/__init__.py
 def import_table_definitions():
     """Import all table definitions directly to data_model."""
@@ -34,7 +99,6 @@ def import_table_definitions():
         # Pylint false positive
         # pylint: disable=cell-var-from-loop
         def is_table(mod_attr):
-            print("Checking", mod_attr)
             return (
                 mod_attr[0] != "_"
                 and mod_attr != "DataModelBase"
@@ -48,58 +112,38 @@ def import_table_definitions():
             filter(is_table, getattr(module, "__all__", []))
         )
 
-        update_timestamp_mysql = """
-            CREATE TRIGGER update_{table}_timestamp
-            BEFORE UPDATE
-            ON %(table)s
-            FOR EACH ROW
-                SET NEW.timestamp = CURRENT_TIMESTAMP
-            """
-
-        # Keyed on the table's actual primary key. It used to be hardcoded
-        # to `id`, which most tables have but not all: the trigger on
-        # image_master_selection (primary key image_id, channel,
-        # master_type_id) could not parse. That went unnoticed because
-        # SQLite only parses a trigger when it fires -- or when something
-        # renames a table, which is how a batch migration rebuilds one.
-        update_timestamp_sqlite = """
-            CREATE TRIGGER update_{table}_timestamp
-            AFTER UPDATE
-            ON {table}
-            FOR EACH ROW
-            BEGIN
-                UPDATE {table} SET timestamp = CURRENT_TIMESTAMP
-                WHERE {match};
-            END
-            """
-
         for class_name in table_class_names:
-            table_class = getattr(module, class_name)
-            setattr(this_module, class_name, table_class)
-            table = table_class.__table__
-            event.listen(
-                table,
-                "after_create",
-                DDL(update_timestamp_mysql.format(table=table)).execute_if(
-                    dialect="mysql"
-                ),
-            )
-            key_columns = [column.name for column in table.primary_key.columns]
-            if key_columns:
-                event.listen(
-                    table,
-                    "after_create",
-                    DDL(
-                        update_timestamp_sqlite.format(
-                            table=table,
-                            match=" AND ".join(
-                                f"{name} = NEW.{name}" for name in key_columns
-                            ),
-                        )
-                    ).execute_if(dialect="sqlite"),
-                )
-
+            setattr(this_module, class_name, getattr(module, class_name))
             __all__.append(class_name)
 
 
+def attach_timestamp_triggers():
+    """
+    Arrange for every table carrying ``timestamp`` to keep it up to date.
+
+    Driven off the metadata shared by every subclass of
+    :class:`DataModelSubBase` rather than off the classes
+    :func:`import_table_definitions` happens to bind.  Discovery there is by
+    filesystem glob, which does not descend into ``data_model/provenance``,
+    so attaching per discovered class silently left the twelve provenance
+    tables maintaining a ``timestamp`` column nothing ever wrote.  The
+    metadata has them regardless of which loop imported them, and will have
+    any future subpackage too.
+    """
+
+    for table in DataModelSubBase.metadata.tables.values():
+        if "timestamp" not in table.columns:
+            continue
+        key_columns = [column.name for column in table.primary_key.columns]
+        for dialect in ("mysql", "sqlite"):
+            statement = timestamp_trigger_ddl(str(table), key_columns, dialect)
+            if statement is not None:
+                event.listen(
+                    table,
+                    "after_create",
+                    DDL(statement).execute_if(dialect=dialect),
+                )
+
+
 import_table_definitions()
+attach_timestamp_triggers()

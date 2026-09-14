@@ -185,7 +185,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_sidecar</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: b2a2e3d7731f15f0001e78ccbd56f662aaa80fc4 $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: a90804b384c31bd1516e98e0e481fdb41cf7f06c $&quot;</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -352,33 +352,35 @@
 
 
 
-<div class="viewcode-block" id="error_count">
-<a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.error_count">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">error_count</span><span class="p">(</span><span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the number of open (unresolved) errors.</span>
+<div class="viewcode-block" id="open_and_total_error_count">
+<a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.open_and_total_error_count">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">open_and_total_error_count</span><span class="p">(</span><span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(open_count, total_count)`` in a single query.</span>
 
-<span class="sd">    This is what the error badge shows -- resolved errors are kept as</span>
-<span class="sd">    history but no longer counted.</span>
+<span class="sd">    The error badge needs both on every page render -- the open count to</span>
+<span class="sd">    display, and the total to decide whether the (possibly all-resolved)</span>
+<span class="sd">    history is worth linking to at all. Resolved errors are kept as</span>
+<span class="sd">    history, so the two differ once anything has been resolved.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        db_session:    Optional active session; one is opened if omitted.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        int:    The open-error count (0 if none).</span>
+<span class="sd">        (int, int):    The open-error count and the count including</span>
+<span class="sd">            resolved errors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">error_count</span><span class="p">(</span><span class="n">own_session</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">open_and_total_error_count</span><span class="p">(</span><span class="n">own_session</span><span class="p">)</span>
+    <span class="c1"># ``count(resolved)`` skips the NULLs, so it counts exactly the</span>
+    <span class="c1"># resolved errors -- avoiding a second query or a FILTER clause.</span>
     <span class="c1"># pylint: disable=not-callable,no-member</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
-            <span class="n">select</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
-            <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">Error</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Error</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
-        <span class="p">)</span>
-        <span class="ow">or</span> <span class="mi">0</span>
-    <span class="p">)</span></div>
+    <span class="n">total_count</span><span class="p">,</span> <span class="n">resolved_count</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">Error</span><span class="o">.</span><span class="n">resolved</span><span class="p">))</span><span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">Error</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+    <span class="c1"># pylint: enable=not-callable,no-member</span>
+    <span class="k">return</span> <span class="n">total_count</span> <span class="o">-</span> <span class="n">resolved_count</span><span class="p">,</span> <span class="n">total_count</span></div>
 
 
 

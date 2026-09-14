@@ -172,24 +172,25 @@
 <span id="autowisp-processing-steps-fit-source-extracted-psf-map-module"></span><h1>autowisp.processing_steps.fit_source_extracted_psf_map module<a class="headerlink" href="#module-autowisp.processing_steps.fit_source_extracted_psf_map" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-60ff4caeddf4001d1ced55a02ccf57c4d11b7b37.png" alt="Inheritance diagram of Component, DataReductionFile, Evaluator, FitTermsInterface, ManualStepArgumentParser" usemap="#inheritance6b9fb68aaa" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-2e535f0e97ac7ddd129eb509c16b803ee53a3d65.png" alt="Inheritance diagram of Component, DataReductionFile, Evaluator, FitTermsInterface, ManualStepArgumentParser" usemap="#inheritance6b9fb68aaa" class="inheritance graphviz" /></div>
 <map id="inheritance6b9fb68aaa" name="inheritance6b9fb68aaa">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
 <area shape="rect" id="node6" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
 <area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="796,5,966,32"/>
-<area shape="rect" id="node7" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1008,80,1197,107"/>
+<area shape="rect" id="node8" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="1098,80,1318,107"/>
 <area shape="rect" id="node4" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
 <area shape="rect" id="node5" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1221,80,1432,107"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1281,5,1372,32"/>
-<area shape="rect" id="node10" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="1397,5,1664,32"/>
-<area shape="rect" id="node12" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="673,155,1089,181"/>
-<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
-<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
-<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
-<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
-<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
-<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+<area shape="rect" id="node7" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1113,155,1302,181"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1342,80,1554,107"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1402,5,1494,32"/>
+<area shape="rect" id="node11" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="1518,5,1786,32"/>
+<area shape="rect" id="node13" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="673,155,1089,181"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
 </map><p>Fit a smooth dependence of source extracted PSF parameters.</p>
 </section>
 <dl class="py function">
@@ -202,9 +203,9 @@
 <li><p><strong>matched_sources</strong> (<em>pandas.DataFrame</em>) – The matched source data used
 for the fit.</p></li>
 <li><p><strong>psf_parameters</strong> – The PSF parameter names that were fit.</p></li>
-<li><p><strong>fit_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The fitting results containing <code class="docutils literal notranslate"><span class="pre">coefficients</span></code>
+<li><p><strong>fit_results</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The fitting results containing <code class="docutils literal notranslate"><span class="pre">coefficients</span></code>
 and <code class="docutils literal notranslate"><span class="pre">fit_res2</span></code> per parameter.</p></li>
-<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The fit terms expression used.</p></li>
+<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The fit terms expression used.</p></li>
 <li><p><strong>header</strong> – The FITS header of the frame.</p></li>
 </ul>
 </dd>
@@ -213,7 +214,7 @@ and <code class="docutils literal notranslate"><span class="pre">fit_res2</span>
 map residuals, or an empty list if computation fails.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -286,7 +287,7 @@ the only state an interrupted run can leave behind.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dr_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the DR file to smooth the source extracted
+<li><p><strong>dr_fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the DR file to smooth the source extracted
 parameters for.</p></li>
 <li><p><strong>configuration</strong> (<em>NamedTuple</em>) – <p>Configuration on how to do the smoothing.
 Should include the following attributes:</p>

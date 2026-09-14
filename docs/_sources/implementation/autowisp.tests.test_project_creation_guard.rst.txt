@@ -1,0 +1,7 @@
+autowisp.tests.test\_project\_creation\_guard module
+====================================================
+
+.. automodule:: autowisp.tests.test_project_creation_guard
+   :members:
+   :undoc-members:
+   :show-inheritance:

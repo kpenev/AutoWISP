@@ -424,9 +424,9 @@ name of the dataset is added to the root level Repack attribute.</p>
 an appropriate data type or None if an empty dataset should be
 created.</p></li>
 <li><p><strong>if_exists</strong> – See same name argument to add_attribute.</p></li>
-<li><p><strong>unlimited</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the first dimension of the dataset be
+<li><p><strong>unlimited</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the first dimension of the dataset be
 unlimited (i.e. data can be added later)?</p></li>
-<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>,</em><em>...</em><em>)</em>) – The shape of the dataset to create if data
+<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>,</em><em>...</em><em>)</em>) – The shape of the dataset to create if data
 is None, otherwise the shape of the data is used. Just like if
 data is specified, the first dimension will be ignored if
 unlimited is True. It is an error to specify both data and
@@ -485,10 +485,10 @@ for how the value con be determined or None if the link was not
 created (not defined in current file structure).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – if an object with the same name as the link exists,
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – if an object with the same name as the link exists,
     but is not a link or is a link, but does not point to the
     configured target and if_exists == ‘error’.</p>
 </dd>
@@ -514,9 +514,9 @@ path. Only required if must_exist == True.</p></li>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
     or does not identify a dataset.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the dataset does not exist but the must_exist argument is
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the dataset does not exist but the must_exist argument is
     True.</p></li>
 </ul>
 </dd>
@@ -535,11 +535,11 @@ fixing the first 3 arguments using functools.partial.</p>
 <li><p><strong>destination</strong> (<em>pandas.DataFrame</em>) – The DataFrame to add matching
 datasets to. Datasets are added with column names given by the
 part of the name between <cite>name_head</cite> and <cite>name_tail</cite>.</p></li>
-<li><p><strong>name_head</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Only datasets whose names start with this will be
+<li><p><strong>name_head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Only datasets whose names start with this will be
 included.</p></li>
-<li><p><strong>name_tail</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Only datasets whose names end with this will be
+<li><p><strong>name_tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Only datasets whose names end with this will be
 included.</p></li>
-<li><p><strong>dset_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the dataset.</p></li>
+<li><p><strong>dset_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the dataset.</p></li>
 <li><p><strong>values</strong> (<em>array-like</em>) – The values to potentially add as the new
 column.</p></li>
 </ul>
@@ -574,7 +574,7 @@ column.</p></li>
 <dd class="field-even"><p>Was a dataset actually deleted?</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>Error.HDF5</strong> – if an entry already exists at the target dataset’s location
@@ -609,7 +609,7 @@ which case an empty dataset is created.</p></li>
 <dd class="field-even"><p>Was the dataset actually created?</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>)</p>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -665,9 +665,9 @@ attribute rasies IOError.</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If no attribute with the given key is defined in the current
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If no attribute with the given key is defined in the current
     files structure or if it does not correspond to an attribute.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the requested dataset is not found and no default value was
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the requested dataset is not found and no default value was
     given.</p></li>
 </ul>
 </dd>
@@ -700,9 +700,9 @@ the HDF5 file.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
     or does not identify a dataset.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the dataset does not exist, and no default_value was
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the dataset does not exist, and no default_value was
     specified</p></li>
 </ul>
 </dd>
@@ -727,7 +727,7 @@ depend on the full dataset path (c.f. srcextract.sources).</p></li>
 except: name, shape and data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -757,7 +757,7 @@ If none are given, the path is returned without substitutions.</p>
 <dd class="field-even"><p>A string giving the path the element does/will have in the file.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -806,7 +806,7 @@ same as version if version is not None.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>)</p>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -854,7 +854,7 @@ containing the header.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The key identifying the dataset to add the
+<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The key identifying the dataset to add the
 header to.</p></li>
 <li><p><strong>fitsheader</strong> (<em>fits.Header</em>) – The header to save.</p></li>
 <li><p><strong>kwargs</strong> – Passed directly to <a class="reference internal" href="#autowisp.hdf5_file.HDF5File._write_text_to_dataset" title="autowisp.hdf5_file.HDF5File._write_text_to_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_write_text_to_dataset()</span></code></a>.</p></li>

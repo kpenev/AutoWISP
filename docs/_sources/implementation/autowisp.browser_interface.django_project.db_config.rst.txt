@@ -1,0 +1,7 @@
+autowisp.browser\_interface.django\_project.db\_config module
+=============================================================
+
+.. automodule:: autowisp.browser_interface.django_project.db_config
+   :members:
+   :undoc-members:
+   :show-inheritance:

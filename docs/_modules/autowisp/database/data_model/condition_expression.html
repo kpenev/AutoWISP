@@ -185,7 +185,10 @@
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;condition_expression&quot;</span>
 
     <span class="n">expression</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
+        <span class="c1"># 768, not 1000: the unique index has to fit InnoDB&#39;s 3072-byte</span>
+        <span class="c1"># limit at 4 bytes/character. Ample for an expression over header</span>
+        <span class="c1"># keywords.</span>
+        <span class="n">String</span><span class="p">(</span><span class="mi">768</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>

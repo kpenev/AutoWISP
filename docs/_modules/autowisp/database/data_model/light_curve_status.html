@@ -210,9 +210,14 @@
     <span class="p">)</span>
 
     <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">Integer</span><span class="p">,</span>
+        <span class="c1"># The Gaia source id of the star, not a row counter --</span>
+        <span class="c1"># LightCurveProcessingManager stores src_id here. Those run to ~8e17,</span>
+        <span class="c1"># which overflows the 32-bit INT that ``Integer`` becomes on MySQL and</span>
+        <span class="c1"># MariaDB (&quot;Out of range value for column &#39;id&#39;&quot;). SQLite hid it: its</span>
+        <span class="c1"># INTEGER is 64-bit and it does not enforce declared types anyway.</span>
+        <span class="n">GaiaIDType</span><span class="p">,</span>
         <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;A unique identifier for each row.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The Gaia source id of the star whose lightcurve this row tracks.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

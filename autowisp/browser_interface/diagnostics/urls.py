@@ -1,7 +1,5 @@
 """Define the URL paths used by the diagnostics BUI app."""
 
-import functools
-
 from django.urls import path
 
 from . import views
@@ -39,51 +37,65 @@ urlpatterns = [
         views.download_detrending_diagnostics_plot,
         name="download_diagnostics_plot",
     ),
+    # Kept so links predating the axis merge keep working; redirects onto
+    # the pair route below with x=jd.
     path(
         "image/<slug:diagnostic_name>",
         views.display_image_diagnostics,
         name="display_image_diagnostics",
     ),
     path(
-        "image/<slug:diagnostic_name>/update_plot",
-        functools.partial(
-            views.update_plot_view,
-            figure_factory=views.create_image_diagnostics_figure,
-            session_key="image_diagnostics_last",
-        ),
-        name="update_image_diagnostics_plot",
-    ),
-    path(
-        "image/<slug:diagnostic_name>/download_plot",
-        functools.partial(
-            views.download_plot_view,
-            figure_factory=views.create_image_diagnostics_figure,
-            session_key="image_diagnostics_last",
-        ),
-        name="download_image_diagnostics_plot",
-    ),
-    path(
         "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>",
-        views.display_diag_vs_diag,
-        name="display_diag_vs_diag",
+        views.display_diagnostics,
+        name="display_diagnostics",
     ),
     path(
         "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/update_plot",
-        functools.partial(
-            views.update_plot_view,
-            figure_factory=views.create_diag_vs_diag_figure,
-            session_key="diag_vs_diag_last",
-        ),
-        name="update_diag_vs_diag_plot",
+        views.update_diagnostics_plot,
+        name="update_diagnostics_plot",
     ),
     path(
         "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/download_plot",
-        functools.partial(
-            views.download_plot_view,
-            figure_factory=views.create_diag_vs_diag_figure,
-            session_key="diag_vs_diag_last",
-        ),
-        name="download_diag_vs_diag_plot",
+        views.download_diagnostics_plot,
+        name="download_diagnostics_plot",
+    ),
+    path(
+        "expressions",
+        views.list_expressions,
+        name="list_expressions",
+    ),
+    # Under `edit/` rather than `expressions/<name>`, so that an
+    # expression legitimately named "save" or "delete" cannot collide with
+    # a literal route below.
+    path(
+        "expressions/edit/<slug:name>",
+        views.list_expressions,
+        name="edit_expression",
+    ),
+    path(
+        "expressions/save",
+        views.save_expression,
+        name="save_expression",
+    ),
+    path(
+        "expressions/delete",
+        views.delete_expressions,
+        name="delete_expressions",
+    ),
+    path(
+        "expressions/export",
+        views.export_expressions,
+        name="export_expressions",
+    ),
+    path(
+        "expressions/import",
+        views.import_expressions,
+        name="import_expressions",
+    ),
+    path(
+        "expressions/import/confirm",
+        views.confirm_import_expressions,
+        name="confirm_import_expressions",
     ),
     path(
         "preview_calibrated/<int:image_id>/<slug:color_channel>",

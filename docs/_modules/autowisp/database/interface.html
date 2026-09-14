@@ -172,17 +172,23 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">platformdirs</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">sessionmaker</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">inspect</span> <span class="k">as</span> <span class="n">sa_inspect</span><span class="p">,</span> <span class="n">text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">inspect</span> <span class="k">as</span> <span class="n">sa_inspect</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">NullPool</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.frozen_row</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenRow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.migrate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_project_schema</span><span class="p">,</span>
+    <span class="n">create_project_schema</span><span class="p">,</span>
+    <span class="n">migrate_project</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_data_reduction_structure</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_default_data_reduction_structure</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_light_curve_structure</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_default_light_curve_structure</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseError</span>
 
 <span class="n">_db_engine</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -202,62 +208,6 @@
 <span class="sd">:func:`set_project_home` with only the directory path can reconnect without</span>
 <span class="sd">requiring the caller to supply the URL again.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
-
-<div class="viewcode-block" id="apply_additive_migrations">
-<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.apply_additive_migrations">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">apply_additive_migrations</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bring an existing project database up to the current schema.</span>
-
-<span class="sd">    A minimal, idempotent stand-in for a migration framework (the project</span>
-<span class="sd">    has none), covering the additive changes that are safe to apply</span>
-<span class="sd">    automatically on connect:</span>
-
-<span class="sd">    - **New tables** (e.g. ``error``) are created via ``create_all``,</span>
-<span class="sd">      which leaves existing tables and their data untouched. This is how a</span>
-<span class="sd">      table added after a project was initialized reaches that project.</span>
-<span class="sd">    - **New nullable columns** on existing tables are added with</span>
-<span class="sd">      ``ALTER TABLE ... ADD COLUMN``. Rows that predate a column keep</span>
-<span class="sd">      NULL -- e.g. ``pipeline_run`` rows from before ``code_version``</span>
-<span class="sd">      existed have no recorded code version, which is correct (it is</span>
-<span class="sd">      genuinely unknown).</span>
-
-<span class="sd">    Freshly initialized databases get everything from ``create_all``</span>
-<span class="sd">    already, so this is effectively a no-op for them. When the pipeline</span>
-<span class="sd">    runs, the main process opens the project first, so by the time workers</span>
-<span class="sd">    connect every table exists and their ``create_all`` does no DDL.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        engine:    The SQLAlchemy engine for the project database.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Create any tables added since the project was initialized (idempotent;</span>
-    <span class="c1"># existing tables and data are left as-is).</span>
-    <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
-
-    <span class="c1"># Add any nullable columns added to tables that already existed.</span>
-    <span class="n">additive_columns</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="s2">&quot;code_version&quot;</span><span class="p">,</span> <span class="s2">&quot;VARCHAR(1000)&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMESTAMP&quot;</span><span class="p">),</span>
-    <span class="p">]</span>
-    <span class="n">inspector</span> <span class="o">=</span> <span class="n">sa_inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
-    <span class="n">present_tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspector</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
-    <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">sql_type</span> <span class="ow">in</span> <span class="n">additive_columns</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">table</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">present_tables</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="n">table</span><span class="p">)}</span>
-            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="c1"># table/column/type come from the trusted list above, not from</span>
-            <span class="c1"># user input, so the f-string is safe here.</span>
-            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="n">text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALTER TABLE </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> ADD COLUMN </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sql_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="p">)</span></div>
-
 
 
 <div class="viewcode-block" id="get_db_engine">
@@ -328,7 +278,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize_cmdline_database</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the current database HDF5 structure tables.&quot;&quot;&quot;</span>
 
-    <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span>
+    <span class="n">create_project_schema</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">get_default_data_reduction_structure</span><span class="p">())</span>
         <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">get_default_light_curve_structure</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span></div>
@@ -337,7 +287,14 @@
 
 <div class="viewcode-block" id="set_project_home">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.set_project_home">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">db_url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_project_home</span><span class="p">(</span>
+    <span class="n">project_home</span><span class="p">,</span>
+    <span class="n">db_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">new_project</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">migrate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">assume_backed_up</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set the database engine and session for the given project home.</span>
 
@@ -363,6 +320,42 @@
 <span class="sd">            ``&quot;mysql+pymysql://user:password@host:3306/dbname&quot;``</span>
 <span class="sd">            ``&quot;mariadb+pymysql://user:password@host:3306/dbname&quot;``</span>
 <span class="sd">            Passing an explicit URL raises an error if a saved URL is found.</span>
+
+<span class="sd">        new_project:</span>
+<span class="sd">            Pass ``True`` when this call is creating a project rather than</span>
+<span class="sd">            opening an existing one. The target database must then contain</span>
+<span class="sd">            none of the AutoWISP tables, since project creation goes on to</span>
+<span class="sd">            drop and recreate them (see ``initialize_database``) -- which</span>
+<span class="sd">            on a centralised server would silently destroy whichever</span>
+<span class="sd">            project already lives in that database. Independent of</span>
+<span class="sd">            backend: it equally catches an SQLite project home that</span>
+<span class="sd">            already holds a database.</span>
+
+<span class="sd">        migrate:</span>
+<span class="sd">            Bring the schema up to date rather than merely requiring that it</span>
+<span class="sd">            already is. Off by default because every process opening a</span>
+<span class="sd">            project calls this, including every pipeline worker, and</span>
+<span class="sd">            concurrent schema changes from dozens of workers is exactly what</span>
+<span class="sd">            must not happen. Set it only where a single process is known to</span>
+<span class="sd">            be in charge: the ``wisp-migrate`` command, the browser</span>
+<span class="sd">            interface selecting a project, and the main process of a</span>
+<span class="sd">            pipeline run.</span>
+
+<span class="sd">        assume_backed_up:</span>
+<span class="sd">            Passed through to :func:`migrate_project`; only meaningful with</span>
+<span class="sd">            ``migrate``. Required to migrate a server database, which cannot</span>
+<span class="sd">            be copied aside automatically.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict or None:    The result of :func:`migrate_project` when</span>
+<span class="sd">            ``migrate`` is set and the project already existed, otherwise</span>
+<span class="sd">            None.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        DatabaseError:  If ``new_project`` is set and the target database</span>
+<span class="sd">            already contains AutoWISP tables. Nothing is written or</span>
+<span class="sd">            dropped in that case: the URL file is persisted only after</span>
+<span class="sd">            this check passes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">global</span> <span class="n">_db_engine</span><span class="p">,</span> <span class="n">_Session</span><span class="p">,</span> <span class="n">_project_home</span>  <span class="c1"># pylint: disable=global-statement</span>
@@ -383,14 +376,16 @@
 
     <span class="n">url_file</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="n">DB_URL_FNAME</span><span class="p">)</span>
 
+    <span class="n">persist_db_url</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">db_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url_file</span><span class="p">),</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Attempting to set a new db_url in </span><span class="si">{</span><span class="n">_project_home</span><span class="si">!r}</span><span class="s2"> which already&quot;</span>
             <span class="sa">f</span><span class="s2">&quot; contains </span><span class="si">{</span><span class="n">url_file</span><span class="si">!r}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-        <span class="c1"># Persist the URL so future calls without db_url reconnect correctly.</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
-            <span class="n">fobj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">db_url</span><span class="p">)</span>
+        <span class="c1"># Persisted (further down) only once the target database has been</span>
+        <span class="c1"># accepted, so a rejected one leaves no half-created project whose</span>
+        <span class="c1"># URL file points at somebody else&#39;s data.</span>
+        <span class="n">persist_db_url</span> <span class="o">=</span> <span class="n">db_url</span>
     <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url_file</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
             <span class="n">db_url</span> <span class="o">=</span> <span class="n">fobj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -400,7 +395,6 @@
         <span class="s2">&quot;pool_pre_ping&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;pool_recycle&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">url_file</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="n">DB_URL_FNAME</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">db_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">db_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="s2">&quot;autowisp.db&quot;</span><span class="p">)</span>
@@ -409,14 +403,46 @@
         <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">&quot;poolclass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NullPool</span>
         <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">&quot;connect_args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">}</span>
 
-    <span class="n">_db_engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
+    <span class="c1"># Built into a local first: an engine rejected below must not become</span>
+    <span class="c1"># the module-wide one, or the caller would be left connected to the</span>
+    <span class="c1"># database it was just refused.</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
+    <span class="n">existing_tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sa_inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
+    <span class="n">already_present</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">existing_tables</span>
+    <span class="k">if</span> <span class="n">new_project</span> <span class="ow">and</span> <span class="n">already_present</span><span class="p">:</span>
+        <span class="c1"># The URL can carry a password, so report the sanitised form.</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">render_as_string</span><span class="p">(</span><span class="n">hide_password</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">DatabaseError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Refusing to create a new project in </span><span class="si">{</span><span class="n">_project_home</span><span class="si">!r}</span><span class="s2">: its &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;database (</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">) already contains &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">already_present</span><span class="p">)</span><span class="si">}</span><span class="s2"> AutoWISP table(s), including &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">already_present</span><span class="p">)[:</span><span class="mi">5</span><span class="p">])</span><span class="si">}</span><span class="s2">. Creating the &quot;</span>
+            <span class="s2">&quot;project would drop them, destroying whatever project they &quot;</span>
+            <span class="s2">&quot;belong to. Point the new project at an empty database, or &quot;</span>
+            <span class="s2">&quot;delete the existing project first.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">_db_engine</span> <span class="o">=</span> <span class="n">engine</span>
     <span class="n">_Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">,</span> <span class="n">expire_on_commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">existing_tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sa_inspect</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">existing_tables</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">persist_db_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Lets future calls with only project_home reconnect here.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+            <span class="n">fobj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">persist_db_url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">already_present</span><span class="p">:</span>
         <span class="n">initialize_cmdline_database</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">migrate</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">migrate_project</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">,</span> <span class="n">assume_backed_up</span><span class="o">=</span><span class="n">assume_backed_up</span><span class="p">)</span>
+
+    <span class="c1"># Read-only on purpose: every process opening a project runs this,</span>
+    <span class="c1"># including every pipeline worker, so it must never issue DDL. Migrating</span>
+    <span class="c1"># is migrate_project()&#39;s job -- see autowisp.database.migrate.</span>
+    <span class="n">check_project_schema</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
 
 </pre></div>
 

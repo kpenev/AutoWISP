@@ -26,7 +26,12 @@ class ImageType(DataModelBase):
 
     __tablename__ = "image_type"
 
-    name = Column(String(100), nullable=False, doc="The image type name")
+    name = Column(
+        String(100),
+        nullable=False,
+        unique=True,
+        doc="The image type name",
+    )
     description = Column(
         String(1000), nullable=True, doc="The description of the image type"
     )

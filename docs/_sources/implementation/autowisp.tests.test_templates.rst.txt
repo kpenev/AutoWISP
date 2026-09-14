@@ -1,0 +1,7 @@
+autowisp.tests.test\_templates module
+=====================================
+
+.. automodule:: autowisp.tests.test_templates
+   :members:
+   :undoc-members:
+   :show-inheritance:

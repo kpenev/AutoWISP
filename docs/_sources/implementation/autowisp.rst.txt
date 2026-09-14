@@ -16,6 +16,7 @@ Subpackages
    autowisp.browser_interface
    autowisp.data_reduction
    autowisp.database
+   autowisp.diagnostics
    autowisp.fake_image
    autowisp.fit_expression
    autowisp.image_calibration
@@ -30,7 +31,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   autowisp.Dump2hdf5
    autowisp.bui_util
    autowisp.catalog
    autowisp.crash_report
@@ -54,4 +54,3 @@ Submodules
    autowisp.source_finder
    autowisp.source_finder_util
    autowisp.split_sources
-   autowisp.tess_interface

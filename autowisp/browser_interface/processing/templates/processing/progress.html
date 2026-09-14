@@ -212,7 +212,7 @@ Processing Progress
                         <span class="tooltiptext">
                             {% if step.0 == 'calibrate' %}
                             Review calibration diagnostics
-                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='quantiles' as diagnostic_url %}
+                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='pixel_quantiles' as diagnostic_url %}
                             {% elif step.0 == 'find' and step.1 == 'stars' %}
                             Review star finding diagnostics
                             {% url 'diagnostics:display_image_diagnostics' diagnostic_name='num_extracted_src' as diagnostic_url %}

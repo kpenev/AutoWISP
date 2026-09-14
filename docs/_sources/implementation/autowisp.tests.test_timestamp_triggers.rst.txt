@@ -1,0 +1,7 @@
+autowisp.tests.test\_timestamp\_triggers module
+===============================================
+
+.. automodule:: autowisp.tests.test_timestamp_triggers
+   :members:
+   :undoc-members:
+   :show-inheritance:

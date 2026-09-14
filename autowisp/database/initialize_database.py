@@ -17,6 +17,7 @@ from autowisp.database.data_model.base import DataModelBase
 from autowisp.database import defaults
 
 from autowisp import processing_steps
+from autowisp.diagnostics.diagnostic_types import standard_diagnostic_types
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -446,100 +447,16 @@ def _overwrite_default_config(new_default_config):
 
 
 def _init_diagnostic_types():
-    """Pre-populate the diagnostic_names table with known diagnostics."""
+    """Pre-populate the diagnostic_names table with known diagnostics.
+
+    The catalogue itself lives in
+    :mod:`autowisp.diagnostics.diagnostic_types`, because validating a
+    diagnostic expression needs to know the names without opening any
+    project. This function's job is only to write the rows.
+    """
 
     with start_db_session() as db_session:
-        for name, description in (
-            [
-                (
-                    "num_extracted_src",
-                    "The number of extracted stars in the image",
-                )
-            ]
-            + [
-                (
-                    f"{param}_center",
-                    f"The smoothed source extraction {param.upper()} parameter "
-                    "at the center of the image",
-                )
-                for param in ["s", "d", "k"]
-            ]
-            + [
-                (
-                    f"{param}_map_residual",
-                    f"RMS difference between source extraction {param.upper()} "
-                    "and smoothed {param.upper()} map",
-                )
-                for param in ["s", "d", "k"]
-            ]
-            + [
-                (
-                    "bg_center",
-                    "The smoothed background level at the center of the image",
-                ),
-                (
-                    "bg_map_residual",
-                    "RMS difference between background and smoothed background "
-                    "map",
-                ),
-            ]
-            + [
-                (
-                    f"{param}_center",
-                    f"The {descr} the center of the image according "
-                    "to the astrometric solution",
-                )
-                for param, descr in [
-                    ("ra", "right ascension of"),
-                    ("dec", "declination of"),
-                    ("z", "zenith distance of"),
-                ]
-            ]
-            + [
-                (
-                    "diagonal_fov",
-                    "The mean angular distance from the image center to its "
-                    "four corners on the sky, used as a scale-independent "
-                    "measure of the field of view",
-                ),
-                (
-                    "pointing_offset",
-                    "The angular distance between the target and the center of "
-                    "the image according to the astrometric solution",
-                ),
-                (
-                    "matched_fraction",
-                    "The fraction of extracted sources that were matched to "
-                    "the reference catalog",
-                ),
-                (
-                    "astrom_residual",
-                    "The RMS distance between matched extracted sources and "
-                    "their projected positions",
-                ),
-                (
-                    "srcextract_mag_zeropt",
-                    "The zeropoint of the transformation between source "
-                    "extraction flux and catalog magnitude (the magnitude "
-                    "corresponding to a flux of 1 ADU)",
-                ),
-                (
-                    "magfit_residual",
-                    "The RMS difference between best fit correction using the "
-                    "final master photometric reference.",
-                ),
-                (
-                    "photometry_mag_offset",
-                    "The best-fit offset between the image magnitude and "
-                    "the reference magnitude in magnitude fit.",
-                ),
-                (
-                    "mag_fit_num_stars",
-                    "The number of stars used in the last magnitude fit "
-                    "iteration for this image",
-                ),
-            ]
-        ):
+        for name, description in standard_diagnostic_types().items():
             db_session.add(DiagnosticType(name=name, description=description))
 
 

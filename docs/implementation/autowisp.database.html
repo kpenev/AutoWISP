@@ -816,7 +816,6 @@
 <li class="toctree-l1"><a class="reference internal" href="autowisp.database.interface.html">autowisp.database.interface module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.database.interface.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.database.interface.html#autowisp.database.interface.DB_URL_FNAME"><code class="docutils literal notranslate"><span class="pre">DB_URL_FNAME</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.database.interface.html#autowisp.database.interface.apply_additive_migrations"><code class="docutils literal notranslate"><span class="pre">apply_additive_migrations()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.database.interface.html#autowisp.database.interface.get_db_engine"><code class="docutils literal notranslate"><span class="pre">get_db_engine()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.database.interface.html#autowisp.database.interface.get_project_home"><code class="docutils literal notranslate"><span class="pre">get_project_home()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.database.interface.html#autowisp.database.interface.initialize_cmdline_database"><code class="docutils literal notranslate"><span class="pre">initialize_cmdline_database()</span></code></a></li>
@@ -845,8 +844,30 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="autowisp.database.manually_fill_tables.html">autowisp.database.manually_fill_tables module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.database.manually_fill_tables.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.migrate.html">autowisp.database.migrate module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.BASELINE_REVISION"><code class="docutils literal notranslate"><span class="pre">BASELINE_REVISION</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._alembic_config"><code class="docutils literal notranslate"><span class="pre">_alembic_config()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._apply_additive_migrations"><code class="docutils literal notranslate"><span class="pre">_apply_additive_migrations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._backup_sqlite"><code class="docutils literal notranslate"><span class="pre">_backup_sqlite()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._is_known_revision"><code class="docutils literal notranslate"><span class="pre">_is_known_revision()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._locked_connection"><code class="docutils literal notranslate"><span class="pre">_locked_connection()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._missing_timestamp_triggers"><code class="docutils literal notranslate"><span class="pre">_missing_timestamp_triggers()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._sqlite_immediate"><code class="docutils literal notranslate"><span class="pre">_sqlite_immediate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate._stamp"><code class="docutils literal notranslate"><span class="pre">_stamp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.check_project_schema"><code class="docutils literal notranslate"><span class="pre">check_project_schema()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.create_project_schema"><code class="docutils literal notranslate"><span class="pre">create_project_schema()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.get_head_revision"><code class="docutils literal notranslate"><span class="pre">get_head_revision()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.get_project_revision"><code class="docutils literal notranslate"><span class="pre">get_project_revision()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.get_schema_drift"><code class="docutils literal notranslate"><span class="pre">get_schema_drift()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.migrate_project"><code class="docutils literal notranslate"><span class="pre">migrate_project()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate.html#autowisp.database.migrate.restore_timestamp_triggers"><code class="docutils literal notranslate"><span class="pre">restore_timestamp_triggers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.migrate_cli.html">autowisp.database.migrate_cli module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate_cli.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate_cli.html#autowisp.database.migrate_cli.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.migrate_cli.html#autowisp.database.migrate_cli.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.database.photref_selection.html">autowisp.database.photref_selection module</a><ul>

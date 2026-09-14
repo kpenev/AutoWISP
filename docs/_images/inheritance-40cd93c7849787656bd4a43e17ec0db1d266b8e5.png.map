@@ -1,0 +1,5 @@
+<map id="inheritance9bb16b05b6" name="inheritance9bb16b05b6">
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="5,80,325,107"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestModelBase" target="_top" title="Every browser&#45;interface model carries the timestamp columns." alt="" coords="15,155,315,181"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="87,5,243,32"/>
+</map>

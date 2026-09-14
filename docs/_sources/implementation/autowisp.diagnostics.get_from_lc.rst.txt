@@ -1,0 +1,7 @@
+autowisp.diagnostics.get\_from\_lc module
+=========================================
+
+.. automodule:: autowisp.diagnostics.get_from_lc
+   :members:
+   :undoc-members:
+   :show-inheritance:

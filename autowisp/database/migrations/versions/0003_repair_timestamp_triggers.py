@@ -33,13 +33,19 @@ def _rebuild_trigger(connection, table, key_columns):
     """Drop and recreate one table's timestamp trigger."""
 
     name = f"update_{table}_timestamp"
-    match = " AND ".join(f"{column} = NEW.{column}" for column in key_columns)
+    match = " AND ".join(
+        f'"{column}" = NEW."{column}"' for column in key_columns
+    )
     # Table and column names come from the database's own catalogue, not
-    # from user input, so interpolating them is safe here.
-    connection.exec_driver_sql(f"DROP TRIGGER IF EXISTS {name}")
+    # from user input, so interpolating them is safe -- but they are
+    # quoted all the same, since a name being legal is not the same as its
+    # being unreserved. A revision keeps its own copy of this DDL rather
+    # than calling the models': what a migration did must not change
+    # because shared code later did.
+    connection.exec_driver_sql(f'DROP TRIGGER IF EXISTS "{name}"')
     connection.exec_driver_sql(
-        f"CREATE TRIGGER {name} AFTER UPDATE ON {table} FOR EACH ROW "
-        f"BEGIN UPDATE {table} SET timestamp = CURRENT_TIMESTAMP "
+        f'CREATE TRIGGER "{name}" AFTER UPDATE ON "{table}" FOR EACH ROW '
+        f'BEGIN UPDATE "{table}" SET "timestamp" = CURRENT_TIMESTAMP '
         f"WHERE {match}; END"
     )
 

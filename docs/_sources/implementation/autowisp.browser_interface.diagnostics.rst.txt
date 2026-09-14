@@ -23,10 +23,13 @@ Submodules
    autowisp.browser_interface.diagnostics.admin
    autowisp.browser_interface.diagnostics.apps
    autowisp.browser_interface.diagnostics.detrending_diagnostics_views
-   autowisp.browser_interface.diagnostics.diag_vs_diag_views
+   autowisp.browser_interface.diagnostics.expression_data
+   autowisp.browser_interface.diagnostics.expression_views
+   autowisp.browser_interface.diagnostics.forms
    autowisp.browser_interface.diagnostics.image_diagnostics_views
    autowisp.browser_interface.diagnostics.models
    autowisp.browser_interface.diagnostics.preview_calibrated
+   autowisp.browser_interface.diagnostics.series_table
    autowisp.browser_interface.diagnostics.tests
    autowisp.browser_interface.diagnostics.urls
    autowisp.browser_interface.diagnostics.views

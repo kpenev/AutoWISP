@@ -385,18 +385,160 @@ The interface plots them three ways, and which one to reach for depends
 on the question.
 
 **One diagnostic across a run** answers "when did this go wrong": pick a
-diagnostic and see it for every image in order, with the channels
-distinguished. A night of cloud, a focus drift, the moon rising -- all
+diagnostic and see it for every image in order, a row per channel you
+care to add. A night of cloud, a focus drift, the moon rising -- all
 have shapes you learn to recognise here.
 
-**One diagnostic against another** answers "why": scatter any two against
-each other, and the relationship shows the cause. Residuals rising with
-zenith distance is airmass; scatter rising with background is moonlight.
+**One diagnostic against another** can often help determine what went wrong. For
+example, plotting astrometry residual vs zenith distance may show increased
+offsets close to the horizon, which may indicate you if your telescope is too
+heavy for your mount.
 
 **Detrending diagnostics** work at the level of the light curves rather
 than the images, showing the scatter left after magnitude fitting, EPD
 and TFA. That is where you see whether the detrending stages actually
 improved anything, and by how much, rather than assuming they did.
+
+Choosing what to draw
+---------------------
+
+Whichever plot you are on, the table above it lists what can be drawn:
+one row per observing session and image type -- and per quantile, where
+the quantiles are being plotted. Clicking a row adds its series to the
+figure, and the first four columns of that row are yours to set: the
+colour, the marker, a scale factor and the label the legend will use.
+
+**The channel is chosen in the row.** Between them the two axes need one
+channel per quantity they draw, and each gets its own column: plotting
+``bg_center`` against time asks for one channel, plotting it against
+itself asks for two -- which is how a diagnostic is compared between
+channels. A column offers only the channels that session recorded the
+diagnostic in, with the number of images each would draw, so a night
+with nothing in it says so before you click.
+
+A row draws nothing until every one of its columns is set. Completing
+them fills in the count and adds a fresh row below, still unbound, so
+the same session can be drawn again in other channels without
+disturbing what you already have. Once every combination is on the
+table no further row appears, there being nothing left to choose. And a
+camera with a single channel offers no choice at all: those rows arrive
+bound and counted, with the channel written as plain text.
+
+The rows arrive ordered by session and then type. Clicking any column heading
+re-orders them, ascending on the first click and reversed on the next --
+excepting the channel columns, where a dropdown sorts by nothing anyone wants.
+Successive clicks compose, so sorting on the type and then on the session gives
+you the types grouped with the sessions still in order inside each. Sorting only
+moves the rows: what you have selected stays selected, the channels you have
+chosen stay chosen, and the colours and labels you have typed stay with their
+rows. Choosing a channel, or toggling a row plotting on/off, does not disturb
+the order.
+
+Quantities of your own
+----------------------
+
+The two selectors do not offer only what was recorded. Anything you can
+write as a formula over the recorded diagnostics can be given a name and
+plotted exactly like one of them -- a residual as a fraction of the field
+of view, a background relative to its own night, the ratio of two pixel
+quantiles. "Diagnostic Expressions" in the left menu is where they are
+defined, and once defined they appear in both selectors alongside the
+diagnostics themselves, because an expression and a diagnostic are the
+same kind of thing to everything downstream: a name that resolves to one
+number per image.
+
+An expression is ordinary Python arithmetic over the diagnostic names,
+plus the mathematical functions -- ``sqrt``, ``log10``, ``abs``,
+``where`` and the rest. It is evaluated over a whole series at once
+rather than image by image, which is what makes aggregates work::
+
+    rel_astrom_residual = astrom_residual[0] / diagonal_fov[0]
+    rel_bg              = bg_center[0] - nanmedian(bg_center[0])
+    quantile_contrast   = pixel_q999[0] / pixel_q99[0]
+
+**A diagnostic is read in a channel, and the expression says which.**
+Every diagnostic is recorded once per channel, so its bare name does not
+name a number; ``bg_center[0]`` does. What the subscript holds is not a
+channel but a *slot*, filled in from the table when you plot -- and it
+has to be, because one library is shared by every project and one
+camera's channels are called ``B,G1,G2,R`` where another's are
+``B0,G0,G1,R0``. An expression naming ``R`` would mean a different thing
+in each, or nothing at all.
+
+Two reads in the same slot get the same channel; two slots get two
+columns in the table, to be filled in separately::
+
+    sky_color = bg_center[0] / bg_center[1]
+
+can be used as an indicator of clouds (if you set slot 0 to the red channel and
+slot 1 to the blue for example), but::
+
+    not_useful = bg_center[0] / bg_center[0]
+
+will allow you to only use a single channel when plotting and will always
+evaluate to one (i.e. a flat line plot).
+
+The numbers are yours to choose and only their order matters -- they are
+matched to the table's columns lowest first, so ``[0]`` and ``[1]`` work
+exactly as ``[3]`` and ``[7]`` would. ``jd`` takes no subscript at all,
+being one value per image rather than one per channel.
+
+Expressions may be built out of other expressions, so
+``rel_astrom_residual[0] / nanmedian(rel_astrom_residual[0])`` is a
+legitimate next step, and the management page shows what each one is
+built from. A reference fills in the slots of what it names, so
+``sky_color[1,0]`` is the ratio the other way up and
+``sky_color[0,1] - sky_color[1,2]`` compares three channels through an
+expression written for two. Renaming one carries its dependents with it;
+deleting one that others still need is refused, and names them.
+
+**An aggregate spans one session, image type and channel** -- the group
+a series is drawn from. So ``nanmedian(bg_center[0])`` is the median over
+that night's object frames in whichever channel slot 0 was bound to, not
+over the whole archive, and not across channels: each slot is read on
+its own. That is the useful meaning for a night-relative quantity, and
+the only one that stays affordable when the archive runs to millions of
+images.
+
+.. warning::
+
+   Prefer the ``nan`` forms of the aggregates: ``nanmedian`` over
+   ``median``, ``nanmean`` over ``mean``, and so on.
+
+   A series carries a value for every image of its session, and images
+   for which a diagnostic was never recorded -- because the stage has not
+   run yet, or failed, or does not apply to that frame -- carry ``NaN``.
+   The plain aggregates propagate that, so a single such image makes
+   ``bg_center[0] - median(bg_center[0])`` undefined *everywhere* and the
+   plot comes out empty rather than wrong. The ``nan`` forms ignore
+   those images, which is almost always what was meant. Saving an
+   expression with a bare aggregate is allowed -- sometimes it is what
+   you want -- but you will get a warning at the time.
+
+   ``jd`` is the one exception, since every image on the plot has one:
+   ``jd - min(jd)`` is safe.
+
+An expression is offered only where the project has recorded everything
+it needs, transitively. One built on ``astrom_residual`` will not appear
+until plate solving has run, and neither will anything built on *it*.
+That is availability rather than breakage: the expression is perfectly
+valid, and the management page distinguishes the two -- an unrecorded
+input is reported separately from a name that means nothing at all.
+
+Expressions belong to the interface rather than to any one project, so
+they follow you between projects, and **Export** and **Import** move them
+between installations as a JSON file. Exporting a selection brings along
+whatever it is built from, so the file always stands on its own. A file
+naming an expression you already have is the one thing importing cannot
+decide for you: everything else in it is imported, and it then shows you
+both versions side by side and asks.
+
+One thing to know about ``pixel_quantiles``: it names the whole family
+and expands to one row per quantile, so selecting it for *both* axes
+draws each quantile against itself -- a diagonal line, unless you give
+the two columns different channels, which draws one quantile between
+channels instead. To compare two *quantiles*, write the expression:
+``pixel_q999[0] / pixel_q99[0]``.
 
 Every point is a link
 ---------------------

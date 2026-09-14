@@ -3,13 +3,9 @@ function navigateDiagnostics()
     const bar = document.getElementById('diag-selector-bar');
     const yDiag = document.getElementById('diagnostic-selector').value;
     const xDiag = document.getElementById('x-diagnostic-selector').value;
-    if (xDiag === 'time') {
-        window.location.href = bar.dataset.imageUrl.replace('YPLACEHOLDER', yDiag);
-    } else {
-        window.location.href = bar.dataset.diagVsDiagUrl
-            .replace('XPLACEHOLDER', xDiag)
-            .replace('YPLACEHOLDER', yDiag);
-    }
+    window.location.href = bar.dataset.diagnosticsUrl
+        .replace('XPLACEHOLDER', xDiag)
+        .replace('YPLACEHOLDER', yDiag);
 }
 
 function selectSymbol(event)
@@ -20,35 +16,61 @@ function selectSymbol(event)
     button.replaceChild(event.currentTarget.cloneNode(true), button.children[0]);
 }
 
+function getRowChannels(row)
+{
+    // A fixed channel is text rather than a dropdown, since there is
+    // nothing to choose; either way the cell says what the row binds.
+    return Array.from(row.querySelectorAll(".slot-cell")).map(
+        (cell) => cell.dataset.channel
+                  ?? (cell.querySelector("select") || {}).value
+                  ?? ""
+    );
+}
+
+function isRowBound(row)
+{
+    const channels = getRowChannels(row);
+    return channels.every((channel) => channel !== "");
+}
+
 function getSelectedDatasets()
 {
-    const activeRows = document.querySelectorAll(".diagnostic-row.active");
+    // Every row, not only the drawn ones: the server decides from the
+    // whole table whether a completed binding has earned a spare row.
+    const rows = document.querySelectorAll(".diagnostic-row");
     let datasets = {};
-    for ( const row of activeRows ) {
+    for ( const row of rows ) {
         let seriesId = row.id;
         let button = document.getElementById("marker-button:" + seriesId);
         let marker = button.children[0].className.baseVal.split(" ")[1];
-        if ( marker != "" ) {
-            datasets[seriesId] = {
-                "channel": row.getAttribute("channel"),
-                "color": document.getElementById(
-                    "plot-color:" + seriesId
-                ).value,
-                "marker": marker,
-                "scale": document.getElementById(
-                    "scale:" + seriesId
-                ).value,
-                "label": document.getElementById(
-                    "label:" + seriesId
-                ).value,
-            };
-        }
+        datasets[seriesId] = {
+            "selected": row.classList.contains("active"),
+            "channels": getRowChannels(row),
+            "color": document.getElementById(
+                "plot-color:" + seriesId
+            ).value,
+            "marker": marker,
+            "scale": document.getElementById(
+                "scale:" + seriesId
+            ).value,
+            "label": document.getElementById(
+                "label:" + seriesId
+            ).value,
+        };
     }
     let display = document.getElementById("diagnostics-display");
     let rect = display.getBoundingClientRect();
     let legendToggle = document.getElementById("legend-toggle");
+
+    // Set by the dropdown that just completed a row, and cleared here so
+    // that the next redraw -- a colour, a marker, a row switched on -- does
+    // not ask for a count and a spare row all over again.
+    const bind = getSelectedDatasets.bind;
+    getSelectedDatasets.bind = null;
+
     return {
         "datasets": datasets,
+        "bind": bind,
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
             "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
@@ -56,8 +78,42 @@ function getSelectedDatasets()
     };
 }
 
+function applyBinding(data)
+{
+    // What a completed row earns: its own count, the defaults that follow
+    // from the channels it now names, and -- the first time -- a fresh
+    // spare below it, so a second binding of the same series can be built.
+    if ( !data.bind )
+        return;
+    const row = document.getElementById(data.bind);
+    if ( !row )
+        return;
+
+    const count = row.querySelector(".series-count");
+    if ( count && data.count !== undefined )
+        count.textContent = data.count;
+
+    // Only where the field still holds what it was rendered with: a colour
+    // or a label the user chose is theirs, and must survive a rebinding.
+    for ( const [prefix, value] of [["plot-color", data.color],
+                                    ["label", data.label]] ) {
+        const input = document.getElementById(prefix + ":" + data.bind);
+        if ( input && value !== undefined
+             && input.value === input.dataset.default ) {
+            input.value = value;
+            input.dataset.default = value;
+        }
+    }
+
+    if ( data.spare_row ) {
+        row.insertAdjacentHTML("afterend", data.spare_row);
+        wireAppendedRow(row.nextElementSibling);
+    }
+}
+
 function showDiagnosticsPlot(data)
 {
+    applyBinding(data);
     let downloadBtn = document.getElementById("download-button");
     if (downloadBtn)
         downloadBtn.style.display = "inline";
@@ -105,6 +161,49 @@ function initDiagnosticsPlotting(plotURL)
     initDiagnosticsPlotting.done = true;
 }
 
+function onSlotChange(event)
+{
+    const row = event.target.closest(".diagnostic-row");
+
+    if ( !isRowBound(row) ) {
+        // Nothing to fetch, count or draw until every channel is chosen,
+        // so a partly bound row asks the server nothing -- unless it was
+        // drawn a moment ago, and this change has just undrawn it.
+        if ( row.classList.contains("active") )
+            updateFigure();
+        return;
+    }
+
+    getSelectedDatasets.bind = row.id;
+    updateFigure();
+}
+
+function wireDiagnosticRow(row)
+{
+    row.addEventListener("click", function() {
+        this.classList.toggle("active");
+        updateFigure();
+    });
+
+    for ( const select of row.querySelectorAll(".slot-select") ) {
+        // The row's own listener fires for clicks on its descendants, so
+        // opening a dropdown would otherwise toggle the row underneath it.
+        select.addEventListener("click", (event) => event.stopPropagation());
+        select.addEventListener("change", onSlotChange);
+    }
+}
+
+function wireAppendedRow(row)
+{
+    wireDiagnosticRow(row);
+
+    // initDiagnosticsPlotting wired the markers of every row the page was
+    // rendered with; one appended afterwards has to be caught here.
+    for ( const symbol of row.querySelectorAll(".plot-marker") )
+        if ( symbol.parentElement.className == "dropdown-content" )
+            symbol.addEventListener("click", selectSymbol);
+}
+
 function initImageDiagnostics(plotURL)
 {
     initDiagnosticsPlotting();
@@ -113,13 +212,7 @@ function initImageDiagnostics(plotURL)
     updateFigure.callback = showDiagnosticsPlot;
     updateFigure.getParam = getSelectedDatasets;
 
-    const rows = document.querySelectorAll(".diagnostic-row");
-    rows.forEach(function(row) {
-        row.addEventListener("click", function() {
-            this.classList.toggle("active");
-            updateFigure();
-        });
-    });
+    document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
 }
 
 document.addEventListener("DOMContentLoaded", function() {

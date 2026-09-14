@@ -1,6 +1,6 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 RUN apt-get -y update && \
-    apt-get -y --no-install-recommends install astrometry.net
+    apt-get -y --no-install-recommends install astrometry.net git
 RUN pip3 install autowisp
 RUN mkdir /storage
 RUN mkdir /anet_indices

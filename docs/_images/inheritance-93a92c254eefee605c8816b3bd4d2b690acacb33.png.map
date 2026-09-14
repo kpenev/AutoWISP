@@ -1,0 +1,13 @@
+<map id="inheritance3a98bbee8f" name="inheritance3a98bbee8f">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="245,304,575,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="5,379,407,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="431,379,800,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="26,229,404,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="428,229,781,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="472,155,737,181"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" target="_top" title="Everything initialization inserts must fit its column." alt="" coords="738,80,1242,107"/>
+<area shape="rect" id="node8" title="A class whose instances are single test cases." alt="" coords="912,5,1068,32"/>
+<area shape="rect" id="node9" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="51,155,380,181"/>
+<area shape="rect" id="node10" title="define a class as inspectable." alt="" coords="494,80,715,107"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="552,5,657,32"/>
+</map>

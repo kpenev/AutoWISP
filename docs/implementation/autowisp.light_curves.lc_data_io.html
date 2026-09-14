@@ -193,7 +193,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.lc_data_io.</span></span><span class="sig-name descname"><span class="pre">LCDataIO</span></span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <div class="graphviz"><img src="../_images/inheritance-7d117ba63f93ef6550e028baee19a3b15ec73ff7.png" alt="Inheritance diagram of autowisp.light_curves.lc_data_io.LCDataIO" usemap="#inheritance80063547c8" class="inheritance graphviz" /></div>
 <map id="inheritance80063547c8" name="inheritance80063547c8">
 <area shape="rect" id="node1" href="#autowisp.light_curves.lc_data_io.LCDataIO" target="_top" title="A callable class which gathers a slice of LC data from frames/DR files." alt="" coords="5,5,279,32"/>
@@ -231,7 +231,7 @@ data as it is being read from data reduction files.</p>
 the given source in the LCDataSlice arrays that are per-source.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -253,7 +253,7 @@ the given source in the LCDataSlice arrays that are per-source.</p>
 reading) data reduction file for the frame being processed.</p></li>
 <li><p><strong>frame_header</strong> (<em>dict-like</em>) – A pyfits header or the equivalent
 dictionary for the frame being processed.</p></li>
-<li><p><strong>frame_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index at which to place this frame’s data
+<li><p><strong>frame_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index at which to place this frame’s data
 in the LCDataSlice object being filled.</p></li>
 <li><p><strong>lc_example</strong> (<a class="reference internal" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" title="autowisp.light_curves.light_curve_file.LightCurveFile"><em>LightCurveFile</em></a>) – See _classify_datasets().</p></li>
 </ul>
@@ -328,7 +328,7 @@ for which the configuration applies.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -340,10 +340,10 @@ for which the configuration applies.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dimensions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>iterable</em>) – Either the name of dataset for which
+<li><p><strong>dimensions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>iterable</em>) – Either the name of dataset for which
 to iterate over all dimensions other than <cite>‘frame’</cite> and
 <cite>‘source’</cite> or a tuple contaning all dimensions to iterate over.</p></li>
-<li><p><strong>contract_multivalue</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If true, multi-valued dimensions are
+<li><p><strong>contract_multivalue</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If true, multi-valued dimensions are
 treated as if they have a size of 1.</p></li>
 </ul>
 </dd>
@@ -370,11 +370,11 @@ identified by <cite>dimensions</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>quantity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key of the LC quantity that
+<li><p><strong>quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key of the LC quantity that
 will be extended.</p></li>
-<li><p><strong>dimension_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>)</em>) – The values of the dimensions on
+<li><p><strong>dimension_values</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>)</em>) – The values of the dimensions on
 which the dataset depends.</p></li>
-<li><p><strong>source_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index of the source for which the LC is
+<li><p><strong>source_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index of the source for which the LC is
 being updated within the LCDataReader.lc_data_slice.</p></li>
 <li><p><strong>defined_indices</strong> – See _add_configurations().</p></li>
 </ul>
@@ -408,7 +408,7 @@ being updated within the LCDataReader.lc_data_slice.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dimensions</strong> – See _get_dimensions_iterator().</p></li>
-<li><p><strong>dimension_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>)</em>) – The values for the various dataset
+<li><p><strong>dimension_values</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>)</em>) – The values for the various dataset
 dimensions which to turn to substitutions.</p></li>
 </ul>
 </dd>
@@ -416,7 +416,7 @@ dimensions which to turn to substitutions.</p></li>
 <dd class="field-even"><p>Ready to be passed to functions needing it to resolve path.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -428,13 +428,13 @@ dimensions which to turn to substitutions.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>quantity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key of the dataset being filled.</p></li>
+<li><p><strong>quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key of the dataset being filled.</p></li>
 <li><p><strong>value</strong> – The value to set to the field. Must have the correct
 type.</p></li>
 <li><p><strong>frame_index</strong> – See _add_to_data_slice().</p></li>
-<li><p><strong>dim_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>,</em><em>...</em><em>)</em>) – The value for each dimension of
+<li><p><strong>dim_values</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>,</em><em>...</em><em>)</em>) – The value for each dimension of
 the dataset.</p></li>
-<li><p><strong>source_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>None</em>) – For source dependent datasets
+<li><p><strong>source_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>None</em>) – For source dependent datasets
 only, the index of the source in the data_slice.</p></li>
 </ul>
 </dd>
@@ -452,7 +452,7 @@ only, the index of the source in the data_slice.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>light_curve</strong> (<a class="reference internal" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" title="autowisp.light_curves.light_curve_file.LightCurveFile"><em>LightCurveFile</em></a>) – The light curve to update.</p></li>
-<li><p><strong>source_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index of the source for which the
+<li><p><strong>source_index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index of the source for which the
 lightcurve is being updated within the slice.</p></li>
 <li><p><strong>defined_indices</strong> (<em>numpy.array</em><em>(</em><em>dtype=bool</em><em>)</em>) – Array of flags
 indicating for each entry in the data slice should be included
@@ -544,7 +544,7 @@ in every frame.</p></li>
 </ul>
 </div></blockquote>
 </p></li>
-<li><p><strong>observatory</strong> (<em>None</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – If specified, should be a dictionary
+<li><p><strong>observatory</strong> (<em>None</em><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – If specified, should be a dictionary
 with keys <cite>‘SITELAT’</cite>, <cite>‘SITELONG’</cite>, and <cite>‘SITEALT’</cite> which
 overwrite or add the header information for the observatory’s
 location on earth.</p></li>
@@ -639,7 +639,7 @@ LCDataSlice object being filled.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>

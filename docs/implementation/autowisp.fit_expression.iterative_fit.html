@@ -182,7 +182,7 @@
 the predicted values (i.e. the matrix defining the fitting
 problem, apart from weighting).</p></li>
 <li><p><strong>target_values</strong> – The values we are trying to reproduce.</p></li>
-<li><p><strong>max_downdates</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of deletions to
+<li><p><strong>max_downdates</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of deletions to
 handle by downdating the QR decomposition, either as a fraction of
 the size of <cite>weighted_target</cite> (if <cite>max_downdates</cite> is a floating
 point between 0 and 1), or as an absolute value (if <cite>max_downdates</cite>
@@ -192,10 +192,10 @@ corresponding rows are deleted and a new QR decomposition is derived
 from scratch.</p></li>
 <li><p><strong>weights</strong> – The weight to give to each entry in <cite>target_values</cite>. If
 None, no weighting is done.</p></li>
-<li><p><strong>error_avg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – How to average fitting residuals for outlier
+<li><p><strong>error_avg</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – How to average fitting residuals for outlier
 rejection. Should be a scipy/numpy top-level function (e.g. mean,
 nanmedian etc).</p></li>
-<li><p><strong>rej_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – How far away from the fit should a point be before
+<li><p><strong>rej_level</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – How far away from the fit should a point be before
 it is rejected in units of error_avg.</p></li>
 <li><p><strong>max_rej_iter</strong> – The maximum number of rejection/re-fitting iterations
 to perform. If the fit has not converged by then, the latest

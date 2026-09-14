@@ -1,0 +1,10 @@
+<map id="inheritancee4304d8089" name="inheritancee4304d8089">
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="530,80,864,107"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" target="_top" title="An unconfigured installation keeps working untouched." alt="" coords="5,155,352,181"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_bui_db_config.TestDiscovery" target="_top" title="Where the URL is looked for, and in what order." alt="" coords="376,155,683,181"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" target="_top" title="Django&#39;s MySQL backend is made to work with the driver present." alt="" coords="707,155,1026,181"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" target="_top" title="A URL becomes Django&#39;s DATABASES dictionary." alt="" coords="1050,155,1379,181"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="619,5,775,32"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="888,80,978,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="874,5,992,32"/>
+</map>

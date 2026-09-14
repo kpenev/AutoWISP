@@ -172,25 +172,26 @@
 <span id="autowisp-light-curves-epd-correction-module"></span><h1>autowisp.light_curves.epd_correction module<a class="headerlink" href="#module-autowisp.light_curves.epd_correction" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-08e4daba65d94aa87781d67eb887e23b3c45afcf.png" alt="Inheritance diagram of Correction, EPDCorrection, EPDError, Evaluator, FitTermsInterface, LightCurveFile, repeat" usemap="#inheritance032411f3a7" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-d2570efecc5965e372277a2e21d2ee11d8aa2e31.png" alt="Inheritance diagram of Correction, EPDCorrection, EPDError, Evaluator, FitTermsInterface, LightCurveFile, repeat" usemap="#inheritance032411f3a7" class="inheritance graphviz" /></div>
 <map id="inheritance032411f3a7" name="inheritance032411f3a7">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
 <area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
-<area shape="rect" id="node5" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="788,80,977,107"/>
+<area shape="rect" id="node6" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="773,80,992,107"/>
 <area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node13" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="47,677,374,704"/>
-<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="993,5,1228,32"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1011,80,1210,107"/>
-<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.EPDError" target="_top" title="Failure in the EPD detrending step." alt="" coords="1010,155,1211,181"/>
-<area shape="rect" id="node9" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="1252,5,1519,32"/>
-<area shape="rect" id="node11" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="1542,5,1815,32"/>
-<area shape="rect" id="node12" href="#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="1514,80,1843,107"/>
-<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
-<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
-<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
-<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
-<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
-<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+<area shape="rect" id="node14" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="47,677,374,704"/>
+<area shape="rect" id="node5" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="788,155,977,181"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="999,5,1233,32"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1016,80,1216,107"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.EPDError" target="_top" title="Failure in the EPD detrending step." alt="" coords="1016,155,1216,181"/>
+<area shape="rect" id="node10" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="1257,5,1524,32"/>
+<area shape="rect" id="node12" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="1548,5,1820,32"/>
+<area shape="rect" id="node13" href="#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="1520,80,1848,107"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
 </map><p>Define class for performing EPD correction on lightcurves.</p>
 </section>
 <dl class="py class">
@@ -252,7 +253,7 @@ directly to LightCurveFile.add_configurations().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lc_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The filename of the light curve to fit.</p></li>
+<li><p><strong>lc_fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The filename of the light curve to fit.</p></li>
 <li><p><strong>get_fit_dataset</strong> (<em>callable</em>) – A function that takes a LightCurveFile
 instance, dataset key and substitutions and returns either a
 single array which is the dataset to calculate and apply EPD
@@ -263,14 +264,14 @@ allow for protecting a signal from being modified by the fit, in
 which case the second dataset should have the protected signal
 removed from it, and the first dataset should be the original
 datasets stored in the lightcurve.</p></li>
-<li><p><strong>extra_predictors</strong> (<em>None</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, or </em><em>numpy structured array</em>) – Additional predictor datasets to add to the ones configured
+<li><p><strong>extra_predictors</strong> (<em>None</em><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, or </em><em>numpy structured array</em>) – Additional predictor datasets to add to the ones configured
 through __init__, for this lightcurve only. The intent is to
 allow for reconstructive EPD, by passing an expected signal or a
 set of signals which are fit simultaneously to the EPD
 corrections. The derived corrections for these components are
 not applied when calculating the corrected dataset, but the best
 fit amplitudes are added to the result.</p></li>
-<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result be saved to the lightcurve. Can be
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result be saved to the lightcurve. Can be
 used to disable saving if the current EPD evaluation is not the
 final one during reconstructive EPD.</p></li>
 </ul>
@@ -298,22 +299,22 @@ were supplied to __init__().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>used_variables</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keys are variables used in
+<li><p><strong>used_variables</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keys are variables used in
 <cite>fit_points_filter_expression</cite> and <cite>fit_terms_expression</cite> and
 the corresponding values are 2-tuples of pipeline keys
 corresponding to each variable and an associated dictionary of
 path substitutions. Each entry defines a unique independent
 variable to use in the fit or based on which to select points to
 fit.</p></li>
-<li><p><strong>fit_points_filter_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – An expression using
+<li><p><strong>fit_points_filter_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – An expression using
 <cite>used_variables</cite> which evalutes to either True or False
 indicating if a given point in the lightcurve should be fit and
 corrected.</p></li>
-<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A fitting terms expression involving
+<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A fitting terms expression involving
 only variables from <cite>used_variables</cite> which expands to the
 various terms to use in a linear least squares EPD correction.</p></li>
 <li><p><strong>fit_datasets</strong> – See Correction.__init__().</p></li>
-<li><p><strong>fit_weights</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Weights to use when fitting each
+<li><p><strong>fit_weights</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Weights to use when fitting each
 fit_dataset. Follows the same format as
 <cite>fit_points_filter_expression</cite>. Can be either a single
 expression, which is applied to all datasets or a list of

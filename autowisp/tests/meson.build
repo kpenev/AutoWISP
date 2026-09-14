@@ -1,16 +1,31 @@
+# Two files in this directory are deliberately not listed:
+# `generate_catalog_test_data.py` and `update_hdf5_contents.py`. Both are
+# tools for *making* and *manipulating* the test data rather than part of
+# the suite -- worth keeping in the repository and pointless to ship. An
+# audit comparing this list against the directory will flag them; they are
+# meant to be flagged and left.
 py_src = [
   '__init__.py',
   '__main__.py',
   'fits_test_case.py',
   'get_test_data.py',
   'h5_test_case.py',
+  'test_bui_db_config.py',
+  'test_bui_models.py',
   'test_calibrate.py',
   'test_catalog.py',
+  'test_channel_binding.py',
   'test_crash_report.py',
   'test_create_lightcurves.py',
   'test_database_migration.py',
   'test_detrending_stat.py',
+  'test_diagnostic_expressions.py',
+  'test_diagnostics_views.py',
   'test_epd.py',
+  'test_evaluator.py',
+  'test_diagnostic_types.py',
+  'test_expression_series.py',
+  'test_expressions.py',
   'error_fixtures.py',
   'test_error_capture_middleware.py',
   'test_error_cli.py',
@@ -33,6 +48,8 @@ py_src = [
   'test_solve_astrometry.py',
   'test_source_finder.py',
   'test_stack_to_master.py',
+  'test_templates.py',
+  'test_timestamp_triggers.py',
   'test_tfa.py',
   'test_tfa_num_templates.py',
 ]

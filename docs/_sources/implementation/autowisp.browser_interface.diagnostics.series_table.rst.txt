@@ -1,0 +1,7 @@
+autowisp.browser\_interface.diagnostics.series\_table module
+============================================================
+
+.. automodule:: autowisp.browser_interface.diagnostics.series_table
+   :members:
+   :undoc-members:
+   :show-inheritance:

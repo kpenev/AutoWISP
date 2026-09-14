@@ -1,6 +1,7 @@
 py_src = [
   '__init__.py',
   'asgi.py',
+  'db_config.py',
   'settings.py',
   'urls.py',
   'wsgi.py'

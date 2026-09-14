@@ -91,6 +91,15 @@ jobs:
           # matrix.extra_pip adds per-cell constraints (Intel mac pins llvmlite).
           python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}" ${{ matrix.extra_pip }} .
           python -c "from importlib.metadata import version; print('numpy', version('numpy'), '| astrowisp', version('astrowisp'))"
+      # --help parses arguments and exits, but only after start.py has
+      # imported the settings, and through them the whole browser-interface
+      # import chain. That chain is what no test reaches: the suite puts
+      # browser_interface on sys.path itself, so an import inside it naming a
+      # bare django_project resolves there and fails only for the installed
+      # entry point, which is exactly how one shipped broken.
+      - name: Smoke-test the BUI entry point
+        shell: bash
+        run: wisp-bui --help
       # Solve astrometry locally on Linux/macOS: just install solve-field. The
       # test harness points solve_astrometry at the astrometry.net indices bundled
       # in the test data (via AUTOWISP_ANET_INDICES). Windows has no practical

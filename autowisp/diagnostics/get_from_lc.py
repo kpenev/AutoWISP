@@ -4,14 +4,12 @@
 from itertools import product, count
 import sys
 
-from matplotlib import pyplot
 import numpy
 import pandas
 from pytransit import RoadRunnerModel
 from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.light_curves.light_curve_file import LightCurveFile
-from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import LightCurveEvaluator
 from autowisp.database.interface import set_project_home
 
@@ -32,7 +30,7 @@ def evaluate_model(model, lc_eval, expression_params, shift_to=None):
     model_values = globals()[model["type"] + "_model"](*args, **kwargs)
     if shift_to is not None:
         shift_to = lc_eval(shift_to.format_map(expression_params))
-        assert len(shift_to) == len(times)
+        assert len(shift_to) == len(model_values)
         model_values += numpy.nanmedian(shift_to - model_values)
     return model_values
 
@@ -77,9 +75,7 @@ def optimize_substitutions(
                 - model_values
             )
 
-        minimize_val = lc_eval(
-            minimize.format_map(expression_params), raise_errors=True
-        )
+        minimize_val = lc_eval(minimize.format_map(expression_params))
         if best_found is None or minimize_val < best_found:
             best_found = minimize_val
             best_combination = combination
@@ -143,8 +139,7 @@ def evaluate_expressions(expressions, lc_eval, photometry_mode):
             for var_name, var_expr in expressions.items():
                 print(f"Evaluating {var_expr!r} for aperture {ap_ind}")
                 result[var_name.format(aperture_index=ap_ind)] = lc_eval(
-                    var_expr.format(mode=photometry_mode),
-                    raise_errors=True,
+                    var_expr.format(mode=photometry_mode)
                 )
         except OSError:
             if isinstance(aperture_indices, list):
@@ -176,16 +171,12 @@ def get_sphotref_result(
 
         lc_eval.update_substitutions({"aperture_index": 0})
         lc_points_selection = lc_eval(
-            sphotref_dset_key + " == " + repr(single_photref_fname),
-            raise_errors=True,
+            sphotref_dset_key + " == " + repr(single_photref_fname)
         )
         del lc_eval.lc_substitutions["aperture_index"]
         if configuration["selection"] is not None:
             lc_points_selection = numpy.logical_and(
-                lc_eval(
-                    configuration["selection"] or "True",
-                    raise_errors=True,
-                ),
+                lc_eval(configuration["selection"] or "True"),
                 lc_points_selection,
             )
 
@@ -463,118 +454,6 @@ def main():
             float_format=configuration["float_format"],
             index=False,
         )
-
-
-def old_main():
-    """Plot the lightcurve of WASP-33."""
-
-    # combined_figure_id = pyplot.figure(0, dpi=300).number
-    # individual_figures_id = pyplot.figure(1, dpi=300).number
-    # transit_params = {
-    #    "k": 0.1215,  # the planet-star radius ratio
-    #    "ldc": [0.79272802, 0.72786169],  # limb darkening coeff
-    #    "t0": 2455787.553228,  # the zero epoch,
-    #    "p": 3.94150468,  # the orbital period,
-    #    "a": 11.04,  # the orbital semi-major divided by R*,
-    #    "i": 1.5500269086961642,  # the orbital inclination in rad,
-    #    # e: the orbital eccentricity (optional, can be left out if assuming
-    #    #   circular a orbit), and
-    #    # w: the argument of periastron in radians (also optional, can be left
-    #    #   out if assuming circular a orbit).
-    # }
-
-    for detrend, fmt in [("magfit", "ob")]:  # ,
-        # ('epd', 'or'),
-        # ('tfa', 'ob')]:
-        data_by_sphotref = get_plot_data(
-            "/mnt/md1/DSLR_DATA/PANOPTES/LC/GDR3_2876391245114999040.h5",
-            expressions={
-                "y": (
-                    f"{{mode}}.{detrend}.magnitude - "
-                    f"nanmedian({{mode}}.{detrend}.magnitude)"
-                ),
-                "x": "skypos.BJD - skypos.BJD.min()",
-                "frame": "fitsheader.rawfname",
-                "bin5min": "(skypos.BJD * 24 * 12).astype(int)",
-            },
-            configuration={
-                "lc_substitutions": {},
-                "selection": None,
-                "find_best": [("aperture_index", range(46))],
-                "minimize": (
-                    f"nanmedian(abs({{mode}}.{detrend}.magnitude - "
-                    f"nanmedian({{mode}}.{detrend}.magnitude)))"
-                ),
-                #           "nanmedian(abs(model_diff))",
-                "photometry_modes": ["apphot"],
-            },
-            model=None,
-            # {
-            #    'type': 'transit',
-            #    'quantity': 'y',
-            #    'shift_to': True,
-            #    'kwargs': {
-            #        'times': 'skypos.BJD',
-            #        **{k: repr(v) for k, v in transit_params.items()}
-            #    }
-            # }
-        )
-
-        pyplot.figure(combined_figure_id)
-        for combine_by, markersize, label in [
-            ("frame", 2, "raw"),
-            # ("bin5min", 10, "5 min bins"),
-        ]:
-            data_combined = calculate_combined(
-                data_by_sphotref, combine_by, numpy.nanmedian
-            )
-
-            pyplot.plot(
-                data_combined["x"],
-                data_combined["y"],
-                fmt,
-                label=detrend,
-                markersize=markersize,
-                markeredgecolor="black" if markersize > 5 else "none",
-            )
-        # pyplot.plot(
-        #    data_combined["x"],
-        #    data_combined["best_model"]
-        #    + numpy.nanmedian(data_combined["y"] - data_combined["best_model"]),
-        #    #                    transit_model(plot_data['x'],
-        #    #                                  shift_to=plot_data['y'],
-        #    #                                  **transit_params),
-        #    "-k",
-        #    linewidth=3,
-        # )
-
-        pyplot.figure(individual_figures_id)
-        for subfig_id, (sphotref_fname, single_data) in enumerate(
-            data_by_sphotref.items()
-        ):
-            print(f"Single data: {single_data!r}")
-            pyplot.subplot(2, 2, subfig_id + 1)
-            pyplot.plot(
-                single_data["x"],
-                single_data["y"],
-                fmt,
-                label=label,
-                markersize=1,
-            )
-            # pyplot.plot(single_data["x"], single_data["best_model"], "-k")
-            with DataReductionFile(sphotref_fname, "r") as dr_file:
-                pyplot.title(dr_file.get_frame_header()["CLRCHNL"])
-            pyplot.legend()
-            pyplot.ylim(0.1, -0.1)
-
-    pyplot.figure(combined_figure_id)
-    pyplot.xlabel("Time [days]")
-    pyplot.ylabel("Magnitude")
-    pyplot.ylim(0.05, -0.05)
-    pyplot.legend()
-    pyplot.savefig("XO-1_combined.pdf")
-    pyplot.figure(individual_figures_id)
-    pyplot.savefig("XO-1_individual.pdf")
 
 
 if __name__ == "__main__":

@@ -172,12 +172,12 @@
 <span id="autowisp-database-image-processing-module"></span><h1>autowisp.database.image_processing module<a class="headerlink" href="#module-autowisp.database.image_processing" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-e5f6c8bea6cbd5d5d5b2683655cea4f47275b1e6.png" alt="Inheritance diagram of Camera, CameraChannel, CameraType, Component, Condition, ConditionExpression, DataReductionFile, DiagnosticType, Evaluator, ExpressionMatcher, Image, ImageDiagnostics, ImageMasterSelection, ImageProcessingManager, ImageProcessingProgress, InputMasterTypes, MasterFile, MasterSelectionError, MasterType, NoMasterError, ObservingSession, PhotometryDiagnostics, PipelineError, ProcessedImages, ProcessingManager, SkyCoord, Step, StepDependencies, Transformation" usemap="#inheritanceb6049958c9" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-bb5996b68e87262a36c00921cbbd646c91ce9e15.png" alt="Inheritance diagram of Camera, CameraChannel, CameraType, Component, Condition, ConditionExpression, DataReductionFile, DiagnosticType, Evaluator, ExpressionMatcher, Image, ImageDiagnostics, ImageMasterSelection, ImageProcessingManager, ImageProcessingProgress, InputMasterTypes, MasterFile, MasterSelectionError, MasterType, NoMasterError, ObservingSession, PhotometryDiagnostics, PipelineError, ProcessedImages, ProcessingManager, SkyCoord, Step, StepDependencies, Transformation" usemap="#inheritanceb6049958c9" class="inheritance graphviz" /></div>
 <map id="inheritanceb6049958c9" name="inheritanceb6049958c9">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
 <area shape="rect" id="node33" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
-<area shape="rect" id="node39" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1560,80,1749,107"/>
-<area shape="rect" id="node7" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="3519,5,3835,32"/>
+<area shape="rect" id="node40" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="1534,80,1754,107"/>
+<area shape="rect" id="node7" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="3086,5,3402,32"/>
 <area shape="rect" id="node8" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
 <area shape="rect" id="node9" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
 <area shape="rect" id="node10" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="3436,304,3766,331"/>
@@ -205,23 +205,24 @@
 <area shape="rect" id="node36" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="4467,5,4783,32"/>
 <area shape="rect" id="node37" href="#autowisp.database.image_processing.NoMasterError" target="_top" title="Raised when no suitable master can be found for a batch of frames." alt="" coords="4792,229,5120,256"/>
 <area shape="rect" id="node38" href="autowisp.exceptions.html#autowisp.exceptions.MasterSelectionError" target="_top" title="Failure selecting the master frame(s) for an image." alt="" coords="4823,155,5089,181"/>
-<area shape="rect" id="node40" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="4839,5,5073,32"/>
-<area shape="rect" id="node43" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="4847,80,5065,107"/>
-<area shape="rect" id="node41" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="5089,80,5300,107"/>
-<area shape="rect" id="node42" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="5149,5,5240,32"/>
-<area shape="rect" id="node45" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="411,80,581,107"/>
-<area shape="rect" id="node49" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="415,155,576,181"/>
-<area shape="rect" id="node46" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="248,5,394,32"/>
-<area shape="rect" id="node47" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="418,5,574,32"/>
-<area shape="rect" id="node48" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="597,5,765,32"/>
-<area shape="rect" id="node50" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="280,229,488,256"/>
-<area shape="rect" id="node58" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3958,5,4063,32"/>
+<area shape="rect" id="node39" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1549,155,1738,181"/>
+<area shape="rect" id="node41" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="4839,5,5073,32"/>
+<area shape="rect" id="node44" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="4847,80,5065,107"/>
+<area shape="rect" id="node42" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="5089,80,5300,107"/>
+<area shape="rect" id="node43" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="5149,5,5240,32"/>
+<area shape="rect" id="node46" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="411,80,581,107"/>
+<area shape="rect" id="node50" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="415,155,576,181"/>
+<area shape="rect" id="node47" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="248,5,394,32"/>
+<area shape="rect" id="node48" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="418,5,574,32"/>
+<area shape="rect" id="node49" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="597,5,765,32"/>
+<area shape="rect" id="node51" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="280,229,488,256"/>
+<area shape="rect" id="node59" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3958,5,4063,32"/>
 </map><p>Handle data processing DB interactions.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ExpressionMatcher">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">ExpressionMatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluated_expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_image_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_expression_ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masters_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ExpressionMatcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ExpressionMatcher" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <div class="graphviz"><img src="../_images/inheritance-65d39f0014383322ba7f8c0076c4de2bbfea49f3.png" alt="Inheritance diagram of autowisp.database.image_processing.ExpressionMatcher" usemap="#inheritanced3184418cc" class="inheritance graphviz" /></div>
 <map id="inheritanced3184418cc" name="inheritanced3184418cc">
 <area shape="rect" id="node1" href="#autowisp.database.image_processing.ExpressionMatcher" target="_top" title="Compare condition expressions for an image/channel to a target." alt="" coords="5,5,361,32"/>
@@ -315,7 +316,7 @@ suitable photref is registered via the BUI.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,7 +379,7 @@ Only splits batches by the best master for each image.</p>
 <li><p><strong>batch</strong> (<em>[</em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image"><em>Image</em></a><em>, </em><em>channel</em><em>, </em><em>status</em><em>]</em>) – List of database image instances
 and for channels which to find the configuration(s). The channel
 should be <code class="docutils literal notranslate"><span class="pre">None</span></code> for the <code class="docutils literal notranslate"><span class="pre">calibrate</span></code> step</p></li>
-<li><p><strong>master_expression_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The values the expressions
+<li><p><strong>master_expression_values</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The values the expressions
 required to select input masters or to guarantee a unique output
 master. Should be provided in consistent order for all batches
 processed by the same step.</p></li>
@@ -403,7 +404,7 @@ that end up with the same key.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -433,7 +434,7 @@ that end up with the same key.</p>
 </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -518,7 +519,7 @@ separately by the failed_prereq subquery in set_pending.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>finished_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Must contain <code class="docutils literal notranslate"><span class="pre">image_id</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>
+<li><p><strong>finished_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Must contain <code class="docutils literal notranslate"><span class="pre">image_id</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>
 keys identifying the processed image and channel.</p></li>
 <li><p><strong>diagnostics</strong> – A list of <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code> tuples where <em>name</em>
 must match a <code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticType</span></code> row.</p></li>
@@ -526,7 +527,7 @@ must match a <code class="xref py py-class docutils literal notranslate"><span c
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a diagnostic name is not found in the
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a diagnostic name is not found in the
     <code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> table.</p>
 </dd>
 </dl>
@@ -542,7 +543,7 @@ steps like magnitude fitting).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>finished_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Must contain <code class="docutils literal notranslate"><span class="pre">image_id</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>
+<li><p><strong>finished_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Must contain <code class="docutils literal notranslate"><span class="pre">image_id</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>
 keys identifying the processed image and channel.</p></li>
 <li><p><strong>photometry_diagnostics</strong> – A list of
 <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value,</span> <span class="pre">photometry_id)</span></code> tuples where <em>name</em> must
@@ -551,7 +552,7 @@ match a <code class="xref py py-class docutils literal notranslate"><span class=
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a diagnostic name is not found in the
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a diagnostic name is not found in the
     <code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> table.</p>
 </dd>
 </dl>
@@ -615,7 +616,7 @@ processing.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[(<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>)]</p>
+<dd class="field-odd"><p>[(<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>)]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -639,12 +640,12 @@ processing.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pending_images</strong> (<em>[</em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image"><em>Image</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A list of the images (instance of
+<li><p><strong>pending_images</strong> (<em>[</em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image"><em>Image</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A list of the images (instance of
 Image DB class) and channels to group.</p></li>
 <li><p><strong>db_session</strong> – Database session to use for querries.</p></li>
 <li><p><strong>match_observing_session</strong> – Whether each group of images needs to
 be from the same observing session.</p></li>
-<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the step for which to group the pending
+<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the step for which to group the pending
 images. If not specified, defaults to the current step.</p></li>
 <li><p><strong>masters_only</strong> – If True, grouping is done only by the values
 expressions required to determine the input or output masters
@@ -657,7 +658,7 @@ matching a unique set of conditions and the second entry is the
 master expression values for all images in the list.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[([<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>)]</p>
+<dd class="field-odd"><p>[([<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>], <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>)]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -677,7 +678,7 @@ current configuration.</p>
 <li><p><strong>steps_imtypes</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" title="autowisp.database.data_model.Step"><em>Step</em></a><em>, </em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" title="autowisp.database.data_model.ImageType"><em>ImageType</em></a>) – The step image type combinations
 to determine pending images for. If unspecified, the full
 processing sequence defined in the database is used.</p></li>
-<li><p><strong>invert</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, returns successfully completed (not
+<li><p><strong>invert</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, returns successfully completed (not
 failed) instead of pending.</p></li>
 </ul>
 </dd>
@@ -691,7 +692,7 @@ failed) instead of pending.</p></li>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.NoMasterError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">NoMasterError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" title="autowisp.exceptions.RelatedFile"><span class="pre">RelatedFile</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><span class="pre">FrozenRow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crashed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprocess_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#NoMasterError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.NoMasterError" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">NoMasterError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" title="autowisp.exceptions.RelatedFile"><span class="pre">RelatedFile</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><span class="pre">FrozenRow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crashed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprocess_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#NoMasterError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.NoMasterError" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.MasterSelectionError" title="autowisp.exceptions.MasterSelectionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">MasterSelectionError</span></code></a></p>
 <p>Raised when no suitable master can be found for a batch of frames.</p>
 </dd></dl>
@@ -703,9 +704,9 @@ failed) instead of pending.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the step for which to return the master
+<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the step for which to return the master
 expression IDs.</p></li>
-<li><p><strong>image_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The type of images being processed by the step
+<li><p><strong>image_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The type of images being processed by the step
 for which to return the master expression IDs.</p></li>
 </ul>
 </dd>
@@ -715,7 +716,7 @@ masters can be used for the given step or which masters will be
 created by it.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>

@@ -1,4 +1,16 @@
-"""Views for displaying per-image diagnostics."""
+"""Views for displaying per-image diagnostics.
+
+One quantity may be plotted against another, where a quantity is a
+``DiagnosticType`` name, the ``pixel_quantiles`` pseudo-name expanding to
+one series per ``pixel_q*``, or ``jd``.  Plotting against time is not a separate
+mode: it is ``x="jd"``, which resolves through the same path as everything
+else because the canonical image list already carries the Julian dates.
+
+The figure half of the page: reading the values a row asks for, drawing
+them, and the Django views that serve it. What the *table* above the plot
+offers, and what a row binds, is :mod:`series_table` -- which never
+evaluates anything, where everything here does.
+"""
 
 from io import BytesIO
 import json
@@ -7,278 +19,187 @@ import math
 import matplotlib
 from matplotlib import pyplot
 from matplotlib.figure import Figure
-from sqlalchemy import select, func
 import numpy
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from autowisp.browser_interface.core.plot_utils import (
-    channel_colors,
     setup_svg_matplotlib,
     figure_to_svg_response,
 )
 from autowisp.database.interface import start_db_session
+from autowisp.diagnostics.expression_series import (
+    get_quantity_values,
+    time_quantity,
+)
+from autowisp.diagnostics.expressions import get_quantity_arity
 
-# False positive due to unusual importing
-# pylint: disable=no-name-in-module
-from autowisp.database.data_model import (
-    DiagnosticType,
-    ImageDiagnostics,
-    Image,
-    ObservingSession,
+from .series_table import (
+    get_available_diagnostics,
+    get_available_series,
+    get_recorded_diagnostics,
+    get_series_key,
+    resolve_quantity,
 )
 
-# pylint: enable=no-name-in-module
-def get_available_diagnostic_series(diagnostic_name, db_session):
-    """
-    Return the observing sessions and channels with data for a diagnostic.
 
-    Queries for distinct (observing_session, channel) pairs that have at
-    least one value for the given diagnostic name.
-
-    Args:
-        diagnostic_name(str):    The name of the diagnostic to query
-            (must match a :class:`DiagnosticType` row).
-
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        dict:
-            A dictionary with two keys:
-
-            ``diagnostics_fields``:
-                A list of column header strings for the extra table columns
-                in the ``diagnostics_app.html`` template.
-
-            ``diagnostics_list``:
-                A list of dicts, one per (observing session, channel) pair,
-                each containing the keys ``id``, ``color``, ``marker``,
-                ``scale``, ``label``, and ``info`` (a list of values
-                matching ``diagnostics_fields``).
-    """
-
-    is_quantile = diagnostic_name == "quantiles"
-
-    query = (
-        select(
-            ObservingSession.label,
-            ObservingSession.id,
-            ImageDiagnostics.channel,
-            func.count(ImageDiagnostics.id),  # pylint: disable=not-callable
-        )
-        .join(
-            Image,
-            Image.id == ImageDiagnostics.image_id,  # pylint: disable=no-member
-        )
-        .join(
-            ObservingSession,
-            ObservingSession.id
-            == Image.observing_session_id,  # pylint: disable=no-member
-        )
-        .join(
-            DiagnosticType,
-            DiagnosticType.id == ImageDiagnostics.diagnostic_id,
-        )
-    )
-
-    if is_quantile:
-        query = (
-            query.add_columns(DiagnosticType.name)
-            .where(DiagnosticType.name.like("pixel_q%"))
-            .group_by(
-                ObservingSession.id,
-                ImageDiagnostics.channel,
-                DiagnosticType.id,
-            )
-            .order_by(
-                ObservingSession.label,
-                ImageDiagnostics.channel,
-                DiagnosticType.name,
-            )
-        )
-    else:
-        query = (
-            query.where(DiagnosticType.name == diagnostic_name)
-            .group_by(ObservingSession.id, ImageDiagnostics.channel)
-            .order_by(ObservingSession.label, ImageDiagnostics.channel)
-        )
-
-    diagnostics_list = []
-    for row in db_session.execute(query).all():
-        session_label, session_id, channel, count = row[:4]
-        series = {
-            "channel": channel,
-            "color": channel_colors.get(
-                channel[0].upper() if channel else "", "#ffffff"
-            ),
-            "marker": "o",
-            "scale": "1.0",
-        }
-        if is_quantile:
-            quantile_name = row[4]
-            quantile_label = "0." + quantile_name[len("pixel_q") :]
-            series["id"] = f"{session_id}_{channel}_{quantile_name}"
-            series["label"] = f"{session_label} {channel} {quantile_label}"
-            series["info"] = [session_label, channel, quantile_label, count]
-        else:
-            series["id"] = f"{session_id}_{channel}"
-            series["label"] = f"{session_label} {channel}"
-            series["info"] = [session_label, channel, count]
-
-        diagnostics_list.append(series)
-
-    fields = ["Observing Session", "Channel"]
-    if is_quantile:
-        fields.append("Quantile")
-    fields.append("Count")
-
-    return {
-        "diagnostics_fields": fields,
-        "diagnostics_list": diagnostics_list,
-    }
-
-
-def get_diagnostic_series_data(series, diagnostic_name, db_session):
-    """
-    Query the JD and diagnostic values for a single series.
-
-    Args:
-        series(dict):    A series entry as produced by
-            :func:`get_available_diagnostic_series`.
-
-        diagnostic_name(str):    The diagnostic type name to query, or
-            ``"quantiles"`` (in which case the quantile name is extracted
-            from the series ``id``).
-
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        tuple:    ``(jd_values, diag_values, image_ids)`` as tuples of
-            floats/ints, ordered by JD.  Empty tuples if no data is found.
-    """
-
-    parts = series["id"].split("_")
-    session_id = int(parts[0])
-    channel = series["channel"]
-
-    if diagnostic_name == "quantiles":
-        query_diag_name = "_".join(parts[2:])
-    else:
-        query_diag_name = diagnostic_name
-
-    rows = db_session.execute(
-        select(  # pylint: disable=no-member
-            Image.jd,  # pylint: disable=no-member
-            ImageDiagnostics.value,
-            Image.id,  # pylint: disable=no-member
-        )
-        .join(
-            ImageDiagnostics,
-            ImageDiagnostics.image_id == Image.id,  # pylint: disable=no-member
-        )
-        .join(
-            DiagnosticType,
-            DiagnosticType.id == ImageDiagnostics.diagnostic_id,
-        )
-        .where(
-            Image.observing_session_id  # pylint: disable=no-member
-            == session_id,
-            ImageDiagnostics.channel == channel,
-            DiagnosticType.name == query_diag_name,
-            Image.jd.is_not(None),  # pylint: disable=no-member
-        )
-        .order_by(Image.jd)  # pylint: disable=no-member
-    ).all()
-
-    if not rows:
-        return (), (), ()
-
-    return zip(*rows)
-
-
-def plot_image_diagnostic_series(
-    axes, time_values, diag_values, image_ids, config
+def get_series_data(
+    series, x_diagnostic, y_diagnostic, expressions, db_session
 ):
     """
-    Plot a single image diagnostic series on the given axes.
+    Query the paired x/y values for a single series.
+
+    Both axes are resolved in one call, which is what makes them share a
+    query for the diagnostics they need and one symbol table, so a
+    subexpression common to the two is evaluated once.  They are returned
+    unmasked; the single finite mask lives in
+    :func:`plot_image_diagnostic_series`.
+
+    Args:
+        series(dict):    One row as the client posted it back, holding the
+            id it was rendered with and the channels its dropdowns say.
+
+        x_diagnostic(str):    Quantity on the X axis.
+
+        y_diagnostic(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``, passed in
+            rather than fetched so that nothing below the view has to know
+            it came from the browser-interface database.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        tuple:    ``(x_values, y_values, image_ids)``, all of equal length.
+    """
+
+    series_key = get_series_key(series)
+    quantities = [
+        resolve_quantity(quantity_name, series_key.quantile_name)
+        for quantity_name in (x_diagnostic, y_diagnostic)
+    ]
+
+    # The row's channels are the two axes' bindings laid end to end, in
+    # the order the columns are, so each axis takes as many as the
+    # quantity it draws has parameters.
+    bindings = []
+    taken = 0
+    for quantity in quantities:
+        arity = get_quantity_arity(quantity, expressions)
+        bindings.append(series_key.channels[taken : taken + arity])
+        taken += arity
+
+    wanted = {}
+    for quantity, channels in zip(quantities, bindings):
+        wanted.setdefault(quantity, set()).add(channels)
+
+    values, image_ids = get_quantity_values(
+        series_key, wanted, expressions, db_session
+    )
+
+    # By quantity *and* binding: the two axes may name one quantity, read
+    # either in the same channels -- a plot of it against itself -- or in
+    # two, which is how it is compared between them.
+    return (
+        values[quantities[0]][bindings[0]],
+        values[quantities[1]][bindings[1]],
+        image_ids,
+    )
+
+
+def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
+    """
+    Plot a single series on the given axes.
 
     Args:
         axes:    A matplotlib Axes to plot on.
 
-        time_values:    Sequence of Julian date x-coordinates.
+        x_values:    Sequence of x coordinates.
 
-        diag_values:    Sequence of diagnostic y-coordinates.
+        y_values:    Sequence of y coordinates.
 
-        config(dict):    Configuration for the plotting usually produce by
-            :func:`get_available_diagnostic_series`. Should contain keys
-            ``channel``, ``color``, ``marker``, ``scale``, and ``label``.
+        image_ids:    The image each point belongs to, used for the
+            click-through URLs.
+
+        config(dict):    Configuration for the plotting, usually produced by
+            :func:`get_available_series`. Should contain keys ``channel``,
+            ``color``, ``marker``, ``scale``, and ``label``.
     """
 
-    marker = config["marker"]
-    color = config["color"]
-    size = float(config.get("scale", 1.0))
+    # The arrays arrive NaN-padded to the canonical image list. Dropping the
+    # non-finite entries here is what used to be an inner join between the
+    # two axes, and image_ids must be masked with them so the per-point
+    # click-through stays aligned with the drawn markers.
+    x_values = numpy.atleast_1d(x_values)
+    y_values = numpy.atleast_1d(y_values)
+    keep = numpy.isfinite(x_values) & numpy.isfinite(y_values)
+    x_values, y_values = x_values[keep], y_values[keep]
+    image_ids = numpy.asarray(image_ids)[keep]
 
     collection = axes.scatter(
-        time_values,
-        diag_values,
-        marker=marker,
-        s=size * 20,
-        c=color,
+        x_values,
+        y_values,
+        marker=config["marker"],
+        s=float(config.get("scale", 1.0)) * 20,
+        c=config["color"],
         label=config["label"],
     )
-    collection.set_urls([
-        reverse(
-            "diagnostics:preview_calibrated_image",
-            kwargs={"image_id": img_id, "color_channel": config["channel"]},
-        )
-        for img_id in image_ids
-    ])
+    collection.set_urls(
+        [
+            reverse(
+                "diagnostics:preview_calibrated_image",
+                kwargs={
+                    "image_id": img_id,
+                    "color_channel": config["channel"],
+                },
+            )
+            for img_id in image_ids
+        ]
+    )
 
 
-def group_series_by_jd_overlap(series_data):
+def group_series_by_x_overlap(series_data):
     """
-    Group diagnostic series into sets that share overlapping JD ranges.
+    Group series into sets whose x ranges overlap.
 
-    Series with the same diagnostic whose JD ranges overlap are grouped
-    together (to be plotted on the same axes).  Series with non-overlapping
-    ranges end up in separate groups.
+    Series whose x ranges overlap share axes; disjoint ones get their own.
+    For a time axis this separates observing nights, which is what it was
+    written for.  For any other quantity the ranges normally overlap, so
+    everything collapses onto a single set of axes.
 
     Args:
-        series_data(list):    A list of
-            ``(series, jd_values, diag_values, image_ids)``
-            tuples, where *jd_values* are ordered sequences of Julian dates.
+        series_data(list):    ``(series, x_values, y_values, image_ids)``
+            tuples.
 
     Returns:
-        list:    A list of lists, each inner list containing
-            ``(series, jd_values, diag_values)`` tuples that should be
-            plotted on the same axes.
+        list:    Lists of the entries that should share one set of axes.
     """
 
     groups = []
     group_ranges = []
     for entry in series_data:
-        jd_values = entry[1]
-        if not jd_values.size:
+        finite = entry[1][numpy.isfinite(entry[1])]
+        if not finite.size:
             continue
-        jd_min = min(jd_values)
-        jd_max = max(jd_values)
+        x_min = finite.min()
+        x_max = finite.max()
 
         overlapping = [
             i
             for i, (g_min, g_max) in enumerate(group_ranges)
-            if jd_min <= g_max and jd_max >= g_min
+            if x_min <= g_max and x_max >= g_min
         ]
 
         if not overlapping:
             groups.append([entry])
-            group_ranges.append((jd_min, jd_max))
+            group_ranges.append((x_min, x_max))
         else:
             target = overlapping[0]
             groups[target].append(entry)
-            merged_min = min(jd_min, group_ranges[target][0])
-            merged_max = max(jd_max, group_ranges[target][1])
+            merged_min = min(x_min, group_ranges[target][0])
+            merged_max = max(x_max, group_ranges[target][1])
             for i in reversed(overlapping[1:]):
                 groups[target].extend(groups.pop(i))
                 merged_min = min(merged_min, group_ranges[i][0])
@@ -326,75 +247,154 @@ def create_figure(num_plots, plot_height_frac, aspect_ratio, num_columns):
     return fig, all_axes
 
 
-def create_image_diagnostics_figure(
+def collect_series_data(
+    series_list, x_diagnostic, y_diagnostic, expressions, db_session
+):
+    """
+    Read the selected series, dropping those with nothing to draw.
+
+    Every row of the table is posted rather than only the drawn ones, so
+    that the server can see what the whole table binds.  Three of them are
+    skipped here: one the user has not selected, one whose marker is
+    blank, and one still missing a channel, which names no data to read.
+
+    Args:
+        series_list(list):    Every row as the client posted it back.
+
+        x_diagnostic(str):    Quantity on the X axis.
+
+        y_diagnostic(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        list:    ``(series, x_values, y_values, image_ids)`` tuples for the
+            series having at least one point where both axes are finite.
+    """
+
+    series_data = []
+    for series in series_list:
+        # Defaulting to selected, so that a payload from before the table
+        # posted every row still draws what it was asked to.
+        if not series.get("selected", True):
+            continue
+        if not series.get("marker", "").strip():
+            continue
+        # ``not channels`` as well as ``all``, which an empty list passes:
+        # a page whose script predates the channel columns posts none at
+        # all, and binding nothing is not a binding.
+        channels = series.get("channels", ())
+        if not channels or not all(channels):
+            continue
+        x_values, y_values, image_ids = get_series_data(
+            series, x_diagnostic, y_diagnostic, expressions, db_session
+        )
+        x_values = numpy.atleast_1d(x_values)
+        y_values = numpy.atleast_1d(y_values)
+        # A padded array is full length even when every value is NaN, so
+        # its size no longer tells us whether anything will be drawn.
+        if numpy.any(numpy.isfinite(x_values) & numpy.isfinite(y_values)):
+            # The channel a click on a point opens the frame in, taken
+            # from the binding rather than echoed by the client, and the
+            # first of them for want of a better answer once a series can
+            # bind several.
+            drawn = {**series, "channel": channels[0] if channels else ""}
+            series_data.append((drawn, x_values, y_values, image_ids))
+
+    return series_data
+
+
+def draw_series_group(axes, group, x_offset):
+    """
+    Plot every series sharing one set of axes.
+
+    Args:
+        axes:    The matplotlib Axes the group was assigned.
+
+        group(list):    ``(series, x_values, y_values, image_ids)`` tuples,
+            as grouped by :func:`group_series_by_x_overlap`.
+
+        x_offset(float):    Subtracted from every x value.  Shared by the
+            whole figure so the series keep their spacing relative to each
+            other.
+
+    Returns:
+        None
+    """
+
+    for series, x_values, y_values, image_ids in group:
+        plot_image_diagnostic_series(
+            axes, x_values - x_offset, y_values, image_ids, series
+        )
+
+
+# All but the first are keyword-only, and each names one thing the figure
+# cannot be drawn without.  Grouping them into an object would hide what the
+# URL layer has to supply rather than simplify it.
+# pylint: disable=too-many-arguments
+def create_diagnostics_figure(
     series_list,
     *,
-    diagnostic_name,
+    x_diagnostic,
+    y_diagnostic,
+    expressions,
     db_session,
     figure_config=None,
 ):
     """
-    Create a multi-panel figure for the selected image diagnostic series.
+    Create the figure for the selected series of an axis pair.
 
     Args:
-        series_list(list):    Series entries (as produced by
-            :func:`get_available_diagnostic_series`) to plot.  Only
-            entries whose ``marker`` is non-empty are plotted.
+        series_list(list):    Entries from :func:`get_available_series`.
+            Only those with a non-empty ``marker`` are plotted.
 
-        diagnostic_name(str):    The diagnostic type name, or
-            ``"quantiles"``.
+        x_diagnostic(str):    Quantity on the X axis.
+
+        y_diagnostic(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``.
 
         db_session:    An active SQLAlchemy database session.
 
-        figure_config(dict):    Configuration for the layout of the figure.
-            Should define:
-
-                plot_height_frac(float):    Height of each subplot row as a
-                    fraction of the available screen area.
-
-                num_columns(int):    Number of columns in the subplot grid.
-
-                aspect_ratio(float):    Width / height of the available screen
-                    area.
-            By default, height fraction is 1/3, number of columns is 1, and
-            aspect ratio is 5.0.
+        figure_config(dict):    Layout of the figure, defining
+            ``plot_height_frac``, ``num_columns`` and ``aspect_ratio``.
 
     Returns:
         matplotlib.figure.Figure:    The completed figure.
     """
 
     figure_config = figure_config or {}
+    against_time = x_diagnostic == time_quantity
 
-    series_data = []
-    min_jd = numpy.inf
-    for series in series_list:
-        if not series.get("marker", "").strip():
-            continue
-        jd_values, diag_values, image_ids = get_diagnostic_series_data(
-            series, diagnostic_name, db_session
-        )
-        jd_values = numpy.atleast_1d(jd_values)
-        if jd_values.size:
-            min_jd = min(min_jd, numpy.nanmin(jd_values))
-            series_data.append((series, jd_values, diag_values, image_ids))
+    series_data = collect_series_data(
+        series_list, x_diagnostic, y_diagnostic, expressions, db_session
+    )
 
-    groups = group_series_by_jd_overlap(series_data)
+    # Julian dates are large numbers spanning a tiny range, so the axis is
+    # offset to stay readable. One offset for the whole figure, not one per
+    # series: nights must keep their spacing relative to each other.
+    x_offset = 0.0
+    if against_time and series_data:
+        x_offset = min(numpy.nanmin(entry[1]) for entry in series_data)
+
+    groups = group_series_by_x_overlap(series_data)
     fig, all_axes = create_figure(
         len(groups),
         plot_height_frac=figure_config.get("plot_height_frac", 1.0 / 3.0),
-        aspect_ratio=figure_config.get("aspect_ratio", 3.0),
+        aspect_ratio=figure_config.get(
+            "aspect_ratio", 3.0 if against_time else 1.0
+        ),
         num_columns=figure_config.get("num_columns", 1),
     )
     if all_axes is None:
         return fig
 
     for axes, group in zip(all_axes.flatten(), groups):
-        for series, jd_values, diag_values, image_ids in group:
-            plot_image_diagnostic_series(
-                axes, jd_values - min_jd, diag_values, image_ids, series
-            )
-        axes.set_xlabel(f"JD - {min_jd!r}")
-        axes.set_ylabel(diagnostic_name)
+        draw_series_group(axes, group, x_offset)
+        axes.set_xlabel(f"JD - {x_offset!r}" if against_time else x_diagnostic)
+        axes.set_ylabel(y_diagnostic)
         if figure_config.get("show_legend", True):
             axes.legend()
         axes.grid(True, linewidth=0.2)
@@ -403,7 +403,12 @@ def create_image_diagnostics_figure(
     return fig
 
 
-def update_plot_view(request, figure_factory, session_key=None, **url_kwargs):
+# pylint: enable=too-many-arguments
+
+
+def update_plot_view(
+    request, figure_factory, session_key=None, extra=None, **url_kwargs
+):
     """Common handler for diagnostics AJAX plot-update views.
 
     Parses the JSON POST body, calls ``figure_factory`` to produce the figure,
@@ -418,6 +423,12 @@ def update_plot_view(request, figure_factory, session_key=None, **url_kwargs):
                         arguments.
         session_key:    If given, the raw POST data is stored in the session
                         under this key so a download view can retrieve it.
+        extra:          Optional callable given the whole POST, the database
+                        session and the URL kwargs, returning a dict merged
+                        into the response.  What a redraw answers *besides*
+                        the figure -- a newly bound row's count and its
+                        spare -- rides along here, so that one action costs
+                        one round trip.
 
     Returns:
         JsonResponse with ``plot_data`` containing the SVG string.
@@ -441,8 +452,13 @@ def update_plot_view(request, figure_factory, session_key=None, **url_kwargs):
             figure_config=figure_config,
             **url_kwargs,
         )
+        alongside = (
+            {}
+            if extra is None
+            else extra(post_data, db_session=db_session, **url_kwargs)
+        )
 
-    return figure_to_svg_response(fig)
+    return figure_to_svg_response(fig, **alongside)
 
 
 def download_plot_view(request, figure_factory, session_key, **url_kwargs):
@@ -490,51 +506,62 @@ def download_plot_view(request, figure_factory, session_key, **url_kwargs):
         )
 
 
-def get_available_diagnostics(db_session):
-    """Return the list of diagnostic names that have at least one value."""
-
-    names = [
-        row[0]
-        for row in db_session.execute(
-            select(DiagnosticType.name)
-            .join(
-                ImageDiagnostics,
-                ImageDiagnostics.diagnostic_id == DiagnosticType.id,
-            )
-            .group_by(DiagnosticType.id)
-            .order_by(DiagnosticType.id)
-        ).all()
-    ]
-
-    quantile_names = [n for n in names if n.startswith("pixel_q")]
-    other_names = [n for n in names if not n.startswith("pixel_q")]
-
-    result = other_names[:]
-    if quantile_names:
-        result.append("quantiles")
-
-    return result
+#: Where the last posted plot configuration is kept, so that the download
+#: view can regenerate exactly what was on screen.
+plot_session_key = "diagnostics_last"
 
 
-def display_image_diagnostics(request, diagnostic_name):
-    """View displaying the table of available series for an image diagnostic."""
+def display_diagnostics(request, x_diagnostic, y_diagnostic, expressions):
+    """View displaying the table of available series for an axis pair.
+
+    The library arrives as an argument rather than being fetched here: it
+    is the one thing on this page that comes from the browser-interface
+    database, and keeping it out means everything in this module can be
+    tested against a project database alone.  ``views.py`` supplies it.
+    """
 
     with start_db_session() as db_session:
-        context = get_available_diagnostic_series(diagnostic_name, db_session)
-        context["available_diagnostics"] = get_available_diagnostics(db_session)
-    context["diagnostics_title"] = diagnostic_name
-    context["y_diagnostic"] = diagnostic_name
+        context = get_available_series(
+            x_diagnostic, y_diagnostic, expressions, db_session
+        )
+        context["available_diagnostics"] = get_available_diagnostics(
+            get_recorded_diagnostics(db_session), expressions
+        )
+
+    context["x_diagnostic"] = x_diagnostic
+    context["y_diagnostic"] = y_diagnostic
+    context["diagnostics_title"] = (
+        y_diagnostic
+        if x_diagnostic == time_quantity
+        else f"{x_diagnostic} vs {y_diagnostic}"
+    )
     context["update_plot_url"] = reverse(
-        "diagnostics:update_image_diagnostics_plot",
-        kwargs={"diagnostic_name": diagnostic_name},
+        "diagnostics:update_diagnostics_plot",
+        kwargs={
+            "x_diagnostic": x_diagnostic,
+            "y_diagnostic": y_diagnostic,
+        },
     )
     context["download_pdf_url"] = reverse(
-        "diagnostics:download_image_diagnostics_plot",
-        kwargs={"diagnostic_name": diagnostic_name},
+        "diagnostics:download_diagnostics_plot",
+        kwargs={
+            "x_diagnostic": x_diagnostic,
+            "y_diagnostic": y_diagnostic,
+        },
     )
 
-    return render(
-        request,
-        "diagnostics/diagnostics_app.html",
-        context,
+    return render(request, "diagnostics/diagnostics_app.html", context)
+
+
+def display_image_diagnostics(_request, diagnostic_name):
+    """Redirect the pre-merge time-series URL onto the merged view.
+
+    Kept so that links built before the merge keep working, including the
+    six ``{% url %}`` tags in ``processing/progress.html``.
+    """
+
+    return redirect(
+        "diagnostics:display_diagnostics",
+        x_diagnostic=time_quantity,
+        y_diagnostic=diagnostic_name,
     )

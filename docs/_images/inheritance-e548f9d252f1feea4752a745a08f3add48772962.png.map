@@ -1,0 +1,43 @@
+<map id="inheritancecc76b626fc" name="inheritancecc76b626fc">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="575,528,905,555"/>
+<area shape="rect" id="node5" href="#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="525,603,955,629"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="506,453,884,480"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="907,453,1261,480"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1085,379,1350,405"/>
+<area shape="rect" id="node6" title="represents an event target, that is, something we can listen on" alt="" coords="166,5,408,32"/>
+<area shape="rect" id="node15" title="Base class for elements that are the targets of :class:`.DDLEvents`" alt="" coords="156,80,417,107"/>
+<area shape="rect" id="node7" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="43,379,373,405"/>
+<area shape="rect" id="node8" title="define a class as inspectable." alt="" coords="1184,304,1405,331"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1383,229,1489,256"/>
+<area shape="rect" id="node55" title="element&#45;typed form of ColumnsClauseRole" alt="" coords="1430,304,1728,331"/>
+<area shape="rect" id="node66" title="The ultimate base class for all SQL datatypes." alt="" coords="609,304,842,331"/>
+<area shape="rect" id="node21" title="Base class for elements of a programmatically constructed SQL" alt="" coords="4106,379,4363,405"/>
+<area shape="rect" id="node13" title="Establish the ability for a class to have dialect&#45;specific arguments" alt="" coords="865,752,1098,779"/>
+<area shape="rect" id="node57" title="Represents a column in a database table." alt="" coords="878,827,1084,853"/>
+<area shape="rect" id="node14" title="mark a ClauseElement as &#39;immutable&#39; when expressions are cloned." alt="" coords="931,677,1136,704"/>
+<area shape="rect" id="node24" title="Represents a column expression from any textual string." alt="" coords="1130,752,1384,779"/>
+<area shape="rect" id="node16" title="Base class for elements that are targets of a :class:`.SchemaVisitor`." alt="" coords="166,155,407,181"/>
+<area shape="rect" id="node58" title="Base class for items that define a database schema." alt="" coords="54,603,290,629"/>
+<area shape="rect" id="node17" title="Base class for visitable objects." alt="" coords="1444,80,1652,107"/>
+<area shape="rect" id="node23" title="base class for SQL elements that can be compiled to produce a" alt="" coords="2824,155,3093,181"/>
+<area shape="rect" id="node18" title="Mixin for objects which can produce a cache key." alt="" coords="3750,229,4012,256"/>
+<area shape="rect" id="node20" title="A mixin class that maintains the names of memoized elements in a" alt="" coords="4037,229,4302,256"/>
+<area shape="rect" id="node41" title="represents a :class:`.ClauseElement` that compiles to a DQL or DML" alt="" coords="3520,453,3832,480"/>
+<area shape="rect" id="node29" title="Represent a column&#45;oriented SQL expression suitable for usage in the" alt="" coords="2552,528,2813,555"/>
+<area shape="rect" id="node42" title="ColumnElement where ``.key`` is non&#45;None." alt="" coords="2382,603,2680,629"/>
+<area shape="rect" id="node40" title="A type that may be used to indicate any SQL column element or object" alt="" coords="2832,453,3136,480"/>
+<area shape="rect" id="node45" title="A mixin class that marks a class as &#39;typing only&#39;, meaning it has" alt="" coords="2704,304,2950,331"/>
+<area shape="rect" id="node46" title="Defines boolean, comparison, and other operators for" alt="" coords="3024,304,3296,331"/>
+<area shape="rect" id="node47" title="Base of comparison and logical operators." alt="" coords="3047,229,3273,256"/>
+<area shape="rect" id="node50" title="Elements suitable for forming comma separated lists of expressions." alt="" coords="2164,304,2401,331"/>
+<area shape="rect" id="node52" title="Define a &quot;role&quot; within a SQL statement structure." alt="" coords="2184,229,2381,256"/>
+<area shape="rect" id="node59" title="A mixin that marks a type as supporting &#39;concatenation&#39;," alt="" coords="340,304,585,331"/>
+<area shape="rect" id="node67" title="The base for all string and character types." alt="" coords="397,379,595,405"/>
+<area shape="rect" id="node60" title="classes which subclass this can act as &quot;mixin&quot; classes for" alt="" coords="852,229,1116,256"/>
+<area shape="rect" id="node64" title="Mixin expression adaptations based on lookup tables." alt="" coords="866,304,1161,331"/>
+<area shape="rect" id="node61" title="A type for double ``FLOAT`` floating point types." alt="" coords="283,528,488,555"/>
+<area shape="rect" id="node62" title="Type representing floating point types, such as ``FLOAT`` or ``REAL``." alt="" coords="289,453,482,480"/>
+<area shape="rect" id="node63" title="Base for non&#45;integer numeric types, such as" alt="" coords="619,379,832,405"/>
+<area shape="rect" id="node65" title="A type for ``int`` integers." alt="" coords="856,379,1061,405"/>
+<area shape="rect" id="node68" title="base for classes that have a &quot;traverse internals&quot; element," alt="" coords="4411,80,4693,107"/>
+</map>
