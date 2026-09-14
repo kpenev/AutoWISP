@@ -523,8 +523,9 @@ def count_images_with_all(needed, db_session):
     in, and how many images each would draw. Deliberately spans every
     observing session, that being what the series table lists -- so there
     is no one session to anchor it to, and its cost is proportional to the
-    images carrying the diagnostic, which *Scaling* names as a standing
-    limit rather than something an index could remove.
+    images carrying the diagnostic. That is a standing limit rather than
+    something an index could remove: enumerating the sessions *is* the
+    question being asked.
 
     Args:
         needed(set):    ``DiagnosticType`` names that must all be recorded
