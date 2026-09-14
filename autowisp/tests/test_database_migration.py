@@ -85,6 +85,19 @@ class BackendMixin:
 
     # pylint: enable=invalid-name
 
+    def reset_backend(self):
+        """Return the backend to empty part way through a test.
+
+        The asymmetry ``setUp`` lives with, reached one level in: a test
+        that builds several schemas in turn -- one per released version,
+        say -- gets a fresh file per engine on SQLite and the *same*
+        database every time on a server, where the second iteration would
+        otherwise start from whatever the first left behind.
+        """
+
+        if on_server():
+            empty_server_database(os.environ[SERVER_URL_ENV])
+
     def make_engine(self, name="project.db"):
         """An engine for a clean project database on the current backend."""
 
@@ -882,6 +895,7 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
 
         for ref in self.release_baselines:
             with self.subTest(release=ref):
+                self.reset_backend()
                 engine = self.make_engine(f"from_{ref}.db")
                 self._build_release_schema(self._export_release(ref), engine)
 
@@ -913,6 +927,7 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
         expected = expected_timestamp_triggers()
         for ref in self.release_baselines:
             with self.subTest(release=ref):
+                self.reset_backend()
                 engine = self.make_engine(f"triggers_{ref}.db")
                 self._build_release_schema(self._export_release(ref), engine)
                 self.migrate(engine)
