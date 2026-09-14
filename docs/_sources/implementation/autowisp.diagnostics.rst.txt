@@ -1,0 +1,19 @@
+autowisp.diagnostics package
+============================
+
+.. automodule:: autowisp.diagnostics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.diagnostics.detrending
+   autowisp.diagnostics.diagnostic_types
+   autowisp.diagnostics.expression_series
+   autowisp.diagnostics.expressions
+   autowisp.diagnostics.get_from_lc

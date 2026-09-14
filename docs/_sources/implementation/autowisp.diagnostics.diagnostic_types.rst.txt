@@ -1,0 +1,7 @@
+autowisp.diagnostics.diagnostic\_types module
+=============================================
+
+.. automodule:: autowisp.diagnostics.diagnostic_types
+   :members:
+   :undoc-members:
+   :show-inheritance:

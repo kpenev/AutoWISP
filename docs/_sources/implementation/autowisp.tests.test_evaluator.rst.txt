@@ -1,0 +1,7 @@
+autowisp.tests.test\_evaluator module
+=====================================
+
+.. automodule:: autowisp.tests.test_evaluator
+   :members:
+   :undoc-members:
+   :show-inheritance:

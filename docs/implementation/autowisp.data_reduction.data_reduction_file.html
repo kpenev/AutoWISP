@@ -212,7 +212,7 @@
 <cite>‘data_reduction’</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -225,7 +225,7 @@ between the keys used in astrowisp.IOTree to store quantities and
 the element key in the DR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -238,7 +238,7 @@ correspondence between data types for entries in DR files and data
 types in astrowisp.IOTree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -286,7 +286,7 @@ types in astrowisp.IOTree.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -300,7 +300,7 @@ types in astrowisp.IOTree.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fitted_magnitudes</strong> (<em>numpy.array</em>) – The differential photometry
 corrected magnitudes of the sources.</p></li>
-<li><p><strong>fit_statistics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Summary statistics about how the fit went.
+<li><p><strong>fit_statistics</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Summary statistics about how the fit went.
 It should define at least the following keys:
 <code class="docutils literal notranslate"><span class="pre">initial_src_count</span></code>, <code class="docutils literal notranslate"><span class="pre">final_src_count</span></code>, and <code class="docutils literal notranslate"><span class="pre">residual</span></code>.</p></li>
 <li><p><strong>magfit_configuration</strong> – The configuration structure with which
@@ -339,12 +339,12 @@ whose DR file this is.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>structured numpy.array</em>) – The data about the sources to
 add.</p></li>
-<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key for the dataset to add.</p></li>
-<li><p><strong>column_substitution_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The %-subsittution variable to
+<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key for the dataset to add.</p></li>
+<li><p><strong>column_substitution_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The %-subsittution variable to
 distinguish between the column in the array.</p></li>
-<li><p><strong>parse_ids</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should self.parse_hat_source_id() be used to
+<li><p><strong>parse_ids</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should self.parse_hat_source_id() be used to
 translate string IDs to datasets to insert?</p></li>
-<li><p><strong>string_columns</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A list of column names to convert to ascii
+<li><p><strong>string_columns</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A list of column names to convert to ascii
 strings before saving.</p></li>
 </ul>
 </dd>
@@ -415,7 +415,7 @@ set of photometry measurements identified by the
 path_substitutions argument.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -435,7 +435,7 @@ datasets and attributes containing shape fit informaiton
 given substitutions.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -453,14 +453,14 @@ iterations to include in the result. <code class="docutils literal notranslate">
 is the first re-fit etc. Use <code class="docutils literal notranslate"><span class="pre">'all'</span></code> to get all iterations.
 Negative numbers have the same interpretation as python list
 indices. For example <code class="docutils literal notranslate"><span class="pre">-1</span></code> is the final iteration.</p></li>
-<li><p><strong>shape_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result include shape fit photometry
+<li><p><strong>shape_fit</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result include shape fit photometry
 measurements. If <code class="docutils literal notranslate"><span class="pre">True</span></code> and no shape fit is present, still
 excludes shape fit columns.</p></li>
-<li><p><strong>apphot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result include aperture photometry
+<li><p><strong>apphot</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result include aperture photometry
 measurements.</p></li>
-<li><p><strong>string_source_ids</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should source IDs be formatted as
+<li><p><strong>string_source_ids</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should source IDs be formatted as
 strings (True) or a set of integers (False)?</p></li>
-<li><p><strong>background</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result include information about the
+<li><p><strong>background</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the result include information about the
 background behind the sources?</p></li>
 <li><p><strong>path_substitutions</strong> – See get_source_count().</p></li>
 </ul>
@@ -539,8 +539,8 @@ shape and order as <code class="docutils literal notranslate"><span class="pre">
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key for the dataset to return.</p></li>
-<li><p><strong>column_substitution_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The %-subsittution variable to
+<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key for the dataset to return.</p></li>
+<li><p><strong>column_substitution_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The %-subsittution variable to
 distinguish between the column in the array.</p></li>
 </ul>
 </dd>
@@ -549,7 +549,7 @@ distinguish between the column in the array.</p></li>
 are 1-D numpy arrays containing the data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>

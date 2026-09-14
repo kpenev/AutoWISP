@@ -30,4 +30,3 @@ Submodules
    autowisp.browser_interface.manage
    autowisp.browser_interface.set_project_middleware
    autowisp.browser_interface.start
-   autowisp.browser_interface.test

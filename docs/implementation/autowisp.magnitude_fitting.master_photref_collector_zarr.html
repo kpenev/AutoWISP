@@ -184,7 +184,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.master_photref_collector_zarr.</span></span><span class="sig-name descname"><span class="pre">MasterPhotrefCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_photometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <div class="graphviz"><img src="../_images/inheritance-aecdd2a3302cf1185d47c2dda2993ea8cb65e8e7.png" alt="Inheritance diagram of autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" usemap="#inheritance9edb6adfcb" class="inheritance graphviz" /></div>
 <map id="inheritance9edb6adfcb" name="inheritance9edb6adfcb">
 <area shape="rect" id="node1" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="5,5,496,32"/>
@@ -232,24 +232,24 @@ calculate for each input magnitude and error estimate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>statistics_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The filename where to save the statistics
+<li><p><strong>statistics_fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The filename where to save the statistics
 relevant for creating a master photometric reference.</p></li>
-<li><p><strong>num_photometries</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of photometric measurements
+<li><p><strong>num_photometries</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of photometric measurements
 available for each star (e.g. number of apertures + 1 if psf
 fitting + …).</p></li>
-<li><p><strong>outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – A threshold value for outlier
+<li><p><strong>outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – A threshold value for outlier
 rejection. The units of this are determined by the
 <code class="docutils literal notranslate"><span class="pre">rejection_units</span></code> argument.</p></li>
-<li><p><strong>max_rejection_iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of iterations
+<li><p><strong>max_rejection_iterations</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of iterations
 between rejecting outliers and re-deriving the statistics to
 allow.</p></li>
-<li><p><strong>tempstore_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A location in the file system to use for
+<li><p><strong>tempstore_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A location in the file system to use for
 storing temporary files during statistics collection.</p></li>
-<li><p><strong>rejection_center</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Outliers are define around some central
+<li><p><strong>rejection_center</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Outliers are define around some central
 value, either <code class="docutils literal notranslate"><span class="pre">'mean'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'median'</span></code>.</p></li>
-<li><p><strong>rejection_units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The units of the outlier rejection
+<li><p><strong>rejection_units</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The units of the outlier rejection
 threshold. One of <code class="docutils literal notranslate"><span class="pre">'stddev'</span></code>, <code class="docutils literal notranslate"><span class="pre">'meddev'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'absolute'</span></code>.</p></li>
-<li><p><strong>max_memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The maximum amount of RAM the statistics process
+<li><p><strong>max_memory</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The maximum amount of RAM the statistics process
 is allowed to use (if exceeded intermediate results are dumped
 to files in <code class="docutils literal notranslate"><span class="pre">temp_dir</span></code>).</p></li>
 </ul>
@@ -288,7 +288,7 @@ remained after rejection to use in the master.</p></li>
 generate_master().</p></li>
 <li><p><strong>outlier_threshold</strong> – See <code class="docutils literal notranslate"><span class="pre">fit_outlier_threshold</span></code> argument to
 generate_master().</p></li>
-<li><p><strong>reference_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name to use for the generated master
+<li><p><strong>reference_fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name to use for the generated master
 photometric reference file.</p></li>
 <li><p><strong>primary_header</strong> (<em>fits.Header</em>) – The header to use for the primary
 (non-table) HDU of the resulting master FITS file.</p></li>
@@ -308,7 +308,7 @@ photometric reference file.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>statistics</strong> – The return value of _read_statistics().</p></li>
-<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A fitting terms expression to use to
+<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A fitting terms expression to use to
 generate the terms to include in the fit of the scatter.</p></li>
 <li><p><strong>enough_counts_flags</strong> – Boolean array indicating which sources have
 enough observations to participate in the fit.</p></li>
@@ -318,7 +318,7 @@ generate_master().</p></li>
 generate_master().</p></li>
 <li><p><strong>max_rej_iter</strong> – See <code class="docutils literal notranslate"><span class="pre">fit_max_rej_iter</span></code> argument to
 generate_master().</p></li>
-<li><p><strong>scatter_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the field in <code class="docutils literal notranslate"><span class="pre">statistics</span></code>
+<li><p><strong>scatter_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the field in <code class="docutils literal notranslate"><span class="pre">statistics</span></code>
 which contains the estimated scatter to fit.</p></li>
 </ul>
 </dd>
@@ -369,25 +369,25 @@ best-fit values found.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>master_reference_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The file name to use for the newly
+<li><p><strong>master_reference_fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The file name to use for the newly
 created master photometric reference.</p></li>
 <li><p><strong>catalog</strong> – See <code class="docutils literal notranslate"><span class="pre">master_catalog</span></code> argument to
 MagnitudeFit.__init__().</p></li>
-<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – An expression expanding to the terms
+<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – An expression expanding to the terms
 to include in the scatter fit. May use any catalog column.</p></li>
 <li><p><strong>parse_source_id</strong> (<em>callable</em>) – Should convert a string source ID into
 the source ID format expected by the catalog.</p></li>
-<li><p><strong>min_nobs_median_fraction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum fraction of the
+<li><p><strong>min_nobs_median_fraction</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum fraction of the
 median number of observations a source must have to be inclruded
 in the master.</p></li>
-<li><p><strong>fit_outlier_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The averaging method to use for scaling
+<li><p><strong>fit_outlier_average</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The averaging method to use for scaling
 averaging residuals from scatter fit. The result is used as the
 unit for <code class="docutils literal notranslate"><span class="pre">fit_outlier_threshold</span></code>.</p></li>
-<li><p><strong>fit_outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – A factor to multiply the
+<li><p><strong>fit_outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – A factor to multiply the
 <code class="docutils literal notranslate"><span class="pre">fit_outlier_average</span></code> averaged residual from scatter fit in
 order to get the threshold to consider a scatter point an
 outlier, and hence discard from cantributing to the reference.</p></li>
-<li><p><strong>fit_max_rej_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of iterations to allow
+<li><p><strong>fit_max_rej_iter</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of iterations to allow
 for fitting/rejecting outliers. If this number is reached, the
 last result is accepted.</p></li>
 <li><p><strong>extra_header</strong> (<em>None</em><em> or </em><em>dict-like</em>) – Header keywords to add to the

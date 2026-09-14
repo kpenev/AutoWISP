@@ -5,3 +5,11 @@ autowisp.browser\_interface.diagnostics.migrations package
    :members:
    :undoc-members:
    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.browser_interface.diagnostics.migrations.0001_initial

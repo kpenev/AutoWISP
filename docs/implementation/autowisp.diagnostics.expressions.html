@@ -1,0 +1,838 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.diagnostics.expressions module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.diagnostics.get_from_lc module" href="autowisp.diagnostics.get_from_lc.html" />
+    <link rel="prev" title="autowisp.diagnostics.expression_series module" href="autowisp.diagnostics.expression_series.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.diagnostics.html">autowisp.diagnostics package</a></li>
+      <li class="breadcrumb-item active">autowisp.diagnostics.expressions module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.diagnostics.expressions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.diagnostics.expressions">
+<span id="autowisp-diagnostics-expressions-module"></span><h1>autowisp.diagnostics.expressions module<a class="headerlink" href="#module-autowisp.diagnostics.expressions" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-62c24b908b71bcf689d1c6826ed2f8b7bab6ef72.png" alt="Inheritance diagram of Evaluator, EvaluatorBase, PipelineError, QuantityLookUp" usemap="#inheritance7666e463bf" class="inheritance graphviz" /></div>
+<map id="inheritance7666e463bf" name="inheritance7666e463bf">
+<area shape="rect" id="node4" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="5,80,225,107"/>
+<area shape="rect" id="node2" href="#autowisp.diagnostics.expressions.QuantityLookUp" target="_top" title="One name an expression may read, resolved when it is asked for." alt="" coords="225,5,541,32"/>
+<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="20,155,210,181"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="564,5,799,32"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="572,80,791,107"/>
+</map><p>Named expressions over per-image diagnostics, evaluated in dependency order.</p>
+<p>This is the whole of what an expression <em>means</em>: which names it references,
+what order a library of them has to be evaluated in, and what is wrong with
+one. It deliberately knows about no database of any kind. The library
+arrives as a <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code> dictionary and the data as a
+<code class="docutils literal notranslate"><span class="pre">{diagnostic_name:</span> <span class="pre">array}</span></code> dictionary, so the same rules apply whether the
+caller is the browser interface reading its own database or a pipeline step
+handed a library from a file.</p>
+<p>Passing the values in rather than fetching them is what keeps this module
+free of a database and cheap to test exhaustively; it is not a facility for
+supplying diagnostics by hand. Building those arrays – NaN-padded onto one
+canonical image list so that index <em>i</em> is the same image in every one of
+them – belongs to the layer above.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">QuantityLookUp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-233b2a2059cd749d459c0cc076f852d1c321f251.png" alt="Inheritance diagram of autowisp.diagnostics.expressions.QuantityLookUp" usemap="#inheritance8ce0d9a912" class="inheritance graphviz" /></div>
+<map id="inheritance8ce0d9a912" name="inheritance8ce0d9a912">
+<area shape="rect" id="node1" href="#autowisp.diagnostics.expressions.QuantityLookUp" target="_top" title="One name an expression may read, resolved when it is asked for." alt="" coords="5,5,321,32"/>
+</map><p>One name an expression may read, resolved when it is asked for.</p>
+<p>Everything a quantity needs is held here: a diagnostic owns the values
+fetched for it, an expression owns its text and the instantiations it
+has computed. Asking the top-level lookup for its channels is
+therefore the whole of evaluation – there is no separate pass, and no
+state threaded through one.</p>
+<p>A diagnostic is the degenerate case rather than a second kind of
+thing: every instantiation of it is known before evaluation starts, so
+it arrives with its cache full and its text never consulted.</p>
+<p>Built through <a class="reference internal" href="#autowisp.diagnostics.expressions.QuantityLookUp.library" title="autowisp.diagnostics.expressions.QuantityLookUp.library"><code class="xref py py-meth docutils literal notranslate"><span class="pre">library()</span></code></a> rather than one at a time, because the
+lookups of one evaluation share a binding stack and an evaluator, and
+both are this class’s business rather than its caller’s.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slots</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.__getitem__" title="Link to this definition"></a></dt>
+<dd><p>Resolve <code class="docutils literal notranslate"><span class="pre">name[slots]</span></code> as the body being evaluated means it.</p>
+<p>Python passes <code class="docutils literal notranslate"><span class="pre">1</span></code> for <code class="docutils literal notranslate"><span class="pre">x[1]</span></code> and <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">2)</span></code> for <code class="docutils literal notranslate"><span class="pre">x[1,2]</span></code>, so
+the shapes take care of themselves. The binding read is the top of
+the stack, which is always the body asking: a nested evaluation
+finishes in here before the outer body’s next operand is touched.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What the expressions call it, used for error
+messages only – nothing resolves by it.</p></li>
+<li><p><strong>shared</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The binding stack and evaluator this
+evaluation’s lookups share, from <a class="reference internal" href="#autowisp.diagnostics.expressions.QuantityLookUp.library" title="autowisp.diagnostics.expressions.QuantityLookUp.library"><code class="xref py py-meth docutils literal notranslate"><span class="pre">library()</span></code></a>.</p></li>
+<li><p><strong>definition</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The expression text and its parameters,
+or <code class="docutils literal notranslate"><span class="pre">None</span></code> for a diagnostic, which has neither because it
+is never evaluated.</p></li>
+<li><p><strong>computed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">channels</span> <span class="pre">-&gt;</span> <span class="pre">array</span></code> known in advance: the
+whole of a diagnostic, and empty for an expression.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp.at">
+<span class="sig-name descname"><span class="pre">at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.at" title="Link to this definition"></a></dt>
+<dd><p>Return this quantity with its parameters bound to <em>channels</em>.</p>
+<p>The cache is what makes an instantiation wanted twice – by two
+references, or by two different expressions – computed once. For a
+diagnostic it is also the whole of the answer, so a miss means the
+values were never fetched rather than that something needs
+computing, and is reported rather than repaired: it means
+<a class="reference internal" href="#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a> and whatever fetched disagree.</p>
+<p>Nothing here guards against a reference cycle:
+<a class="reference internal" href="#autowisp.diagnostics.expressions.order_expressions" title="autowisp.diagnostics.expressions.order_expressions"><code class="xref py py-func docutils literal notranslate"><span class="pre">order_expressions()</span></code></a> refuses one statically, on names, and
+that is exact rather than conservative, since substitution permutes
+a finite parameter set and introduces no new symbols.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – One channel per parameter, in order.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The values, over the canonical image list.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a diagnostic was not fetched for this
+    channel.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp.library">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.library"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.library" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">lookup}</span></code> for one evaluation, ready to be asked.</p>
+<p>The binding stack and the evaluator are created here and captured
+by the lookups, so neither is named outside this class. The stack
+is how a lookup finds the binding of the body asking it, which is
+nobody else’s concern; and it must belong to <strong>one evaluation</strong>
+rather than to the class, or two plots drawn at once would
+interleave their bindings on it and return wrong numbers rather
+than failing.</p>
+<p>The evaluator does not come back out either: handing it over would
+hand over a symbol table full of lookups, and with it a way to
+evaluate arbitrary text with none of the parameter machinery.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{channels:</span> <span class="pre">array}}</span></code>, as fetched for
+one series, keyed exactly as
+<a class="reference internal" href="#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a> asked.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A lookup per name, sharing one evaluation’s state.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._as_series">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_as_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_as_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._as_series" title="Link to this definition"></a></dt>
+<dd><p>Return <em>values</em> as an array of <em>count</em> entries.</p>
+<p>A constant-valued expression evaluates to a scalar, which still has to
+plot as a series, so it is broadcast to the image count.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._canonical_length">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_canonical_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_canonical_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._canonical_length" title="Link to this definition"></a></dt>
+<dd><p>Return the length of the image list <em>values</em> are padded onto.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._evaluation_order">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_evaluation_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_evaluation_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._evaluation_order" title="Link to this definition"></a></dt>
+<dd><p>Return the expressions to evaluate, each after what it references.</p>
+<p>A depth-first walk from <em>targets</em>, appending a name only once the
+expressions it references have been appended. Only what the targets
+reach is visited, so asking for one expression does not drag in the
+whole library.</p>
+<p>Appending on the way <em>out</em> is what makes this an order rather than a
+traversal. On the way in, two expressions reached at the same depth are
+indistinguishable even when one references the other: with
+<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">b</span> <span class="pre">+</span> <span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">=</span> <span class="pre">b</span> <span class="pre">*</span> <span class="pre">2</span></code>, both <code class="docutils literal notranslate"><span class="pre">b</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span></code> are reached from
+<code class="docutils literal notranslate"><span class="pre">a</span></code> together, so reversing the order of discovery can place <code class="docutils literal notranslate"><span class="pre">c</span></code>
+before the <code class="docutils literal notranslate"><span class="pre">b</span></code> it needs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – On a reference cycle, naming the loop.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._evaluator_names">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_evaluator_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_evaluator_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._evaluator_names" title="Link to this definition"></a></dt>
+<dd><p>Return the names a bare <code class="xref py py-class docutils literal notranslate"><span class="pre">Evaluator</span></code> already defines.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._get_bare_names">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_get_bare_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_get_bare_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._get_bare_names" title="Link to this definition"></a></dt>
+<dd><p>Return the names <em>expression</em> reads without a subscript.</p>
+<p>The complement of <a class="reference internal" href="#autowisp.diagnostics.expressions.get_indexed_names" title="autowisp.diagnostics.expressions.get_indexed_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_indexed_names()</span></code></a>, so between them every
+<code class="docutils literal notranslate"><span class="pre">ast.Name</span></code> is accounted for once. Mostly functions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._needed_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_needed_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_needed_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._needed_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Return the diagnostics to fetch, rejecting names that resolve to
+nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If any referenced name is neither an expression,
+    a diagnostic, nor an evaluator builtin.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._slot_problems">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_slot_problems</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_slot_problems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._slot_problems" title="Link to this definition"></a></dt>
+<dd><p>Return what is wrong with how <em>expression</em> reads its quantities.</p>
+<p>One rule: a quantity is read with exactly as many channel slots as it
+takes, and one taking none is read bare. The first half is what makes
+a reference’s arguments match a definition’s parameters positionally;
+the second is what lets <a class="reference internal" href="#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a> and
+<a class="reference internal" href="#autowisp.diagnostics.expressions.QuantityLookUp.library" title="autowisp.diagnostics.expressions.QuantityLookUp.library"><code class="xref py py-meth docutils literal notranslate"><span class="pre">QuantityLookUp.library()</span></code></a> treat a bare name as a value and still
+know they have seen everything.</p>
+<p>Only names resolving to a quantity are judged, in either direction:
+the evaluator’s own arrays can be indexed too, and most bare names are
+its functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The proposed text.</p></li>
+<li><p><strong>library</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library it would join, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>,
+<em>including</em> the proposed expression, so that a self-reference
+has an arity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Descriptions of the problems; empty if there are none.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – From <a class="reference internal" href="#autowisp.diagnostics.expressions.get_indexed_names" title="autowisp.diagnostics.expressions.get_indexed_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_indexed_names()</span></code></a>, if an index does
+    not name a channel slot at all.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._spell_slots">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_spell_slots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_spell_slots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._spell_slots" title="Link to this definition"></a></dt>
+<dd><p>Return <em>count</em> channel slots, spelled for a message.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions._visit_needed">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">_visit_needed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#_visit_needed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions._visit_needed" title="Link to this definition"></a></dt>
+<dd><p>Add what <em>name</em> bound to <em>channels</em> reads, recursively.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.check_expression">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">check_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_library</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#check_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.check_expression" title="Link to this definition"></a></dt>
+<dd><p>Return what is wrong with a proposed expression, as plain strings.</p>
+<p>Problems are returned rather than raised so that this module stays free
+of any particular presentation: the browser interface turns them into a
+<code class="docutils literal notranslate"><span class="pre">ValidationError</span></code>, an importer collects them per entry.</p>
+<p><strong>No project is needed.</strong> What a name may mean comes from
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#module-autowisp.diagnostics.diagnostic_types" title="autowisp.diagnostics.diagnostic_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.diagnostic_types</span></code></a>, which is complete: a
+<code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> row is either seeded from the static catalogue at
+project creation or created by the <code class="docutils literal notranslate"><span class="pre">pixel_q*</span></code> branch of
+<code class="docutils literal notranslate"><span class="pre">_save_image_diagnostics</span></code>, which refuses every other name. So no
+project can contain a diagnostic this does not know, and an expression
+means the same thing everywhere – which is what lets one library be
+shared by every project.</p>
+<p>Whether an expression is <em>usable</em> in a particular project is a
+different question, about whether rows have been recorded, and is
+answered by counting them rather than here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The proposed name.</p></li>
+<li><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The proposed text.</p></li>
+<li><p><strong>current_library</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library it would join, as it stands.
+An existing entry of the same name is replaced by the proposed
+text rather than conflicting with it, so an edit can pass the
+library unchanged.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Descriptions of the problems; empty if there are none.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.evaluate_quantities">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">evaluate_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#evaluate_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.evaluate_quantities" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the quantities of one series, each bound to its channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wanted</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">channel</span> <span class="pre">tuples}</span></code>, as the
+table bound them and as <a class="reference internal" href="#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a> takes them.
+Asking for both axes at once is what lets an instantiation
+they share be computed once.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{channels:</span> <span class="pre">array}}</span></code>, every array on one
+canonical image list, holding what
+<a class="reference internal" href="#autowisp.diagnostics.expressions.get_needed_values" title="autowisp.diagnostics.expressions.get_needed_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_needed_values()</span></code></a> asked for and keyed the same way.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">{channels:</span> <span class="pre">array}}</span></code>, all of the same</dt><dd><p>length – the shape <em>values</em> arrives in, being the same kind
+of thing: a quantity read in the channels asked for.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a quantity resolves to nothing, if the
+    expressions reference each other in a cycle, or if <em>values</em>
+    lacks something they read.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.get_bare_aggregates">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">get_bare_aggregates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#get_bare_aggregates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.get_bare_aggregates" title="Link to this definition"></a></dt>
+<dd><p>Return the NaN-propagating aggregates an expression calls.</p>
+<p>Every array is NaN-padded to the canonical image list, so a plain
+<code class="docutils literal notranslate"><span class="pre">median</span></code> over one goes NaN as soon as a single image lacks the
+diagnostic – which is usual rather than exceptional. Callers use this
+to warn, not to refuse: a deliberate <code class="docutils literal notranslate"><span class="pre">median</span></code> is still a legitimate
+thing to write.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression text.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The names called without their <code class="docutils literal notranslate"><span class="pre">nan</span></code> prefix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)">set</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#SyntaxError" title="(in Python v3.14)"><strong>SyntaxError</strong></a> – As for <a class="reference internal" href="#autowisp.diagnostics.expressions.get_expression_names" title="autowisp.diagnostics.expressions.get_expression_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_expression_names()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.get_expression_dependents">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">get_expression_dependents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#get_expression_dependents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.get_expression_dependents" title="Link to this definition"></a></dt>
+<dd><p>Return the expressions referencing <em>name</em>, for the delete guard.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression being deleted.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Names of expressions that would break if <em>name</em> went away.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)">set</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.get_expression_names">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">get_expression_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#get_expression_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.get_expression_names" title="Link to this definition"></a></dt>
+<dd><p>Return every name one expression mentions, functions included.</p>
+<p><code class="docutils literal notranslate"><span class="pre">nanmedian(rel)</span></code> gives <code class="docutils literal notranslate"><span class="pre">{&quot;nanmedian&quot;,</span> <span class="pre">&quot;rel&quot;}</span></code>: a call by bare name
+is an <code class="docutils literal notranslate"><span class="pre">ast.Call</span></code> whose <code class="docutils literal notranslate"><span class="pre">func</span></code> is an <code class="docutils literal notranslate"><span class="pre">ast.Name</span></code>, so there is
+nothing here to tell a function from a variable, and no attempt is made
+to. Which is which cannot be decided from the text anyway – it depends
+on the open project’s diagnostics, on what else the library holds, and
+on the evaluator’s symbol table – so the split is left to the caller,
+which is what <a class="reference internal" href="#autowisp.diagnostics.expressions.order_expressions" title="autowisp.diagnostics.expressions.order_expressions"><code class="xref py py-func docutils literal notranslate"><span class="pre">order_expressions()</span></code></a> and <a class="reference internal" href="#autowisp.diagnostics.expressions.check_expression" title="autowisp.diagnostics.expressions.check_expression"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_expression()</span></code></a>
+both do.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression text.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The <code class="docutils literal notranslate"><span class="pre">ast.Name</span></code> identifiers, whether they are used as</dt><dd><p>values or called.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)">set</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#SyntaxError" title="(in Python v3.14)"><strong>SyntaxError</strong></a> – If the text is not a single Python expression.
+    <code class="docutils literal notranslate"><span class="pre">mode=&quot;eval&quot;</span></code> rejects statements, assignments, loops and
+    imports, which is worth having but is <strong>not</strong> what makes
+    evaluating an expression safe: <code class="docutils literal notranslate"><span class="pre">__import__('os').listdir('.')</span></code>
+    is a perfectly valid expression. Safety comes from
+    <a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" title="autowisp.evaluator.EvaluatorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">autowisp.evaluator.EvaluatorBase</span></code></a> – asteval refuses
+    imports, <code class="docutils literal notranslate"><span class="pre">eval</span></code>, <code class="docutils literal notranslate"><span class="pre">exec</span></code>, <code class="docutils literal notranslate"><span class="pre">getattr</span></code> and dunder traversal,
+    and AutoWISP drops <code class="docutils literal notranslate"><span class="pre">open</span></code> and <code class="docutils literal notranslate"><span class="pre">print</span></code> on top – and from
+    <a class="reference internal" href="#autowisp.diagnostics.expressions.check_expression" title="autowisp.diagnostics.expressions.check_expression"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_expression()</span></code></a> restricting names to that symbol table
+    plus the project’s diagnostics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.get_expression_parameters">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">get_expression_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#get_expression_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.get_expression_parameters" title="Link to this definition"></a></dt>
+<dd><p>Return the channel slots one expression takes, in order.</p>
+<p>Derived from the body rather than declared: the parameters <em>are</em> the
+slot numbers it mentions, so there is nothing to keep in step and
+nothing extra to store. <code class="docutils literal notranslate"><span class="pre">bg_center[0]</span> <span class="pre">/</span> <span class="pre">bg_center[1]</span></code> takes <code class="docutils literal notranslate"><span class="pre">(0,</span>
+<span class="pre">1)</span></code>; <code class="docutils literal notranslate"><span class="pre">sky_color[0,1]</span> <span class="pre">-</span> <span class="pre">sky_color[1,2]</span></code> takes <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">2)</span></code>.</p>
+<p>Sorted, which is what makes the order well defined when a body writes
+its slots out of sequence – and the order matters, since a reference’s
+arguments are matched onto these positionally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression text.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The distinct slot numbers, ascending. Empty for an</dt><dd><p>expression that reads no channel at all.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#SyntaxError" title="(in Python v3.14)"><strong>SyntaxError</strong></a><strong>, </strong><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – As for
+    <a class="reference internal" href="#autowisp.diagnostics.expressions.get_indexed_names" title="autowisp.diagnostics.expressions.get_indexed_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_indexed_names()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.get_indexed_names">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">get_indexed_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#get_indexed_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.get_indexed_names" title="Link to this definition"></a></dt>
+<dd><p>Return what one expression reads, and in which channel slots.</p>
+<p>A slot is written as a subscript – <code class="docutils literal notranslate"><span class="pre">bg_center[0]</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">sky_color[0,1]</span></code> for a quantity taking two – and the numbers are
+that expression’s own formal parameters, bound to real channels only
+when something is plotted. So this reports the <em>shape</em> of what the
+text asks for, and says nothing about channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression text.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">slots)</span></code> pairs in the order they appear, <em>slots</em></dt><dd><p>always a tuple however many were written. Repeats are kept:
+<code class="docutils literal notranslate"><span class="pre">sky_color[0,1]</span> <span class="pre">-</span> <span class="pre">sky_color[1,2]</span></code> reads one name at two
+different slot pairs, which is the whole point of the
+parameters being formal.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#SyntaxError" title="(in Python v3.14)"><strong>SyntaxError</strong></a> – As for <a class="reference internal" href="#autowisp.diagnostics.expressions.get_expression_names" title="autowisp.diagnostics.expressions.get_expression_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_expression_names()</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If a subscript is not a plain name indexed by
+    integer literals. Anything else – <code class="docutils literal notranslate"><span class="pre">bg_center[i]</span></code>,
+    <code class="docutils literal notranslate"><span class="pre">bg_center[1:2]</span></code>, <code class="docutils literal notranslate"><span class="pre">sky_color[1][2]</span></code> – cannot name a
+    channel slot, and saying so here is clearer than letting it
+    fail as an unresolvable name later.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.get_needed_values">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">get_needed_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#get_needed_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.get_needed_values" title="Link to this definition"></a></dt>
+<dd><p>Return the diagnostics to read, and in which channels.</p>
+<p>Runs before anything is evaluated, for two callers that both need the
+answer without it:</p>
+<ul class="simple">
+<li><p>whatever reads the values does so for a whole series in one query,
+so it cannot discover them as it goes;</p></li>
+<li><p>the table above a plot counts the images recording all of them,
+which is a question about rows and must never evaluate an
+expression – there is a table row per observing session and image
+type, so evaluating per row would be work proportional to the whole
+image collection.</p></li>
+</ul>
+<p>It walks what evaluation walks, resolving each reference’s arguments
+through the binding of the body holding it, and stops at the
+diagnostics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wanted</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">channel</span> <span class="pre">tuples}</span></code>, each tuple
+holding one channel per parameter of that quantity. A <em>set</em>
+because one quantity may be wanted at two bindings at once:
+<code class="docutils literal notranslate"><span class="pre">bg_center</span></code> in R against <code class="docutils literal notranslate"><span class="pre">bg_center</span></code> in B is a plot of a
+diagnostic between channels.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">set</span> <span class="pre">of</span> <span class="pre">channel</span> <span class="pre">tuples}</span></code> – the same shape it</dt><dd><p>takes, which is what it means: what is wanted, resolved into
+what must be read. One entry per diagnostic, holding every
+combination it is read in, plus <code class="xref py py-data docutils literal notranslate"><span class="pre">time_quantity</span></code> with the
+empty tuple where an expression reads the time.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – On a reference cycle, on a name that resolves to
+    nothing, or on a binding of the wrong length for what it binds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.get_quantity_arity">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">get_quantity_arity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#get_quantity_arity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.get_quantity_arity" title="Link to this definition"></a></dt>
+<dd><p>Return how many channels <em>name</em> has to be bound to before it can be read.</p>
+<p>Only one of the three answers is data. A diagnostic is recorded once
+per channel, so it takes exactly one; <code class="xref py py-data docutils literal notranslate"><span class="pre">time_quantity</span></code> is recorded
+once per image and takes none; and an expression takes however many
+slots its body mentions, which is the only part worth deriving.</p>
+<p>The table above a plot asks this to know how many channel dropdowns an
+axis needs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A diagnostic, an expression, or
+<code class="xref py py-data docutils literal notranslate"><span class="pre">time_quantity</span></code>.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of channels to bind.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – If <em>name</em> is neither a diagnostic nor an
+    expression nor the time.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.order_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">order_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#order_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.order_expressions" title="Link to this definition"></a></dt>
+<dd><p>Return the order to evaluate <em>targets</em> in, and what data that needs.</p>
+<p>Only the dependency subtree of <em>targets</em> is walked, so asking for one
+expression does not evaluate the whole library.</p>
+<p>What a name may mean comes from
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.is_known_quantity" title="autowisp.diagnostics.diagnostic_types.is_known_quantity"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_known_quantity()</span></code></a> rather
+than from a project, because it cannot differ between projects: a
+<code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> row is either seeded from the static catalogue or
+created by the quantile branch that refuses every other name. A
+diagnostic no image here records is therefore accepted and comes back
+all-NaN, which is what the padding is for.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>targets</strong> – The quantity names wanted. Any that are not expressions
+are diagnostics, and pass through to the returned set.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>list:    Expression names, each after everything it references.</p>
+<p>set:    The diagnostics that have to be fetched for them.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" title="autowisp.exceptions.PipelineError"><strong>PipelineError</strong></a> – On a reference cycle, or on a name that is
+    neither an expression, a diagnostic, nor an evaluator builtin.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.diagnostics.expressions.rename_references">
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">rename_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#rename_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.rename_references" title="Link to this definition"></a></dt>
+<dd><p>Return <em>expression</em> with every reference to <em>old_name</em> renamed.</p>
+<p>A source-level edit, and the only rewriting anywhere in this feature.
+It does not contradict the rule that nothing is rewritten – that is
+about <em>resolution</em>, where an <code class="docutils literal notranslate"><span class="pre">ast.unparse</span></code> roundtrip would leave a
+stored text and a resolved text to keep straight. Here the user has
+asked for the change, and what comes back is what they will read and
+edit from then on.</p>
+<p>So it must not reformat: the new identifier is spliced in at the exact
+source offsets <code class="docutils literal notranslate"><span class="pre">ast</span></code> reports, leaving every other byte alone. That is
+also what makes it safe where a textual replace is not – <code class="docutils literal notranslate"><span class="pre">rel</span></code>
+inside <code class="docutils literal notranslate"><span class="pre">rel_bg</span></code>, inside a string literal, or as a keyword argument’s
+name is left untouched, because only <code class="docutils literal notranslate"><span class="pre">ast.Name</span></code> nodes are moved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression text to rewrite.</p></li>
+<li><p><strong>old_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name being renamed.</p></li>
+<li><p><strong>new_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What to call it instead.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The text with those references renamed, and identical</dt><dd><p>everywhere else.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#SyntaxError" title="(in Python v3.14)"><strong>SyntaxError</strong></a> – As for <a class="reference internal" href="#autowisp.diagnostics.expressions.get_expression_names" title="autowisp.diagnostics.expressions.get_expression_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_expression_names()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.diagnostics.expression_series.html" class="btn btn-neutral float-left" title="autowisp.diagnostics.expression_series module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.diagnostics.get_from_lc.html" class="btn btn-neutral float-right" title="autowisp.diagnostics.get_from_lc module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

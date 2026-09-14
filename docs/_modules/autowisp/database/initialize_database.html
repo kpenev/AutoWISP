@@ -183,6 +183,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaults</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">processing_steps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">standard_diagnostic_types</span>
 
 <span class="c1"># false positive due to unusual importing</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
@@ -638,100 +639,16 @@
 <div class="viewcode-block" id="_init_diagnostic_types">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._init_diagnostic_types">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_init_diagnostic_types</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-populate the diagnostic_names table with known diagnostics.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-populate the diagnostic_names table with known diagnostics.</span>
+
+<span class="sd">    The catalogue itself lives in</span>
+<span class="sd">    :mod:`autowisp.diagnostics.diagnostic_types`, because validating a</span>
+<span class="sd">    diagnostic expression needs to know the names without opening any</span>
+<span class="sd">    project. This function&#39;s job is only to write the rows.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="p">[</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;num_extracted_src&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The number of extracted stars in the image&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">]</span>
-            <span class="o">+</span> <span class="p">[</span>
-                <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center&quot;</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;The smoothed source extraction </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> parameter &quot;</span>
-                    <span class="s2">&quot;at the center of the image&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
-            <span class="p">]</span>
-            <span class="o">+</span> <span class="p">[</span>
-                <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_map_residual&quot;</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;RMS difference between source extraction </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;and smoothed {param.upper()} map&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
-            <span class="p">]</span>
-            <span class="o">+</span> <span class="p">[</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;bg_center&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The smoothed background level at the center of the image&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;bg_map_residual&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;RMS difference between background and smoothed background &quot;</span>
-                    <span class="s2">&quot;map&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-            <span class="p">]</span>
-            <span class="o">+</span> <span class="p">[</span>
-                <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center&quot;</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">descr</span><span class="si">}</span><span class="s2"> the center of the image according &quot;</span>
-                    <span class="s2">&quot;to the astrometric solution&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">descr</span> <span class="ow">in</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="s2">&quot;ra&quot;</span><span class="p">,</span> <span class="s2">&quot;right ascension of&quot;</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;dec&quot;</span><span class="p">,</span> <span class="s2">&quot;declination of&quot;</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="s2">&quot;zenith distance of&quot;</span><span class="p">),</span>
-                <span class="p">]</span>
-            <span class="p">]</span>
-            <span class="o">+</span> <span class="p">[</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The mean angular distance from the image center to its &quot;</span>
-                    <span class="s2">&quot;four corners on the sky, used as a scale-independent &quot;</span>
-                    <span class="s2">&quot;measure of the field of view&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;pointing_offset&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The angular distance between the target and the center of &quot;</span>
-                    <span class="s2">&quot;the image according to the astrometric solution&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;matched_fraction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The fraction of extracted sources that were matched to &quot;</span>
-                    <span class="s2">&quot;the reference catalog&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;astrom_residual&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The RMS distance between matched extracted sources and &quot;</span>
-                    <span class="s2">&quot;their projected positions&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;srcextract_mag_zeropt&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The zeropoint of the transformation between source &quot;</span>
-                    <span class="s2">&quot;extraction flux and catalog magnitude (the magnitude &quot;</span>
-                    <span class="s2">&quot;corresponding to a flux of 1 ADU)&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;magfit_residual&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The RMS difference between best fit correction using the &quot;</span>
-                    <span class="s2">&quot;final master photometric reference.&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;photometry_mag_offset&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The best-fit offset between the image magnitude and &quot;</span>
-                    <span class="s2">&quot;the reference magnitude in magnitude fit.&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;mag_fit_num_stars&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;The number of stars used in the last magnitude fit &quot;</span>
-                    <span class="s2">&quot;iteration for this image&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-            <span class="p">]</span>
-        <span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">standard_diagnostic_types</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">))</span></div>
 
 

@@ -1,0 +1,7 @@
+autowisp.diagnostics.expression\_series module
+==============================================
+
+.. automodule:: autowisp.diagnostics.expression_series
+   :members:
+   :undoc-members:
+   :show-inheritance:

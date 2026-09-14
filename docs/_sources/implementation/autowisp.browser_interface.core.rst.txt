@@ -27,5 +27,6 @@ Submodules
    autowisp.browser_interface.core.models
    autowisp.browser_interface.core.plot_utils
    autowisp.browser_interface.core.tests
+   autowisp.browser_interface.core.timestamp_triggers
    autowisp.browser_interface.core.views
    autowisp.browser_interface.core.walk_fs_view

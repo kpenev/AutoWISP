@@ -262,7 +262,15 @@
 <span class="sd">    error.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">set_project_home</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">project_home</span><span class="p">)</span>
+    <span class="c1"># Migrate here, in the one process that is definitely alone: workers</span>
+    <span class="c1"># opening the project later only check the schema, since concurrent DDL</span>
+    <span class="c1"># from a pool of them is not survivable.</span>
+    <span class="c1">#</span>
+    <span class="c1"># No assume_backed_up: a local SQLite database is copied aside and</span>
+    <span class="c1"># migrated without ceremony, while a centralised one refuses and points</span>
+    <span class="c1"># at wisp-migrate. Migrating a database several people share should be a</span>
+    <span class="c1"># deliberate act, not a side effect of starting a photometry run.</span>
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">project_home</span><span class="p">,</span> <span class="n">migrate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">_run_pipeline</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">AutoWISPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>

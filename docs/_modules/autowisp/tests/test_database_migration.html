@@ -165,39 +165,265 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_database_migration</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the lightweight additive-column migration.</span>
+<span></span><span class="sd">&quot;&quot;&quot;Unit tests for project database migration.</span>
 
 <span class="sd">These need only a throwaway SQLite database, not a full project, so they</span>
 <span class="sd">subclass ``unittest.TestCase`` directly.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">inspect</span><span class="p">,</span> <span class="n">text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">alembic.script</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScriptDirectory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Index</span><span class="p">,</span>
+    <span class="n">MetaData</span><span class="p">,</span>
+    <span class="n">Table</span><span class="p">,</span>
+    <span class="n">create_engine</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="p">,</span>
+    <span class="n">select</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.exc</span><span class="w"> </span><span class="kn">import</span> <span class="n">OperationalError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">NullPool</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_additive_migrations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.migrate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BASELINE_REVISION</span><span class="p">,</span>
+    <span class="n">_alembic_config</span><span class="p">,</span>
+    <span class="n">_sqlite_immediate</span><span class="p">,</span>
+    <span class="n">_apply_additive_migrations</span> <span class="k">as</span> <span class="n">apply_additive_migrations</span><span class="p">,</span>
+    <span class="n">check_project_schema</span><span class="p">,</span>
+    <span class="n">create_project_schema</span><span class="p">,</span>
+    <span class="n">get_head_revision</span><span class="p">,</span>
+    <span class="n">get_project_revision</span><span class="p">,</span>
+    <span class="n">get_schema_drift</span><span class="p">,</span>
+    <span class="n">migrate_project</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests</span><span class="w"> </span><span class="kn">import</span> <span class="n">SERVER_URL_ENV</span><span class="p">,</span> <span class="n">empty_server_database</span>
+
+<span class="c1"># Resources here are released via addCleanup rather than `with`, since they</span>
+<span class="c1"># are created in setUp and must outlive it.</span>
+<span class="c1"># pylint: disable=consider-using-with</span>
+
+
+<div class="viewcode-block" id="on_server">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.on_server">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_server</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether this run is pointed at a MySQL/MariaDB server.</span>
+
+<span class="sd">    The same switch the rest of the suite uses (see</span>
+<span class="sd">    :mod:`autowisp.tests`), so one variable turns everything onto a server</span>
+<span class="sd">    rather than each part having its own idea of where to look. Setting it</span>
+<span class="sd">    runs *these* scenarios against one too, covering the backend-specific</span>
+<span class="sd">    paths -- GET_LOCK, implicitly committed DDL, type comparison in the</span>
+<span class="sd">    drift check -- with the tests that already exist rather than a parallel</span>
+<span class="sd">    copy that would drift out of step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SERVER_URL_ENV</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="BackendMixin">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BackendMixin</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Supplies clean project databases on whichever backend is under test.</span>
+
+<span class="sd">    SQLite gets a fresh file per engine; a server has only the one database,</span>
+<span class="sd">    so it is emptied before each test instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Mixed into unittest.TestCase subclasses, so setUp is an override</span>
+    <span class="c1"># despite this class not deriving from TestCase itself.</span>
+    <span class="c1"># pylint: disable=invalid-name</span>
+<div class="viewcode-block" id="BackendMixin.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Leave a clean project database ready for the test.&quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">on_server</span><span class="p">():</span>
+            <span class="n">empty_server_database</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">SERVER_URL_ENV</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: enable=invalid-name</span>
+
+<div class="viewcode-block" id="BackendMixin.reset_backend">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.reset_backend">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the backend to empty part way through a test.</span>
+
+<span class="sd">        The asymmetry ``setUp`` lives with, reached one level in: a test</span>
+<span class="sd">        that builds several schemas in turn -- one per released version,</span>
+<span class="sd">        say -- gets a fresh file per engine on SQLite and the *same*</span>
+<span class="sd">        database every time on a server, where the second iteration would</span>
+<span class="sd">        otherwise start from whatever the first left behind.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">on_server</span><span class="p">():</span>
+            <span class="n">empty_server_database</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">SERVER_URL_ENV</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BackendMixin.make_engine">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.make_engine">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;project.db&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An engine for a clean project database on the current backend.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">on_server</span><span class="p">():</span>
+            <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">SERVER_URL_ENV</span><span class="p">],</span> <span class="n">poolclass</span><span class="o">=</span><span class="n">NullPool</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">},</span>
+                <span class="n">poolclass</span><span class="o">=</span><span class="n">NullPool</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">engine</span></div>
+
+
+<div class="viewcode-block" id="BackendMixin.migrate">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.migrate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">migrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Migrate, confirming the backup where the backend demands one.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">migrate_project</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">assume_backed_up</span><span class="o">=</span><span class="n">on_server</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="BackendMixin.create_legacy_schema">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.create_legacy_schema">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_legacy_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the pre-migration schema: everything but the new index.</span>
+
+<span class="sd">        Not create_all-then-drop. InnoDB refuses to drop</span>
+<span class="sd">        ``image_observing_session`` because it is the index backing image&#39;s</span>
+<span class="sd">        foreign key on ``observing_session_id`` -- MySQL indexes a foreign</span>
+<span class="sd">        key column whether or not anyone asked. Leaving the index out of</span>
+<span class="sd">        the metadata is both portable and a truer picture of a 1.8.1</span>
+<span class="sd">        database, which never had it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span>
+        <span class="n">held_back</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">index</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">image</span><span class="o">.</span><span class="n">indexes</span>
+            <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;image_observing_session&quot;</span>
+        <span class="p">}</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">indexes</span> <span class="o">-=</span> <span class="n">held_back</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">indexes</span> <span class="o">|=</span> <span class="n">held_back</span></div>
+
+
+<div class="viewcode-block" id="BackendMixin.add_stray_index">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.add_stray_index">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_stray_index</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an index the models do not declare, to produce drift.</span>
+
+<span class="sd">        Drift is provoked by adding something rather than removing it: the</span>
+<span class="sd">        index this branch introduces cannot be dropped on MySQL (see</span>
+<span class="sd">        :meth:`create_legacy_schema`).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span><span class="p">)</span>
+            <span class="c1"># jd, not a text column: indexing VARCHAR(1000) would exceed</span>
+            <span class="c1"># InnoDB&#39;s 3072-byte key limit and fail for the wrong reason.</span>
+            <span class="n">Index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">jd</span><span class="p">)</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BackendMixin.has_index">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.has_index">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_index</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether *table* carries an index called *name*.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">index</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_indexes</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BackendMixin.list_triggers">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.list_triggers">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The names of every trigger defined in the project database.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">connection</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT name FROM sqlite_master WHERE type = &#39;trigger&#39;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;SELECT trigger_name FROM information_schema.triggers &quot;</span>
+                    <span class="s2">&quot;WHERE trigger_schema = DATABASE()&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">connection</span><span class="o">.</span><span class="n">exec_driver_sql</span><span class="p">(</span><span class="n">query</span><span class="p">)}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="expected_timestamp_triggers">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.expected_timestamp_triggers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">expected_timestamp_triggers</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The triggers the models install when they create the schema.</span>
+
+<span class="sd">    Derived from the metadata rather than listed, so a table added later</span>
+<span class="sd">    is covered without anyone remembering to extend a literal here.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="sa">f</span><span class="s2">&quot;update_</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">_timestamp&quot;</span>
+        <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;timestamp&quot;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">table</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">}</span></div>
+
 
 
 <div class="viewcode-block" id="TestAdditiveMigrations">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TestAdditiveMigrations</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``apply_additive_migrations`` adds missing nullable columns.&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAdditiveMigrations</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The pre-Alembic helper still adds missing nullable columns.</span>
+
+<span class="sd">    It is private now and has exactly one caller -- the baseline path of</span>
+<span class="sd">    :func:`migrate_project` -- but it is what every legacy project passes</span>
+<span class="sd">    through, so it keeps its own tests.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestAdditiveMigrations.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations.setUp">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;m.db&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;m.db&quot;</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">inspect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="n">table</span><span class="p">)}</span>
+
+<div class="viewcode-block" id="TestAdditiveMigrations._apply">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations._apply">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the helper the way migrate_project does: on one connection.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="TestAdditiveMigrations._make_old_project">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations._make_old_project">[docs]</a>
@@ -221,7 +447,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_old_project</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;code_version&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">))</span>
 
-        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;code_version&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">))</span></div>
 
@@ -234,7 +460,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_old_project</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">inspect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
 
-        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">inspect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span></div>
 
@@ -248,7 +474,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE error (id INTEGER PRIMARY KEY)&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">))</span>
 
-        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">))</span></div>
 
@@ -260,7 +486,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_old_project</span><span class="p">()</span>
 
-        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">()</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -277,11 +503,857 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_old_project</span><span class="p">()</span>
 
-        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
-        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;code_version&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">inspect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestTimestampTriggers">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestTimestampTriggers">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestTimestampTriggers</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every table carrying ``timestamp`` keeps a trigger maintaining it.</span>
+
+<span class="sd">    Nothing else checks this. ``get_schema_drift`` is alembic&#39;s comparison</span>
+<span class="sd">    of tables, columns, indexes and constraints, and a trigger is none of</span>
+<span class="sd">    those -- so the schema checks elsewhere in this file pass unchanged</span>
+<span class="sd">    with every trigger in the database dropped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestTimestampTriggers.test_creating_the_schema_installs_all_of_them">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestTimestampTriggers.test_creating_the_schema_installs_all_of_them">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_creating_the_schema_installs_all_of_them</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creation covers the provenance tables, not just data_model&#39;s.</span>
+
+<span class="sd">        The triggers used to be attached to each class</span>
+<span class="sd">        ``import_table_definitions`` discovered, and that discovery is a</span>
+<span class="sd">        glob which does not descend into ``data_model/provenance`` -- so</span>
+<span class="sd">        twelve tables carried a ``timestamp`` column that nothing ever</span>
+<span class="sd">        updated. Comparing against the metadata catches a repeat.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;created.db&quot;</span><span class="p">)</span>
+        <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">expected_timestamp_triggers</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestTimestampTriggers.test_migrating_reinstates_a_dropped_trigger">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestTimestampTriggers.test_migrating_reinstates_a_dropped_trigger">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_migrating_reinstates_a_dropped_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Covers the path taken when the revisions have nothing to do.</span>
+
+<span class="sd">        A database already at head skips the upgrade entirely, so the</span>
+<span class="sd">        repair cannot ride along with a revision; it has to be a check</span>
+<span class="sd">        made on the way past.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;dropped.db&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_legacy_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">casualty</span> <span class="o">=</span> <span class="s2">&quot;update_image_timestamp&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">casualty</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">exec_driver_sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DROP TRIGGER </span><span class="si">{</span><span class="n">casualty</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="n">casualty</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">expected_timestamp_triggers</span><span class="p">()</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestRevisionChain">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRevisionChain</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The revision chain is linear, ordered, and consistently named.</span>
+
+<span class="sd">    A fork is what actually breaks ``upgrade head``: two branches each</span>
+<span class="sd">    adding a revision both point at the same parent, and Alembic then</span>
+<span class="sd">    refuses to upgrade because the head is ambiguous. Catching that here</span>
+<span class="sd">    means catching it in CI rather than at a user&#39;s next project open.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestRevisionChain.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script</span> <span class="o">=</span> <span class="n">ScriptDirectory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">_alembic_config</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestRevisionChain.test_single_head">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_single_head">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_single_head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exactly one head: no fork left unresolved by a merge or rebase.&quot;&quot;&quot;</span>
+
+        <span class="n">heads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">get_heads</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">heads</span><span class="p">),</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Expected a linear chain but found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">heads</span><span class="p">)</span><span class="si">}</span><span class="s2"> heads: </span><span class="si">{</span><span class="n">heads</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Re-point the newer revision&#39;s down_revision at the other.&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRevisionChain.test_revision_ids_are_numbered_slugs">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_revision_ids_are_numbered_slugs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_revision_ids_are_numbered_slugs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Every revision id matches the ``NNNN_slug`` convention.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">revision</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">walk_revisions</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRegex</span><span class="p">(</span><span class="n">revision</span><span class="o">.</span><span class="n">revision</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">_[a-z0-9_]+$&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRevisionChain.test_revision_ids_fit_the_version_table">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_revision_ids_fit_the_version_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_revision_ids_fit_the_version_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ids stay within Alembic&#39;s ``VARCHAR(32)`` version column.</span>
+
+<span class="sd">        SQLite ignores a declared length, so an over-long id passes there</span>
+<span class="sd">        and only fails on MySQL, mid-upgrade, with &quot;Data too long for</span>
+<span class="sd">        column &#39;version_num&#39;&quot; -- after some revisions have already been</span>
+<span class="sd">        applied. Cheaper to catch here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">revision</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">walk_revisions</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertLessEqual</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">revision</span><span class="o">.</span><span class="n">revision</span><span class="p">),</span>
+                <span class="mi">32</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">revision</span><span class="o">.</span><span class="n">revision</span><span class="si">!r}</span><span class="s2"> is </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">revision</span><span class="o">.</span><span class="n">revision</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;characters; alembic_version.version_num holds 32&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRevisionChain.test_numbers_increase_along_the_chain">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_numbers_increase_along_the_chain">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_numbers_increase_along_the_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Numeric prefixes strictly increase from base to head.</span>
+
+<span class="sd">        Catches a duplicate number and a revision merged out of order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">numbers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">revision</span><span class="o">.</span><span class="n">revision</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">revision</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">walk_revisions</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">numbers</span><span class="p">,</span>
+            <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">numbers</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="s2">&quot;Revision numbers must be unique and increase from base to head.&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRevisionChain.test_no_revision_has_two_parents">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_no_revision_has_two_parents">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_revision_has_two_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;No merge revisions: the history stays linear.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">revision</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">walk_revisions</span><span class="p">():</span>
+            <span class="n">parents</span> <span class="o">=</span> <span class="n">revision</span><span class="o">.</span><span class="n">down_revision</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">revision</span><span class="o">.</span><span class="n">revision</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span><span class="si">}</span><span class="s2"> parents; resolve &quot;</span>
+                    <span class="s2">&quot;forks by re-pointing down_revision, not alembic merge.&quot;</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestRevisionChain.test_baseline_is_the_root">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_baseline_is_the_root">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_baseline_is_the_root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``BASELINE_REVISION`` names the one revision with no parent.&quot;&quot;&quot;</span>
+
+        <span class="n">roots</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">revision</span><span class="o">.</span><span class="n">revision</span>
+            <span class="k">for</span> <span class="n">revision</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">walk_revisions</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">revision</span><span class="o">.</span><span class="n">down_revision</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">roots</span><span class="p">,</span> <span class="p">[</span><span class="n">BASELINE_REVISION</span><span class="p">])</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestMigrateProject">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestMigrateProject</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The three database states :func:`migrate_project` has to handle.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestMigrateProject._legacy_engine">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject._legacy_engine">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_legacy_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A 1.8.1-era database: full schema, unstamped, missing the index.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;legacy.db&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_legacy_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">engine</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_fresh_database_is_stamped_without_running_revisions">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_fresh_database_is_stamped_without_running_revisions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_fresh_database_is_stamped_without_running_revisions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``create_all`` builds the current schema, so nothing is applied.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;fresh.db&quot;</span><span class="p">)</span>
+        <span class="n">create_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">get_head_revision</span><span class="p">())</span>
+        <span class="n">check_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_legacy_database_is_baselined_then_upgraded">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_legacy_database_is_baselined_then_upgraded">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_legacy_database_is_baselined_then_upgraded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An unstamped project reaches head in one pass, no user action.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legacy_engine</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">))</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="n">BASELINE_REVISION</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">],</span> <span class="n">get_head_revision</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">has_index</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;image_observing_session&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">check_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_older_database_reaches_the_same_state">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_older_database_reaches_the_same_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_older_database_reaches_the_same_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;One missing a pre-baseline column still lands at head.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legacy_engine</span><span class="p">()</span>
+        <span class="c1"># Simulate predating `error.resolved` by dropping the whole table;</span>
+        <span class="c1"># the baseline step recreates it via create_all.</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS error&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span>
+            <span class="s2">&quot;resolved&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)},</span>
+        <span class="p">)</span>
+        <span class="n">check_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_migration_is_idempotent">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_migration_is_idempotent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_migration_is_idempotent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A second run applies nothing and reports no change.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legacy_engine</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;backup&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_backup_is_taken_before_migrating">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_backup_is_taken_before_migrating">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_backup_is_taken_before_migrating</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;SQLite is copied aside; a server is the administrator&#39;s job.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legacy_engine</span><span class="p">()</span>
+
+        <span class="n">backup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)[</span><span class="s2">&quot;backup&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">on_server</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">backup</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">backup</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">backup</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.pre-baseline&quot;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_project_creation_leaves_no_backup">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_project_creation_leaves_no_backup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_project_creation_leaves_no_backup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;There is nothing to preserve when the database is empty.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;new.db&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)[</span><span class="s2">&quot;backup&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_server_refuses_without_a_confirmed_backup">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_server_refuses_without_a_confirmed_backup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_server_refuses_without_a_confirmed_backup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A shared database is not migrated as a side effect of anything.</span>
+
+<span class="sd">        The SQLite path has no equivalent: it copies the file aside itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">on_server</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">&quot;backup confirmation only applies to servers&quot;</span><span class="p">)</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legacy_engine</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+            <span class="n">migrate_project</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;--assume-backed-up&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestMigrateProject.test_crash_window_between_ddl_and_version_update">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_crash_window_between_ddl_and_version_update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_crash_window_between_ddl_and_version_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;DDL applied but the stamp lost -- the state MySQL can crash into.</span>
+
+<span class="sd">        MySQL commits DDL implicitly, so a failure between the schema change</span>
+<span class="sd">        and the ``alembic_version`` update leaves exactly this. Re-running</span>
+<span class="sd">        must reach head rather than failing on an index that already exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legacy_engine</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;DELETE FROM alembic_version&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">check_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">has_index</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;image_observing_session&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestCheckProjectSchema">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckProjectSchema</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The read-only gate every project open -- and every worker -- runs.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestCheckProjectSchema.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;c.db&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCheckProjectSchema.test_passes_on_a_current_database">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_passes_on_a_current_database">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passes_on_a_current_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;No exception, and nothing written.&quot;&quot;&quot;</span>
+
+        <span class="n">create_project_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="n">check_project_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCheckProjectSchema.test_raises_on_an_unbaselined_database">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_raises_on_an_unbaselined_database">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_raises_on_an_unbaselined_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A legacy project is refused, pointing at wisp-migrate.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_legacy_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+            <span class="n">check_project_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;wisp-migrate&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestCheckProjectSchema.test_raises_on_a_database_from_the_future">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_raises_on_a_database_from_the_future">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_raises_on_a_database_from_the_future</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A newer AutoWISP migrated it: advise upgrading, not migrating.</span>
+
+<span class="sd">        Reachable whenever a centralised database is shared -- one user</span>
+<span class="sd">        upgrades and migrates, another opens it on older code.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">create_project_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">text</span><span class="p">(</span><span class="s2">&quot;UPDATE alembic_version SET version_num = &#39;9999_later&#39;&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+            <span class="n">check_project_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;does not know about&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;wisp-migrate&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCheckProjectSchema.test_does_not_mutate_a_stale_database">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_does_not_mutate_a_stale_database">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_does_not_mutate_a_stale_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The gate must never issue DDL: workers run it concurrently.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_legacy_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">):</span>
+            <span class="n">check_project_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span>
+            <span class="nb">any</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;image_observing_session&quot;</span>
+                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">inspect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_indexes</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestSqliteMigrationLock">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock">[docs]</a>
+<span class="nd">@unittest</span><span class="o">.</span><span class="n">skipIf</span><span class="p">(</span><span class="n">on_server</span><span class="p">(),</span> <span class="s2">&quot;exercises SQLite&#39;s own locking&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSqliteMigrationLock</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The SQLite half of the migration lock really does exclude a second</span>
+<span class="sd">    writer.</span>
+
+<span class="sd">    Alembic does no locking of its own, so without this two migrators can</span>
+<span class="sd">    both read the same revision and both try to apply it. On SQLite the</span>
+<span class="sd">    protection is ``BEGIN IMMEDIATE``, which pysqlite does not issue by</span>
+<span class="sd">    default -- it defers ``BEGIN`` until the first write, leaving a window in</span>
+<span class="sd">    which both have already read. The server equivalent is ``GET_LOCK``,</span>
+<span class="sd">    covered by :class:`TestConcurrentMigration` when pointed at one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestSqliteMigrationLock.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;lock.db&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">()</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE t (id INTEGER PRIMARY KEY)&quot;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestSqliteMigrationLock._engine">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock._engine">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An engine with a busy timeout, as interface.py builds them.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">timeout</span><span class="p">},</span>
+            <span class="n">poolclass</span><span class="o">=</span><span class="n">NullPool</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">engine</span></div>
+
+
+<div class="viewcode-block" id="TestSqliteMigrationLock._write_from_elsewhere">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock._write_from_elsewhere">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_from_elsewhere</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write from an independent connection, failing fast if locked.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;INSERT INTO t (id) VALUES (1)&quot;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestSqliteMigrationLock.test_transaction_alone_does_not_hold_the_write_lock">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.test_transaction_alone_does_not_hold_the_write_lock">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_transaction_alone_does_not_hold_the_write_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Baseline: the window this guard closes is real.</span>
+
+<span class="sd">        Without the guard an open transaction that has not yet written lets</span>
+<span class="sd">        another connection write, which is what allows two migrators to both</span>
+<span class="sd">        read a stale revision.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_from_elsewhere</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TestSqliteMigrationLock.test_begin_immediate_excludes_a_second_writer">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.test_begin_immediate_excludes_a_second_writer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_begin_immediate_excludes_a_second_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;With the guard, the write lock is held from the start.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">_sqlite_immediate</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">OperationalError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_write_from_elsewhere</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;locked&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestSqliteMigrationLock.test_guard_is_removed_afterwards">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.test_guard_is_removed_afterwards">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_guard_is_removed_afterwards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The listeners are per-call and must not leak onto the engine.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">_sqlite_immediate</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_from_elsewhere</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestConcurrentMigration">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestConcurrentMigration">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestConcurrentMigration</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Two migrators racing on one database must not corrupt or crash it.</span>
+
+<span class="sd">    Exercises whichever lock the backend uses: ``BEGIN IMMEDIATE`` on</span>
+<span class="sd">    SQLite, ``GET_LOCK`` on a server. Alembic supplies neither.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestConcurrentMigration.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestConcurrentMigration.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;race.db&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_legacy_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestConcurrentMigration.test_two_migrators_reach_head_without_error">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestConcurrentMigration.test_two_migrators_reach_head_without_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_two_migrators_reach_head_without_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Both calls return, and the database ends up correctly migrated.&quot;&quot;&quot;</span>
+
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Barrier</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">migrate</span><span class="p">():</span>
+            <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;race.db&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">barrier</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="n">threads</span> <span class="o">=</span> <span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">migrate</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">(),</span> <span class="s2">&quot;migration deadlocked&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">],</span> <span class="p">[])</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;race.db&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">get_head_revision</span><span class="p">())</span>
+        <span class="n">check_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">index</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_indexes</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">index</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;image_observing_session&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestSchemaDrift">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSchemaDrift</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The revision chain and the ORM models describe the same schema.</span>
+
+<span class="sd">    A revision may not import the models -- it has to keep meaning the same</span>
+<span class="sd">    schema forever, while the models move -- so anything a revision creates</span>
+<span class="sd">    is declared twice, once in ``data_model`` and once in the revision.</span>
+<span class="sd">    Nothing keeps the two in step except this check, which is why the plan</span>
+<span class="sd">    calls for it rather than for sharing the definitions.</span>
+
+<span class="sd">    Worth running per backend: the comparison is over reflected types, and</span>
+<span class="sd">    what MySQL reports for a column is not what SQLite does.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestSchemaDrift.test_migrated_database_matches_the_models">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift.test_migrated_database_matches_the_models">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_migrated_database_matches_the_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A database the revisions built agrees with the models.</span>
+
+<span class="sd">        Note this cannot catch a model changed with no revision to match:</span>
+<span class="sd">        the &quot;before&quot; state here comes from today&#39;s metadata too, so both</span>
+<span class="sd">        sides move together. :class:`TestUpgradeFromRelease` is the test</span>
+<span class="sd">        that catches that, by building the &quot;before&quot; state from released</span>
+<span class="sd">        code.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;migrated.db&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_legacy_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_schema_drift</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="p">[])</span></div>
+
+
+<div class="viewcode-block" id="TestSchemaDrift.test_created_database_matches_the_models">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift.test_created_database_matches_the_models">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_created_database_matches_the_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Control: create_all builds from the models, so it must agree.&quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;created.db&quot;</span><span class="p">)</span>
+        <span class="n">create_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_schema_drift</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="p">[])</span></div>
+
+
+<div class="viewcode-block" id="TestSchemaDrift.test_drift_is_actually_detected">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift.test_drift_is_actually_detected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_drift_is_actually_detected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The check discriminates -- an empty result means agreement.</span>
+
+<span class="sd">        Without this the two tests above would pass just as happily if</span>
+<span class="sd">        get_schema_drift() always returned nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="s2">&quot;drifted.db&quot;</span><span class="p">)</span>
+        <span class="n">create_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_stray_index</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;not_in_the_models&quot;</span><span class="p">)</span>
+
+        <span class="n">drift</span> <span class="o">=</span> <span class="n">get_schema_drift</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">drift</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">drift</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;remove_index&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">drift</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;not_in_the_models&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_repo_root">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration._repo_root">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_repo_root</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the repository&#39;s top level, or None outside a checkout.&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;git&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                <span class="s2">&quot;rev-parse&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;--show-toplevel&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="_git">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration._git">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_git</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run git at the repository root; return output, or None if it fails.</span>
+
+<span class="sd">    The root, not this file&#39;s directory: ``git archive`` refuses a pathspec</span>
+<span class="sd">    reaching outside the current directory, so it has to be invoked from</span>
+<span class="sd">    the top level.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">_repo_root</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;-C&quot;</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="ow">not</span> <span class="n">binary</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span> <span class="k">if</span> <span class="n">binary</span> <span class="k">else</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestUpgradeFromRelease</span><span class="p">(</span><span class="n">BackendMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A database built by a *released* AutoWISP reaches today&#39;s schema.</span>
+
+<span class="sd">    This is the test that catches a model changed without a revision to</span>
+<span class="sd">    match. Every other check here builds its &quot;before&quot; state from today&#39;s</span>
+<span class="sd">    metadata, so a missing revision moves both sides together and goes</span>
+<span class="sd">    unnoticed. Here the starting schema is built by the released code</span>
+<span class="sd">    itself, checked out from its tag, so the revision chain is the only</span>
+<span class="sd">    thing that can close the gap.</span>
+
+<span class="sd">    That released package is loaded in a **subprocess**: it defines the</span>
+<span class="sd">    same module names as the code under test, so importing both into one</span>
+<span class="sd">    interpreter would have whichever came first shadow the other.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">release_baselines</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;1.8.1&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Released versions a project database may be upgraded from.</span>
+
+<span class="sd">    Add each new release tag as it ships; every entry gets its own</span>
+<span class="sd">    upgrade-to-current check.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">_git</span><span class="p">(</span><span class="s2">&quot;rev-parse&quot;</span><span class="p">,</span> <span class="s2">&quot;--git-dir&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">&quot;not a git checkout, so releases cannot be exported&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._export_release">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease._export_release">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the ``autowisp`` package as of *ref* into a temp dir.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">_git</span><span class="p">(</span><span class="s2">&quot;rev-parse&quot;</span><span class="p">,</span> <span class="s2">&quot;--verify&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">^</span><span class="se">{{</span><span class="s2">commit</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;tag </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> unavailable -- CI needs fetch-depth: 0 for tags&quot;</span>
+            <span class="p">)</span>
+        <span class="n">archive</span> <span class="o">=</span> <span class="n">_git</span><span class="p">(</span><span class="s2">&quot;archive&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;autowisp&quot;</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;could not export </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># tarfile rather than the tar binary: no external command, and no</span>
+        <span class="c1"># assumption about which tar the platform ships.</span>
+        <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">archive</span><span class="p">))</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+            <span class="n">tar</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease._build_release_schema">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease._build_release_schema">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the release&#39;s schema, running that release&#39;s own code.&quot;&quot;&quot;</span>
+
+        <span class="c1"># hide_password=False: str(URL) masks the password, which would</span>
+        <span class="c1"># make the subprocess fail to connect to a server.</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">render_as_string</span><span class="p">(</span><span class="n">hide_password</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
+                <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;import sys; sys.path.insert(0, </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;from sqlalchemy import create_engine</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;from autowisp.database.data_model.base import DataModelBase</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;import autowisp.database.data_model</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;DataModelBase.metadata.create_all(create_engine(</span><span class="si">{</span><span class="n">url</span><span class="si">!r}</span><span class="s2">))</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="p">:</span>
+            <span class="c1"># The release cannot create its own schema here, so there is no</span>
+            <span class="c1"># upgrade to check -- not a failure of the revisions. Reachable:</span>
+            <span class="c1"># 1.8.1 cannot be created on MySQL 8.4 under utf8mb4 at all,</span>
+            <span class="c1"># because its VARCHAR(1000) unique keys exceed InnoDB&#39;s index</span>
+            <span class="c1"># limit. That is precisely what these revisions fix, and why</span>
+            <span class="c1"># real deployments run a narrower charset.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span>
+                <span class="s2">&quot;the release cannot build its schema on this backend, so &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;there is no upgrade path to check:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">[</span><span class="o">-</span><span class="mi">300</span><span class="p">:]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_release_upgrades_to_the_current_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Each released schema, once migrated, agrees with today&#39;s models.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="n">ref</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_backend</span><span class="p">()</span>
+                <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;from_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
+
+                <span class="c1"># Predates Alembic, so this covers the whole path: reach the</span>
+                <span class="c1"># baseline, stamp it, then apply every revision.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">get_head_revision</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">get_schema_drift</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span>
+                    <span class="p">[],</span>
+                    <span class="sa">f</span><span class="s2">&quot;a database from </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> does not reach the current &quot;</span>
+                    <span class="s2">&quot;schema; the differences above each need a revision&quot;</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_every_release_keeps_its_timestamp_triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upgrading does not cost the database its triggers.</span>
+
+<span class="sd">        SQLite cannot alter a column in place, so ``batch_alter_table``</span>
+<span class="sd">        rebuilds the table and the drop takes its triggers with it. The</span>
+<span class="sd">        rebuilt table is created by the revision rather than from the</span>
+<span class="sd">        models, so nothing puts them back -- a 1.8.1 database used to lose</span>
+<span class="sd">        seven this way, and the check above could not see it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">expected_timestamp_triggers</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="n">ref</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_backend</span><span class="p">()</span>
+                <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;triggers_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_triggers</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_value_too_long_to_keep_stops_the_migration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Narrowing a column refuses rather than truncating.</span>
+
+<span class="sd">        Refusing is the point: on a server not running in strict mode the</span>
+<span class="sd">        ALTER would truncate the value silently.</span>
+
+<span class="sd">        Uses ``condition_expression.expression`` (1000 -&gt; 768 in ``0005``)</span>
+<span class="sd">        rather than ``image.raw_fname``, which narrows identically in</span>
+<span class="sd">        ``0004``. The guard lives in the shared ``resize_varchar_column``,</span>
+<span class="sd">        so either exercises it -- but condition_expression has no foreign</span>
+<span class="sd">        keys, whereas an image row needs an image_type and an observing</span>
+<span class="sd">        session, and that in turn needs an observer, camera, telescope,</span>
+<span class="sd">        mount, observatory and target. A server enforces every one of</span>
+<span class="sd">        those, so the alternative was either a dozen rows of fixture or</span>
+<span class="sd">        switching the checks off, and neither has anything to do with</span>
+<span class="sd">        column widths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">release_baselines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;toolong_</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">.db&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_release_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_release</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">long_expression</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">800</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+                <span class="s2">&quot;condition_expression&quot;</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
+            <span class="p">)</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">insert</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">expression</span><span class="o">=</span><span class="n">long_expression</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;expression&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">long_expression</span><span class="p">)),</span> <span class="n">message</span><span class="p">)</span>
+
+        <span class="c1"># The value is still intact, and the schema was left alone.</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+                <span class="s2">&quot;condition_expression&quot;</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">(),</span> <span class="n">autoload_with</span><span class="o">=</span><span class="n">connection</span>
+            <span class="p">)</span>
+            <span class="n">kept</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">expression</span><span class="p">))</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="n">long_expression</span><span class="p">)</span></div>
 </div>
 
 

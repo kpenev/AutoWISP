@@ -171,26 +171,27 @@
 <span id="autowisp-catalog-module"></span><h1>autowisp.catalog module<a class="headerlink" href="#module-autowisp.catalog" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-db2d368739a1c613e1a02f362901e2ce6f9fe9b4.png" alt="Inheritance diagram of CatalogError, DataReductionFile, Evaluator, GaiaClass, SkyCoord, Transformation, WISPGaia, nullcontext" usemap="#inheritance596e3e9fbe" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-df0d4aadf01521451808023cc9f08d8689446a35.png" alt="Inheritance diagram of CatalogError, DataReductionFile, Evaluator, GaiaClass, SkyCoord, Transformation, WISPGaia, nullcontext" usemap="#inheritance596e3e9fbe" class="inheritance graphviz" /></div>
 <map id="inheritance596e3e9fbe" name="inheritance596e3e9fbe">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="452,453,527,480"/>
 <area shape="rect" id="node14" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="147,528,334,555"/>
-<area shape="rect" id="node26" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractAsyncContextManager" target="_top" title="An abstract base class for asynchronous context managers." alt="" coords="358,528,621,555"/>
-<area shape="rect" id="node27" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractContextManager" target="_top" title="An abstract base class for context managers." alt="" coords="646,528,872,555"/>
-<area shape="rect" id="node15" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="756,80,946,107"/>
-<area shape="rect" id="node11" href="#autowisp.catalog.WISPGaia" target="_top" title="Extend queries with condition and sorting." alt="" coords="1308,229,1493,256"/>
-<area shape="rect" id="node10" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="1517,5,1833,32"/>
+<area shape="rect" id="node27" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractAsyncContextManager" target="_top" title="An abstract base class for asynchronous context managers." alt="" coords="358,528,621,555"/>
+<area shape="rect" id="node28" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractContextManager" target="_top" title="An abstract base class for context managers." alt="" coords="646,528,872,555"/>
+<area shape="rect" id="node16" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="741,80,961,107"/>
+<area shape="rect" id="node11" href="#autowisp.catalog.WISPGaia" target="_top" title="Extend queries with condition and sorting." alt="" coords="1352,229,1537,256"/>
+<area shape="rect" id="node10" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="1561,5,1877,32"/>
 <area shape="rect" id="node12" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="47,677,434,704"/>
 <area shape="rect" id="node13" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="35,603,446,629"/>
-<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1858,5,2092,32"/>
-<area shape="rect" id="node18" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1875,80,2075,107"/>
-<area shape="rect" id="node17" href="autowisp.exceptions.html#autowisp.exceptions.CatalogError" target="_top" title="A problem with the reference catalog (query or coverage/consistency)." alt="" coords="1866,155,2084,181"/>
-<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
-<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
-<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="393,5,549,32"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="572,5,740,32"/>
-<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
+<area shape="rect" id="node15" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="756,155,946,181"/>
+<area shape="rect" id="node17" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1902,5,2136,32"/>
+<area shape="rect" id="node19" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1919,80,2119,107"/>
+<area shape="rect" id="node18" href="autowisp.exceptions.html#autowisp.exceptions.CatalogError" target="_top" title="A problem with the reference catalog (query or coverage/consistency)." alt="" coords="1910,155,2128,181"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="393,5,549,32"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="572,5,740,32"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
 </map><p>Utilities for querying catalogs for astrometry.</p>
 </section>
 <dl class="py class">
@@ -257,18 +258,18 @@ the magnitude defined by <code class="docutils literal notranslate"><span class=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>order_by</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – How should the stars be ordered.</p></li>
-<li><p><strong>condition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Condition the returned sources must satisfy
+<li><p><strong>order_by</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – How should the stars be ordered.</p></li>
+<li><p><strong>condition</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Condition the returned sources must satisfy
 (typically imposes a brightness limit)</p></li>
 <li><p><strong>epoch</strong> – The epoch to propagate the positions to. If unspecified,
 no propagation will be done.</p></li>
 <li><p><strong>columns</strong> (<em>iterable</em>) – List of columns to select from the catalog. If
 unspecified, all columns will be returned.</p></li>
-<li><p><strong>order_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Should the order be ascending (<code class="docutils literal notranslate"><span class="pre">'ASC'</span></code>) or
+<li><p><strong>order_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Should the order be ascending (<code class="docutils literal notranslate"><span class="pre">'ASC'</span></code>) or
 descending (<code class="docutils literal notranslate"><span class="pre">'DESC'</span></code>).</p></li>
-<li><p><strong>max_objects</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of objects to return.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Use verbose mode when submitting querries to GAIA.</p></li>
-<li><p><strong>count_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, only the number of objects is
+<li><p><strong>max_objects</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of objects to return.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Use verbose mode when submitting querries to GAIA.</p></li>
+<li><p><strong>count_only</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, only the number of objects is
 returned without actually fetching the data.</p></li>
 <li><p><strong>fov</strong> – Forwarded directly to <a href="#id1"><span class="problematic" id="id2">`estimate_fov_corners()`_</span></a></p></li>
 </ul>
@@ -341,12 +342,12 @@ returned without actually fetching the data.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>header</strong> (<em>dict-like</em>) – The header of the frame being astrometried.</p></li>
-<li><p><strong>transformation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The transformation to assume applies to the
+<li><p><strong>transformation</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The transformation to assume applies to the
 given image.  Should contain entries for <code class="docutils literal notranslate"><span class="pre">'trans_x'</span></code>,
 <code class="docutils literal notranslate"><span class="pre">'trans_y'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ra_cent'</span></code> and <code class="docutils literal notranslate"><span class="pre">'dec_cent'</span></code>.</p></li>
 <li><p><strong>catalog_header</strong> (<em>dict-like</em>) – The header of the catalog being used for
 astrometry.</p></li>
-<li><p><strong>safety_margin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The absolute values of xi and eta
+<li><p><strong>safety_margin</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The absolute values of xi and eta
 (relative to the catalog center) corresponding to the corners of the
 frame increased by this fraction must be smaller than the field of
 view of the catalogfor the frame to be considered covered.</p></li>
@@ -357,7 +358,7 @@ view of the catalogfor the frame to be considered covered.</p></li>
 margin.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -369,8 +370,8 @@ margin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the catalog file to create.</p></li>
-<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should overwriting an existing file be allowed?</p></li>
+<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the catalog file to create.</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should overwriting an existing file be allowed?</p></li>
 <li><p><strong>**query_kwargs</strong> – Arguments passed directly to
 <cite>gaia.query_brightness_limited()</cite>.</p></li>
 </ul>
@@ -394,7 +395,7 @@ margin.</p>
 <li><p><strong>center_ra_dec</strong> (<em>numpy.array</em>) – The center RA and Dec of all the frames
 being considered. The data type should include columns named
 <code class="docutils literal notranslate"><span class="pre">'RA'</span></code> and <code class="docutils literal notranslate"><span class="pre">'Dec'</span></code>.</p></li>
-<li><p><strong>max_allowed_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The maximum allowed offset in the RA and
+<li><p><strong>max_allowed_offset</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The maximum allowed offset in the RA and
 Dec directions in degrees. The most outlier frames is iteratively
 rejected until this criterion is satisfied.</p></li>
 </ul>
@@ -404,7 +405,7 @@ rejected until this criterion is satisfied.</p></li>
 outliers.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -462,7 +463,7 @@ one DR file was specified.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -486,8 +487,8 @@ one DR file was specified.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cat_fits</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, or </em><em>opened FITS file</em>) – The file to read.</p></li>
-<li><p><strong>source_id_filter</strong> (<em>iterable</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – If not None, only sources
+<li><p><strong>cat_fits</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, or </em><em>opened FITS file</em>) – The file to read.</p></li>
+<li><p><strong>source_id_filter</strong> (<em>iterable</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – If not None, only sources
 whose <code class="docutils literal notranslate"><span class="pre">source_id</span></code> (compared as a string) is in this collection are
 returned. Applied before any <code class="docutils literal notranslate"><span class="pre">filter_expr</span></code>/<code class="docutils literal notranslate"><span class="pre">sort_expr</span></code> so a
 single cached catalog can be reused for arbitrary source subsets.</p></li>

@@ -172,14 +172,14 @@
 <span id="autowisp-database-processing-module"></span><h1>autowisp.database.processing module<a class="headerlink" href="#module-autowisp.database.processing" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-5a2f12fe8011b635246bad4b817ffe6b569dc929.png" alt="Inheritance diagram of Condition, ConditionExpression, Configuration, ConfigurationError, DataReductionFile, Evaluator, ImageMasterSelection, ImageProcessingProgress, ImageType, InputMasterTypes, LightCurveFile, LightCurveProcessingProgress, MasterFile, MasterType, PipelineError, PipelineRun, ProcessingInProgress, ProcessingManager, Step, TemporaryDirectory" usemap="#inheritanceb41adffaad" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-e26504e301b1bb8157c476dbdf7b7998cb31272a.png" alt="Inheritance diagram of Condition, ConditionExpression, Configuration, ConfigurationError, DataReductionFile, Evaluator, ImageMasterSelection, ImageProcessingProgress, ImageType, InputMasterTypes, LightCurveFile, LightCurveProcessingProgress, MasterFile, MasterType, PipelineError, PipelineRun, ProcessingInProgress, ProcessingManager, Step, TemporaryDirectory" usemap="#inheritanceb41adffaad" class="inheritance graphviz" /></div>
 <map id="inheritanceb41adffaad" name="inheritanceb41adffaad">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
 <area shape="rect" id="node21" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
-<area shape="rect" id="node25" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1971,80,2160,107"/>
+<area shape="rect" id="node26" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="1584,80,1803,107"/>
 <area shape="rect" id="node3" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
 <area shape="rect" id="node4" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
-<area shape="rect" id="node29" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
+<area shape="rect" id="node30" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
 <area shape="rect" id="node5" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="2582,304,2912,331"/>
 <area shape="rect" id="node9" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="548,379,864,405"/>
 <area shape="rect" id="node10" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="888,379,1339,405"/>
@@ -196,17 +196,18 @@
 <area shape="rect" id="node13" href="autowisp.database.data_model.image_master_selection.html#autowisp.database.data_model.image_master_selection.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="2936,304,3416,331"/>
 <area shape="rect" id="node22" href="#autowisp.database.processing.ProcessingInProgress" target="_top" title="Raised when a particular step is running in a different process/host." alt="" coords="3313,155,3642,181"/>
 <area shape="rect" id="node23" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="3524,80,3743,107"/>
-<area shape="rect" id="node27" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="3666,155,3916,181"/>
+<area shape="rect" id="node28" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="3666,155,3916,181"/>
 <area shape="rect" id="node24" href="#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="3776,5,4092,32"/>
-<area shape="rect" id="node26" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="3516,5,3751,32"/>
-<area shape="rect" id="node30" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="590,80,760,107"/>
-<area shape="rect" id="node34" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="594,155,756,181"/>
-<area shape="rect" id="node31" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="428,5,573,32"/>
-<area shape="rect" id="node32" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="597,5,753,32"/>
-<area shape="rect" id="node33" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="776,5,944,32"/>
-<area shape="rect" id="node35" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="459,229,667,256"/>
-<area shape="rect" id="node43" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3104,5,3209,32"/>
-<area shape="rect" id="node44" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="4116,5,4301,32"/>
+<area shape="rect" id="node25" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1599,155,1788,181"/>
+<area shape="rect" id="node27" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="3516,5,3751,32"/>
+<area shape="rect" id="node31" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="590,80,760,107"/>
+<area shape="rect" id="node35" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="594,155,756,181"/>
+<area shape="rect" id="node32" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="428,5,573,32"/>
+<area shape="rect" id="node33" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="597,5,753,32"/>
+<area shape="rect" id="node34" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="776,5,944,32"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="459,229,667,256"/>
+<area shape="rect" id="node44" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3104,5,3209,32"/>
+<area shape="rect" id="node45" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="4116,5,4301,32"/>
 </map><p>Define base class for processing images or lightcurves.</p>
 </section>
 <dl class="py exception">
@@ -219,7 +220,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.processing.ProcessingManager">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.processing.</span></span><span class="sig-name descname"><span class="pre">ProcessingManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/processing.html#ProcessingManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.processing.ProcessingManager" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <div class="graphviz"><img src="../_images/inheritance-c1f016e76c72f7cf376df97593b9dad896fea64b.png" alt="Inheritance diagram of autowisp.database.processing.ProcessingManager" usemap="#inheritance217508fa47" class="inheritance graphviz" /></div>
 <map id="inheritance217508fa47" name="inheritance217508fa47">
 <area shape="rect" id="node1" href="#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="5,5,322,32"/>
@@ -289,11 +290,11 @@ image vs lightcurve processing managers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pipeline_run_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the PipelineRun using the
+<li><p><strong>pipeline_run_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the PipelineRun using the
 instance. If set to None, all logging is suppressed and no
 processing can be performed. Useful for reviewing the results
 of past processing.</p></li>
-<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the parameters to get. If a
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The version of the parameters to get. If a
 parameter value is not specified for this exact version use the
 value with the largest version not exceeding <code class="docutils literal notranslate"><span class="pre">version</span></code>. By
 default us the latest configuration version in the database.</p></li>
@@ -341,7 +342,7 @@ default us the latest configuration version in the database.</p></li>
 <dd><p>Return the master that should be used for the given image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ambiguous_ok</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True and multiple candidates exist but
+<dd class="field-odd"><p><strong>ambiguous_ok</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True and multiple candidates exist but
 none has <code class="docutils literal notranslate"><span class="pre">use_smallest</span></code> set, return <code class="docutils literal notranslate"><span class="pre">None</span></code> instead of
 asserting.  Only pass True for master types (e.g.
 <code class="docutils literal notranslate"><span class="pre">single_photref</span></code>) whose selection is done externally via
@@ -377,7 +378,7 @@ supply the mapping.</p>
 <dd class="field-even"><p>The image-type name used when the logs were written.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,7 +402,7 @@ comparing configurations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>new_masters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><em>iterable</em><em> of </em><em>dicts</em>) – <p>Information about the new
+<li><p><strong>new_masters</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><em>iterable</em><em> of </em><em>dicts</em>) – <p>Information about the new
 mbaster(s) to add. Each dictionary should include:</p>
 <ul>
 <li><p>type: The type of master being added.</p></li>
@@ -414,9 +415,9 @@ with the smallest resulting value is used.</p></li>
 recorded in the database, but not flagged enabled.</p></li>
 </ul>
 </p></li>
-<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the step that generated the
+<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the step that generated the
 masters.</p></li>
-<li><p><strong>image_type_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the type of images whose
+<li><p><strong>image_type_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the type of images whose
 processing created the masters.</p></li>
 </ul>
 </dd>
@@ -443,7 +444,7 @@ status rather than matching it against a fixed set.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>step_module</strong> – The module implementing the step.</p></li>
-<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Its name, for the message.</p></li>
+<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Its name, for the message.</p></li>
 <li><p><strong>interrupted</strong> – The <code class="docutils literal notranslate"><span class="pre">(filename,</span> <span class="pre">status)</span></code> pairs about to be
 handed to the step’s <code class="docutils literal notranslate"><span class="pre">cleanup_interrupted</span></code>.</p></li>
 </ul>
@@ -474,7 +475,7 @@ a constant by its own <code class="docutils literal notranslate"><span class="pr
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>step_module</strong> – The module implementing the step.</p></li>
-<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Its name, for the message.</p></li>
+<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Its name, for the message.</p></li>
 <li><p><strong>start_status</strong> – What the manager is about to pass it.</p></li>
 </ul>
 </dd>
@@ -491,13 +492,13 @@ a constant by its own <code class="docutils literal notranslate"><span class="pr
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>example_header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>dict-like</em>) – The header to use
+<li><p><strong>example_header</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>dict-like</em>) – The header to use
 to determine the values of the configuration parameters. Can be
 passed directly as a header instance or FITS or DR filename.</p></li>
-<li><p><strong>outf</strong> (<em>file</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The file to write the configuration to. Can be
+<li><p><strong>outf</strong> (<em>file</em><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The file to write the configuration to. Can be
 passed as something providing a write method or filename.
 Overwritten if exists.</p></li>
-<li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – If specified, only configuration parameters required
+<li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – If specified, only configuration parameters required
 by these steps will be included.</p></li>
 <li><p><strong>steps=None</strong></p></li>
 </ul>
@@ -520,7 +521,7 @@ the condition expressions. The image header is augmented by
 <code class="docutils literal notranslate"><span class="pre">IMAGE_TYPE</span></code> keyword set to the name of the image type of the
 given image.</p></li>
 <li><p><strong>db_session</strong> – Used to select the best master.</p></li>
-<li><p><strong>return_evaluator</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should an evaluator setup per the image
+<li><p><strong>return_evaluator</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should an evaluator setup per the image
 header be returned for further use?</p></li>
 </ul>
 </dd>
@@ -560,7 +561,7 @@ omitted.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -590,12 +591,12 @@ omitted.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>matched_expressions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><em>set</em></a>) – Set of expression IDs that the image we
+<li><p><strong>matched_expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)"><em>set</em></a>) – Set of expression IDs that the image we
 are getting configuration for matches.</p></li>
-<li><p><strong>parameters</strong> (<em>[</em><em>] or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – List of parameter names, or a step, or
+<li><p><strong>parameters</strong> (<em>[</em><em>] or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – List of parameter names, or a step, or
 its name to get configuration for. Defaults to current step if
 not specified.</p></li>
-<li><p><strong>as_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return a list of arguments ready to pass
+<li><p><strong>as_args</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, return a list of arguments ready to pass
 directly to one of the command line parser of the processing
 steps.</p></li>
 <li><p><strong>db_session</strong> – Session to use for DB queries. Only needed if
@@ -610,7 +611,7 @@ specifying parameters by step name or using default.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a> or <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
 </dd>
 </dl>
 </dd></dl>

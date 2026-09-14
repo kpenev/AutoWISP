@@ -171,8 +171,8 @@
 <span id="autowisp-tests-package"></span><h1>autowisp.tests package<a class="headerlink" href="#module-autowisp.tests" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-3f1eee3478f0c129d795ca77b1a56d3ce372efe3.png" alt="Inheritance diagram of AutoWISPTestCase, FloatTestCase, Interpreter, Sequence" usemap="#inheritance39d073bf75" class="inheritance graphviz" /></div>
-<map id="inheritance39d073bf75" name="inheritance39d073bf75">
+<div class="graphviz"><img src="../_images/inheritance-d9899e2b22c748fdb92fd1a5e110a93140c82cf7.png" alt="Inheritance diagram of AutoWISPTestCase, FloatTestCase, Interpreter, Sequence, TemporaryDirectory" usemap="#inheritanceab26d98faf" class="inheritance graphviz" /></div>
+<map id="inheritanceab26d98faf" name="inheritanceab26d98faf">
 <area shape="rect" id="node4" href="#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="165,155,394,181"/>
 <area shape="rect" id="node5" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="548,80,718,107"/>
 <area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" target="_top" title="All the operations on a read&#45;only sequence." alt="" coords="645,155,815,181"/>
@@ -180,6 +180,7 @@
 <area shape="rect" id="node7" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="748,5,904,32"/>
 <area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Reversible" target="_top" title="collections.abc.Reversible" alt="" coords="742,80,916,107"/>
 <area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="551,5,720,32"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="928,5,1114,32"/>
 </map><p>Autowisp unit-test init.</p>
 </section>
 <dl class="py class">
@@ -197,13 +198,26 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fname1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names of the files (for messages).</p></li>
-<li><p><strong>fname2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names of the files (for messages).</p></li>
+<li><p><strong>fname1</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names of the files (for messages).</p></li>
+<li><p><strong>fname2</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names of the files (for messages).</p></li>
 <li><p><strong>header1</strong> – The <code class="docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code> objects.</p></li>
 <li><p><strong>header2</strong> – The <code class="docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code> objects.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase._point_at_test_database">
+<span class="sig-name descname"><span class="pre">_point_at_test_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase._point_at_test_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase._point_at_test_database" title="Link to this definition"></a></dt>
+<dd><p>Send this test’s project database to the configured server.</p>
+<p>Nothing else in the suite – and no pipeline or step code – needs
+to know. <code class="docutils literal notranslate"><span class="pre">set_project_home</span></code> already reads <code class="docutils literal notranslate"><span class="pre">autowisp_db.url</span></code>
+from the project home when it is there, and every step launched by
+<a class="reference internal" href="#autowisp.tests.AutoWISPTestCase.run_step" title="autowisp.tests.AutoWISPTestCase.run_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_step()</span></code></a> runs with that directory as its cwd, so it
+resolves the same file. Writing it here therefore redirects the
+whole run, subprocesses included.</p>
+<p>A no-op when the variable is unset, which is the default.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -222,7 +236,7 @@ this test rather than merely counted.</p>
 <dd class="field-odd"><p>True if this test recorded a failure or an error.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -280,6 +294,62 @@ every test that forgot to.</p>
 
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.tests.SERVER_URL_ENV">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">SERVER_URL_ENV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AUTOWISP_TEST_DB_URL'</span></em><a class="headerlink" href="#autowisp.tests.SERVER_URL_ENV" title="Link to this definition"></a></dt>
+<dd><p>Environment variable naming a MySQL/MariaDB URL to test against.</p>
+<p>Unset – the default, and what a developer gets locally – puts every
+project database in a throwaway SQLite file, as before. Setting it runs the
+same tests against a centralised server, which is a supported deployment
+but one the suite has never exercised: SQLite compares strings
+case-sensitively, does not enforce foreign keys or column widths, and
+serialises writers instead of taking row locks.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests._redirected_user_data_dir">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">_redirected_user_data_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#_redirected_user_data_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests._redirected_user_data_dir" title="Link to this definition"></a></dt>
+<dd><p>Return the throwaway directory whatever application is asked for.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.tests._user_data_dir">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">_user_data_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemporaryDirectory</span> <span class="pre">'/var/folders/hm/n65vjtk55fg79mcg2sz1g6280000gp/T/autowisp_tests_qzkwxdyl'&gt;</span></em><a class="headerlink" href="#autowisp.tests._user_data_dir" title="Link to this definition"></a></dt>
+<dd><p>Throwaway stand-in for the real user data directory.</p>
+<p>Five call sites derive paths from <code class="docutils literal notranslate"><span class="pre">platformdirs.user_data_dir(&quot;autowisp&quot;)</span></code>:
+the BUI database and <code class="docutils literal notranslate"><span class="pre">bui.log</span></code> (<code class="docutils literal notranslate"><span class="pre">django_project/settings.py</span></code>), the
+default project home when none is given (<code class="docutils literal notranslate"><span class="pre">database/interface.py</span></code>), and the
+<code class="docutils literal notranslate"><span class="pre">run_pipeline.out</span></code> capture file (<code class="docutils literal notranslate"><span class="pre">run_pipeline.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">processing/views.py</span></code>). Redirecting the lookup once, here, means no test
+can reach the developer’s real data by forgetting to override something –
+the BUI database in particular holds their project list.</p>
+<p>This belongs in the package <code class="docutils literal notranslate"><span class="pre">__init__</span></code> rather than <code class="docutils literal notranslate"><span class="pre">__main__</span></code> because CI
+also runs modules directly (<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">unittest</span> <span class="pre">autowisp.tests.…</span></code>), which
+never loads <code class="docutils literal notranslate"><span class="pre">__main__</span></code>. Importing anything under <code class="docutils literal notranslate"><span class="pre">autowisp.tests</span></code>
+executes this first, which matters because <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> resolves the
+directory at <em>import</em> time.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.empty_server_database">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">empty_server_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#empty_server_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.empty_server_database" title="Link to this definition"></a></dt>
+<dd><p>Drop every table in <em>url</em>, including <code class="docutils literal notranslate"><span class="pre">alembic_version</span></code>.</p>
+<p>SQLite gets a fresh file per test simply by using a fresh directory. A
+server has one database shared by the whole run, so it has to be
+emptied between tests instead – and completely, since a leftover
+<code class="docutils literal notranslate"><span class="pre">alembic_version</span></code> would make the next project look migrated when its
+tables are gone.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.tests.server_test_url">
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">server_test_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#server_test_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.server_test_url" title="Link to this definition"></a></dt>
+<dd><p>Return the server URL to test against, or None for SQLite.</p>
+<p>Empty counts as unset. A CI matrix that carries the URL as a per-cell
+key gives every <em>other</em> cell the variable set to an empty string rather
+than absent, and those cells must stay on SQLite.</p>
+</dd></dl>
+
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
@@ -300,10 +370,7 @@ every test that forgot to.</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.generate_catalog_test_data.html">autowisp.tests.generate_catalog_test_data module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.generate_catalog_test_data.html#autowisp.tests.generate_catalog_test_data.generate_test_data"><code class="docutils literal notranslate"><span class="pre">generate_test_data()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.generate_catalog_test_data.html">autowisp.tests.generate_catalog_test_data module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.get_test_data.html">autowisp.tests.get_test_data module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.get_test_data.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.get_test_data.html#autowisp.tests.get_test_data.download_zip"><code class="docutils literal notranslate"><span class="pre">download_zip()</span></code></a></li>
@@ -326,6 +393,69 @@ every test that forgot to.</p>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html">autowisp.tests.test_bui_db_config module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase"><code class="docutils literal notranslate"><span class="pre">DbConfigTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase._restore_env"><code class="docutils literal notranslate"><span class="pre">DbConfigTestCase._restore_env()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase.setUp"><code class="docutils literal notranslate"><span class="pre">DbConfigTestCase.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase.write_url_file"><code class="docutils literal notranslate"><span class="pre">DbConfigTestCase.write_url_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDefaultDatabase"><code class="docutils literal notranslate"><span class="pre">TestDefaultDatabase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDefaultDatabase.test_defaults_to_sqlite_in_the_data_directory"><code class="docutils literal notranslate"><span class="pre">TestDefaultDatabase.test_defaults_to_sqlite_in_the_data_directory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery"><code class="docutils literal notranslate"><span class="pre">TestDiscovery</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_empty_values_are_ignored"><code class="docutils literal notranslate"><span class="pre">TestDiscovery.test_empty_values_are_ignored()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_environment_wins"><code class="docutils literal notranslate"><span class="pre">TestDiscovery.test_environment_wins()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_nothing_configured"><code class="docutils literal notranslate"><span class="pre">TestDiscovery.test_nothing_configured()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_url_file"><code class="docutils literal notranslate"><span class="pre">TestDiscovery.test_url_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestMysqlDriver"><code class="docutils literal notranslate"><span class="pre">TestMysqlDriver</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestMysqlDriver.test_pymysql_is_accepted"><code class="docutils literal notranslate"><span class="pre">TestMysqlDriver.test_pymysql_is_accepted()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation"><code class="docutils literal notranslate"><span class="pre">TestUrlTranslation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_mariadb_uses_the_same_backend"><code class="docutils literal notranslate"><span class="pre">TestUrlTranslation.test_mariadb_uses_the_same_backend()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_mysql_url_is_mapped_field_by_field"><code class="docutils literal notranslate"><span class="pre">TestUrlTranslation.test_mysql_url_is_mapped_field_by_field()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_sqlite_url_supplies_the_path"><code class="docutils literal notranslate"><span class="pre">TestUrlTranslation.test_sqlite_url_supplies_the_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_unsupported_backend_is_refused"><code class="docutils literal notranslate"><span class="pre">TestUrlTranslation.test_unsupported_backend_is_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.translate"><code class="docutils literal notranslate"><span class="pre">TestUrlTranslation.translate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_bui_models.html">autowisp.tests.test_bui_models module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_models.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.BuiModelTestCase"><code class="docutils literal notranslate"><span class="pre">BuiModelTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.BuiModelTestCase.make_project"><code class="docutils literal notranslate"><span class="pre">BuiModelTestCase.make_project()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.BuiModelTestCase.setUpClass"><code class="docutils literal notranslate"><span class="pre">BuiModelTestCase.setUpClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.BuiModelTestCase.stamp"><code class="docutils literal notranslate"><span class="pre">BuiModelTestCase.stamp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows"><code class="docutils literal notranslate"><span class="pre">TestMigrationCarriesExistingRows</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows.test_existing_row_keeps_created_and_gains_modified"><code class="docutils literal notranslate"><span class="pre">TestMigrationCarriesExistingRows.test_existing_row_keeps_created_and_gains_modified()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModelBase"><code class="docutils literal notranslate"><span class="pre">TestModelBase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModelBase.test_contrib_models_are_left_alone"><code class="docutils literal notranslate"><span class="pre">TestModelBase.test_contrib_models_are_left_alone()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModelBase.test_project_has_both_columns"><code class="docutils literal notranslate"><span class="pre">TestModelBase.test_project_has_both_columns()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModelBase.test_selection_matches_the_base_class"><code class="docutils literal notranslate"><span class="pre">TestModelBase.test_selection_matches_the_base_class()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModifiedIsMaintained"><code class="docutils literal notranslate"><span class="pre">TestModifiedIsMaintained</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModifiedIsMaintained._assert_advances"><code class="docutils literal notranslate"><span class="pre">TestModifiedIsMaintained._assert_advances()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModifiedIsMaintained.test_bulk_update"><code class="docutils literal notranslate"><span class="pre">TestModifiedIsMaintained.test_bulk_update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModifiedIsMaintained.test_every_covered_model_has_its_trigger"><code class="docutils literal notranslate"><span class="pre">TestModifiedIsMaintained.test_every_covered_model_has_its_trigger()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModifiedIsMaintained.test_queryset_update"><code class="docutils literal notranslate"><span class="pre">TestModifiedIsMaintained.test_queryset_update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModifiedIsMaintained.test_raw_sql"><code class="docutils literal notranslate"><span class="pre">TestModifiedIsMaintained.test_raw_sql()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models.TestModifiedIsMaintained.test_save"><code class="docutils literal notranslate"><span class="pre">TestModifiedIsMaintained.test_save()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_bui_models.html#autowisp.tests.test_bui_models._tick"><code class="docutils literal notranslate"><span class="pre">_tick</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_calibrate.html">autowisp.tests.test_calibrate module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_calibrate.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate"><code class="docutils literal notranslate"><span class="pre">TestCalibrate</span></code></a><ul>
@@ -346,6 +476,35 @@ every test that forgot to.</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_catalog.html#autowisp.tests.test_catalog.TestCatalog.test_catalog_queries"><code class="docutils literal notranslate"><span class="pre">TestCatalog.test_catalog_queries()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_channel_binding.html">autowisp.tests.test_channel_binding module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow._add_camera"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow._add_camera()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow._add_session"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow._add_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow._fill_database"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow._fill_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.jd_values"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.jd_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.mono_values"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.mono_values</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.plan_spare"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.plan_spare()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.row"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.rows_for"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.rows_for()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.setUpClass"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.setUpClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.tearDownClass"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.tearDownClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_a_colour_session_offers_a_choice"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_a_colour_session_offers_a_choice()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_a_column_per_axis_that_binds_one"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_a_column_per_axis_that_binds_one()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_a_completed_row_summons_a_spare"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_a_completed_row_summons_a_spare()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_a_monochrome_session_arrives_bound"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_a_monochrome_session_arrives_bound()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_no_spare_once_every_binding_is_present"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_no_spare_once_every_binding_is_present()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_one_quantity_on_both_axes_in_two_channels"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_one_quantity_on_both_axes_in_two_channels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_rebinding_an_earlier_row_summons_nothing"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_rebinding_an_earlier_row_summons_nothing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_the_columns_are_split_between_the_axes"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_the_columns_are_split_between_the_axes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.test_which_rows_are_drawn"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.test_which_rows_are_drawn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding.TestTwoChannelRow.values_of"><code class="docutils literal notranslate"><span class="pre">TestTwoChannelRow.values_of</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding._first_jd"><code class="docutils literal notranslate"><span class="pre">_first_jd</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_channel_binding.html#autowisp.tests.test_channel_binding._night_separation"><code class="docutils literal notranslate"><span class="pre">_night_separation</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_crash_report.html">autowisp.tests.test_crash_report module</a><ul>
@@ -418,7 +577,19 @@ every test that forgot to.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_database_migration.html">autowisp.tests.test_database_migration module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin"><code class="docutils literal notranslate"><span class="pre">BackendMixin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.add_stray_index"><code class="docutils literal notranslate"><span class="pre">BackendMixin.add_stray_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.create_legacy_schema"><code class="docutils literal notranslate"><span class="pre">BackendMixin.create_legacy_schema()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.has_index"><code class="docutils literal notranslate"><span class="pre">BackendMixin.has_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.list_triggers"><code class="docutils literal notranslate"><span class="pre">BackendMixin.list_triggers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.make_engine"><code class="docutils literal notranslate"><span class="pre">BackendMixin.make_engine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.migrate"><code class="docutils literal notranslate"><span class="pre">BackendMixin.migrate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.reset_backend"><code class="docutils literal notranslate"><span class="pre">BackendMixin.reset_backend()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.BackendMixin.setUp"><code class="docutils literal notranslate"><span class="pre">BackendMixin.setUp()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations"><code class="docutils literal notranslate"><span class="pre">TestAdditiveMigrations</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations._apply"><code class="docutils literal notranslate"><span class="pre">TestAdditiveMigrations._apply()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations._make_old_project"><code class="docutils literal notranslate"><span class="pre">TestAdditiveMigrations._make_old_project()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations.setUp"><code class="docutils literal notranslate"><span class="pre">TestAdditiveMigrations.setUp()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations.test_adds_missing_code_version"><code class="docutils literal notranslate"><span class="pre">TestAdditiveMigrations.test_adds_missing_code_version()</span></code></a></li>
@@ -428,6 +599,75 @@ every test that forgot to.</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestAdditiveMigrations.test_preexisting_rows_and_data_preserved"><code class="docutils literal notranslate"><span class="pre">TestAdditiveMigrations.test_preexisting_rows_and_data_preserved()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema"><code class="docutils literal notranslate"><span class="pre">TestCheckProjectSchema</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.setUp"><code class="docutils literal notranslate"><span class="pre">TestCheckProjectSchema.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_does_not_mutate_a_stale_database"><code class="docutils literal notranslate"><span class="pre">TestCheckProjectSchema.test_does_not_mutate_a_stale_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_passes_on_a_current_database"><code class="docutils literal notranslate"><span class="pre">TestCheckProjectSchema.test_passes_on_a_current_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_raises_on_a_database_from_the_future"><code class="docutils literal notranslate"><span class="pre">TestCheckProjectSchema.test_raises_on_a_database_from_the_future()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestCheckProjectSchema.test_raises_on_an_unbaselined_database"><code class="docutils literal notranslate"><span class="pre">TestCheckProjectSchema.test_raises_on_an_unbaselined_database()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestConcurrentMigration"><code class="docutils literal notranslate"><span class="pre">TestConcurrentMigration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestConcurrentMigration.setUp"><code class="docutils literal notranslate"><span class="pre">TestConcurrentMigration.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestConcurrentMigration.test_two_migrators_reach_head_without_error"><code class="docutils literal notranslate"><span class="pre">TestConcurrentMigration.test_two_migrators_reach_head_without_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject._legacy_engine"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject._legacy_engine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_backup_is_taken_before_migrating"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_backup_is_taken_before_migrating()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_crash_window_between_ddl_and_version_update"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_crash_window_between_ddl_and_version_update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_fresh_database_is_stamped_without_running_revisions"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_fresh_database_is_stamped_without_running_revisions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_legacy_database_is_baselined_then_upgraded"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_legacy_database_is_baselined_then_upgraded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_migration_is_idempotent"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_migration_is_idempotent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_older_database_reaches_the_same_state"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_older_database_reaches_the_same_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_project_creation_leaves_no_backup"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_project_creation_leaves_no_backup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestMigrateProject.test_server_refuses_without_a_confirmed_backup"><code class="docutils literal notranslate"><span class="pre">TestMigrateProject.test_server_refuses_without_a_confirmed_backup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.setUp"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_baseline_is_the_root"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain.test_baseline_is_the_root()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_no_revision_has_two_parents"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain.test_no_revision_has_two_parents()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_numbers_increase_along_the_chain"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain.test_numbers_increase_along_the_chain()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_revision_ids_are_numbered_slugs"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain.test_revision_ids_are_numbered_slugs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_revision_ids_fit_the_version_table"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain.test_revision_ids_fit_the_version_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestRevisionChain.test_single_head"><code class="docutils literal notranslate"><span class="pre">TestRevisionChain.test_single_head()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift"><code class="docutils literal notranslate"><span class="pre">TestSchemaDrift</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift.test_created_database_matches_the_models"><code class="docutils literal notranslate"><span class="pre">TestSchemaDrift.test_created_database_matches_the_models()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift.test_drift_is_actually_detected"><code class="docutils literal notranslate"><span class="pre">TestSchemaDrift.test_drift_is_actually_detected()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSchemaDrift.test_migrated_database_matches_the_models"><code class="docutils literal notranslate"><span class="pre">TestSchemaDrift.test_migrated_database_matches_the_models()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock"><code class="docutils literal notranslate"><span class="pre">TestSqliteMigrationLock</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock._engine"><code class="docutils literal notranslate"><span class="pre">TestSqliteMigrationLock._engine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock._write_from_elsewhere"><code class="docutils literal notranslate"><span class="pre">TestSqliteMigrationLock._write_from_elsewhere()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.setUp"><code class="docutils literal notranslate"><span class="pre">TestSqliteMigrationLock.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.test_begin_immediate_excludes_a_second_writer"><code class="docutils literal notranslate"><span class="pre">TestSqliteMigrationLock.test_begin_immediate_excludes_a_second_writer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.test_guard_is_removed_afterwards"><code class="docutils literal notranslate"><span class="pre">TestSqliteMigrationLock.test_guard_is_removed_afterwards()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestSqliteMigrationLock.test_transaction_alone_does_not_hold_the_write_lock"><code class="docutils literal notranslate"><span class="pre">TestSqliteMigrationLock.test_transaction_alone_does_not_hold_the_write_lock()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestTimestampTriggers"><code class="docutils literal notranslate"><span class="pre">TestTimestampTriggers</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestTimestampTriggers.test_creating_the_schema_installs_all_of_them"><code class="docutils literal notranslate"><span class="pre">TestTimestampTriggers.test_creating_the_schema_installs_all_of_them()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestTimestampTriggers.test_migrating_reinstates_a_dropped_trigger"><code class="docutils literal notranslate"><span class="pre">TestTimestampTriggers.test_migrating_reinstates_a_dropped_trigger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease._build_release_schema"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease._build_release_schema()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease._export_release"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease._export_release()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.release_baselines"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease.release_baselines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.setUp"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease.test_a_value_too_long_to_keep_stops_the_migration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease.test_every_release_keeps_its_timestamp_triggers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema"><code class="docutils literal notranslate"><span class="pre">TestUpgradeFromRelease.test_every_release_upgrades_to_the_current_schema()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration._git"><code class="docutils literal notranslate"><span class="pre">_git()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration._repo_root"><code class="docutils literal notranslate"><span class="pre">_repo_root()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.expected_timestamp_triggers"><code class="docutils literal notranslate"><span class="pre">expected_timestamp_triggers()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_database_migration.html#autowisp.tests.test_database_migration.on_server"><code class="docutils literal notranslate"><span class="pre">on_server()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html">autowisp.tests.test_detrending_stat module</a><ul>
@@ -438,6 +678,143 @@ every test that forgot to.</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat.test_generate_tfa_statistics"><code class="docutils literal notranslate"><span class="pre">TestDetrendingStat.test_generate_tfa_statistics()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html">autowisp.tests.test_diagnostic_expressions module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase"><code class="docutils literal notranslate"><span class="pre">DiagnosticExpressionTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase.make"><code class="docutils literal notranslate"><span class="pre">DiagnosticExpressionTestCase.make()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase.setUp"><code class="docutils literal notranslate"><span class="pre">DiagnosticExpressionTestCase.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase.setUpClass"><code class="docutils literal notranslate"><span class="pre">DiagnosticExpressionTestCase.setUpClass()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess"><code class="docutils literal notranslate"><span class="pre">TestLibraryAccess</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_empty_library_is_a_dictionary"><code class="docutils literal notranslate"><span class="pre">TestLibraryAccess.test_empty_library_is_a_dictionary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_names_map_to_their_text"><code class="docutils literal notranslate"><span class="pre">TestLibraryAccess.test_names_map_to_their_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_the_whole_library_regardless_of_what_resolves"><code class="docutils literal notranslate"><span class="pre">TestLibraryAccess.test_the_whole_library_regardless_of_what_resolves()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace"><code class="docutils literal notranslate"><span class="pre">TestNameSpace</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_a_slug_name_is_accepted"><code class="docutils literal notranslate"><span class="pre">TestNameSpace.test_a_slug_name_is_accepted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_name_is_unique"><code class="docutils literal notranslate"><span class="pre">TestNameSpace.test_name_is_unique()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_name_must_survive_a_url"><code class="docutils literal notranslate"><span class="pre">TestNameSpace.test_name_must_survive_a_url()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields"><code class="docutils literal notranslate"><span class="pre">TestStoredFields</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_description_is_optional"><code class="docutils literal notranslate"><span class="pre">TestStoredFields.test_description_is_optional()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_ordering_is_by_name"><code class="docutils literal notranslate"><span class="pre">TestStoredFields.test_ordering_is_by_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_str_is_the_name"><code class="docutils literal notranslate"><span class="pre">TestStoredFields.test_str_is_the_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_unknown_names_are_not_rejected_here"><code class="docutils literal notranslate"><span class="pre">TestStoredFields.test_unknown_names_are_not_rejected_here()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html">autowisp.tests.test_diagnostic_types module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue"><code class="docutils literal notranslate"><span class="pre">TestCatalogue</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_descriptions_are_fully_interpolated"><code class="docutils literal notranslate"><span class="pre">TestCatalogue.test_descriptions_are_fully_interpolated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_it_cannot_be_mutated"><code class="docutils literal notranslate"><span class="pre">TestCatalogue.test_it_cannot_be_mutated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_it_is_not_empty"><code class="docutils literal notranslate"><span class="pre">TestCatalogue.test_it_is_not_empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_names_are_exactly_the_mapping_keys"><code class="docutils literal notranslate"><span class="pre">TestCatalogue.test_names_are_exactly_the_mapping_keys()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestRuntimePatterns"><code class="docutils literal notranslate"><span class="pre">TestRuntimePatterns</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestRuntimePatterns.test_it_does_not_swallow_plausible_names"><code class="docutils literal notranslate"><span class="pre">TestRuntimePatterns.test_it_does_not_swallow_plausible_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestRuntimePatterns.test_it_matches_quantile_diagnostics"><code class="docutils literal notranslate"><span class="pre">TestRuntimePatterns.test_it_matches_quantile_diagnostics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestSeeding"><code class="docutils literal notranslate"><span class="pre">TestSeeding</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestSeeding.test_seeded_rows_match_the_catalogue"><code class="docutils literal notranslate"><span class="pre">TestSeeding.test_seeded_rows_match_the_catalogue()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary"><code class="docutils literal notranslate"><span class="pre">TestVocabulary</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary.test_catalogue_entries_are_diagnostics"><code class="docutils literal notranslate"><span class="pre">TestVocabulary.test_catalogue_entries_are_diagnostics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary.test_invented_names_are_neither"><code class="docutils literal notranslate"><span class="pre">TestVocabulary.test_invented_names_are_neither()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary.test_time_is_a_quantity_but_not_a_diagnostic"><code class="docutils literal notranslate"><span class="pre">TestVocabulary.test_time_is_a_quantity_but_not_a_diagnostic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html">autowisp.tests.test_diagnostics_views module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase"><code class="docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase._fill_database"><code class="docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase._fill_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.bind"><code class="docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase.bind()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.images_of"><code class="docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase.images_of</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.rows_for"><code class="docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase.rows_for()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.setUpClass"><code class="docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase.setUpClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase.tearDownClass"><code class="docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase.tearDownClass()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities._recorded"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities._recorded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_broken_expression_is_hidden_rather_than_raised"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_a_broken_expression_is_hidden_rather_than_raised()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_concrete_quantile_is_judged_against_the_raw_names"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_a_concrete_quantile_is_judged_against_the_raw_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_dependency_makes_its_dependents_unavailable"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_a_dependency_makes_its_dependents_unavailable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_a_jd_only_expression_is_always_available"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_a_jd_only_expression_is_always_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_an_unknown_name_is_hidden_too"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_an_unknown_name_is_hidden_too()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_expression_hidden_where_an_input_is_not_recorded"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_expression_hidden_where_an_input_is_not_recorded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_expression_offered_where_its_inputs_are_recorded"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_expression_offered_where_its_inputs_are_recorded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_expressions_join_the_same_flat_list"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_expressions_join_the_same_flat_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_recorded_names_are_raw"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_recorded_names_are_raw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestAvailableQuantities.test_selector_offers_the_family_not_its_members"><code class="docutils literal notranslate"><span class="pre">TestAvailableQuantities.test_selector_offers_the_family_not_its_members()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.library"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis.library</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_a_composed_expression_reaches_through"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis.test_a_composed_expression_reaches_through()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_an_expression_against_a_diagnostic"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis.test_an_expression_against_a_diagnostic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_an_unknown_name_is_refused"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis.test_an_unknown_name_is_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_offered_wherever_its_diagnostics_are"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis.test_offered_wherever_its_diagnostics_are()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_restricted_to_the_types_recording_its_inputs"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis.test_restricted_to_the_types_recording_its_inputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestExpressionAxis.test_the_values_are_the_expression_evaluated"><code class="docutils literal notranslate"><span class="pre">TestExpressionAxis.test_the_values_are_the_expression_evaluated()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit"><code class="docutils literal notranslate"><span class="pre">TestImageTypeSplit</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_a_type_without_the_diagnostic_is_absent"><code class="docutils literal notranslate"><span class="pre">TestImageTypeSplit.test_a_type_without_the_diagnostic_is_absent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_canonical_list_holds_only_its_own_type"><code class="docutils literal notranslate"><span class="pre">TestImageTypeSplit.test_canonical_list_holds_only_its_own_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_each_type_gets_its_own_series"><code class="docutils literal notranslate"><span class="pre">TestImageTypeSplit.test_each_type_gets_its_own_series()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_the_type_is_shown_in_the_table"><code class="docutils literal notranslate"><span class="pre">TestImageTypeSplit.test_the_type_is_shown_in_the_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestImageTypeSplit.test_values_are_not_taken_across_types"><code class="docutils literal notranslate"><span class="pre">TestImageTypeSplit.test_values_are_not_taken_across_types()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSeriesExpansion"><code class="docutils literal notranslate"><span class="pre">TestQuantileSeriesExpansion</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSeriesExpansion._series_ids"><code class="docutils literal notranslate"><span class="pre">TestQuantileSeriesExpansion._series_ids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSeriesExpansion.test_quantile_column_present"><code class="docutils literal notranslate"><span class="pre">TestQuantileSeriesExpansion.test_quantile_column_present()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSeriesExpansion.test_quantiles_on_x_axis"><code class="docutils literal notranslate"><span class="pre">TestQuantileSeriesExpansion.test_quantiles_on_x_axis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestQuantileSeriesExpansion.test_quantiles_on_y_axis"><code class="docutils literal notranslate"><span class="pre">TestQuantileSeriesExpansion.test_quantiles_on_y_axis()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId"><code class="docutils literal notranslate"><span class="pre">TestRowId</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.round_trip"><code class="docutils literal notranslate"><span class="pre">TestRowId.round_trip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.test_an_ambiguous_field_is_refused"><code class="docutils literal notranslate"><span class="pre">TestRowId.test_an_ambiguous_field_is_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.test_plain_row"><code class="docutils literal notranslate"><span class="pre">TestRowId.test_plain_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.test_quantile_row"><code class="docutils literal notranslate"><span class="pre">TestRowId.test_quantile_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.test_siblings_differ_by_their_ordinal"><code class="docutils literal notranslate"><span class="pre">TestRowId.test_siblings_differ_by_their_ordinal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.test_the_image_type_is_part_of_the_identity"><code class="docutils literal notranslate"><span class="pre">TestRowId.test_the_image_type_is_part_of_the_identity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.test_the_key_takes_its_channels_from_the_client"><code class="docutils literal notranslate"><span class="pre">TestRowId.test_the_key_takes_its_channels_from_the_client()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestRowId.test_underscores_anywhere_are_harmless"><code class="docutils literal notranslate"><span class="pre">TestRowId.test_underscores_anywhere_are_harmless()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeriesGrouping"><code class="docutils literal notranslate"><span class="pre">TestSeriesGrouping</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeriesGrouping._entry"><code class="docutils literal notranslate"><span class="pre">TestSeriesGrouping._entry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeriesGrouping.test_disjoint_ranges_split"><code class="docutils literal notranslate"><span class="pre">TestSeriesGrouping.test_disjoint_ranges_split()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSeriesGrouping.test_overlapping_ranges_merge"><code class="docutils literal notranslate"><span class="pre">TestSeriesGrouping.test_overlapping_ranges_merge()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset"><code class="docutils literal notranslate"><span class="pre">TestSharedTimeOffset</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset._plotted_x_values"><code class="docutils literal notranslate"><span class="pre">TestSharedTimeOffset._plotted_x_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset._series_starts"><code class="docutils literal notranslate"><span class="pre">TestSharedTimeOffset._series_starts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset.test_offset_is_not_per_series"><code class="docutils literal notranslate"><span class="pre">TestSharedTimeOffset.test_offset_is_not_per_series()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.TestSharedTimeOffset.test_only_the_earliest_series_starts_at_zero"><code class="docutils literal notranslate"><span class="pre">TestSharedTimeOffset.test_only_the_earliest_series_starts_at_zero()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views._diagnostic_names"><code class="docutils literal notranslate"><span class="pre">_diagnostic_names</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views._first_bg_center"><code class="docutils literal notranslate"><span class="pre">_first_bg_center</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views._first_jd"><code class="docutils literal notranslate"><span class="pre">_first_jd</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views._frames_per_night"><code class="docutils literal notranslate"><span class="pre">_frames_per_night</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views._night_separation"><code class="docutils literal notranslate"><span class="pre">_night_separation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views._quantile_names"><code class="docutils literal notranslate"><span class="pre">_quantile_names</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_epd.html">autowisp.tests.test_epd module</a><ul>
@@ -649,6 +1026,7 @@ every test that forgot to.</p>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_error_render.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts"><code class="docutils literal notranslate"><span class="pre">TestErrorCounts</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.setUp"><code class="docutils literal notranslate"><span class="pre">TestErrorCounts.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_all_resolved_keeps_total"><code class="docutils literal notranslate"><span class="pre">TestErrorCounts.test_all_resolved_keeps_total()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_counts_by_step_excludes_stepless"><code class="docutils literal notranslate"><span class="pre">TestErrorCounts.test_counts_by_step_excludes_stepless()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_counts_exclude_resolved"><code class="docutils literal notranslate"><span class="pre">TestErrorCounts.test_counts_exclude_resolved()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_gate_always_includes_pipeline_errors"><code class="docutils literal notranslate"><span class="pre">TestErrorCounts.test_gate_always_includes_pipeline_errors()</span></code></a></li>
@@ -687,6 +1065,30 @@ every test that forgot to.</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_error_render.html#autowisp.tests.test_error_render._RenderTestCase.tearDownClass"><code class="docutils literal notranslate"><span class="pre">_RenderTestCase.tearDownClass()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_evaluator.html">autowisp.tests.test_evaluator module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_evaluator.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestErrorHandling"><code class="docutils literal notranslate"><span class="pre">TestErrorHandling</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestErrorHandling.test_permissive_behaviour_remains_available"><code class="docutils literal notranslate"><span class="pre">TestErrorHandling.test_permissive_behaviour_remains_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestErrorHandling.test_raises_by_default_in_both_evaluators"><code class="docutils literal notranslate"><span class="pre">TestErrorHandling.test_raises_by_default_in_both_evaluators()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates"><code class="docutils literal notranslate"><span class="pre">TestNanAggregates</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_a_missing_numpy_name_would_fail_loudly"><code class="docutils literal notranslate"><span class="pre">TestNanAggregates.test_a_missing_numpy_name_would_fail_loudly()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_bound_to_the_numpy_functions"><code class="docutils literal notranslate"><span class="pre">TestNanAggregates.test_bound_to_the_numpy_functions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_data_shadows_an_aggregate_of_the_same_name"><code class="docutils literal notranslate"><span class="pre">TestNanAggregates.test_data_shadows_an_aggregate_of_the_same_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_present_in_both_evaluators"><code class="docutils literal notranslate"><span class="pre">TestNanAggregates.test_present_in_both_evaluators()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames"><code class="docutils literal notranslate"><span class="pre">TestRemovedNames</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_absent_from_both_evaluators"><code class="docutils literal notranslate"><span class="pre">TestRemovedNames.test_absent_from_both_evaluators()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_filesystem_access_raises"><code class="docutils literal notranslate"><span class="pre">TestRemovedNames.test_filesystem_access_raises()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_printing_raises"><code class="docutils literal notranslate"><span class="pre">TestRemovedNames.test_printing_raises()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_the_mathematical_names_survive"><code class="docutils literal notranslate"><span class="pre">TestRemovedNames.test_the_mathematical_names_survive()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator._lightcurve_evaluator"><code class="docutils literal notranslate"><span class="pre">_lightcurve_evaluator()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_exception_hierarchy.html">autowisp.tests.test_exception_hierarchy module</a><ul>
@@ -740,6 +1142,193 @@ every test that forgot to.</p>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy._concrete_exception_classes"><code class="docutils literal notranslate"><span class="pre">_concrete_exception_classes()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy._full_payload"><code class="docutils literal notranslate"><span class="pre">_full_payload()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_expression_series.html">autowisp.tests.test_expression_series module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.SeriesValuesTestCase"><code class="docutils literal notranslate"><span class="pre">SeriesValuesTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.SeriesValuesTestCase.flats"><code class="docutils literal notranslate"><span class="pre">SeriesValuesTestCase.flats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.SeriesValuesTestCase.objects"><code class="docutils literal notranslate"><span class="pre">SeriesValuesTestCase.objects</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages"><code class="docutils literal notranslate"><span class="pre">TestCanonicalImages</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages.test_one_type_only"><code class="docutils literal notranslate"><span class="pre">TestCanonicalImages.test_one_type_only()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages.test_ordered_by_time"><code class="docutils literal notranslate"><span class="pre">TestCanonicalImages.test_ordered_by_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages.test_the_channel_is_not_consulted"><code class="docutils literal notranslate"><span class="pre">TestCanonicalImages.test_the_channel_is_not_consulted()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelCounts</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.counts_of"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelCounts.counts_of()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_a_binding_counts_the_images_having_all_of_it"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelCounts.test_a_binding_counts_the_images_having_all_of_it()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_a_channel_never_recorded_counts_nothing"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelCounts.test_a_channel_never_recorded_counts_nothing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_nothing_required_counts_nothing"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelCounts.test_nothing_required_counts_nothing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_one_channel_agrees_with_counting_within_a_channel"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelCounts.test_one_channel_agrees_with_counting_within_a_channel()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues._fill_database"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues._fill_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.drawn"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.drawn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.expected"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.expected()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.hole"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.hole</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.hole_positions"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.hole_positions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.key"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.missing_channel"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.missing_channel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.setUpClass"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.setUpClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.tearDownClass"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.tearDownClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_channel_never_recorded_is_undefined"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.test_a_channel_never_recorded_is_undefined()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_ratio_between_two_channels"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.test_a_ratio_between_two_channels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_value_stays_with_its_own_image"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.test_a_value_stays_with_its_own_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_an_aggregate_spans_one_channel"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.test_an_aggregate_spans_one_channel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_one_diagnostic_read_in_two_channels"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.test_one_diagnostic_read_in_two_channels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_the_binding_decides_which_way_round"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.test_the_binding_decides_which_way_round()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_two_axes_of_different_kinds_resolve_in_one_query"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.test_two_axes_of_different_kinds_resolve_in_one_query()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.values_of"><code class="docutils literal notranslate"><span class="pre">TestCrossChannelValues.values_of</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.recorded"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.recorded</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_a_channel_nothing_was_recorded_in_is_all_nan"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_a_channel_nothing_was_recorded_in_is_all_nan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_a_diagnostic_the_type_lacks_is_all_nan"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_a_diagnostic_the_type_lacks_is_all_nan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_asking_for_nothing_still_gives_the_images"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_asking_for_nothing_still_gives_the_images()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_each_channel_is_asked_for_by_its_whole_key"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_each_channel_is_asked_for_by_its_whole_key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_every_array_is_the_same_length"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_every_array_is_the_same_length()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_one_diagnostic_read_in_two_channels"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_one_diagnostic_read_in_two_channels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_time_comes_from_the_image_row"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_time_comes_from_the_image_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_values_land_against_their_own_images"><code class="docutils literal notranslate"><span class="pre">TestDiagnosticValues.test_values_land_against_their_own_images()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues"><code class="docutils literal notranslate"><span class="pre">TestSeriesValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_a_composed_expression_resolves_its_dependency"><code class="docutils literal notranslate"><span class="pre">TestSeriesValues.test_a_composed_expression_resolves_its_dependency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_an_expression_is_evaluated_per_series"><code class="docutils literal notranslate"><span class="pre">TestSeriesValues.test_an_expression_is_evaluated_per_series()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_both_axes_resolve_together"><code class="docutils literal notranslate"><span class="pre">TestSeriesValues.test_both_axes_resolve_together()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_plain_diagnostics_need_no_library"><code class="docutils literal notranslate"><span class="pre">TestSeriesValues.test_plain_diagnostics_need_no_library()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates"><code class="docutils literal notranslate"><span class="pre">TestTiedJulianDates</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates._fill_database"><code class="docutils literal notranslate"><span class="pre">TestTiedJulianDates._fill_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.setUpClass"><code class="docutils literal notranslate"><span class="pre">TestTiedJulianDates.setUpClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.tearDownClass"><code class="docutils literal notranslate"><span class="pre">TestTiedJulianDates.tearDownClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.test_the_order_is_repeatable"><code class="docutils literal notranslate"><span class="pre">TestTiedJulianDates.test_the_order_is_repeatable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.test_values_stay_with_their_own_images"><code class="docutils literal notranslate"><span class="pre">TestTiedJulianDates.test_values_stay_with_their_own_images()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.value_of"><code class="docutils literal notranslate"><span class="pre">TestTiedJulianDates.value_of</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_expressions.html">autowisp.tests.test_expressions module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase"><code class="docutils literal notranslate"><span class="pre">SlotTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.bg"><code class="docutils literal notranslate"><span class="pre">SlotTestCase.bg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.evaluate"><code class="docutils literal notranslate"><span class="pre">SlotTestCase.evaluate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.evaluate_one"><code class="docutils literal notranslate"><span class="pre">SlotTestCase.evaluate_one()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.fetch"><code class="docutils literal notranslate"><span class="pre">SlotTestCase.fetch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.jd"><code class="docutils literal notranslate"><span class="pre">SlotTestCase.jd</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.library"><code class="docutils literal notranslate"><span class="pre">SlotTestCase.library</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.needed"><code class="docutils literal notranslate"><span class="pre">SlotTestCase.needed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestBareAggregates"><code class="docutils literal notranslate"><span class="pre">TestBareAggregates</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestBareAggregates.test_flags_bare_and_ignores_nan_forms"><code class="docutils literal notranslate"><span class="pre">TestBareAggregates.test_flags_bare_and_ignores_nan_forms()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestBareAggregates.test_ignores_names_that_are_not_calls"><code class="docutils literal notranslate"><span class="pre">TestBareAggregates.test_ignores_names_that_are_not_calls()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking"><code class="docutils literal notranslate"><span class="pre">TestChecking</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.check"><code class="docutils literal notranslate"><span class="pre">TestChecking.check()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_a_good_expression_has_no_problems"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_a_good_expression_has_no_problems()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_cycle_with_an_existing_expression"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_cycle_with_an_existing_expression()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_name_may_not_shadow_a_diagnostic"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_name_may_not_shadow_a_diagnostic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_name_must_be_a_slug"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_name_must_be_a_slug()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_problems_accumulate"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_problems_accumulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_self_reference_is_a_cycle"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_self_reference_is_a_cycle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_statements_are_reported_not_raised"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_statements_are_reported_not_raised()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_unknown_name_is_reported"><code class="docutils literal notranslate"><span class="pre">TestChecking.test_unknown_name_is_reported()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestDependents"><code class="docutils literal notranslate"><span class="pre">TestDependents</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestDependents.test_finds_every_dependent"><code class="docutils literal notranslate"><span class="pre">TestDependents.test_finds_every_dependent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestDependents.test_unreferenced_expression_has_none"><code class="docutils literal notranslate"><span class="pre">TestDependents.test_unreferenced_expression_has_none()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues"><code class="docutils literal notranslate"><span class="pre">TestNeededValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_a_binding_of_the_wrong_length_is_refused"><code class="docutils literal notranslate"><span class="pre">TestNeededValues.test_a_binding_of_the_wrong_length_is_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_one_expression_at_two_bindings_needs_both"><code class="docutils literal notranslate"><span class="pre">TestNeededValues.test_one_expression_at_two_bindings_needs_both()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_one_quantity_asked_for_at_two_bindings"><code class="docutils literal notranslate"><span class="pre">TestNeededValues.test_one_quantity_asked_for_at_two_bindings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_slots_bound_the_other_way_round_are_followed"><code class="docutils literal notranslate"><span class="pre">TestNeededValues.test_slots_bound_the_other_way_round_are_followed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_the_time_is_found_through_a_bare_reference"><code class="docutils literal notranslate"><span class="pre">TestNeededValues.test_the_time_is_found_through_a_bare_reference()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded"><code class="docutils literal notranslate"><span class="pre">TestNoProjectNeeded</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded.test_a_catalogue_diagnostic_resolves"><code class="docutils literal notranslate"><span class="pre">TestNoProjectNeeded.test_a_catalogue_diagnostic_resolves()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded.test_a_misspelling_does_not"><code class="docutils literal notranslate"><span class="pre">TestNoProjectNeeded.test_a_misspelling_does_not()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded.test_jd_is_a_variable"><code class="docutils literal notranslate"><span class="pre">TestNoProjectNeeded.test_jd_is_a_variable()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering"><code class="docutils literal notranslate"><span class="pre">TestOrdering</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_chain_is_ordered"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_chain_is_ordered()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_cycle_names_every_expression_involved"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_cycle_names_every_expression_involved()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_cycle_names_the_loop_and_not_its_dependents"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_cycle_names_the_loop_and_not_its_dependents()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_diamond_places_the_shared_expression_once"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_diamond_places_the_shared_expression_once()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_needed_diagnostics_are_transitive"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_needed_diagnostics_are_transitive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_only_the_targets_subtree_is_ordered"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_only_the_targets_subtree_is_ordered()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_plain_diagnostic_needs_no_evaluation"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_plain_diagnostic_needs_no_evaluation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_unknown_target_is_refused"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_unknown_target_is_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_unresolvable_reference_is_refused"><code class="docutils literal notranslate"><span class="pre">TestOrdering.test_unresolvable_reference_is_refused()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames"><code class="docutils literal notranslate"><span class="pre">TestQuantileNames</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_near_miss_is_still_unresolvable"><code class="docutils literal notranslate"><span class="pre">TestQuantileNames.test_a_near_miss_is_still_unresolvable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_quantile_may_not_be_taken_as_a_name"><code class="docutils literal notranslate"><span class="pre">TestQuantileNames.test_a_quantile_may_not_be_taken_as_a_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_quantile_resolves_as_a_variable"><code class="docutils literal notranslate"><span class="pre">TestQuantileNames.test_a_quantile_resolves_as_a_variable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_quantile_survives_the_ordering_pass"><code class="docutils literal notranslate"><span class="pre">TestQuantileNames.test_a_quantile_survives_the_ordering_pass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_the_family_name_does_not_resolve_as_a_variable"><code class="docutils literal notranslate"><span class="pre">TestQuantileNames.test_the_family_name_does_not_resolve_as_a_variable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_the_family_name_may_not_be_taken_either"><code class="docutils literal notranslate"><span class="pre">TestQuantileNames.test_the_family_name_may_not_be_taken_either()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames"><code class="docutils literal notranslate"><span class="pre">TestReachableNames</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_filesystem_access_is_refused"><code class="docutils literal notranslate"><span class="pre">TestReachableNames.test_filesystem_access_is_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_hidden_filesystem_access_is_refused"><code class="docutils literal notranslate"><span class="pre">TestReachableNames.test_hidden_filesystem_access_is_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_side_effects_are_refused"><code class="docutils literal notranslate"><span class="pre">TestReachableNames.test_side_effects_are_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_the_mathematical_subset_still_works"><code class="docutils literal notranslate"><span class="pre">TestReachableNames.test_the_mathematical_subset_still_works()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReferencedNames"><code class="docutils literal notranslate"><span class="pre">TestReferencedNames</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReferencedNames.test_names_include_functions"><code class="docutils literal notranslate"><span class="pre">TestReferencedNames.test_names_include_functions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReferencedNames.test_statements_are_rejected"><code class="docutils literal notranslate"><span class="pre">TestReferencedNames.test_statements_are_rejected()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences"><code class="docutils literal notranslate"><span class="pre">TestRenamingReferences</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_a_longer_name_containing_it_is_untouched"><code class="docutils literal notranslate"><span class="pre">TestRenamingReferences.test_a_longer_name_containing_it_is_untouched()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_a_string_literal_is_untouched"><code class="docutils literal notranslate"><span class="pre">TestRenamingReferences.test_a_string_literal_is_untouched()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_an_unmentioned_name_changes_nothing"><code class="docutils literal notranslate"><span class="pre">TestRenamingReferences.test_an_unmentioned_name_changes_nothing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_every_use_is_renamed"><code class="docutils literal notranslate"><span class="pre">TestRenamingReferences.test_every_use_is_renamed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_offsets_survive_a_non_ascii_character"><code class="docutils literal notranslate"><span class="pre">TestRenamingReferences.test_offsets_survive_a_non_ascii_character()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_spacing_and_parentheses_survive"><code class="docutils literal notranslate"><span class="pre">TestRenamingReferences.test_spacing_and_parentheses_survive()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_chain_of_channel_free_expressions"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_a_chain_of_channel_free_expressions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_nested_binding_is_not_the_callers"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_a_nested_binding_is_not_the_callers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_plain_diagnostic_is_a_quantity_too"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_a_plain_diagnostic_is_a_quantity_too()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_quantity_over_the_time_alone"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_a_quantity_over_the_time_alone()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_an_instantiation_is_computed_once"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_an_instantiation_is_computed_once()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_an_unfetched_channel_is_reported"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_an_unfetched_channel_is_reported()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_both_axes_at_once_share_their_instantiations"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_both_axes_at_once_share_their_instantiations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_one_body_evaluated_at_two_bindings"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_one_body_evaluated_at_two_bindings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_one_diagnostic_drawn_in_two_channels"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_one_diagnostic_drawn_in_two_channels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_only_what_is_reached_is_built"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_only_what_is_reached_is_built()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_slotted_and_channel_free_in_one_expression"><code class="docutils literal notranslate"><span class="pre">TestSlotEvaluation.test_slotted_and_channel_free_in_one_expression()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax"><code class="docutils literal notranslate"><span class="pre">TestSlotSyntax</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_a_slot_must_be_a_whole_number"><code class="docutils literal notranslate"><span class="pre">TestSlotSyntax.test_a_slot_must_be_a_whole_number()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_arity_is_a_rule_not_a_table"><code class="docutils literal notranslate"><span class="pre">TestSlotSyntax.test_arity_is_a_rule_not_a_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_one_slot_is_still_a_tuple"><code class="docutils literal notranslate"><span class="pre">TestSlotSyntax.test_one_slot_is_still_a_tuple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_parameters_are_derived_and_ordered"><code class="docutils literal notranslate"><span class="pre">TestSlotSyntax.test_parameters_are_derived_and_ordered()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_parameters_are_sorted_whatever_order_the_body_uses"><code class="docutils literal notranslate"><span class="pre">TestSlotSyntax.test_parameters_are_sorted_whatever_order_the_body_uses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_references_keep_their_slots_and_repeats"><code class="docutils literal notranslate"><span class="pre">TestSlotSyntax.test_references_keep_their_slots_and_repeats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_expressions.html#autowisp.tests.test_expressions._library"><code class="docutils literal notranslate"><span class="pre">_library</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_find_stars.html">autowisp.tests.test_find_stars module</a><ul>
@@ -829,6 +1418,17 @@ every test that forgot to.</p>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_parameter_description_length.html">autowisp.tests.test_parameter_description_length module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_parameter_description_length.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength"><code class="docutils literal notranslate"><span class="pre">TestParameterDescriptionLength</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.setUpClass"><code class="docutils literal notranslate"><span class="pre">TestParameterDescriptionLength.setUpClass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.test_argument_help_fits_description_column"><code class="docutils literal notranslate"><span class="pre">TestParameterDescriptionLength.test_argument_help_fits_description_column()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.test_step_docstring_fits_description_column"><code class="docutils literal notranslate"><span class="pre">TestParameterDescriptionLength.test_step_docstring_fits_description_column()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length._iter_step_modules"><code class="docutils literal notranslate"><span class="pre">_iter_step_modules()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_parse_config_overwrites.html">autowisp.tests.test_parse_config_overwrites module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_parse_config_overwrites.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites"><code class="docutils literal notranslate"><span class="pre">TestParseConfigOverwrites</span></code></a><ul>
@@ -847,6 +1447,18 @@ every test that forgot to.</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_semicolon_preserved_in_value"><code class="docutils literal notranslate"><span class="pre">TestParseConfigOverwrites.test_semicolon_preserved_in_value()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_single_quoted_value"><code class="docutils literal notranslate"><span class="pre">TestParseConfigOverwrites.test_single_quoted_value()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_parse_config_overwrites.html#autowisp.tests.test_parse_config_overwrites.TestParseConfigOverwrites.test_test_cfg_like_block"><code class="docutils literal notranslate"><span class="pre">TestParseConfigOverwrites.test_test_cfg_like_block()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html">autowisp.tests.test_project_creation_guard module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard"><code class="docutils literal notranslate"><span class="pre">TestNewProjectGuard</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.setUp"><code class="docutils literal notranslate"><span class="pre">TestNewProjectGuard.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_creation_in_empty_home_succeeds"><code class="docutils literal notranslate"><span class="pre">TestNewProjectGuard.test_creation_in_empty_home_succeeds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_opening_existing_project_still_allowed"><code class="docutils literal notranslate"><span class="pre">TestNewProjectGuard.test_opening_existing_project_still_allowed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_recreating_over_existing_project_refused"><code class="docutils literal notranslate"><span class="pre">TestNewProjectGuard.test_recreating_over_existing_project_refused()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_refused_centralised_url_is_not_persisted"><code class="docutils literal notranslate"><span class="pre">TestNewProjectGuard.test_refused_centralised_url_is_not_persisted()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -943,6 +1555,16 @@ every test that forgot to.</p>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_templates.html">autowisp.tests.test_templates module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_templates.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_templates.html#autowisp.tests.test_templates.TestTemplateComments"><code class="docutils literal notranslate"><span class="pre">TestTemplateComments</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_templates.html#autowisp.tests.test_templates.TestTemplateComments.test_no_multiline_hash_comments"><code class="docutils literal notranslate"><span class="pre">TestTemplateComments.test_no_multiline_hash_comments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_templates.html#autowisp.tests.test_templates.TestTemplateComments.test_templates_were_found"><code class="docutils literal notranslate"><span class="pre">TestTemplateComments.test_templates_were_found()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_templates.html#autowisp.tests.test_templates._templates"><code class="docutils literal notranslate"><span class="pre">_templates</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_tfa.html">autowisp.tests.test_tfa module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_tfa.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_tfa.html#autowisp.tests.test_tfa.TestTFA"><code class="docutils literal notranslate"><span class="pre">TestTFA</span></code></a><ul>
@@ -971,27 +1593,17 @@ every test that forgot to.</p>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates._TemplateSelectionHarness"><code class="docutils literal notranslate"><span class="pre">_TemplateSelectionHarness</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html">autowisp.tests.update_hdf5_contents module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.UpdateSpec"><code class="docutils literal notranslate"><span class="pre">UpdateSpec</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.UpdateSpec.__init__"><code class="docutils literal notranslate"><span class="pre">UpdateSpec.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.UpdateSpec.from_file"><code class="docutils literal notranslate"><span class="pre">UpdateSpec.from_file()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_timestamp_triggers.html">autowisp.tests.test_timestamp_triggers module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_timestamp_triggers.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting"><code class="docutils literal notranslate"><span class="pre">TestTriggerQuoting</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting.tables"><code class="docutils literal notranslate"><span class="pre">TestTriggerQuoting.tables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting.test_mysql_quotes_what_it_names"><code class="docutils literal notranslate"><span class="pre">TestTriggerQuoting.test_mysql_quotes_what_it_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting.test_sqlite_quotes_what_it_names"><code class="docutils literal notranslate"><span class="pre">TestTriggerQuoting.test_sqlite_quotes_what_it_names()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._all_dataset_paths"><code class="docutils literal notranslate"><span class="pre">_all_dataset_paths()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._all_object_paths"><code class="docutils literal notranslate"><span class="pre">_all_object_paths()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._apply_operations"><code class="docutils literal notranslate"><span class="pre">_apply_operations()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._copy_attribute"><code class="docutils literal notranslate"><span class="pre">_copy_attribute()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._copy_dataset"><code class="docutils literal notranslate"><span class="pre">_copy_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._delete_attribute"><code class="docutils literal notranslate"><span class="pre">_delete_attribute()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._delete_dataset"><code class="docutils literal notranslate"><span class="pre">_delete_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._report_empty_match"><code class="docutils literal notranslate"><span class="pre">_report_empty_match()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._resolve_attribute_targets"><code class="docutils literal notranslate"><span class="pre">_resolve_attribute_targets()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents._resolve_dataset_paths"><code class="docutils literal notranslate"><span class="pre">_resolve_dataset_paths()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html#autowisp.tests.update_hdf5_contents.parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.update_hdf5_contents.html">autowisp.tests.update_hdf5_contents module</a></li>
 </ul>
 </div>
 </section>

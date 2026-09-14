@@ -1,0 +1,7 @@
+autowisp.database.migrate\_cli module
+=====================================
+
+.. automodule:: autowisp.database.migrate_cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

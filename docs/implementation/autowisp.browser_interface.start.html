@@ -22,7 +22,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.browser_interface.test module" href="autowisp.browser_interface.test.html" />
+    <link rel="next" title="autowisp.data_reduction package" href="autowisp.data_reduction.html" />
     <link rel="prev" title="autowisp.browser_interface.set_project_middleware module" href="autowisp.browser_interface.set_project_middleware.html" /> 
 </head>
 
@@ -186,21 +186,27 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.start.main">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.start.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/start.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.start.main" title="Link to this definition"></a></dt>
+<dd><p>Set up config, logging and output redirection, then serve.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.start.migrate_and_serve">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.start.</span></span><span class="sig-name descname"><span class="pre">migrate_and_serve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/start.html#migrate_and_serve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.start.migrate_and_serve" title="Link to this definition"></a></dt>
+<dd><p>Apply migrations, launch django and block until it exits.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.start.parse_command_line">
 <span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.start.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/start.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.start.parse_command_line" title="Link to this definition"></a></dt>
 <dd><p>Return command line configuration.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.start.start_server">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.start.</span></span><span class="sig-name descname"><span class="pre">start_server</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/start.html#start_server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.start.start_server" title="Link to this definition"></a></dt>
-<dd><p>Starts the Django development server.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.start.wait_for_server">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.start.</span></span><span class="sig-name descname"><span class="pre">wait_for_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/start.html#wait_for_server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.start.wait_for_server" title="Link to this definition"></a></dt>
-<dd><p>Waits for the Django server to respond to requests.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.start.wait_until_responsive">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.start.</span></span><span class="sig-name descname"><span class="pre">wait_until_responsive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/start.html#wait_until_responsive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.start.wait_until_responsive" title="Link to this definition"></a></dt>
+<dd><p>Poll until the django server answers requests.</p>
 </dd></dl>
 
 </section>
@@ -210,7 +216,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.browser_interface.set_project_middleware.html" class="btn btn-neutral float-left" title="autowisp.browser_interface.set_project_middleware module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.browser_interface.test.html" class="btn btn-neutral float-right" title="autowisp.browser_interface.test module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.data_reduction.html" class="btn btn-neutral float-right" title="autowisp.data_reduction package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -197,7 +197,8 @@
     <span class="p">)</span>
     <span class="n">condition_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;condition.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
+        <span class="c1"># Not a ForeignKey: condition.id names a set of expressions, not a</span>
+        <span class="c1"># row, so it is not unique. See Configuration.condition_id.</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The collection of expression involving header keywords that must &quot;</span>
         <span class="s2">&quot;match between an image and a master for a master to be useable for &quot;</span>
@@ -218,7 +219,7 @@
     <span class="p">)</span>
     <span class="n">maker_image_split_condition_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;condition.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
+        <span class="c1"># Not a ForeignKey, for the same reason as condition_id above.</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The collection of expression involving header keywords that must &quot;</span>
         <span class="s2">&quot;match between all images that are combined into a master in addition &quot;</span>
@@ -231,14 +232,28 @@
     <span class="n">Index</span><span class="p">(</span><span class="s2">&quot;maker&quot;</span><span class="p">,</span> <span class="s2">&quot;maker_step_id&quot;</span><span class="p">,</span> <span class="s2">&quot;maker_image_type_id&quot;</span><span class="p">)</span>
 
     <span class="n">master_files</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;MasterFile&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;master_type&quot;</span><span class="p">)</span>
+    <span class="c1"># Both joins are spelled out because these condition columns are</span>
+    <span class="c1"># deliberately not foreign keys -- condition.id names a group of rows</span>
+    <span class="c1"># rather than one row -- so nothing is left for SQLAlchemy to infer</span>
+    <span class="c1"># from. foreign() marks the side it would have taken from the</span>
+    <span class="c1"># constraint.</span>
     <span class="n">match_expressions</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ConditionExpression</span><span class="p">]]</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
         <span class="n">secondary</span><span class="o">=</span><span class="n">Condition</span><span class="o">.</span><span class="n">__table__</span><span class="p">,</span>
-        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;MasterType.condition_id == Condition.id&quot;</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;MasterType.condition_id == foreign(Condition.id)&quot;</span><span class="p">,</span>
+        <span class="n">secondaryjoin</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;foreign(Condition.expression_id) == ConditionExpression.id&quot;</span>
+        <span class="p">),</span>
         <span class="n">viewonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">split_expressions</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ConditionExpression</span><span class="p">]]</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
         <span class="n">secondary</span><span class="o">=</span><span class="n">Condition</span><span class="o">.</span><span class="n">__table__</span><span class="p">,</span>
-        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;MasterType.maker_image_split_condition_id == Condition.id&quot;</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;MasterType.maker_image_split_condition_id&quot;</span>
+            <span class="s2">&quot; == foreign(Condition.id)&quot;</span>
+        <span class="p">),</span>
+        <span class="n">secondaryjoin</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;foreign(Condition.expression_id) == ConditionExpression.id&quot;</span>
+        <span class="p">),</span>
         <span class="n">viewonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 

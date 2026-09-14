@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="autowisp.browser_interface.diagnostics.models module" href="autowisp.browser_interface.diagnostics.models.html" />
-    <link rel="prev" title="autowisp.browser_interface.diagnostics.diag_vs_diag_views module" href="autowisp.browser_interface.diagnostics.diag_vs_diag_views.html" /> 
+    <link rel="prev" title="autowisp.browser_interface.diagnostics.forms module" href="autowisp.browser_interface.diagnostics.forms.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -173,52 +173,64 @@
 <span id="autowisp-browser-interface-diagnostics-image-diagnostics-views-module"></span><h1>autowisp.browser_interface.diagnostics.image_diagnostics_views module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.image_diagnostics_views" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-308267491e0f8931a63b01ae0998890a7ed2a030.png" alt="Inheritance diagram of BytesIO, DiagnosticType, Figure, HttpResponse, Image, ImageDiagnostics, ObservingSession" usemap="#inheritance91aa5df0db" class="inheritance graphviz" /></div>
-<map id="inheritance91aa5df0db" name="inheritance91aa5df0db">
-<area shape="rect" id="node2" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="574,304,904,331"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="5,379,286,405"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.image_diagnostics.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="310,379,717,405"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1211,379,1634,405"/>
-<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="757,229,1110,256"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.image_diagnostics.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="753,453,1175,480"/>
-<area shape="rect" id="node18" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="881,5,986,32"/>
-</map><p>Views for displaying per-image diagnostics.</p>
+<div class="graphviz"><img src="../_images/inheritance-9f2168022e471c4eeb2af3138f90530e71f6c0c9.png" alt="Inheritance diagram of BytesIO, Figure, HttpResponse" class="inheritance graphviz" /></div>
+<p>Views for displaying per-image diagnostics.</p>
+<p>One quantity may be plotted against another, where a quantity is a
+<code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> name, the <code class="docutils literal notranslate"><span class="pre">pixel_quantiles</span></code> pseudo-name expanding to
+one series per <code class="docutils literal notranslate"><span class="pre">pixel_q*</span></code>, or <code class="docutils literal notranslate"><span class="pre">jd</span></code>.  Plotting against time is not a separate
+mode: it is <code class="docutils literal notranslate"><span class="pre">x=&quot;jd&quot;</span></code>, which resolves through the same path as everything
+else because the canonical image list already carries the Julian dates.</p>
+<p>The figure half of the page: reading the values a row asks for, drawing
+them, and the Django views that serve it. What the <em>table</em> above the plot
+offers, and what a row binds, is <code class="xref py py-mod docutils literal notranslate"><span class="pre">series_table</span></code> – which never
+evaluates anything, where everything here does.</p>
 </section>
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.create_figure">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">create_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_plots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_height_frac</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#create_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_figure" title="Link to this definition"></a></dt>
-<dd><p>Create the figure for the diagnostics plot per given configuration.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.create_image_diagnostics_figure">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">create_image_diagnostics_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#create_image_diagnostics_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_image_diagnostics_figure" title="Link to this definition"></a></dt>
-<dd><p>Create a multi-panel figure for the selected image diagnostic series.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">collect_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#collect_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data" title="Link to this definition"></a></dt>
+<dd><p>Read the selected series, dropping those with nothing to draw.</p>
+<p>Every row of the table is posted rather than only the drawn ones, so
+that the server can see what the whole table binds.  Three of them are
+skipped here: one the user has not selected, one whose marker is
+blank, and one still missing a channel, which names no data to read.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>series_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Series entries (as produced by
-<a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_diagnostic_series()</span></code></a>) to plot.  Only
-entries whose <code class="docutils literal notranslate"><span class="pre">marker</span></code> is non-empty are plotted.</p></li>
-<li><p><strong>diagnostic_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The diagnostic type name, or
-<code class="docutils literal notranslate"><span class="pre">&quot;quantiles&quot;</span></code>.</p></li>
+<li><p><strong>series_list</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Every row as the client posted it back.</p></li>
+<li><p><strong>x_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
+<li><p><strong>y_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
-<li><p><strong>figure_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <p>Configuration for the layout of the figure.
-Should define:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>plot_height_frac(float):    Height of each subplot row as a</dt><dd><p>fraction of the available screen area.</p>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">(series,</span> <span class="pre">x_values,</span> <span class="pre">y_values,</span> <span class="pre">image_ids)</span></code> tuples for the</dt><dd><p>series having at least one point where both axes are finite.</p>
 </dd>
 </dl>
-<p>num_columns(int):    Number of columns in the subplot grid.</p>
-<dl class="simple">
-<dt>aspect_ratio(float):    Width / height of the available screen</dt><dd><p>area.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
 </dd>
 </dl>
-</div></blockquote>
-<p>By default, height fraction is 1/3, number of columns is 1, and
-aspect ratio is 5.0.</p>
-</p></li>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.create_diagnostics_figure">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">create_diagnostics_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#create_diagnostics_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_diagnostics_figure" title="Link to this definition"></a></dt>
+<dd><p>Create the figure for the selected series of an axis pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series_list</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Entries from <code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_series()</span></code>.
+Only those with a non-empty <code class="docutils literal notranslate"><span class="pre">marker</span></code> are plotted.</p></li>
+<li><p><strong>x_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
+<li><p><strong>y_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+<li><p><strong>figure_config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Layout of the figure, defining
+<code class="docutils literal notranslate"><span class="pre">plot_height_frac</span></code>, <code class="docutils literal notranslate"><span class="pre">num_columns</span></code> and <code class="docutils literal notranslate"><span class="pre">aspect_ratio</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -231,9 +243,27 @@ aspect ratio is 5.0.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.create_figure">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">create_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_plots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_height_frac</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#create_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_figure" title="Link to this definition"></a></dt>
+<dd><p>Create the figure for the diagnostics plot per given configuration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">display_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#display_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>View displaying the table of available series for an axis pair.</p>
+<p>The library arrives as an argument rather than being fetched here: it
+is the one thing on this page that comes from the browser-interface
+database, and keeping it out means everything in this module can be
+tested against a project database alone.  <code class="docutils literal notranslate"><span class="pre">views.py</span></code> supplies it.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.display_image_diagnostics">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">display_image_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#display_image_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_image_diagnostics" title="Link to this definition"></a></dt>
-<dd><p>View displaying the table of available series for an image diagnostic.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">display_image_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#display_image_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_image_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Redirect the pre-merge time-series URL onto the merged view.</p>
+<p>Kept so that links built before the merge keep working, including the
+six <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">url</span> <span class="pre">%}</span></code> tags in <code class="docutils literal notranslate"><span class="pre">processing/progress.html</span></code>.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -258,121 +288,109 @@ last POST data.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">get_available_diagnostic_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diagnostic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#get_available_diagnostic_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series" title="Link to this definition"></a></dt>
-<dd><p>Return the observing sessions and channels with data for a diagnostic.</p>
-<p>Queries for distinct (observing_session, channel) pairs that have at
-least one value for the given diagnostic name.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_series_group">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">draw_series_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_offset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#draw_series_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_series_group" title="Link to this definition"></a></dt>
+<dd><p>Plot every series sharing one set of axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>diagnostic_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the diagnostic to query
-(must match a <code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticType</span></code> row).</p></li>
+<li><p><strong>axes</strong> – The matplotlib Axes the group was assigned.</p></li>
+<li><p><strong>group</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – <code class="docutils literal notranslate"><span class="pre">(series,</span> <span class="pre">x_values,</span> <span class="pre">y_values,</span> <span class="pre">image_ids)</span></code> tuples,
+as grouped by <a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap"><code class="xref py py-func docutils literal notranslate"><span class="pre">group_series_by_x_overlap()</span></code></a>.</p></li>
+<li><p><strong>x_offset</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Subtracted from every x value.  Shared by the
+whole figure so the series keep their spacing relative to each
+other.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_series_data">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">get_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#get_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_series_data" title="Link to this definition"></a></dt>
+<dd><p>Query the paired x/y values for a single series.</p>
+<p>Both axes are resolved in one call, which is what makes them share a
+query for the diagnostics they need and one symbol table, so a
+subexpression common to the two is evaluated once.  They are returned
+unmasked; the single finite mask lives in
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_image_diagnostic_series" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_image_diagnostic_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_image_diagnostic_series()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – One row as the client posted it back, holding the
+id it was rendered with and the channels its dropdowns say.</p></li>
+<li><p><strong>x_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
+<li><p><strong>y_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>, passed in
+rather than fetched so that nothing below the view has to know
+it came from the browser-interface database.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>A dictionary with two keys:</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">diagnostics_fields</span></code>:</dt><dd><p>A list of column header strings for the extra table columns
-in the <code class="docutils literal notranslate"><span class="pre">diagnostics_app.html</span></code> template.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">diagnostics_list</span></code>:</dt><dd><p>A list of dicts, one per (observing session, channel) pair,
-each containing the keys <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">color</span></code>, <code class="docutils literal notranslate"><span class="pre">marker</span></code>,
-<code class="docutils literal notranslate"><span class="pre">scale</span></code>, <code class="docutils literal notranslate"><span class="pre">label</span></code>, and <code class="docutils literal notranslate"><span class="pre">info</span></code> (a list of values
-matching <code class="docutils literal notranslate"><span class="pre">diagnostics_fields</span></code>).</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(x_values,</span> <span class="pre">y_values,</span> <span class="pre">image_ids)</span></code>, all of equal length.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostics">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">get_available_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#get_available_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostics" title="Link to this definition"></a></dt>
-<dd><p>Return the list of diagnostic names that have at least one value.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_diagnostic_series_data">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">get_diagnostic_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#get_diagnostic_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_diagnostic_series_data" title="Link to this definition"></a></dt>
-<dd><p>Query the JD and diagnostic values for a single series.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">group_series_by_x_overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#group_series_by_x_overlap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap" title="Link to this definition"></a></dt>
+<dd><p>Group series into sets whose x ranges overlap.</p>
+<p>Series whose x ranges overlap share axes; disjoint ones get their own.
+For a time axis this separates observing nights, which is what it was
+written for.  For any other quantity the ranges normally overlap, so
+everything collapses onto a single set of axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>series</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A series entry as produced by
-<a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_diagnostic_series()</span></code></a>.</p></li>
-<li><p><strong>diagnostic_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The diagnostic type name to query, or
-<code class="docutils literal notranslate"><span class="pre">&quot;quantiles&quot;</span></code> (in which case the quantile name is extracted
-from the series <code class="docutils literal notranslate"><span class="pre">id</span></code>).</p></li>
-<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>series_data</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – <code class="docutils literal notranslate"><span class="pre">(series,</span> <span class="pre">x_values,</span> <span class="pre">y_values,</span> <span class="pre">image_ids)</span></code>
+tuples.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">(jd_values,</span> <span class="pre">diag_values,</span> <span class="pre">image_ids)</span></code> as tuples of</dt><dd><p>floats/ints, ordered by JD.  Empty tuples if no data is found.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>Lists of the entries that should share one set of axes.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_jd_overlap">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">group_series_by_jd_overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#group_series_by_jd_overlap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_jd_overlap" title="Link to this definition"></a></dt>
-<dd><p>Group diagnostic series into sets that share overlapping JD ranges.</p>
-<p>Series with the same diagnostic whose JD ranges overlap are grouped
-together (to be plotted on the same axes).  Series with non-overlapping
-ranges end up in separate groups.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>series_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – A list of
-<code class="docutils literal notranslate"><span class="pre">(series,</span> <span class="pre">jd_values,</span> <span class="pre">diag_values,</span> <span class="pre">image_ids)</span></code>
-tuples, where <em>jd_values</em> are ordered sequences of Julian dates.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A list of lists, each inner list containing</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(series,</span> <span class="pre">jd_values,</span> <span class="pre">diag_values)</span></code> tuples that should be
-plotted on the same axes.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_image_diagnostic_series">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">plot_image_diagnostic_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#plot_image_diagnostic_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_image_diagnostic_series" title="Link to this definition"></a></dt>
-<dd><p>Plot a single image diagnostic series on the given axes.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">plot_image_diagnostic_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#plot_image_diagnostic_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_image_diagnostic_series" title="Link to this definition"></a></dt>
+<dd><p>Plot a single series on the given axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>axes</strong> – A matplotlib Axes to plot on.</p></li>
-<li><p><strong>time_values</strong> – Sequence of Julian date x-coordinates.</p></li>
-<li><p><strong>diag_values</strong> – Sequence of diagnostic y-coordinates.</p></li>
-<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Configuration for the plotting usually produce by
-<a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_available_diagnostic_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_diagnostic_series()</span></code></a>. Should contain keys
-<code class="docutils literal notranslate"><span class="pre">channel</span></code>, <code class="docutils literal notranslate"><span class="pre">color</span></code>, <code class="docutils literal notranslate"><span class="pre">marker</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code>, and <code class="docutils literal notranslate"><span class="pre">label</span></code>.</p></li>
+<li><p><strong>x_values</strong> – Sequence of x coordinates.</p></li>
+<li><p><strong>y_values</strong> – Sequence of y coordinates.</p></li>
+<li><p><strong>image_ids</strong> – The image each point belongs to, used for the
+click-through URLs.</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Configuration for the plotting, usually produced by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_series()</span></code>. Should contain keys <code class="docutils literal notranslate"><span class="pre">channel</span></code>,
+<code class="docutils literal notranslate"><span class="pre">color</span></code>, <code class="docutils literal notranslate"><span class="pre">marker</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code>, and <code class="docutils literal notranslate"><span class="pre">label</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_session_key">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">plot_session_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'diagnostics_last'</span></em><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_session_key" title="Link to this definition"></a></dt>
+<dd><p>Where the last posted plot configuration is kept, so that the download
+view can regenerate exactly what was on screen.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.update_plot_view">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">update_plot_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">url_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#update_plot_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.update_plot_view" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">update_plot_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">url_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#update_plot_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.update_plot_view" title="Link to this definition"></a></dt>
 <dd><p>Common handler for diagnostics AJAX plot-update views.</p>
 <p>Parses the JSON POST body, calls <code class="docutils literal notranslate"><span class="pre">figure_factory</span></code> to produce the figure,
 and returns an SVG <code class="docutils literal notranslate"><span class="pre">JsonResponse</span></code>.</p>
@@ -387,6 +405,12 @@ and returns an SVG <code class="docutils literal notranslate"><span class="pre">
 arguments.</p></li>
 <li><p><strong>session_key</strong> – If given, the raw POST data is stored in the session
 under this key so a download view can retrieve it.</p></li>
+<li><p><strong>extra</strong> – Optional callable given the whole POST, the database
+session and the URL kwargs, returning a dict merged
+into the response.  What a redraw answers <em>besides</em>
+the figure – a newly bound row’s count and its
+spare – rides along here, so that one action costs
+one round trip.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -401,7 +425,7 @@ under this key so a download view can retrieve it.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autowisp.browser_interface.diagnostics.diag_vs_diag_views.html" class="btn btn-neutral float-left" title="autowisp.browser_interface.diagnostics.diag_vs_diag_views module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.browser_interface.diagnostics.forms.html" class="btn btn-neutral float-left" title="autowisp.browser_interface.diagnostics.forms module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="autowisp.browser_interface.diagnostics.models.html" class="btn btn-neutral float-right" title="autowisp.browser_interface.diagnostics.models module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

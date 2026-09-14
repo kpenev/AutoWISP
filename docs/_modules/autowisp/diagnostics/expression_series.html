@@ -1,0 +1,828 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.diagnostics.expression_series &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.diagnostics.expression_series</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.diagnostics.expression_series</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Values for one series of images, read from the project database.</span>
+
+<span class="sd">Tier 2 of the expression layer: it knows the project database and nothing</span>
+<span class="sd">else. Above it, the browser interface adds Django and a way of editing the</span>
+<span class="sd">library; below it, :mod:`autowisp.diagnostics.expressions` knows what an</span>
+<span class="sd">expression *means* and has no database at all. This module is the join</span>
+<span class="sd">between them -- it turns a session, an image type and the channels a series</span>
+<span class="sd">binds into the ``{name: {channels: array}}`` that tier 1 evaluates against.</span>
+
+<span class="sd">Everything here is built on **one canonical image list per session and image</span>
+<span class="sd">type**, ordered by Julian date, with ``NaN`` wherever a value is not</span>
+<span class="sd">recorded. Alignment is then structural: index *i* is the same image in every</span>
+<span class="sd">array, so two quantities need no join to be plotted against each other, and</span>
+<span class="sd">an aggregate is taken over one population rather than over a mixture of</span>
+<span class="sd">frame types.</span>
+
+<span class="sd">The list deliberately does not depend on the channel, which is what makes</span>
+<span class="sd">reading one diagnostic in several of them cheap: the columns arrive side by</span>
+<span class="sd">side against the same images, so a quantity comparing channels is ordinary</span>
+<span class="sd">arithmetic rather than a join.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">and_</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">or_</span><span class="p">,</span> <span class="n">select</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">aliased</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="c1"># False positive due to unusual importing</span>
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DiagnosticType</span><span class="p">,</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">ImageDiagnostics</span><span class="p">,</span>
+    <span class="n">ImageType</span><span class="p">,</span>
+    <span class="n">ObservingSession</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_quantity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">evaluate_quantities</span><span class="p">,</span>
+    <span class="n">get_needed_values</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="_SeriesKeyFields">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series._SeriesKeyFields">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_SeriesKeyFields</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The fields of a :class:`SeriesKey`, kept apart only to be checked.</span>
+
+<span class="sd">    ``typing.NamedTuple`` prohibits ``__new__`` and ``__init__`` in a class</span>
+<span class="sd">    body, so the check below cannot go there; deriving from this is what</span>
+<span class="sd">    gives :class:`SeriesKey` somewhere to put it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">session_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">image_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">channels</span><span class="p">:</span> <span class="nb">tuple</span>
+    <span class="n">quantile_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="SeriesKey">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SeriesKey</span><span class="p">(</span><span class="n">_SeriesKeyFields</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;What one series is: a population of images and a binding.</span>
+
+<span class="sd">    The image type is part of the key because a session holds frames of</span>
+<span class="sd">    several types and a diagnostic rarely means the same thing across them</span>
+<span class="sd">    -- some are only defined for object frames, and one recorded for both</span>
+<span class="sd">    would have its aggregates taken over a mixture, making</span>
+<span class="sd">    ``nanmedian(bg_center[0])`` a median of object and flat frames</span>
+<span class="sd">    together.</span>
+
+<span class="sd">    ``channels`` holds one channel per parameter of what the series draws,</span>
+<span class="sd">    in the order those parameters are numbered: one for an ordinary</span>
+<span class="sd">    diagnostic, several where an expression compares channels, and none for</span>
+<span class="sd">    a quantity over the time alone.</span>
+
+<span class="sd">    Every function here takes one of these rather than the fields</span>
+<span class="sd">    separately, so a caller cannot pair a channel with the wrong session by</span>
+<span class="sd">    getting an argument order wrong.</span>
+
+<span class="sd">    ``quantile_name`` is the odd one out: it says which ``pixel_q*`` a</span>
+<span class="sd">    series stands for when a caller has expanded the ``pixel_quantiles``</span>
+<span class="sd">    family into one series per member, and by the time values are read the</span>
+<span class="sd">    quantity it selects is already a concrete name. Nothing in this module</span>
+<span class="sd">    consults it -- as nothing but the image list consults the channels --</span>
+<span class="sd">    but it belongs to the identity of the series.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="SeriesKey.__new__">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey.__new__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">quantile_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the key, refusing a bare string where a tuple belongs.</span>
+
+<span class="sd">        ``__new__`` rather than a check further on because it has to</span>
+<span class="sd">        *coerce* as well: bindings reach this from a JSON post as a list,</span>
+<span class="sd">        and a list in that field makes the key unhashable, which is how it</span>
+<span class="sd">        is used everywhere.</span>
+
+<span class="sd">        The string case is worth refusing loudly because it fails silently</span>
+<span class="sd">        and selectively: ``channels=&quot;R&quot;`` leaves ``channels[0]`` reading</span>
+<span class="sd">        ``&quot;R&quot;`` and joins to the same id, so a one-character channel</span>
+<span class="sd">        behaves correctly, while ``&quot;G1&quot;`` becomes the two channels ``G``</span>
+<span class="sd">        and ``1`` somewhere much later.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;channels=</span><span class="si">{</span><span class="n">channels</span><span class="si">!r}</span><span class="s2"> is a string: a series binds a &quot;</span>
+                <span class="s2">&quot;*tuple* of channels, one per parameter of what it draws.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span> <span class="n">quantile_name</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The one channel a whole series can be said to belong to, or ``&quot;&quot;``.</span>
+
+<span class="sd">        There is not really such a thing once a series can bind several --</span>
+<span class="sd">        that is the point of ``channels`` -- but two things need one</span>
+<span class="sd">        anyway, and neither is about the data: the frame a click on a point</span>
+<span class="sd">        opens, and the colour the series is drawn in. Both take the first,</span>
+<span class="sd">        for want of a better answer. A series binding no channel at all has</span>
+<span class="sd">        none to give.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="_of_one_type">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series._of_one_type">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_of_one_type</span><span class="p">(</span><span class="n">series_key</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the WHERE terms selecting one session&#39;s frames of one type.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">Image</span><span class="o">.</span><span class="n">observing_session_id</span> <span class="o">==</span> <span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span>
+        <span class="n">ImageType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">,</span>
+        <span class="n">Image</span><span class="o">.</span><span class="n">jd</span><span class="o">.</span><span class="n">is_not</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+        <span class="c1"># pylint: enable=no-member</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">#: The canonical order, by Julian date and then by id. The id is not</span>
+<span class="c1">#: decoration: two images of a session can share a ``jd``, and everything</span>
+<span class="c1">#: here is aligned by position, so an order leaving ties unresolved would let</span>
+<span class="c1">#: two queries return the same images in different orders and pair a value</span>
+<span class="c1">#: with the wrong image. That failure is silent -- a plot that looks right</span>
+<span class="c1">#: and is wrong -- which is worth one more sort key.</span>
+<span class="c1"># pylint: disable=no-member</span>
+<span class="n">_image_order</span> <span class="o">=</span> <span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">jd</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="c1"># pylint: enable=no-member</span>
+
+
+<div class="viewcode-block" id="_as_arrays">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series._as_arrays">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_arrays</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(image_ids, jd_values)`` for rows starting ``(id, jd, …)``.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">fromiter</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)),</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">fromiter</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_canonical_images">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.get_canonical_images">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_canonical_images</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return ``(image_ids, jd_values)`` for one session and image type, by JD.</span>
+
+<span class="sd">    Every array built for this series is padded onto this list, so index *i*</span>
+<span class="sd">    is the same image in each of them and alignment needs no join.</span>
+
+<span class="sd">    The channel of *series_key* is deliberately not used -- the list is the</span>
+<span class="sd">    same for every channel -- but the image type is: frames of different</span>
+<span class="sd">    types are different populations, and mixing them would put a flat frame</span>
+<span class="sd">    and an object frame in one array for an aggregate to average over.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series_key(SeriesKey):    The series to list the images of.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:    Arrays of image IDs and of Julian dates, of equal length.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_as_arrays</span><span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">jd</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">ImageType</span><span class="p">,</span>
+                <span class="c1"># pylint: disable=no-member</span>
+                <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Image</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">,</span>
+                <span class="c1"># pylint: enable=no-member</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">*</span><span class="n">_of_one_type</span><span class="p">(</span><span class="n">series_key</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="o">*</span><span class="n">_image_order</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_diagnostic_values_query">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series._diagnostic_values_query">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_diagnostic_values_query</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the statement reading *names* in *channels* for one series.</span>
+
+<span class="sd">    Separate from running it so that what it asks the database for can be</span>
+<span class="sd">    inspected without a database: the predicates below are what keep this</span>
+<span class="sd">    affordable on an archive too large to scan, and they are this module&#39;s</span>
+<span class="sd">    to get right, unlike which index a particular server then chooses.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series_key(SeriesKey):    The series, for its session and type.</span>
+
+<span class="sd">        names(list):    The ``diagnostic_type`` names to read.</span>
+
+<span class="sd">        channels(list):    The channels to read them in, one outer join</span>
+<span class="sd">            each.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The SQLAlchemy select, ordered by name and then canonically.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># One alias per channel, so a diagnostic wanted in several arrives as</span>
+    <span class="c1"># several columns of the one row rather than as several queries. Each</span>
+    <span class="c1"># pins all three columns of the unique index -- image, channel and</span>
+    <span class="c1"># diagnostic -- since dropping the channel would match every channel&#39;s</span>
+    <span class="c1"># row, which is both wrong and a scan.</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="p">{</span><span class="n">channel</span><span class="p">:</span> <span class="n">aliased</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="p">)</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">}</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span>
+            <span class="n">Image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">Image</span><span class="o">.</span><span class="n">jd</span><span class="p">,</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">reads</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># Explicit, because diagnostic_type joins on no relation to any of</span>
+        <span class="c1"># the others and SQLAlchemy cannot pick the left side on its own.</span>
+        <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">ImageType</span><span class="p">,</span>
+            <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Image</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">,</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">)</span>
+        <span class="c1"># No ON condition but the name filter: this is the cross join that</span>
+        <span class="c1"># turns &quot;the values that exist&quot; into &quot;one row per image per name&quot;,</span>
+        <span class="c1"># which is what makes the result paddable.</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="p">,</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
+        <span class="n">read</span> <span class="o">=</span> <span class="n">reads</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">read</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="p">(</span><span class="n">read</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">Image</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">read</span><span class="o">.</span><span class="n">diagnostic_id</span> <span class="o">==</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">read</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">channel</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">isouter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">query</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">*</span><span class="n">_of_one_type</span><span class="p">(</span><span class="n">series_key</span><span class="p">))</span>
+        <span class="c1"># Name first: the blocks the result is read back in are per name,</span>
+        <span class="c1"># and order_by appends rather than replaces, so a name added after</span>
+        <span class="c1"># the image order would sort within it instead of above it.</span>
+        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">_image_order</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_diagnostic_values">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.get_diagnostic_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_diagnostic_values</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">needed</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the wanted diagnostics for one series, NaN-padded and aligned.</span>
+
+<span class="sd">    One query, and nothing to match up afterwards. A cross join pairs every</span>
+<span class="sd">    wanted diagnostic with every image of the series, and an outer join</span>
+<span class="sd">    attaches the values, leaving ``NULL`` where nothing was recorded -- so</span>
+<span class="sd">    the padding is what the database returns rather than something assembled</span>
+<span class="sd">    from it. The unique index on ``(image_id, channel, diagnostic_id)`` is</span>
+<span class="sd">    what makes that sound: no image contributes two rows for one diagnostic</span>
+<span class="sd">    in one channel, so the result is exactly one row per image per name.</span>
+
+<span class="sd">    **Several channels at once, still one query.** An expression comparing</span>
+<span class="sd">    channels needs the same diagnostic read more than once, so there is one</span>
+<span class="sd">    outer join per distinct channel, each with the channel pinned. That</span>
+<span class="sd">    keeps the result a rectangle -- the joins only widen it, adding a value</span>
+<span class="sd">    column per channel rather than rows -- and keeps every probe on the</span>
+<span class="sd">    unique index, whose second column is exactly what is being pinned.</span>
+
+<span class="sd">    Being a rectangle is what lets the values become arrays in one step: a</span>
+<span class="sd">    column is read out whole and reshaped into one row per name, rather</span>
+<span class="sd">    than accumulated name by name. Each block&#39;s name is taken from its</span>
+<span class="sd">    first row rather than from a sorted list of the names asked for, so</span>
+<span class="sd">    nothing depends on the database&#39;s collation ordering strings the way</span>
+<span class="sd">    Python does.</span>
+
+<span class="sd">    The image ids come back alongside, because the same query already</span>
+<span class="sd">    carries them and a caller that needs them should not have to ask again</span>
+<span class="sd">    -- nor risk a second query disagreeing about the order of images sharing</span>
+<span class="sd">    a ``jd``. The dates are not returned separately: :data:`time_quantity`</span>
+<span class="sd">    is asked for by name like anything else, and arrives in the dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series_key(SeriesKey):    The series to read the values of. Its</span>
+<span class="sd">            channels are not consulted; what to read in is *needed*, since</span>
+<span class="sd">            a quantity may be bound to channels other than the series&#39;</span>
+<span class="sd">            own.</span>
+
+<span class="sd">        needed(dict):    ``{name: set of channel tuples}``, from</span>
+<span class="sd">            :func:`~autowisp.diagnostics.expressions.get_needed_values`.</span>
+<span class="sd">            May include :data:`time_quantity` at the empty tuple, which is</span>
+<span class="sd">            taken from the image row rather than from ``image_diagnostics``.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            dict:    ``{name: {channels: array}}``, keyed exactly as</span>
+<span class="sd">                *needed* asked, every array the length of the canonical</span>
+<span class="sd">                image list and ``NaN`` where nothing is recorded. A name no</span>
+<span class="sd">                ``diagnostic_type`` has is all ``NaN``.</span>
+
+<span class="sd">            numpy.ndarray:    The image ids, in canonical order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">needed</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span><span class="n">time_quantity</span><span class="p">})</span>
+    <span class="n">channels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">channel</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
+            <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">needed</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">combination</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">image_ids</span><span class="p">,</span> <span class="n">jd_values</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">{</span><span class="n">time_quantity</span><span class="p">:</span> <span class="p">{():</span> <span class="n">jd_values</span><span class="p">}}</span> <span class="k">if</span> <span class="n">time_quantity</span> <span class="ow">in</span> <span class="n">needed</span> <span class="k">else</span> <span class="p">{},</span>
+            <span class="n">image_ids</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">_diagnostic_values_query</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">channels</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="c1"># From the rows rather than from len(names): a name no diagnostic_type</span>
+    <span class="c1"># has contributes no block at all, and would otherwise throw the shape</span>
+    <span class="c1"># out for every other name.</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">({</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">})</span>
+    <span class="n">per_block</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">//</span> <span class="n">blocks</span> <span class="k">if</span> <span class="n">blocks</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="n">read_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">rows</span><span class="p">[</span><span class="n">start</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">per_block</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">blocks</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="n">per_block</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">offset</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">combination</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">columns</span><span class="p">[</span><span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">read_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">read_names</span>
+                <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">per_block</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">needed</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
+    <span class="p">}</span>
+
+    <span class="n">image_ids</span><span class="p">,</span> <span class="n">jd_values</span> <span class="o">=</span> <span class="n">_as_arrays</span><span class="p">(</span><span class="n">rows</span><span class="p">[:</span><span class="n">per_block</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">time_quantity</span> <span class="ow">in</span> <span class="n">needed</span><span class="p">:</span>
+        <span class="n">values</span><span class="p">[</span><span class="n">time_quantity</span><span class="p">]</span> <span class="o">=</span> <span class="p">{():</span> <span class="n">jd_values</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span></div>
+
+
+
+<div class="viewcode-block" id="get_quantity_values">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.get_quantity_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_quantity_values</span><span class="p">(</span><span class="n">series_key</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the quantities of one series as the table bound them.</span>
+
+<span class="sd">    *wanted* holds both axes rather than one, because resolving them one at</span>
+<span class="sd">    a time would waste the two properties this arrangement exists for: the</span>
+<span class="sd">    diagnostics both axes read are fetched in **one** query for their</span>
+<span class="sd">    union, and an instantiation the two share is evaluated **once**.</span>
+
+<span class="sd">    The image ids come from the same query as the values, so no two results</span>
+<span class="sd">    have to agree about the order of images sharing a Julian date.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series_key(SeriesKey):    The series to read the values of.</span>
+
+<span class="sd">        wanted(dict):    ``{quantity: set of channel tuples}``, each tuple</span>
+<span class="sd">            holding one channel per parameter of that quantity. A set of</span>
+<span class="sd">            them because the two axes may be one quantity read in two</span>
+<span class="sd">            channels, which is how a diagnostic is compared between them.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            dict:    ``{quantity: {channels: array}}``, all of the same</span>
+<span class="sd">                length, and unmasked -- dropping the non-finite entries is</span>
+<span class="sd">                the caller&#39;s business, since the mask has to be taken</span>
+<span class="sd">                across both axes at once and the image ids masked with it.</span>
+
+<span class="sd">            numpy.ndarray:    The image ids that length runs over.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        PipelineError:    If a quantity names nothing, if the expressions</span>
+<span class="sd">            reference each other in a cycle, or if a binding is the wrong</span>
+<span class="sd">            length for what it binds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
+        <span class="n">series_key</span><span class="p">,</span> <span class="n">get_needed_values</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="p">),</span> <span class="n">db_session</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">evaluate_quantities</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">values</span><span class="p">),</span> <span class="n">image_ids</span></div>
+
+
+
+<div class="viewcode-block" id="_count_images">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series._count_images">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_count_images</span><span class="p">(</span><span class="n">matching</span><span class="p">,</span> <span class="n">required</span><span class="p">,</span> <span class="n">per_channel</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count images whose diagnostic rows satisfy *matching*, per series.</span>
+
+<span class="sd">    The shared half of the two counting questions below, which differ only</span>
+<span class="sd">    in what they match, how many matches an image owes, and whether a</span>
+<span class="sd">    channel is part of the answer or fixed by the caller.</span>
+
+<span class="sd">    Counting rows rather than distinct diagnostics is sound for both,</span>
+<span class="sd">    because the unique index on ``(image_id, channel, diagnostic_id)``</span>
+<span class="sd">    admits no duplicate: an image satisfying *n* of what was asked for</span>
+<span class="sd">    contributes exactly *n* rows to its group.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        matching:    The ``WHERE`` selecting the rows that count.</span>
+
+<span class="sd">        required(int):    How many matched rows an image must have.</span>
+
+<span class="sd">        per_channel(bool):    Whether an image has to satisfy the</span>
+<span class="sd">            requirement **within one channel** -- which also makes the</span>
+<span class="sd">            channel something the result varies over -- or may satisfy it</span>
+<span class="sd">            across several.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    ``(session_label, session_id, image_type[, channel],</span>
+<span class="sd">            count)`` tuples, the channel present only when *per_channel*.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="p">[</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">image_id</span><span class="p">]</span>
+    <span class="n">carried</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Image</span><span class="o">.</span><span class="n">observing_session_id</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="s2">&quot;session_id&quot;</span>
+        <span class="p">),</span>
+        <span class="n">Image</span><span class="o">.</span><span class="n">image_type_id</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;image_type_id&quot;</span><span class="p">),</span>  <span class="c1"># pylint: disable=no-member</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">per_channel</span><span class="p">:</span>
+        <span class="n">grouped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
+        <span class="n">carried</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">))</span>
+
+    <span class="n">per_image</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="n">carried</span><span class="p">)</span>
+        <span class="c1"># Explicit, because which columns are selected varies with</span>
+        <span class="c1"># *per_channel* and SQLAlchemy would otherwise infer the left side</span>
+        <span class="c1"># from them -- and infer ``image`` when the channel is not among</span>
+        <span class="c1"># them, leaving it nothing to join ``image`` to.</span>
+        <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">Image</span><span class="p">,</span>
+            <span class="n">Image</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">DiagnosticType</span><span class="p">,</span>
+            <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">diagnostic_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">matching</span><span class="p">,</span>
+            <span class="n">Image</span><span class="o">.</span><span class="n">jd</span><span class="o">.</span><span class="n">is_not</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="o">*</span><span class="n">grouped</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">having</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="n">required</span><span class="p">)</span>  <span class="c1"># pylint: disable=not-callable</span>
+        <span class="o">.</span><span class="n">subquery</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="c1"># The channel is a column, a grouping and an ordering of the result, or</span>
+    <span class="c1"># none of the three.</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="p">[</span><span class="n">per_image</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">channel</span><span class="p">]</span> <span class="k">if</span> <span class="n">per_channel</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span>
+            <span class="n">ObservingSession</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">ImageType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">channel</span><span class="p">,</span>
+            <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>  <span class="c1"># pylint: disable=not-callable</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">per_image</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ObservingSession</span><span class="p">,</span> <span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">per_image</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">session_id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">,</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">per_image</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="o">*</span><span class="n">channel</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">channel</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="count_images_with_all">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.count_images_with_all">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">count_images_with_all</span><span class="p">(</span><span class="n">needed</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count images holding all of *needed*, per (session, type, channel).</span>
+
+<span class="sd">    What a slot **may** be bound to: the channels a quantity could be read</span>
+<span class="sd">    in, and how many images each would draw. Deliberately spans every</span>
+<span class="sd">    observing session, that being what the series table lists -- so there</span>
+<span class="sd">    is no one session to anchor it to, and its cost is proportional to the</span>
+<span class="sd">    images carrying the diagnostic, which *Scaling* names as a standing</span>
+<span class="sd">    limit rather than something an index could remove.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        needed(set):    ``DiagnosticType`` names that must all be recorded</span>
+<span class="sd">            for an image to count, **in the same channel**. An empty set</span>
+<span class="sd">            means no quantity constrains the result, which only happens</span>
+<span class="sd">            when every quantity is :data:`time_quantity`; nothing is</span>
+<span class="sd">            plottable then.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    ``(session_label, session_id, image_type, channel, count)``</span>
+<span class="sd">            tuples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">needed</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">_count_images</span><span class="p">(</span>
+        <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">needed</span><span class="p">),</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">needed</span><span class="p">),</span>
+        <span class="kc">True</span><span class="p">,</span>
+        <span class="n">db_session</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="count_images_with_channels">
+<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.count_images_with_channels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">count_images_with_channels</span><span class="p">(</span><span class="n">requirements</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count images holding every ``(diagnostic, channel)`` pair, per series.</span>
+
+<span class="sd">    What a *binding* actually draws, once the channels are chosen -- the</span>
+<span class="sd">    exact question, where :func:`count_images_with_all` answers the looser</span>
+<span class="sd">    one that fills the dropdowns. The difference is a line of SQL and the</span>
+<span class="sd">    whole of the meaning: an image counts when its rows cover every pair</span>
+<span class="sd">    *between them*, so one requirement may be met in R and another in B,</span>
+<span class="sd">    which is what a quantity comparing channels needs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        requirements:    ``(diagnostic_name, channel)`` pairs that must all</span>
+<span class="sd">            be recorded for an image to count. Deduplicated here, since the</span>
+<span class="sd">            two axes of one plot may read the same diagnostic in the same</span>
+<span class="sd">            channel. Empty means nothing constrains the result.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    ``(session_label, session_id, image_type, count)`` tuples.</span>
+<span class="sd">            No channel among them: the binding names the channels, so they</span>
+<span class="sd">            are not what the rows vary over.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">requirements</span> <span class="o">=</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">requirements</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">requirements</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">_count_images</span><span class="p">(</span>
+        <span class="n">or_</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span>
+                <span class="n">and_</span><span class="p">(</span>
+                    <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">,</span>
+                    <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">channel</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">requirements</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">requirements</span><span class="p">),</span>
+        <span class="kc">False</span><span class="p">,</span>
+        <span class="n">db_session</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

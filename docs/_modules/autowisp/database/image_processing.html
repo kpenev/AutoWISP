@@ -184,6 +184,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">processing_steps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_processing_sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_quantile_diagnostic</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
 
 <span class="c1"># False positive due to unusual importing</span>
@@ -1057,7 +1058,7 @@
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">diag_type_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">diag_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pixel_q&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">is_quantile_diagnostic</span><span class="p">(</span><span class="n">diag_name</span><span class="p">):</span>
                     <span class="n">quantile_digits</span> <span class="o">=</span> <span class="n">diag_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;pixel_q&quot;</span><span class="p">)</span> <span class="p">:]</span>
                     <span class="n">new_type</span> <span class="o">=</span> <span class="n">DiagnosticType</span><span class="p">(</span>
                         <span class="n">name</span><span class="o">=</span><span class="n">diag_name</span><span class="p">,</span>
@@ -2054,7 +2055,7 @@
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
-            <span class="p">(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">image_type_name</span><span class="p">,</span> <span class="n">processing_batches</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">step_name</span><span class="p">,</span> <span class="n">image_type_name</span><span class="p">,</span> <span class="n">processing_batches</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_processing</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">limit_to_steps</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>

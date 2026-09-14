@@ -186,12 +186,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileKind</span><span class="p">,</span> <span class="n">RelatedFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">persist_error</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_render</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">error_count</span><span class="p">,</span>
     <span class="n">error_counts_by_step</span><span class="p">,</span>
     <span class="n">error_detail</span><span class="p">,</span>
     <span class="n">error_list_rows</span><span class="p">,</span>
     <span class="n">error_summary</span><span class="p">,</span>
     <span class="n">format_detail_text</span><span class="p">,</span>
+    <span class="n">open_and_total_error_count</span><span class="p">,</span>
     <span class="n">open_error_count_for_steps</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span><span class="p">,</span> <span class="n">StackToMasterError</span><span class="p">,</span> <span class="n">ViewError</span>
@@ -426,7 +426,7 @@
 <div class="viewcode-block" id="TestErrorCounts">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestErrorCounts</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;error_count / error_counts_by_step / the step filter.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The badge counts / error_counts_by_step / the step filter.</span>
 
 <span class="sd">    Fresh project per test, since these assert exact counts.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -442,12 +442,12 @@
 <div class="viewcode-block" id="TestErrorCounts.test_total_count">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_total_count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_total_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;error_count totals every recorded error, any component.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The counts total every recorded error, any component.&quot;&quot;&quot;</span>
 
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;orchestration broke&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error_count</span><span class="p">(),</span> <span class="mi">3</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_and_total_error_count</span><span class="p">(),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_counts_by_step_excludes_stepless">
@@ -496,9 +496,22 @@
         <span class="n">resolved_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">resolved_id</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error_count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># The total still counts the resolved one, so the badge stays.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_and_total_error_count</span><span class="p">(),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error_counts_by_step</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;find_stars&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">open_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestErrorCounts.test_all_resolved_keeps_total">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_all_resolved_keeps_total">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_resolved_keeps_total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;With everything resolved the history is still reachable.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_and_total_error_count</span><span class="p">(),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error_counts_by_step</span><span class="p">(),</span> <span class="p">{})</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_list_shows_resolved_open_first">

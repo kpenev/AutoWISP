@@ -1,0 +1,5 @@
+<map id="inheritance898b307739" name="inheritance898b307739">
+<area shape="rect" id="node1" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="5,5,344,32"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_database_migration.TestAdditiveMigrations" target="_top" title="The pre&#45;Alembic helper still adds missing nullable columns." alt="" coords="116,80,505,107"/>
+<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="368,5,525,32"/>
+</map>

@@ -1,0 +1,7 @@
+autowisp.browser\_interface.home.migrations.0002\_project\_modified\_alter\_project\_created module
+===================================================================================================
+
+.. automodule:: autowisp.browser_interface.home.migrations.0002_project_modified_alter_project_created
+   :members:
+   :undoc-members:
+   :show-inheritance:

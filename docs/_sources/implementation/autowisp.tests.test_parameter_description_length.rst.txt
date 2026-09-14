@@ -1,0 +1,7 @@
+autowisp.tests.test\_parameter\_description\_length module
+==========================================================
+
+.. automodule:: autowisp.tests.test_parameter_description_length
+   :members:
+   :undoc-members:
+   :show-inheritance:

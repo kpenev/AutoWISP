@@ -197,7 +197,13 @@
     <span class="p">)</span>
     <span class="n">condition_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;condition.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
+        <span class="c1"># Deliberately not a ForeignKey. A condition is a *set* of</span>
+        <span class="c1"># expressions: `condition` holds one row per member, all sharing an</span>
+        <span class="c1"># id, so condition.id identifies a group rather than a row and is</span>
+        <span class="c1"># not unique. A foreign key asserts the opposite. InnoDB accepted</span>
+        <span class="c1"># that as a non-standard extension until MySQL 8.4 began rejecting</span>
+        <span class="c1"># it (ER_FK_NO_UNIQUE_INDEX_PARENT); the relationship below already</span>
+        <span class="c1"># hand-annotates the join for the same reason.</span>
         <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The id of the condition that must be met for this configuration to&quot;</span>
         <span class="s2">&quot; apply&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -221,7 +227,17 @@
     <span class="p">)</span>
     <span class="n">parameter</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Parameter&quot;</span><span class="p">)</span>
     <span class="n">condition_expressions</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;ConditionExpression&quot;</span><span class="p">,</span> <span class="n">secondary</span><span class="o">=</span><span class="n">Condition</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">,</span> <span class="n">viewonly</span><span class="o">=</span><span class="kc">True</span>
+        <span class="s2">&quot;ConditionExpression&quot;</span><span class="p">,</span>
+        <span class="n">secondary</span><span class="o">=</span><span class="n">Condition</span><span class="o">.</span><span class="n">__table__</span><span class="p">,</span>
+        <span class="c1"># Spelled out because condition_id is deliberately not a foreign</span>
+        <span class="c1"># key -- condition.id names a group of rows, not one row -- so</span>
+        <span class="c1"># there is nothing for SQLAlchemy to infer the join from. foreign()</span>
+        <span class="c1"># marks the side it would otherwise have taken from the constraint.</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;Configuration.condition_id == foreign(Condition.id)&quot;</span><span class="p">,</span>
+        <span class="n">secondaryjoin</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;foreign(Condition.expression_id) == ConditionExpression.id&quot;</span>
+        <span class="p">),</span>
+        <span class="n">viewonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

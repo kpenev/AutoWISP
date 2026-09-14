@@ -29,7 +29,8 @@ Submodules
    autowisp.database.initialize_light_curve_structure
    autowisp.database.interface
    autowisp.database.lightcurve_processing
-   autowisp.database.manually_fill_tables
+   autowisp.database.migrate
+   autowisp.database.migrate_cli
    autowisp.database.photref_selection
    autowisp.database.processing
    autowisp.database.provenance_resolver

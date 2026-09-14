@@ -444,13 +444,15 @@
             <span class="n">label</span><span class="o">=</span><span class="n">photref_info</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">gaia_ids</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
-        <span class="n">collection</span><span class="o">.</span><span class="n">set_urls</span><span class="p">([</span>
-            <span class="n">reverse</span><span class="p">(</span>
-                <span class="s2">&quot;results:display_lightcurve_for_star&quot;</span><span class="p">,</span>
-                <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;gaia_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">gid</span><span class="p">)},</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">gaia_ids</span>
-        <span class="p">])</span>
+        <span class="n">collection</span><span class="o">.</span><span class="n">set_urls</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">reverse</span><span class="p">(</span>
+                    <span class="s2">&quot;results:display_lightcurve_for_star&quot;</span><span class="p">,</span>
+                    <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;gaia_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">gid</span><span class="p">)},</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">gaia_ids</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
 
     <span class="n">axes</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
 

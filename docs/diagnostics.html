@@ -513,16 +513,143 @@ progress bars that do not lead anywhere.</p>
 <p>The interface plots them three ways, and which one to reach for depends
 on the question.</p>
 <p><strong>One diagnostic across a run</strong> answers “when did this go wrong”: pick a
-diagnostic and see it for every image in order, with the channels
-distinguished. A night of cloud, a focus drift, the moon rising – all
+diagnostic and see it for every image in order, a row per channel you
+care to add. A night of cloud, a focus drift, the moon rising – all
 have shapes you learn to recognise here.</p>
-<p><strong>One diagnostic against another</strong> answers “why”: scatter any two against
-each other, and the relationship shows the cause. Residuals rising with
-zenith distance is airmass; scatter rising with background is moonlight.</p>
+<p><strong>One diagnostic against another</strong> can often help determine what went wrong. For
+example, plotting astrometry residual vs zenith distance may show increased
+offsets close to the horizon, which may indicate you if your telescope is too
+heavy for your mount.</p>
 <p><strong>Detrending diagnostics</strong> work at the level of the light curves rather
 than the images, showing the scatter left after magnitude fitting, EPD
 and TFA. That is where you see whether the detrending stages actually
 improved anything, and by how much, rather than assuming they did.</p>
+</section>
+<section id="choosing-what-to-draw">
+<h3>Choosing what to draw<a class="headerlink" href="#choosing-what-to-draw" title="Link to this heading"></a></h3>
+<p>Whichever plot you are on, the table above it lists what can be drawn:
+one row per observing session and image type – and per quantile, where
+the quantiles are being plotted. Clicking a row adds its series to the
+figure, and the first four columns of that row are yours to set: the
+colour, the marker, a scale factor and the label the legend will use.</p>
+<p><strong>The channel is chosen in the row.</strong> Between them the two axes need one
+channel per quantity they draw, and each gets its own column: plotting
+<code class="docutils literal notranslate"><span class="pre">bg_center</span></code> against time asks for one channel, plotting it against
+itself asks for two – which is how a diagnostic is compared between
+channels. A column offers only the channels that session recorded the
+diagnostic in, with the number of images each would draw, so a night
+with nothing in it says so before you click.</p>
+<p>A row draws nothing until every one of its columns is set. Completing
+them fills in the count and adds a fresh row below, still unbound, so
+the same session can be drawn again in other channels without
+disturbing what you already have. Once every combination is on the
+table no further row appears, there being nothing left to choose. And a
+camera with a single channel offers no choice at all: those rows arrive
+bound and counted, with the channel written as plain text.</p>
+<p>The rows arrive ordered by session and then type. Clicking any column heading
+re-orders them, ascending on the first click and reversed on the next –
+excepting the channel columns, where a dropdown sorts by nothing anyone wants.
+Successive clicks compose, so sorting on the type and then on the session gives
+you the types grouped with the sessions still in order inside each. Sorting only
+moves the rows: what you have selected stays selected, the channels you have
+chosen stay chosen, and the colours and labels you have typed stay with their
+rows. Choosing a channel, or toggling a row plotting on/off, does not disturb
+the order.</p>
+</section>
+<section id="quantities-of-your-own">
+<h3>Quantities of your own<a class="headerlink" href="#quantities-of-your-own" title="Link to this heading"></a></h3>
+<p>The two selectors do not offer only what was recorded. Anything you can
+write as a formula over the recorded diagnostics can be given a name and
+plotted exactly like one of them – a residual as a fraction of the field
+of view, a background relative to its own night, the ratio of two pixel
+quantiles. “Diagnostic Expressions” in the left menu is where they are
+defined, and once defined they appear in both selectors alongside the
+diagnostics themselves, because an expression and a diagnostic are the
+same kind of thing to everything downstream: a name that resolves to one
+number per image.</p>
+<p>An expression is ordinary Python arithmetic over the diagnostic names,
+plus the mathematical functions – <code class="docutils literal notranslate"><span class="pre">sqrt</span></code>, <code class="docutils literal notranslate"><span class="pre">log10</span></code>, <code class="docutils literal notranslate"><span class="pre">abs</span></code>,
+<code class="docutils literal notranslate"><span class="pre">where</span></code> and the rest. It is evaluated over a whole series at once
+rather than image by image, which is what makes aggregates work:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rel_astrom_residual</span> <span class="o">=</span> <span class="n">astrom_residual</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">diagonal_fov</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">rel_bg</span>              <span class="o">=</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">nanmedian</span><span class="p">(</span><span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">quantile_contrast</span>   <span class="o">=</span> <span class="n">pixel_q999</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pixel_q99</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>A diagnostic is read in a channel, and the expression says which.</strong>
+Every diagnostic is recorded once per channel, so its bare name does not
+name a number; <code class="docutils literal notranslate"><span class="pre">bg_center[0]</span></code> does. What the subscript holds is not a
+channel but a <em>slot</em>, filled in from the table when you plot – and it
+has to be, because one library is shared by every project and one
+camera’s channels are called <code class="docutils literal notranslate"><span class="pre">B,G1,G2,R</span></code> where another’s are
+<code class="docutils literal notranslate"><span class="pre">B0,G0,G1,R0</span></code>. An expression naming <code class="docutils literal notranslate"><span class="pre">R</span></code> would mean a different thing
+in each, or nothing at all.</p>
+<p>Two reads in the same slot get the same channel; two slots get two
+columns in the table, to be filled in separately:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sky_color</span> <span class="o">=</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>can be used as an indicator of clouds (if you set slot 0 to the red channel and
+slot 1 to the blue for example), but:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">not_useful</span> <span class="o">=</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>will allow you to only use a single channel when plotting and will always
+evaluate to one (i.e. a flat line plot).</p>
+<p>The numbers are yours to choose and only their order matters – they are
+matched to the table’s columns lowest first, so <code class="docutils literal notranslate"><span class="pre">[0]</span></code> and <code class="docutils literal notranslate"><span class="pre">[1]</span></code> work
+exactly as <code class="docutils literal notranslate"><span class="pre">[3]</span></code> and <code class="docutils literal notranslate"><span class="pre">[7]</span></code> would. <code class="docutils literal notranslate"><span class="pre">jd</span></code> takes no subscript at all,
+being one value per image rather than one per channel.</p>
+<p>Expressions may be built out of other expressions, so
+<code class="docutils literal notranslate"><span class="pre">rel_astrom_residual[0]</span> <span class="pre">/</span> <span class="pre">nanmedian(rel_astrom_residual[0])</span></code> is a
+legitimate next step, and the management page shows what each one is
+built from. A reference fills in the slots of what it names, so
+<code class="docutils literal notranslate"><span class="pre">sky_color[1,0]</span></code> is the ratio the other way up and
+<code class="docutils literal notranslate"><span class="pre">sky_color[0,1]</span> <span class="pre">-</span> <span class="pre">sky_color[1,2]</span></code> compares three channels through an
+expression written for two. Renaming one carries its dependents with it;
+deleting one that others still need is refused, and names them.</p>
+<p><strong>An aggregate spans one session, image type and channel</strong> – the group
+a series is drawn from. So <code class="docutils literal notranslate"><span class="pre">nanmedian(bg_center[0])</span></code> is the median over
+that night’s object frames in whichever channel slot 0 was bound to, not
+over the whole archive, and not across channels: each slot is read on
+its own. That is the useful meaning for a night-relative quantity, and
+the only one that stays affordable when the archive runs to millions of
+images.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Prefer the <code class="docutils literal notranslate"><span class="pre">nan</span></code> forms of the aggregates: <code class="docutils literal notranslate"><span class="pre">nanmedian</span></code> over
+<code class="docutils literal notranslate"><span class="pre">median</span></code>, <code class="docutils literal notranslate"><span class="pre">nanmean</span></code> over <code class="docutils literal notranslate"><span class="pre">mean</span></code>, and so on.</p>
+<p>A series carries a value for every image of its session, and images
+for which a diagnostic was never recorded – because the stage has not
+run yet, or failed, or does not apply to that frame – carry <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.
+The plain aggregates propagate that, so a single such image makes
+<code class="docutils literal notranslate"><span class="pre">bg_center[0]</span> <span class="pre">-</span> <span class="pre">median(bg_center[0])</span></code> undefined <em>everywhere</em> and the
+plot comes out empty rather than wrong. The <code class="docutils literal notranslate"><span class="pre">nan</span></code> forms ignore
+those images, which is almost always what was meant. Saving an
+expression with a bare aggregate is allowed – sometimes it is what
+you want – but you will get a warning at the time.</p>
+<p><code class="docutils literal notranslate"><span class="pre">jd</span></code> is the one exception, since every image on the plot has one:
+<code class="docutils literal notranslate"><span class="pre">jd</span> <span class="pre">-</span> <span class="pre">min(jd)</span></code> is safe.</p>
+</div>
+<p>An expression is offered only where the project has recorded everything
+it needs, transitively. One built on <code class="docutils literal notranslate"><span class="pre">astrom_residual</span></code> will not appear
+until plate solving has run, and neither will anything built on <em>it</em>.
+That is availability rather than breakage: the expression is perfectly
+valid, and the management page distinguishes the two – an unrecorded
+input is reported separately from a name that means nothing at all.</p>
+<p>Expressions belong to the interface rather than to any one project, so
+they follow you between projects, and <strong>Export</strong> and <strong>Import</strong> move them
+between installations as a JSON file. Exporting a selection brings along
+whatever it is built from, so the file always stands on its own. A file
+naming an expression you already have is the one thing importing cannot
+decide for you: everything else in it is imported, and it then shows you
+both versions side by side and asks.</p>
+<p>One thing to know about <code class="docutils literal notranslate"><span class="pre">pixel_quantiles</span></code>: it names the whole family
+and expands to one row per quantile, so selecting it for <em>both</em> axes
+draws each quantile against itself – a diagonal line, unless you give
+the two columns different channels, which draws one quantile between
+channels instead. To compare two <em>quantiles</em>, write the expression:
+<code class="docutils literal notranslate"><span class="pre">pixel_q999[0]</span> <span class="pre">/</span> <span class="pre">pixel_q99[0]</span></code>.</p>
 </section>
 <section id="every-point-is-a-link">
 <h3>Every point is a link<a class="headerlink" href="#every-point-is-a-link" title="Link to this heading"></a></h3>

@@ -167,9 +167,8 @@
 <span></span><span class="sd">&quot;&quot;&quot;Define the view displaying the current processing progress.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">socket</span><span class="w"> </span><span class="kn">import</span> <span class="n">getfqdn</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span><span class="p">,</span> <span class="n">sql</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">psutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">pid_exists</span>
@@ -185,6 +184,7 @@
     <span class="n">error_counts_by_step</span><span class="p">,</span>
     <span class="n">open_error_count_for_steps</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_hostname</span>
 
 <span class="c1"># False positive</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
@@ -274,13 +274,25 @@
             <span class="p">]</span>
 
         <span class="k">for</span> <span class="n">check_running</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
-            <span class="n">select</span><span class="p">(</span><span class="n">PipelineRun</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">finished</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">getfqdn</span><span class="p">())</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">PipelineRun</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">finished</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">get_hostname</span><span class="p">())</span>
         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">check_running</span><span class="o">.</span><span class="n">started</span>
+            <span class="c1"># ``started`` is written by ``sql.func.now()``, which SQLite</span>
+            <span class="c1"># evaluates as CURRENT_TIMESTAMP -- naive **UTC** -- so it has</span>
+            <span class="c1"># to be compared against UTC, not local ``datetime.now()``.</span>
+            <span class="n">elapsed_time</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="o">-</span> <span class="n">check_running</span><span class="o">.</span><span class="n">started</span>
+            <span class="p">)</span>
+            <span class="c1"># A run that has only just been recorded may not have got as</span>
+            <span class="c1"># far as spawning the process we look for, so trust it for the</span>
+            <span class="c1"># first minute regardless of the PID check.</span>
+            <span class="n">recently_started</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">elapsed_time</span> <span class="o">&lt;=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="n">pid_exists</span><span class="p">(</span><span class="n">check_running</span><span class="o">.</span><span class="n">process_id</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="n">check_running</span><span class="o">.</span><span class="n">process_id</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
-                <span class="ow">or</span> <span class="p">(</span><span class="n">elapsed_time</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">elapsed_time</span><span class="o">.</span><span class="n">seconds</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="n">recently_started</span>
             <span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="s2">&quot;Calibration process with ID </span><span class="si">%s</span><span class="s2"> still exists.&quot;</span><span class="p">,</span>

@@ -172,10 +172,11 @@
 <span id="autowisp-image-calibration-fits-util-module"></span><h1>autowisp.image_calibration.fits_util module<a class="headerlink" href="#module-autowisp.image_calibration.fits_util" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-045ca3ac85cec9de2f9775779f57af992f9f3f44.png" alt="Inheritance diagram of Evaluator, Time, TimeISO, TimeISOTNoSep" usemap="#inheritance6e152ff909" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-74147df102caf4a22bb512f71397e9146f428fcf.png" alt="Inheritance diagram of Evaluator, Time, TimeISO, TimeISOTNoSep" usemap="#inheritance6e152ff909" class="inheritance graphviz" /></div>
 <map id="inheritance6e152ff909" name="inheritance6e152ff909">
-<area shape="rect" id="node11" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="5,80,195,107"/>
-<area shape="rect" id="node12" href="#autowisp.image_calibration.fits_util.TimeISOTNoSep" target="_top" title="A class to parse ISO times without any separators." alt="" coords="488,304,816,331"/>
+<area shape="rect" id="node12" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="5,80,225,107"/>
+<area shape="rect" id="node13" href="#autowisp.image_calibration.fits_util.TimeISOTNoSep" target="_top" title="A class to parse ISO times without any separators." alt="" coords="547,304,875,331"/>
+<area shape="rect" id="node11" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="20,155,210,181"/>
 </map><p>Define a generic function to make 3-hdu FITS images (image, error, mask).</p>
 </section>
 <dl class="py class">
@@ -222,7 +223,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Either a single filename (if each channel
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Either a single filename (if each channel
 is stored in a different HDU or if there is only one channel or
 if channels have not been split yet) or a dictionary indexed by
 channel name (if different channels are in different files).</p></li>
@@ -235,7 +236,7 @@ of the same file).</p></li>
 with image, error, and mask HDUs</p></li>
 </ul>
 </p></li>
-<li><p><strong>split_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – See same name attribute of
+<li><p><strong>split_channels</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – See same name attribute of
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrator</span></code>.</p></li>
 </ul>
 </dd>
