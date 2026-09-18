@@ -154,6 +154,35 @@ class TestIterativeRejection(unittest.TestCase):
             self.expected,
         )
 
+    def test_threshold_pair(self):
+        """A signed pair rejects above and below separately, in any order.
+
+        The outlier above the line (at 4) is rejected; the one below it (at
+        9) is well within the negative threshold, so it stays and pulls the
+        fit. Two thresholds of the same sign are refused rather than
+        guessed at.
+        """
+
+        y = self.y.copy()
+        y[9] -= 60.0
+        keep = numpy.isfinite(self.x) & numpy.isfinite(y)
+        keep[4] = False
+        expected = numpy.polynomial.polynomial.polyval(
+            self.x,
+            numpy.polynomial.polynomial.polyfit(self.x[keep], y[keep], 1),
+        )
+        evaluator = Evaluator({"x": self.x, "y": y})
+        for threshold in ("(3, -10)", "(-10, 3)"):
+            with self.subTest(threshold=threshold):
+                numpy.testing.assert_allclose(
+                    evaluator(
+                        f"iterative_rej_polynomial_fit(x, y, 1, {threshold})"
+                    ),
+                    expected,
+                )
+        with self.assertRaises(ValueError):
+            evaluator("iterative_rej_polynomial_fit(x, y, 1, (3, 10))")
+
     def test_polynomial_fit_with_too_few_points_is_nan(self):
         """Fewer finite points than coefficients gives no fit at all.
 

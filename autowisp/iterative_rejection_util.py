@@ -11,6 +11,35 @@ from autowisp.exceptions import ConvergenceError
 git_id = "$Id$"
 
 
+def split_threshold(threshold):
+    """
+    Return the upper and lower outlier thresholds a user specified.
+
+    Args:
+        threshold:    Either a single positive value, applying in both
+            directions, or a pair with one positive and one negative entry,
+            in either order, applying above and below respectively.
+
+    Returns:
+        (float, float):    The upper threshold (positive) and the lower one
+            (negative).
+
+    Raises:
+        ValueError:    If a pair does not have entries of opposite signs, or
+            more than two values are given.
+    """
+
+    values = numpy.atleast_1d(threshold).astype(float)
+    if values.size == 1:
+        return abs(values[0]), -abs(values[0])
+    if values.size != 2 or values[0] * values[1] >= 0:
+        raise ValueError(
+            f"Invalid outlier threshold {threshold!r}: give a single value or "
+            "a pair with one positive and one negative entry."
+        )
+    return values.max(), values.min()
+
+
 # Too many arguments indeed, but most would never be needed.
 # Breaking up into smaller pieces will decrease readability
 # pylint: disable=too-many-arguments
@@ -39,8 +68,9 @@ def iterative_rejection_average(
         outlier_threshold:    Outliers are defined as outlier_threshold * (root
             maen square deviation around the average). Non-finite values are
             always outliers. This value could also be a 2-tuple with one
-            positive and one negative entry, specifying the thresholds in the
-            positive and negative directions separately.
+            positive and one negative entry, in either order, specifying the
+            thresholds in the positive and negative directions separately (see
+            :func:`split_threshold`\ ).
 
         average_func:    A function which returns the average to compute (e.g.
             :func:`numpy.nanmean` or :func:`numpy.nanmedian`\ ), must ignore nan
@@ -94,21 +124,7 @@ def iterative_rejection_average(
         repr(working_array),
     )
 
-    if isinstance(outlier_threshold, (float, int)):
-        threshold_plus = outlier_threshold
-        threshold_minus = -outlier_threshold
-    else:
-        if len(outlier_threshold) == 1:
-            assert outlier_threshold[0] > 0
-            threshold_plus = outlier_threshold[0]
-            threshold_minus = -outlier_threshold[0]
-        else:
-            assert len(outlier_threshold) == 2
-            assert outlier_threshold[0] * outlier_threshold[1] < 0
-            if outlier_threshold[0] > 0:
-                threshold_plus, threshold_minus = outlier_threshold
-            else:
-                threshold_minus, threshold_plus = outlier_threshold
+    threshold_plus, threshold_minus = split_threshold(outlier_threshold)
 
     if not hasattr(deviation_average, "__getitem__"):
         deviation_average = (deviation_average,)
@@ -181,19 +197,10 @@ def iterative_rejection_average(
 def flag_outliers(residuals, threshold):
     """Flag outlier residuals (see :func:`iterative_rej_linear_leastsq`)."""
 
-    try:
-        if len(threshold) == 1:
-            upper_threshold = lower_threshold = threshold[0]
-        else:
-            upper_threshold, lower_threshold = float(threshold[0]), float(
-                threshold[1]
-            )
-    except TypeError:
-        upper_threshold = lower_threshold = float(threshold)
-
+    upper_threshold, lower_threshold = split_threshold(threshold)
     rms = numpy.sqrt(numpy.mean(residuals**2))
     return numpy.logical_or(
-        residuals > upper_threshold * rms, residuals < -lower_threshold * rms
+        residuals > upper_threshold * rms, residuals < lower_threshold * rms
     )
 
 
@@ -219,7 +226,10 @@ def iterative_rej_linear_leastsq(
 
         outlier_threshold:    The RHS entries are considered outliers if they
             devite from the fit by more than this values times the root mean
-            square of the fit residuals.
+            square of the fit residuals. Could also be a pair with one
+            positive and one negative entry, in either order, specifying the
+            thresholds above (rhs > matrix * coefficients) and below the fit
+            separately (see :func:`split_threshold`).
 
         max_iterations:    The maximum number of rejection/re-fitting iterations
             allowed. Zero for simple fit with no rejections (other than of
@@ -366,9 +376,7 @@ def iterative_rej_smoothing_spline(  # pylint: disable=too-many-locals
         y:    The y (dependenc variable) in the dependence.
 
         outlier_threshold:    See same name argument of
-            :func:`iterative_rej_linear_leastsq`\ . If two values are given, the
-            first indicates positive (i.e. rhs > matrix * coefficients) and the
-            second negative (rhs < matrix * coefficients) deviations.
+            :func:`iterative_rej_linear_leastsq`\ .
 
         max_iterations:    See same name argument of
             :func:`iterative_rej_linear_leastsq`\ .
