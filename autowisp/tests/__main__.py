@@ -136,6 +136,7 @@ from autowisp.tests.test_expression_series import (
 from autowisp.tests.test_evaluator import (
     TestNanAggregates,
     TestRemovedNames,
+    TestIterativeRejection,
     TestErrorHandling,
 )
 from autowisp.tests.test_expressions import (
