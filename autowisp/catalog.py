@@ -239,7 +239,8 @@ class WISPGaia(GaiaClass):
             count_only(bool):    If ``True``, only the number of objects is
                 returned without actually fetching the data.
 
-            fov: Forwarded directly to `estimate_fov_corners()`_
+            fov: Forwarded directly to
+                :meth:`~autowisp.catalog.WISPGaia.estimate_fov_corners`
 
         Returns:
             astropy Table:
@@ -393,7 +394,7 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
     Create a catalog file given the results of a Gaia query.
 
     Args:
-        See `create_catalog_file()`_
+        See :func:`create_catalog_file`
     """
 
     if query_kwargs.get("count_only", False):

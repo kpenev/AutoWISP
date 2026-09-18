@@ -18,13 +18,21 @@ from autowisp.iterative_rejection_util import (
 
 
 def eval_iterative_rejection_average(*args, **kwargs):
-    """Allow using `iterative_rejection_average()`_ in evaluators."""
+    """
+    Allow using
+    :func:`~autowisp.iterative_rejection_util.iterative_rejection_average`
+    in evaluators.
+    """
 
     return iterative_rejection_average(*args, **kwargs)[0]
 
 
 def eval_iterative_rej_polynomial_fit(x, y, *args, **kwargs):
-    """Allow using `iterative_rej_polynomial_fit()`_ in evaluators."""
+    """
+    Allow using
+    :func:`~autowisp.iterative_rejection_util.iterative_rej_polynomial_fit`
+    in evaluators.
+    """
 
     finite = numpy.isfinite(x)
     kwargs["return_predicted"] = True
@@ -36,7 +44,11 @@ def eval_iterative_rej_polynomial_fit(x, y, *args, **kwargs):
 
 
 def eval_iterative_rej_smoothing_spline(x, *args, **kwargs):
-    """Allow using `iterative_rej_smoothing_spline()`_ in evaluators."""
+    """
+    Allow using
+    :func:`~autowisp.iterative_rejection_util.iterative_rej_smoothing_spline`
+    in evaluators.
+    """
 
     spline = iterative_rej_smoothing_spline(x, *args, **kwargs)
     return spline(x)
