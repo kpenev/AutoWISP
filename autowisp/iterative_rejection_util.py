@@ -184,9 +184,10 @@ def flag_outliers(residuals, threshold):
     try:
         if len(threshold) == 1:
             upper_threshold = lower_threshold = threshold[0]
-        upper_threshold, lower_threshold = float(threshold[0]), float(
-            threshold[1]
-        )
+        else:
+            upper_threshold, lower_threshold = float(threshold[0]), float(
+                threshold[1]
+            )
     except TypeError:
         upper_threshold = lower_threshold = float(threshold)
 
@@ -213,21 +214,25 @@ def iterative_rej_linear_leastsq(
     Args:
         matrix:    The matrix defining the linear least squares problem.
 
-        rhs:    The RHS of the least squares problem.
+        rhs:    The RHS of the least squares problem. Non-finite entries are
+            always treated as outliers.
 
         outlier_threshold:    The RHS entries are considered outliers if they
             devite from the fit by more than this values times the root mean
             square of the fit residuals.
 
         max_iterations:    The maximum number of rejection/re-fitting iterations
-            allowed. Zero for simple fit with no rejections.
+            allowed. Zero for simple fit with no rejections (other than of
+            non-finite RHS entries).
 
         return_predicted:    Should the best-fit values for the RHS be returned?
 
     Returns:
         (tuple):
             array:
-                The best fit coefficients.
+                The best fit coefficients. All NaN, as are the other returned
+                values, if fewer RHS entries survive than there are
+                coefficients to fit.
 
             float:
                 The root mean square residual of the latest fit iteration.
@@ -237,24 +242,30 @@ def iterative_rej_linear_leastsq(
                 **return_predicted** == ``True``.
     """
 
+    outlier_threshold = numpy.atleast_1d(outlier_threshold)
     num_surviving = rhs.size
     iteration = 0
     fit_rhs = numpy.copy(rhs)
     fit_matrix = numpy.copy(matrix)
-    while True:
+    outliers = numpy.logical_not(numpy.isfinite(rhs))
+    while iteration == 0 or outliers.any():
+        num_surviving -= outliers.sum()
+        fit_rhs[outliers] = 0
+        fit_matrix[outliers, :] = 0
+
+        if num_surviving < matrix.shape[1]:
+            fit_coef = numpy.full(matrix.shape[1], numpy.nan)
+            residual = numpy.nan
+            break
+
         fit_coef, residual = scipy.linalg.lstsq(fit_matrix, fit_rhs)[:2]
         residual /= num_surviving
         if iteration == max_iterations:
             break
         outliers = flag_outliers(
             fit_rhs - fit_matrix.dot(fit_coef),
-            outlier_threshold
+            outlier_threshold * numpy.sqrt(rhs.size / num_surviving),
         )
-        num_surviving -= outliers.sum()
-        fit_rhs[outliers] = 0
-        fit_matrix[outliers, :] = 0
-        if not outliers.any():
-            break
         iteration += 1
     if return_predicted:
         return fit_coef, numpy.sqrt(residual), matrix.dot(fit_coef)
