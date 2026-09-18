@@ -518,6 +518,51 @@ images.
    ``jd`` is the one exception, since every image on the plot has one:
    ``jd - min(jd)`` is safe.
 
+**Some aggregates discard outliers.** A single bad frame -- a satellite
+trail, a passing cloud -- can drag a median only a little but a mean or a
+fit a long way, so three functions reject outliers iteratively: fit,
+discard every image deviating from the fit by more than a threshold times
+the root-mean-square deviation, and fit again, until nothing more is
+discarded. Like the aggregates, they work over the whole series, and like
+the ``nan`` forms they ignore images lacking a value::
+
+    bg_level   = iterative_rejection_average(bg_center[0], 3)
+    bg_drift   = bg_center[0] - iterative_rej_polynomial_fit(jd, bg_center[0], 2, 3)
+    bg_wiggles = bg_center[0] - iterative_rej_smoothing_spline(
+        jd, bg_center[0], 5, s=nansum(isfinite(bg_center[0])) * nanvar(bg_center[0])
+    )
+
+``iterative_rejection_average(values, threshold)`` gives a single number,
+the median of what survives. Pass ``average_func=nanmean`` for the mean
+instead.
+
+``iterative_rej_polynomial_fit(x, y, order, threshold)`` and
+``iterative_rej_smoothing_spline(x, y, threshold, s=...)`` give the fitted
+curve at every image. That includes the images whose ``y`` was never
+recorded: they take no part in the fit, but the curve still has a value
+there. Only an image without an ``x`` gets ``NaN``, as does every image
+when there are fewer recorded values than the polynomial has
+coefficients.
+
+The threshold can also be a pair, for outliers that only go one way: one
+positive, applying above, and one negative, applying below, in either
+order. So ``(3, -10)`` discards images above the average or the curve
+more readily than below it.
+
+The spline needs ``s``, its smoothing: without it, it passes through
+every point, so nothing ever deviates and nothing is discarded. ``s`` is
+only where the spline *starts*; after each round it is re-estimated from
+how noisy the surviving images are. So it has to start loose enough to
+leave the outliers alone -- too tight, and the first fit bends through
+them, leaving nothing to discard. But not so loose that the first fit
+cannot follow the real features of the data either: a peak or a dip the
+first fit smooths away deviates from it like an outlier, and once
+discarded stays discarded, however well the later fits could have
+followed it. The example starts from the total squared deviation from
+the mean, which is the loosest sensible choice -- its first fit is a
+single cubic -- so where the data has sharp features, start tighter or
+raise the threshold.
+
 An expression is offered only where the project has recorded everything
 it needs, transitively. One built on ``astrom_residual`` will not appear
 until plate solving has run, and neither will anything built on *it*.
