@@ -306,7 +306,55 @@ def iterative_rej_polynomial_fit(x, y, order, *leastsq_args, **leastsq_kwargs):
     )
 
 
-def iterative_rej_smoothing_spline(
+def _estimate_smoothing(knots, fit_x, fit_y, fit_w, spline_args):
+    """
+    Return the smoothing condition the noise about a spline calls for.
+
+    A smoothing spline cannot supply this itself: its squared residuals sum
+    to whatever ``s`` it was given. So the noise is instead estimated from a
+    least squares fit with the same knots, which is under no such
+    constraint, as ``SSR / (m - p)`` for ``p`` coefficients. The smoothing
+    condition scipy recommends for that noise is then ``(m - sqrt(2 * m))``
+    times it.
+
+    Args:
+        knots:    The full knot vector of the smoothing fit, as returned by
+            :func:`scipy.interpolate.splrep`\\ .
+
+        fit_x, fit_y, fit_w:    The points to fit and their weights (or
+            ``None``).
+
+        spline_args:    The remaining arguments of the smoothing fit.
+
+    Returns:
+        float or None:    The smoothing condition, or ``None`` if there are
+            no more points than coefficients, leaving no noise to estimate.
+    """
+
+    degree = spline_args.get("k", 3)
+    num_points = fit_x.size
+    num_coefficients = knots.size - degree - 1
+    if num_points <= num_coefficients:
+        return None
+
+    fixed_knot_args = {
+        name: value for name, value in spline_args.items() if name != "s"
+    }
+    fixed_knot_args["t"] = knots[degree + 1 : -(degree + 1)]
+    residuals = fit_y - BSpline(
+        *splrep(fit_x, fit_y, w=fit_w, task=-1, **fixed_knot_args)
+    )(fit_x)
+    if fit_w is not None:
+        residuals = residuals * fit_w
+
+    return (
+        (num_points - numpy.sqrt(2.0 * num_points))
+        * numpy.sum(residuals**2)
+        / (num_points - num_coefficients)
+    )
+
+
+def iterative_rej_smoothing_spline(  # pylint: disable=too-many-locals
     x, y, outlier_threshold, max_iterations=numpy.inf, **spline_args
 ):
     r"""
@@ -326,10 +374,20 @@ def iterative_rej_smoothing_spline(
             :func:`iterative_rej_linear_leastsq`\ .
 
         spline_args:    Keyword arguments passed directly to
-            :func:`scipy.interpolate.splrep`\ .
+            :func:`scipy.interpolate.splrep`\ . If the smoothing condition
+            ``s`` is given (without knots ``t``), it applies to the first fit
+            only, and should be loose enough for the spline not to bend
+            towards the outliers: a value suitable for the clean data would
+            leave nothing to reject. After each round of rejection, ``s`` is
+            re-estimated from the noise about a least squares fit with the
+            knots of the latest smoothing fit (see
+            :func:`_estimate_smoothing`), and the iterations stop once a
+            round rejects nothing and fails to shrink ``s``. If ``s`` is not
+            given, :func:`scipy.interpolate.splrep`\ 's own default applies
+            to every fit, and the iterations stop once nothing is rejected.
 
     Returns:
-        scipy.interpolate.UnivariateSpline:
+        scipy.interpolate.BSpline:
             The latest iteration of the smoothing spline fit, after either the
             outlier rejection/refitting iterations have converged or
             max_iterations was reached.
@@ -337,7 +395,6 @@ def iterative_rej_smoothing_spline(
 
     logger = logging.getLogger(__name__)
 
-    found_outliers = True
     iteration = 0
     fit_points = numpy.logical_and(numpy.isfinite(x), numpy.isfinite(y))
     fit_x = x[fit_points]
@@ -347,8 +404,13 @@ def iterative_rej_smoothing_spline(
         del spline_args["w"]
     else:
         fit_w = None
-    while found_outliers and iteration < max_iterations:
-        smooth_func = BSpline(*splrep(fit_x, fit_y, w=fit_w, **spline_args))
+    # With fixed knots scipy ignores s, so there is nothing to adapt.
+    adapt_smoothing = "s" in spline_args and "t" not in spline_args
+    while True:
+        knots, *spline = splrep(fit_x, fit_y, w=fit_w, **spline_args)
+        smooth_func = BSpline(knots, *spline)
+        if iteration == max_iterations:
+            break
 
         residuals = fit_y - smooth_func(fit_x)
         logger.debug("Residuals:\n%s", repr(residuals))
@@ -361,13 +423,29 @@ def iterative_rej_smoothing_spline(
             len(non_outliers) - non_outliers.sum(),
             len(non_outliers),
         )
+        found_outliers = not numpy.all(non_outliers)
+        if not (found_outliers or adapt_smoothing):
+            break
 
         fit_x = fit_x[non_outliers]
         fit_y = fit_y[non_outliers]
         if fit_w is not None:
             fit_w = fit_w[non_outliers]
-
-        found_outliers = not numpy.all(non_outliers)
+        if adapt_smoothing:
+            new_smoothing = _estimate_smoothing(
+                knots, fit_x, fit_y, fit_w, spline_args
+            )
+            logger.debug("Estimated smoothing: %s", repr(new_smoothing))
+            # Once converged, s alternates between nearly equal values of
+            # neighbouring knot sets rather than settling exactly, so stop at
+            # the first round that fails to shrink it.
+            if not found_outliers and (
+                new_smoothing is None or new_smoothing >= spline_args["s"]
+            ):
+                break
+            if new_smoothing is not None:
+                spline_args["s"] = new_smoothing
+        iteration += 1
 
     return smooth_func
 
