@@ -76,7 +76,8 @@ def parse_command_line(*args):
     parser.add_argument(
         "--stamp-smoothing-outlier-threshold",
         type=float,
-        default=3.0,
+        nargs="+",
+        default=(3.0,),
         help="Pixels deviating by more than this many standard deviations form "
         "the best fit smoothing function are discarded after each smoothnig "
         "fit iteration. One or two numbers should be specified. If two, one "
@@ -101,7 +102,8 @@ def parse_command_line(*args):
     parser.add_argument(
         "--stamp-pixel-outlier-threshold",
         type=float,
-        default=3.0,
+        nargs="+",
+        default=(3.0,),
         help="The threshold in deviation around mean units to use for "
         "discarding stamp pixels during averaging of the smoothed stamps. One "
         "or two numbers should be specified. If two, one "
