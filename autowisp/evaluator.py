@@ -10,6 +10,36 @@ import pandas
 
 from autowisp.fits_utilities import get_primary_header
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.iterative_rejection_util import (
+    iterative_rejection_average,
+    iterative_rej_polynomial_fit,
+    iterative_rej_smoothing_spline,
+)
+
+
+def eval_iterative_rejection_average(*args, **kwargs):
+    """Allow using `iterative_rejection_average()`_ in evaluators."""
+
+    return iterative_rejection_average(*args, **kwargs)[0]
+
+
+def eval_iterative_rej_polynomial_fit(x, y, *args, **kwargs):
+    """Allow using `iterative_rej_polynomial_fit()`_ in evaluators."""
+
+    finite = numpy.isfinite(x)
+    kwargs["return_predicted"] = True
+    result = numpy.full(x.shape, numpy.nan)
+    result[finite] = iterative_rej_polynomial_fit(
+        x[finite], y[finite], *args, **kwargs
+    )[-1]
+    return result
+
+
+def eval_iterative_rej_smoothing_spline(x, *args, **kwargs):
+    """Allow using `iterative_rej_smoothing_spline()`_ in evaluators."""
+
+    spline = iterative_rej_smoothing_spline(x, *args, **kwargs)
+    return spline(x)
 
 
 class EvaluatorBase(asteval.Interpreter):
@@ -66,6 +96,12 @@ class EvaluatorBase(asteval.Interpreter):
             # Absent rather than asserted, so that an asteval release which
             # drops one of these on its own is not an error here.
             self.symtable.pop(func_name, None)
+        for iter_rej_func in [
+            "iterative_rejection_average",
+            "iterative_rej_polynomial_fit",
+            "iterative_rej_smoothing_spline",
+        ]:
+            self.symtable[iter_rej_func] = globals()[f"eval_{iter_rej_func}"]
 
     def __call__(self, *args, **kwargs):
         """
