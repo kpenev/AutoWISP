@@ -51,6 +51,15 @@ editable install breaks BUI styling (meson-python lays down no
 `pip install .`, repeated after every change, then hard-refresh the browser
 (Cmd-Shift-R).
 
+*Checking working-tree code without reinstalling:* a scratch script run with
+`PYTHONPATH=<repo>` imports the tree rather than site-packages, which is how
+a function can be exercised straight after editing it while the installed
+copy stays the non-editable one the BUI needs. Without it the import comes
+from site-packages and silently tests the last install — an `ImportError`
+for something just added is the friendly version of that; a stale function
+that merely passes is the other one. A browser check still needs the
+install.
+
 ## Running Tests
 
 Tests use Python `unittest` (pytest-compatible). They download test data automatically and run pipeline steps sequentially:
@@ -265,6 +274,11 @@ work being abandoned.
   Black-clean at 80 columns, so a directory-wide run touches unrelated files.
   Split the commits instead — functional change in one, formatting-only files in
   another. For a file carrying both, leave the formatting in with the fix.
+
+  This holds for lines the change never touched. Black reformatting old code
+  in a file being edited means a previous commit missed it, so the fix is to
+  let Black have it, not to preserve the old spelling — reverting it only
+  leaves the next person the same decision.
 
 - **Durable rules about this project belong in this file**, or in
   `.claude/skills/`, not in per-machine assistant memory. This repo is worked on
