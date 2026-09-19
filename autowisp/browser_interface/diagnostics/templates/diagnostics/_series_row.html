@@ -23,7 +23,11 @@ Takes one context variable, `diagnostic`, as `make_series` builds it.
             </button>
             <div class="dropdown-content"
                  id="marker:{{ diagnostic.id }}">
-                {% for symb in " x+osv^<>" %}
+                {% comment %} The point markers, then the line styles of
+                   ``core.plot_utils.line_styles``. The detrending page has
+                   a menu of its own, so what is offered here is offered
+                   there only if it is added there too. {% endcomment %}
+                {% for symb in " x+osv^<>-|:" %}
                 {% include "core/plot_marker.html" with symb=symb size="30" svg="T" %}
                 {% endfor %}
             </div>

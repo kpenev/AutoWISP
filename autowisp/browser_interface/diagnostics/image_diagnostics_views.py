@@ -26,6 +26,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from autowisp.browser_interface.core.plot_utils import (
+    line_styles,
     setup_svg_matplotlib,
     figure_to_svg_response,
 )
@@ -125,7 +126,11 @@ def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
 
         config(dict):    Configuration for the plotting, usually produced by
             :func:`get_available_series`. Should contain keys ``channel``,
-            ``color``, ``marker``, ``scale``, and ``label``.
+            ``color``, ``marker``, ``scale``, and ``label``. A ``marker``
+            naming one of
+            :data:`~autowisp.browser_interface.core.plot_utils.line_styles`
+            draws a curve instead of points, reading the scale as the line
+            width where points read it as the marker size.
     """
 
     # The arrays arrive NaN-padded to the canonical image list. Dropping the
@@ -137,6 +142,24 @@ def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
     keep = numpy.isfinite(x_values) & numpy.isfinite(y_values)
     x_values, y_values = x_values[keep], y_values[keep]
     image_ids = numpy.asarray(image_ids)[keep]
+
+    if config["marker"] in line_styles:
+        # A curve has to be walked in x order. Against jd the canonical
+        # image list already is ordered, but nothing orders an arbitrary
+        # quantity, and an unsorted line is a scribble rather than a curve.
+        # No per-point URLs either: a Line2D carries one for the whole
+        # artist, so clicking through to a frame stays the business of the
+        # series drawn as points beneath it.
+        in_x_order = numpy.argsort(x_values, kind="stable")
+        axes.plot(
+            x_values[in_x_order],
+            y_values[in_x_order],
+            line_styles[config["marker"]],
+            linewidth=float(config.get("scale", 1.0)),
+            color=config["color"],
+            label=config["label"],
+        )
+        return
 
     collection = axes.scatter(
         x_values,
