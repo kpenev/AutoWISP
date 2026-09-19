@@ -14,6 +14,13 @@ function selectSymbol(event)
     let master_id = event.currentTarget.parentElement.id.split(":")[1];
     let button = document.getElementById("marker-button:" + master_id);
     button.replaceChild(event.currentTarget.cloneNode(true), button.children[0]);
+
+    // A series table draws on every edit, so the figure has to catch up
+    // with the style just chosen.  The detrending page, whose rows are not
+    // .diagnostic-row, redraws when its Plot button is pressed instead, and
+    // must not be made to redraw per marker.
+    if ( event.currentTarget.closest(".diagnostic-row") )
+        updateFigure();
 }
 
 function getRowChannels(row)
@@ -185,12 +192,15 @@ function wireDiagnosticRow(row)
         updateFigure();
     });
 
-    for ( const select of row.querySelectorAll(".slot-select") ) {
-        // The row's own listener fires for clicks on its descendants, so
-        // opening a dropdown would otherwise toggle the row underneath it.
-        select.addEventListener("click", (event) => event.stopPropagation());
+    // The row's own listener fires for clicks on its descendants, so
+    // editing a row would otherwise toggle it: choosing a marker or a
+    // channel, or picking a colour, would undraw the series rather than
+    // redraw it in what was just chosen.
+    for ( const control of row.querySelectorAll("input, select, .dropdown") )
+        control.addEventListener("click", (event) => event.stopPropagation());
+
+    for ( const select of row.querySelectorAll(".slot-select") )
         select.addEventListener("change", onSlotChange);
-    }
 }
 
 function wireAppendedRow(row)
