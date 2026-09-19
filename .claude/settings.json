@@ -2,9 +2,23 @@
   "permissions": {
     "allow": [
       "Bash(cd:*)",
-      "Bash(pylint --rcfile=scripts/.pylintrc scripts/bui/select_ticids/views.py)",
-      "Edit(*_plan.md)",
-      "Write(*_plan.md)"
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(awk:*)",
+      "Bash(pylint:*)",
+      "Bash(black --check:*)",
+      "Bash(black --diff:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m unittest:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(python -m autowisp.tests:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git add:*)",
+      "Bash(gh run:*)",
+      "Edit(*_plan.md)"
     ]
   }
 }

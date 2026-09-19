@@ -15,6 +15,42 @@ pip install .                    # Install from source
 pip install autowisp             # Install from PyPI
 ```
 
+**Adding or removing a `*.py` file requires editing the matching `meson.build`.**
+Each `meson.build` enumerates every source by name in `py.install_sources([...])`
+— there is no globbing. Deleting a module without removing its line breaks the
+build; adding one without a line silently omits it from the installed package.
+Update both in the same change, then sanity-check with a build/import.
+
+*Auditing what is installed:* compare each directory's `*.py` / `*.html` / `*.js`
+/ `*.css` against the `'name'` entries in its `meson.build`, and check that
+`subdir(...)` covers every child directory. A file tracked by git but absent
+from its `meson.build` is silently not installed, and it bites much later. Ask
+per file before adding or deleting — a module is not dead merely because nothing
+imports it, and a commit subject is not evidence about its contents.
+
+*Deliberate exclusions — do not re-raise these unasked:* `fake_image/` and
+`magnitude_fitting/tests/` have no `meson.build` at all and are not installed
+(both are also in `.coveragerc`'s omit list). `tests/generate_catalog_test_data.py`
+and `tests/update_hdf5_contents.py` are test-data tooling rather than suite
+members, and are excluded on purpose — there is a comment saying so at the top of
+`autowisp/tests/meson.build`, because an audit flags them otherwise.
+
+**Pipeline steps run the *installed* package, not your working tree.** Tests
+invoke each step as a separate `wisp-*` console-script subprocess whose cwd is a
+temp directory, so it imports `autowisp` from site-packages, while in-process
+unit tests import the working tree. The two diverge silently after an edit,
+which can produce a false pass. Use `pip install -e .` for local iteration, or
+re-run `pip install .` after every source change. To check: `which wisp-<step>`,
+then run its interpreter from outside the repo and inspect
+`autowisp.<module>.__file__`.
+
+**Exception — the browser interface:** do *not* use `-e` for BUI work; the
+editable install breaks BUI styling (meson-python lays down no
+`autowisp/browser_interface/` tree in site-packages, so the `static/` and
+`templates/` files go missing while imports still succeed). Use a plain
+`pip install .`, repeated after every change, then hard-refresh the browser
+(Cmd-Shift-R).
+
 ## Running Tests
 
 Tests use Python `unittest` (pytest-compatible). They download test data automatically and run pipeline steps sequentially:
@@ -83,6 +119,29 @@ Base class `Processor` enforces a uniform interface for configuration, with `__i
 
 Django 5 web application (under development). Launch with `wisp-bui [port]`. Django apps: `home`, `core`, `configuration`, `processing`, `results`. Uses separate SQLite database (`bui_db.sqlite3`).
 
+**Not unit-tested, by choice.** No Django test-client tests for views, no
+template or JS tests — the BUI keeps changing and exposes no contract worth
+pinning, so such tests would cost more in churn than they catch. Verify BUI
+behaviour by running it and looking at it. Test the layers *below* the views,
+where the rules live, and keep decisions separable from rendering so they stay
+testable there (e.g. `plan_spare_row` returns the row entry and the caller
+renders it).
+
+**Configuration view redesign pending.** The orgchart decision tree
+(`configuration/config_tree.html` +
+`static/configuration/js/autowisp.config.tree.js`) is slated for a redesign.
+Implement config-view features against the existing tree without gold-plating
+its styling; raise the pending redesign before any substantial rework of its
+presentation.
+
+**Configuration conditions vs versions.** Conditions (several values per
+parameter, each guarded by header expressions, first match wins) are exercised
+regularly and work as intended. Versions (`Configuration.version`, the
+"Version: N" dropdown) have never really been used and are probably not fully
+implemented — don't document them as something to rely on. A single project's
+`autowisp.db` showing one value per parameter is not evidence that conditions
+are unused. Both are gaps in the test suite.
+
 ### Key Modules
 
 - `catalog.py` — GAIA catalog queries with POLYGON-based spatial filtering
@@ -96,6 +155,74 @@ Django 5 web application (under development). Launch with `wisp-bui [port]`. Dja
 ### Relationship to AstroWISP
 
 AstroWISP (`/home/kpenev/projects/git/AstroWISP/`) is the lower-level C++/Python library providing core PSF/PRF fitting and aperture photometry algorithms. AutoWISP depends on it (`astrowisp >= 1.5`) and wraps it into the full pipeline. The test base class chain is: `AutoWISPTestCase` → `astrowisp.tests.utilities.FloatTestCase`.
+
+## Documentation
+
+Sphinx sources live in `documentation/source/`; the published `docs/` folder is
+build output (~1181 tracked files) served by GitHub Pages.
+
+Regenerate `documentation/source/wisp_options.rst` **first** by running
+`documentation/source/document_options.py` — it is gitignored and is built from
+a throwaway project, so it needs the current code installed. Skipping it does
+not fail the build: you get a "toctree contains reference to nonexisting
+document" warning lost among ~56 pre-existing ones, no options page, and every
+`:option:` link silently unresolved. Then `rm -rf docs/` and
+`sphinx-build -b html documentation/source docs`.
+
+The wipe matters: commit 07817f54 deleted the sources for eleven pages whose
+built HTML is still tracked, and a plain rebuild does not remove them — they
+stay live, unreachable from the nav but reachable by URL and search. Wiping is
+safe: `sphinx.ext.githubpages` recreates `.nojekyll`, which is essential, since
+without it Pages runs Jekyll and ignores `_static/`, `_sources/` and `_images/`.
+Keep the rebuild as its own commit; it rewrites every page.
+
+## Issue Tracking
+
+AutoWISP and AstroWISP work is tracked in the **SuperPhot (`SUP`)** Jira project
+on `https://kaloyanpenev.atlassian.net` (cloud id
+`02881f8d-fafe-49ff-87bb-4e99c57ee4d1`). The site has thirteen projects and
+several plausible-sounding names — `APH` "Amateur Photometry", `TP` "TESS
+Photometry" — but none of them hold this repo's issues; `SUP` does. File new
+issues there as **Task** unless there is a reason to pick another type.
+
+**Every issue must have a parent.** Stories, tasks and bugs are parented to an
+epic; sub-tasks are parented to the story, task or bug they belong to. Set the
+parent when the issue is created rather than filing it loose and fixing it
+afterwards. The epics available in `SUP`:
+
+| Epic | Scope |
+| --- | --- |
+| `SUP-1` | Image Calibration |
+| `SUP-2` | Astrometry |
+| `SUP-3` | Photometry |
+| `SUP-4` | Magnitude Fitting |
+| `SUP-5` | Generating Raw Lightcurves |
+| `SUP-6` | Lightcurve Post-processing (EPD/TFA) |
+| `SUP-37` | Automated processing — pipeline engine and cross-cutting internals |
+| `SUP-49` | AstroWISP/AutoWISP under Windows |
+| `SUP-128` | User Interface — everything BUI-facing |
+| `SUP-132` | Package for Major Operating Systems — packaging and installation |
+| `SUP-160` | Documentation |
+| `SUP-167` | Tests |
+| `SUP-200` | Non-development related tasks |
+
+Note that `SUP-37` and `SUP-128` divide by *surface*, not by subject: the
+BUI-facing half of a concern goes under `SUP-128` and its engine half under
+`SUP-37`, so one body of work can legitimately span both.
+
+Its two Done-category statuses do not mean what Jira's stock descriptions
+suggest, and the difference matters:
+
+- **Resolved** (transition id `31`) — the work was actually completed. This is
+  what "mark it done" means here. The workflow sets resolution `Done` on its
+  own; the transition needs no extra fields.
+- **Closed** (transition id `51`) — the issue **will not** be done: dropped,
+  obsolete, won't fix. It is not a "finished and verified" state.
+
+Jira describes Resolved as provisional ("awaiting verification by reporter") and
+Closed as final, which reads backwards for this project and would lead you to
+Close completed work. Transition finished work to Resolved; reserve Closed for
+work being abandoned.
 
 ## Key Constraints
 
@@ -111,3 +238,25 @@ AstroWISP (`/home/kpenev/projects/git/AstroWISP/`) is the lower-level C++/Python
 - Cross-platform: Linux, macOS, Windows. Windows-specific gotchas: `numpy.uint`/
   `numpy.int_` are 32-bit there (use `numpy.uint64` for source IDs), and
   serialize paths with `Path.as_posix()`.
+
+## Working Conventions
+
+- **Make changes with the Edit tool, not scripts.** Piping python/sed through
+  Bash hides the before/after that makes a change reviewable. A script is
+  defensible only for a bulk *mechanical* transform — re-indenting a block after
+  wrapping it, or the same substitution across 10+ files — and even then, show
+  `git diff -w` afterwards as the reviewable artifact and say why.
+
+- **Don't commit unless asked.** Leave work uncommitted. It gets several rounds
+  of edits and corrections on top, and committing each intermediate state makes
+  noise that then has to be squashed. Wait for an explicit "commit".
+
+- **Don't revert incidental Black reformatting.** The repo is not uniformly
+  Black-clean at 80 columns, so a directory-wide run touches unrelated files.
+  Split the commits instead — functional change in one, formatting-only files in
+  another. For a file carrying both, leave the formatting in with the fix.
+
+- **Durable rules about this project belong in this file**, or in
+  `.claude/skills/`, not in per-machine assistant memory. This repo is worked on
+  from more than one machine; anything recorded only in memory applies on one of
+  them and silently diverges from the other.
