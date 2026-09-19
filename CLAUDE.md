@@ -251,6 +251,16 @@ work being abandoned.
   of edits and corrections on top, and committing each intermediate state makes
   noise that then has to be squashed. Wait for an explicit "commit".
 
+- **Plans are drafted as a file, then filed in Jira — never committed.** While
+  a design is still being argued over, keep it as an uncommitted Markdown plan
+  in the working tree: rereading and editing a local file beats reloading a
+  Jira page for every change. Once it settles and implementation is about to
+  start, create it as a SUP story with the implementation stages as sub-tasks
+  (see *Issue Tracking*), transition the ones in scope to Selected For
+  Development, leave deferred ideas Open, and delete the file. Jira then holds
+  the design, the reasoning and the rejected alternatives, and nothing has to
+  be committed and later removed.
+
 - **Don't revert incidental Black reformatting.** The repo is not uniformly
   Black-clean at 80 columns, so a directory-wide run touches unrelated files.
   Split the commits instead — functional change in one, formatting-only files in
