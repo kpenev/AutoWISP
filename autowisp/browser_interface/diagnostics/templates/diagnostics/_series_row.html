@@ -1,14 +1,20 @@
 {% comment %} One row of the series table.
 
-A partial rather than an inline loop because it is also the unit the server
-sends back on its own: completing a row's channels summons a fresh spare
-below it, and the response carries this markup for the client to append.
-Rendering the whole table instead would lose the sort order and everything
-typed into the other rows.
+A partial rather than an inline loop so that a row has one renderer
+wherever it is built. Its channel cells are a partial of their own,
+`_slot_cells.html`, because the server re-renders those on their own when
+a row is moved to another (session, image type) pair.
+
+A row *starts* drawn -- building one is the request to draw it, and a
+table of rows drawing nothing says little. Clicking still toggles it, which
+is how a plot built from several rows is cycled through: this channel
+against that one, this night against the next, without taking the rows
+apart to do it. One still missing a channel names no data, so it draws
+nothing until it is bound whatever its toggle says.
 
 Takes one context variable, `diagnostic`, as `make_series` builds it.
 {% endcomment %}
-<tr class="diagnostic-row" id="{{ diagnostic.id }}">
+<tr class="diagnostic-row active" id="{{ diagnostic.id }}">
     <td>
         <input type="color"
                id="plot-color:{{ diagnostic.id }}"
@@ -45,29 +51,22 @@ Takes one context variable, `diagnostic`, as `make_series` builds it.
                data-default="{{ diagnostic.label|default:'' }}"
                value="{{ diagnostic.label|default:'' }}">
     </td>
-    <td>{{ diagnostic.session_label }}</td>
-    <td>{{ diagnostic.image_type }}</td>
-    {% for slot in diagnostic.slots %}
-    <td class="slot-cell"{% if slot.fixed %} data-channel="{{ slot.value }}"{% endif %}>
-        {% comment %} A camera defining one channel offers no choice, so
-           the row arrives bound and says so as text. {% endcomment %}
-        {% if slot.fixed %}
-        {{ slot.value }}
-        {% else %}
-        <select class="slot-select">
-            <option value="">&mdash;</option>
-            {% for channel, count in slot.options %}
-            <option value="{{ channel }}"
-                    {% if channel == slot.value %}selected{% endif %}>
-                {{ channel }} ({{ count }})
-            </option>
+    {% comment %} Session and image type as one dropdown, since the pair is
+       the unit everything here is counted by: a separate type dropdown
+       would have to rebuild its options whenever the session changed.
+    {% endcomment %}
+    <td class="pair-cell" data-sort="{{ diagnostic.pair_sort }}">
+        <select class="pair-select">
+            {% for option in diagnostic.options %}
+            <option value="{{ option.value }}"
+                    {% if option.value == diagnostic.pair %}selected{% endif %}>{{ option.text }}</option>
             {% endfor %}
         </select>
-        {% endif %}
     </td>
-    {% endfor %}
-    {% if diagnostic.quantile %}
-    <td>{{ diagnostic.quantile }}</td>
-    {% endif %}
+    {% comment %} Read-only, and what puts the rows in chronological order
+       when the labels are in no order at all. {% endcomment %}
+    <td class="session-start">{{ diagnostic.start }}</td>
+    <td class="session-end">{{ diagnostic.end }}</td>
+    {% include "diagnostics/_slot_cells.html" %}
     <td class="series-count">{{ diagnostic.count }}</td>
 </tr>

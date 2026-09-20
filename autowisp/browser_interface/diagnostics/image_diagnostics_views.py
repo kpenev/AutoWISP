@@ -43,12 +43,11 @@ from .series_table import (
     get_recorded_diagnostics,
     get_series_key,
     resolve_quantity,
+    split_row_id,
 )
 
 
-def get_series_data(
-    series, x_diagnostic, y_diagnostic, expressions, db_session
-):
+def get_series_data(series, x_diagnostic, expressions, db_session):
     """
     Query the paired x/y values for a single series.
 
@@ -60,11 +59,13 @@ def get_series_data(
 
     Args:
         series(dict):    One row as the client posted it back, holding the
-            id it was rendered with and the channels its dropdowns say.
+            id it was rendered with, and the pair and channels its
+            dropdowns say.
 
-        x_diagnostic(str):    Quantity on the X axis.
-
-        y_diagnostic(str):    Quantity on the Y axis.
+        x_diagnostic(str):    Quantity on the X axis, which the page
+            supplies: it is the one thing a row does not choose.  The y
+            comes from the row's own id, which names the quantity it
+            draws.
 
         expressions(dict):    The library, ``{name: expression}``, passed in
             rather than fetched so that nothing below the view has to know
@@ -77,6 +78,7 @@ def get_series_data(
     """
 
     series_key = get_series_key(series)
+    y_diagnostic, _ = split_row_id(series["id"])
     quantities = [
         resolve_quantity(quantity_name, series_key.quantile_name)
         for quantity_name in (x_diagnostic, y_diagnostic)
@@ -270,23 +272,21 @@ def create_figure(num_plots, plot_height_frac, aspect_ratio, num_columns):
     return fig, all_axes
 
 
-def collect_series_data(
-    series_list, x_diagnostic, y_diagnostic, expressions, db_session
-):
+def collect_series_data(series_list, x_diagnostic, expressions, db_session):
     """
     Read the selected series, dropping those with nothing to draw.
 
     Every row of the table is posted rather than only the drawn ones, so
-    that the server can see what the whole table binds.  Three of them are
+    that the server can see what the whole table binds.  Four of them are
     skipped here: one the user has not selected, one whose marker is
-    blank, and one still missing a channel, which names no data to read.
+    blank, one still missing a channel, and one naming no session and
+    image type -- the last two naming no data to read.
 
     Args:
         series_list(list):    Every row as the client posted it back.
 
-        x_diagnostic(str):    Quantity on the X axis.
-
-        y_diagnostic(str):    Quantity on the Y axis.
+        x_diagnostic(str):    Quantity on the X axis, shared by the whole
+            figure.  Each row names its own y through its id.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -307,23 +307,31 @@ def collect_series_data(
             continue
         # ``not channels`` as well as ``all``, which an empty list passes:
         # a page whose script predates the channel columns posts none at
-        # all, and binding nothing is not a binding.
+        # all, and binding nothing is not a binding.  A payload predating
+        # the chosen pair names no population either.  Both are skipped
+        # rather than refused -- a stale page should draw nothing, not
+        # turn the response into an error page.
         channels = series.get("channels", ())
-        if not channels or not all(channels):
+        if not channels or not all(channels) or not series.get("pair"):
             continue
         x_values, y_values, image_ids = get_series_data(
-            series, x_diagnostic, y_diagnostic, expressions, db_session
+            series, x_diagnostic, expressions, db_session
         )
         x_values = numpy.atleast_1d(x_values)
         y_values = numpy.atleast_1d(y_values)
         # A padded array is full length even when every value is NaN, so
         # its size no longer tells us whether anything will be drawn.
         if numpy.any(numpy.isfinite(x_values) & numpy.isfinite(y_values)):
-            # The channel a click on a point opens the frame in, taken
-            # from the binding rather than echoed by the client, and the
-            # first of them for want of a better answer once a series can
-            # bind several.
-            drawn = {**series, "channel": channels[0] if channels else ""}
+            # Two things the figure reads off the binding rather than off
+            # the client: the channel a click on a point opens the frame
+            # in -- the first of them, for want of a better answer once a
+            # series can bind several -- and the quantity the row draws,
+            # which its y axis is labelled for.
+            drawn = {
+                **series,
+                "channel": channels[0] if channels else "",
+                "quantity": split_row_id(series["id"])[0],
+            }
             series_data.append((drawn, x_values, y_values, image_ids))
 
     return series_data
@@ -353,29 +361,23 @@ def draw_series_group(axes, group, x_offset):
         )
 
 
-# All but the first are keyword-only, and each names one thing the figure
-# cannot be drawn without.  Grouping them into an object would hide what the
-# URL layer has to supply rather than simplify it.
-# pylint: disable=too-many-arguments
 def create_diagnostics_figure(
     series_list,
     *,
     x_diagnostic,
-    y_diagnostic,
     expressions,
     db_session,
     figure_config=None,
 ):
     """
-    Create the figure for the selected series of an axis pair.
+    Create the figure for the selected series, against one x quantity.
 
     Args:
-        series_list(list):    Entries from :func:`get_available_series`.
+        series_list(list):    Every row as the client posted it back.
             Only those with a non-empty ``marker`` are plotted.
 
-        x_diagnostic(str):    Quantity on the X axis.
-
-        y_diagnostic(str):    Quantity on the Y axis.
+        x_diagnostic(str):    Quantity on the X axis, which every series
+            shares.  What each draws against it comes from its own id.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -392,7 +394,7 @@ def create_diagnostics_figure(
     against_time = x_diagnostic == time_quantity
 
     series_data = collect_series_data(
-        series_list, x_diagnostic, y_diagnostic, expressions, db_session
+        series_list, x_diagnostic, expressions, db_session
     )
 
     # Julian dates are large numbers spanning a tiny range, so the axis is
@@ -417,16 +419,19 @@ def create_diagnostics_figure(
     for axes, group in zip(all_axes.flatten(), groups):
         draw_series_group(axes, group, x_offset)
         axes.set_xlabel(f"JD - {x_offset!r}" if against_time else x_diagnostic)
-        axes.set_ylabel(y_diagnostic)
+        # Named for what this subplot drew rather than for the page: a row
+        # carries the quantity it draws, and a subplot holds the rows whose
+        # x ranges overlap, which need not be all of them.  In the order
+        # they were drawn, and each named once however many rows drew it.
+        axes.set_ylabel(
+            ", ".join(dict.fromkeys(series["quantity"] for series, *_ in group))
+        )
         if figure_config.get("show_legend", True):
             axes.legend()
         axes.grid(True, linewidth=0.2)
 
     fig.tight_layout()
     return fig
-
-
-# pylint: enable=too-many-arguments
 
 
 def update_plot_view(
@@ -558,19 +563,15 @@ def display_diagnostics(request, x_diagnostic, y_diagnostic, expressions):
         if x_diagnostic == time_quantity
         else f"{x_diagnostic} vs {y_diagnostic}"
     )
+    # No y in either: every posted row names the quantity it draws, so
+    # redrawing and downloading ask only for the x they share.
     context["update_plot_url"] = reverse(
         "diagnostics:update_diagnostics_plot",
-        kwargs={
-            "x_diagnostic": x_diagnostic,
-            "y_diagnostic": y_diagnostic,
-        },
+        kwargs={"x_diagnostic": x_diagnostic},
     )
     context["download_pdf_url"] = reverse(
         "diagnostics:download_diagnostics_plot",
-        kwargs={
-            "x_diagnostic": x_diagnostic,
-            "y_diagnostic": y_diagnostic,
-        },
+        kwargs={"x_diagnostic": x_diagnostic},
     )
 
     return render(request, "diagnostics/diagnostics_app.html", context)

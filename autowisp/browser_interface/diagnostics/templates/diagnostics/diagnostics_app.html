@@ -69,12 +69,13 @@
                     <th class="no-sort">Style</th>
                     <th class="no-sort">Scale</th>
                     <th class="no-sort">Label</th>
+                    {% comment %} All sortable, the dropdown columns
+                       included: each of those cells carries a `data-sort`
+                       holding the text of its selected option, so it sorts
+                       by what it shows rather than by the run-together
+                       text of the dropdown. {% endcomment %}
                     {% for field in diagnostics_fields %}
-                    {% comment %} A channel column holds a dropdown, which
-                       sorts by nothing useful. {% endcomment %}
-                    <th{% if field in slot_headings %} class="no-sort"{% endif %}>
-                        {{ field }}
-                    </th>
+                    <th>{{ field }}</th>
                     {% endfor %}
                 </tr>
             </thead>

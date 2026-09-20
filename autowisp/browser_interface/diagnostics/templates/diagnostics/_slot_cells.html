@@ -1,0 +1,30 @@
+{% comment %} The channel cells of one row of the series table.
+
+A partial of its own because the server sends these back alone: which
+channels a column may offer depends on the (session, image type) pair the
+row names, so choosing another pair re-renders every one of them. Sending
+the whole row instead would replace the colour, style and label set in it,
+and lose its place under whatever sort is in force.
+
+Takes one context variable, `diagnostic`, as `make_series` builds it.
+{% endcomment %}
+{% for slot in diagnostic.slots %}
+{% if slot.fixed %}
+{% comment %} A column with one channel to offer is no choice at all, so
+   the cell states what it binds rather than asking, and says so in
+   `data-channel`, which is where the client reads a settled binding from.
+{% endcomment %}
+<td class="slot-cell" data-sort="{{ slot.sort }}" data-channel="{{ slot.value }}">
+    {{ slot.value }}
+</td>
+{% else %}
+<td class="slot-cell" data-sort="{{ slot.sort }}">
+    <select class="slot-select">
+        {% for option in slot.options %}
+        <option value="{{ option.value }}"
+                {% if option.value == slot.value %}selected{% endif %}>{{ option.text }}</option>
+        {% endfor %}
+    </select>
+</td>
+{% endif %}
+{% endfor %}

@@ -47,8 +47,8 @@ def display_diagnostics(request, x_diagnostic, y_diagnostic):
     )
 
 
-def update_diagnostics_plot(request, x_diagnostic, y_diagnostic):
-    """Redraw the figure, with the library available to both axes."""
+def update_diagnostics_plot(request, x_diagnostic):
+    """Redraw the figure, with the library available to every row."""
 
     return update_plot_view(
         request,
@@ -56,12 +56,11 @@ def update_diagnostics_plot(request, x_diagnostic, y_diagnostic):
         session_key=plot_session_key,
         extra=get_binding_response,
         x_diagnostic=x_diagnostic,
-        y_diagnostic=y_diagnostic,
         expressions=get_expressions(),
     )
 
 
-def download_diagnostics_plot(request, x_diagnostic, y_diagnostic):
+def download_diagnostics_plot(request, x_diagnostic):
     """Regenerate the last figure as a PDF, library and all."""
 
     return download_plot_view(
@@ -69,6 +68,5 @@ def download_diagnostics_plot(request, x_diagnostic, y_diagnostic):
         create_diagnostics_figure,
         session_key=plot_session_key,
         x_diagnostic=x_diagnostic,
-        y_diagnostic=y_diagnostic,
         expressions=get_expressions(),
     )

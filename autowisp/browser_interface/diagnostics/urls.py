@@ -49,13 +49,15 @@ urlpatterns = [
         views.display_diagnostics,
         name="display_diagnostics",
     ),
+    # No y on either: each posted row names the quantity it draws, so all
+    # these two need naming is the x every row shares.
     path(
-        "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/update_plot",
+        "image/<slug:x_diagnostic>/update_plot",
         views.update_diagnostics_plot,
         name="update_diagnostics_plot",
     ),
     path(
-        "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/download_plot",
+        "image/<slug:x_diagnostic>/download_plot",
         views.download_diagnostics_plot,
         name="download_diagnostics_plot",
     ),

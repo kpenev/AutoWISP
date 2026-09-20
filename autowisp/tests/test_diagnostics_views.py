@@ -1,11 +1,9 @@
-"""Characterization tests for the BUI diagnostics view modules.
+"""Tests for the BUI diagnostics view modules.
 
-These pin the behaviours that must survive merging
-``image_diagnostics_views`` and ``diag_vs_diag_views`` into a single
-x-versus-y path: how the ``pixel_quantiles`` pseudo-name expands into
-series, and how the time-series figure offsets and groups its series.  They
-are written against the *current* code, so they must pass before the merge
-starts.
+What the series table offers for a pair of axes -- the (session, image
+type) pairs a row may be drawn for, and the one row the table starts with
+-- what a row means once the client posts it back, and how the figure
+below offsets and groups what those rows draw.
 
 Uses a throwaway project database, following ``test_error_render``.
 """
@@ -56,8 +54,11 @@ from autowisp.browser_interface.diagnostics.series_table import (
     get_available_series,
     get_recorded_diagnostics,
     get_series_key,
-    make_row_id,
+    make_id,
+    make_slot_cells,
+    split_pair_id,
     split_row_id,
+    unset_option_text,
 )
 
 # pylint: enable=wrong-import-position
@@ -69,7 +70,8 @@ _first_jd = 2460000.5
 #: Nights are one day apart, so their JD ranges cannot overlap.
 _night_separation = 1.0
 
-#: The quantile diagnostics, which expand to one series each.
+#: Recorded for object frames alone, which is what makes them the case of
+#: a diagnostic that is not drawable for every image type.
 _quantile_names = ("pixel_q99", "pixel_q999")
 
 #: Every diagnostic the fixture records.  All are created explicitly: the
@@ -110,27 +112,49 @@ class DiagnosticsViewTestCase(unittest.TestCase):
     #: say which images a series is supposed to be built from.
     images_of = {}
 
-    def rows_for(self, x_diagnostic, y_diagnostic, expressions=None):
-        """Return ``{(session, type, quantile): row}`` for an axis pair.
-
-        Keyed by the group rather than by the whole series, a row having
-        no channels until something binds them.
-        """
+    def table_for(self, x_diagnostic, y_diagnostic, expressions=None):
+        """Return what the series table offers for an axis pair."""
 
         with start_db_session() as db_session:
-            context = get_available_series(
+            return get_available_series(
                 x_diagnostic, y_diagnostic, expressions or {}, db_session
             )
 
-        return {
-            split_row_id(row["id"]): row for row in context["diagnostics_list"]
-        }
+    def pairs_for(self, x_diagnostic, y_diagnostic, expressions=None):
+        """Return the ``(session_id, image_type)`` pairs a row may name.
+
+        What the table used to answer with a row each, and now answers
+        with the options of one dropdown.
+        """
+
+        return [
+            split_pair_id(option["value"])
+            for option in self.table_for(
+                x_diagnostic, y_diagnostic, expressions
+            )["pair_options"]
+        ]
+
+    def first_row(self, x_diagnostic, y_diagnostic, expressions=None):
+        """Return the row the table starts with, on the earliest session."""
+
+        return self.table_for(x_diagnostic, y_diagnostic, expressions)[
+            "diagnostics_list"
+        ][0]
 
     @staticmethod
-    def bind(row, *channels):
-        """Return the row as the client posts it with its dropdowns set."""
+    def bind(row, session_id, image_type, *channels):
+        """Return the row as the client posts it with its dropdowns set.
 
-        return {**row, "channels": list(channels)}
+        A test asks for a particular series the way the table does -- by
+        choosing a pair and a channel per column -- rather than by picking
+        a row out of a list, there being one row to start from.
+        """
+
+        return {
+            **row,
+            "pair": make_id(session_id, image_type),
+            "channels": list(channels),
+        }
 
     @classmethod
     def _fill_database(cls):
@@ -222,80 +246,71 @@ class DiagnosticsViewTestCase(unittest.TestCase):
 class TestRowId(unittest.TestCase):
     """The row id, a round trip through the client and back.
 
-    It becomes an HTML element id, four more element ids are built from
+    It becomes an HTML element id, five more element ids are built from
     it, and it keys the ``datasets`` object the client posts back -- so it
     has to survive all of that as an opaque string. What it deliberately
-    does *not* carry is the channels: those are chosen in the row, and an
-    id that changed as they were would take every element id with it.
+    does *not* carry is anything the row can edit: the session, the image
+    type and the channels are all chosen in the row, and an id that
+    changed as they were would take every element id with it.
     """
 
-    def round_trip(self, session_id, image_type, quantile_name, ordinal=0):
-        """Return the group recovered from the id built from these."""
-
-        return split_row_id(
-            make_row_id(session_id, image_type, quantile_name, ordinal)
-        )
-
-    def test_plain_row(self):
-        """No quantile: the field is empty rather than missing."""
+    def test_a_row_names_its_quantity_and_its_place(self):
+        """And nothing else, those being the only things it cannot edit."""
 
         self.assertEqual(
-            self.round_trip(7, "object", None), (7, "object", None)
+            split_row_id(make_id("bg_center", 0)), ("bg_center", 0)
         )
 
-    def test_quantile_row(self):
-        """The quantile survives despite containing underscores.
+    def test_underscores_are_harmless(self):
+        """A diagnostic name carries them, and the separator is not one.
 
-        This is what the previous encoding could not do without guessing
-        which underscores separated fields and which belonged to the name.
+        This is what an earlier encoding could not do without guessing
+        which underscores separated fields and which belonged to a name.
         """
 
         self.assertEqual(
-            self.round_trip(7, "object", "pixel_q999"),
-            (7, "object", "pixel_q999"),
-        )
-
-    def test_underscores_anywhere_are_harmless(self):
-        """Neither the image type nor the quantile has to avoid them."""
-
-        self.assertEqual(
-            self.round_trip(7, "twilight_flat", "pixel_q999"),
-            (7, "twilight_flat", "pixel_q999"),
+            split_row_id(make_id("pixel_q999", 3)), ("pixel_q999", 3)
         )
 
     def test_an_ambiguous_field_is_refused(self):
         """Failing loudly beats an id that silently pairs wrong data."""
 
         with self.assertRaises(ValueError):
-            make_row_id(7, "we|rd", None, 0)
+            make_id("we|rd", 0)
 
-    def test_the_image_type_is_part_of_the_identity(self):
-        """Two types in one session must not collide on one id."""
+    def test_the_quantity_is_part_of_the_identity(self):
+        """Two rows drawing different quantities must not collide."""
 
-        self.assertNotEqual(
-            make_row_id(7, "object", None, 0),
-            make_row_id(7, "flat", None, 0),
-        )
+        self.assertNotEqual(make_id("bg_center", 0), make_id("smooth_bg", 0))
 
     def test_siblings_differ_by_their_ordinal(self):
-        """A group holds a row per binding, and they share everything else."""
+        """One quantity may be drawn by any number of rows."""
 
-        self.assertNotEqual(
-            make_row_id(7, "object", None, 0),
-            make_row_id(7, "object", None, 1),
+        self.assertNotEqual(make_id("bg_center", 0), make_id("bg_center", 1))
+
+    def test_a_pair_id_round_trips(self):
+        """The dropdown's value, opaque to the client exactly as a row id is."""
+
+        self.assertEqual(
+            split_pair_id(make_id(7, "twilight_flat")), (7, "twilight_flat")
         )
 
-    def test_the_key_takes_its_channels_from_the_client(self):
-        """The half of a series that the table edits, and only that half."""
+    def test_the_key_comes_from_what_the_client_posts(self):
+        """All of it: the pair is edited in the row as the channels are.
+
+        Reading the session or the type from the id would read what the
+        row was rendered with rather than what its dropdown now says.
+        """
 
         self.assertEqual(
             get_series_key(
                 {
-                    "id": make_row_id(7, "object", "pixel_q999", 2),
+                    "id": make_id("bg_center", 2),
+                    "pair": make_id(7, "object"),
                     "channels": ["R", "B"],
                 }
             ),
-            SeriesKey(7, "object", ("R", "B"), "pixel_q999"),
+            SeriesKey(7, "object", ("R", "B")),
         )
 
 
@@ -434,55 +449,153 @@ class TestAvailableQuantities(DiagnosticsViewTestCase):
         )
 
 
-class TestQuantileSeriesExpansion(DiagnosticsViewTestCase):
-    """``pixel_quantiles`` expands to one series per ``pixel_q*``.
+class TestPairOptions(DiagnosticsViewTestCase):
+    """The (session, image type) pairs a row may be drawn for.
 
-    On either axis, since the expansion happens where the series are built
-    rather than per axis.
+    What the table answered with a row each when it listed them, and now
+    answers with the options of one dropdown.
     """
 
-    def _series_ids(self, x_diagnostic, y_diagnostic):
-        """Return the series ids offered for the given axis pair."""
-
-        with start_db_session() as db_session:
-            context = get_available_series(
-                x_diagnostic, y_diagnostic, {}, db_session
-            )
-        return [series["id"] for series in context["diagnostics_list"]]
-
-    def test_quantiles_on_x_axis(self):
-        """One row per quantile per night, the name carried in the id."""
-
-        # Every night holds object frames, and only those record the
-        # quantiles, so each quantile is offered once per night.
-        nights = len(_frames_per_night)
-        series_ids = self._series_ids("pixel_quantiles", "bg_center")
-        quantiles = [split_row_id(series_id)[2] for series_id in series_ids]
-
-        self.assertEqual(len(series_ids), nights * len(_quantile_names))
-        for name in _quantile_names:
-            self.assertEqual(
-                quantiles.count(name),
-                nights,
-                f"expected one {name} row per night, got {series_ids!r}",
-            )
-
-    def test_quantiles_on_y_axis(self):
-        """Reversing the axes yields the same expansion."""
+    def test_a_pair_needs_every_column_to_have_a_channel(self):
+        """Only object frames record the quantiles, so only they are offered."""
 
         self.assertEqual(
-            sorted(self._series_ids("bg_center", "pixel_quantiles")),
-            sorted(self._series_ids("pixel_quantiles", "bg_center")),
+            {image_type for _, image_type in self.pairs_for("jd", "pixel_q99")},
+            {"object"},
         )
 
-    def test_quantile_column_present(self):
-        """A quantile pairing gains the extra ``Quantile`` table column."""
+    def test_listed_by_session_start_time(self):
+        """Labels are free-form, so the times are what orders them."""
 
-        with start_db_session() as db_session:
-            context = get_available_series(
-                "pixel_quantiles", "bg_center", {}, db_session
-            )
-        self.assertIn("Quantile", context["diagnostics_fields"])
+        options = self.table_for("jd", "bg_center")["pair_options"]
+
+        self.assertEqual(
+            [option["start"] for option in options],
+            sorted(option["start"] for option in options),
+        )
+        self.assertEqual(options[0]["text"], "night_0 object")
+
+    def test_an_option_names_its_session_and_type(self):
+        """Otherwise the two rows of the mixed night would read alike."""
+
+        self.assertEqual(
+            {
+                option["text"]
+                for option in self.table_for("jd", "bg_center")["pair_options"]
+            },
+            {"night_0 object", "night_1 object", "night_1 flat"},
+        )
+
+    def test_the_times_sort_as_text(self):
+        """Which is why they are formatted rather than left as datetimes."""
+
+        first = self.table_for("jd", "bg_center")["pair_options"][0]
+
+        self.assertEqual(first["start"], "2023-03-01 20:00")
+        self.assertEqual(first["end"], "2023-03-01 23:00")
+
+
+class TestInitialRow(DiagnosticsViewTestCase):
+    """The one row a table starts with, so the page draws without a click."""
+
+    def test_exactly_one_row(self):
+        """The table lists nothing; the rest are built by the user."""
+
+        self.assertEqual(
+            len(self.table_for("jd", "bg_center")["diagnostics_list"]), 1
+        )
+
+    def test_on_the_first_pair_offered(self):
+        """The earliest session, that being how the options are ordered."""
+
+        table = self.table_for("jd", "bg_center")
+
+        self.assertEqual(
+            table["diagnostics_list"][0]["pair"],
+            table["pair_options"][0]["value"],
+        )
+        self.assertEqual(
+            table["diagnostics_list"][0]["pair_sort"], "night_0 object"
+        )
+
+    def test_it_names_the_quantity_it_draws(self):
+        """Which is what lets the figure read a y per row rather than a page."""
+
+        self.assertEqual(
+            split_row_id(self.first_row("jd", "bg_center")["id"]),
+            ("bg_center", 0),
+        )
+
+    def test_one_channel_recorded_arrives_bound(self):
+        """A column with one channel to offer is no choice at all.
+
+        The fixture records ``R`` alone, so the row is bound and counted
+        at render and draws the moment the page loads.
+        """
+
+        row = self.first_row("jd", "bg_center")
+
+        self.assertEqual(row["channels"], ["R"])
+        self.assertEqual(row["count"], _frames_per_night[0]["object"])
+
+
+class TestSlotCells(unittest.TestCase):
+    """What each channel column of a row offers, and what a move keeps.
+
+    Pure, so the rules can be checked without a database or a browser.
+    """
+
+    def test_a_column_with_one_channel_is_settled(self):
+        """Asking for a click with one possible outcome is ceremony."""
+
+        cells = make_slot_cells([{"R": 3}], ())
+
+        self.assertTrue(cells[0]["fixed"])
+        self.assertEqual(cells[0]["value"], "R")
+        self.assertEqual(cells[0]["sort"], "R")
+
+    def test_a_column_with_a_choice_starts_unset(self):
+        """Nothing picks one of several channels on the user's behalf."""
+
+        cells = make_slot_cells([{"R": 3, "B": 2}], ())
+
+        self.assertFalse(cells[0]["fixed"])
+        self.assertEqual(cells[0]["value"], "")
+        self.assertEqual(cells[0]["sort"], unset_option_text)
+
+    def test_a_channel_the_pair_still_offers_is_kept(self):
+        """The user chose it, and it remains an answer here."""
+
+        self.assertEqual(
+            make_slot_cells([{"R": 3, "B": 2}], ("B",))[0]["value"], "B"
+        )
+
+    def test_a_channel_the_pair_does_not_offer_is_cleared(self):
+        """Rather than quietly bound to something the user never chose."""
+
+        self.assertEqual(
+            make_slot_cells([{"R": 3, "G": 1}], ("B",))[0]["value"], ""
+        )
+
+    def test_each_column_is_decided_on_its_own(self):
+        """One axis may have a channel to choose where the other has none."""
+
+        cells = make_slot_cells([{"R": 3}, {"R": 3, "B": 2}], ("R", "B"))
+
+        self.assertEqual([cell["fixed"] for cell in cells], [True, False])
+
+    def test_an_option_carries_the_text_it_shows(self):
+        """One place decides it, since the cell sorts by that same text."""
+
+        self.assertEqual(
+            [
+                (option["value"], option["text"])
+                for option in make_slot_cells([{"R": 3, "B": 2}], ())[0][
+                    "options"
+                ]
+            ],
+            [("", unset_option_text), ("B", "B (2)"), ("R", "R (3)")],
+        )
 
 
 class TestSharedTimeOffset(DiagnosticsViewTestCase):
@@ -495,17 +608,25 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
         the offset values and avoids ``reverse()`` needing Django settings.
         """
 
-        with start_db_session() as db_session:
-            context = get_available_series("jd", "bg_center", {}, db_session)
-            # Bound as the table's dropdowns would be: a row names no data
-            # until it is, and is skipped rather than drawn.
-            series_list = [
-                self.bind(row, "R") for row in context["diagnostics_list"]
-            ]
-            # One per (night, image type): night 0 object, night 1 object,
-            # night 1 flat.
-            self.assertEqual(len(series_list), 3)
+        table = self.table_for("jd", "bg_center")
+        # A row per (session, image type), built the way the user builds
+        # them: the table starts with one row, and the rest are that row on
+        # the other pairs its dropdown offers, each with an id of its own.
+        series_list = [
+            {
+                **self.bind(
+                    table["diagnostics_list"][0],
+                    *split_pair_id(option["value"]),
+                    "R",
+                ),
+                "id": make_id("bg_center", ordinal),
+            }
+            for ordinal, option in enumerate(table["pair_options"])
+        ]
+        # Night 0 object, night 1 object, night 1 flat.
+        self.assertEqual(len(series_list), 3)
 
+        with start_db_session() as db_session:
             target = (
                 "autowisp.browser_interface.diagnostics"
                 ".image_diagnostics_views.plot_image_diagnostic_series"
@@ -514,7 +635,6 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
                 create_diagnostics_figure(
                     series_list,
                     x_diagnostic="jd",
-                    y_diagnostic="bg_center",
                     expressions={},
                     db_session=db_session,
                     # Nothing is drawn once plotting is mocked, so asking
@@ -557,33 +677,34 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
 class TestImageTypeSplit(DiagnosticsViewTestCase):
     """A session holding several image types yields a series per type."""
 
-    def test_each_type_gets_its_own_series(self):
-        """The mixed night offers object and flat separately."""
+    def test_each_type_is_offered_separately(self):
+        """The mixed night offers object and flat as two pairs, not one."""
 
-        types = {
+        mixed = {
             image_type
-            for session_id, image_type, _ in self.rows_for("jd", "bg_center")
+            for session_id, image_type in self.pairs_for("jd", "bg_center")
             if session_id == 2
         }
-        self.assertEqual(types, {"object", "flat"})
+        self.assertEqual(mixed, {"object", "flat"})
 
     def test_a_type_without_the_diagnostic_is_absent(self):
         """Only object frames record the quantiles, so only they appear."""
 
-        types = {
-            image_type
-            for _, image_type, _ in self.rows_for(
-                "pixel_quantiles", "bg_center"
-            )
-        }
-        self.assertEqual(types, {"object"})
+        self.assertEqual(
+            {
+                image_type
+                for _, image_type in self.pairs_for("jd", "pixel_q999")
+            },
+            {"object"},
+        )
 
     def test_the_type_is_shown_in_the_table(self):
-        """Otherwise two rows of the mixed night would look identical."""
+        """Otherwise two pairs of the mixed night would read identically."""
 
-        with start_db_session() as db_session:
-            context = get_available_series("jd", "bg_center", {}, db_session)
-        self.assertIn("Type", context["diagnostics_fields"])
+        self.assertIn(
+            "Session and Type",
+            self.table_for("jd", "bg_center")["diagnostics_fields"],
+        )
 
     def test_canonical_list_holds_only_its_own_type(self):
         """The alignment the whole design rests on is per type.
@@ -609,12 +730,10 @@ class TestImageTypeSplit(DiagnosticsViewTestCase):
         flats -- silently, and wrongly.
         """
 
-        series = self.bind(
-            self.rows_for("jd", "bg_center")[2, "flat", None], "R"
-        )
+        series = self.bind(self.first_row("jd", "bg_center"), 2, "flat", "R")
         with start_db_session() as db_session:
             _, y_values, image_ids = get_series_data(
-                series, "jd", "bg_center", {}, db_session
+                series, "jd", {}, db_session
             )
 
         flat_values = [
@@ -654,16 +773,16 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
         """
 
         self.assertEqual(
-            sorted(self.rows_for("jd", "rel_bg", self.library)),
-            sorted(self.rows_for("jd", "bg_center", self.library)),
+            self.pairs_for("jd", "rel_bg", self.library),
+            self.pairs_for("jd", "bg_center", self.library),
         )
 
     def test_a_composed_expression_reaches_through(self):
         """``scaled_bg`` needs what ``rel_bg`` needs, transitively."""
 
         self.assertEqual(
-            sorted(self.rows_for("jd", "scaled_bg", self.library)),
-            sorted(self.rows_for("jd", "bg_center", self.library)),
+            self.pairs_for("jd", "scaled_bg", self.library),
+            self.pairs_for("jd", "bg_center", self.library),
         )
 
     def test_restricted_to_the_types_recording_its_inputs(self):
@@ -672,7 +791,7 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
         self.assertEqual(
             {
                 image_type
-                for _, image_type, _ in self.rows_for(
+                for _, image_type in self.pairs_for(
                     "jd", "q_ratio", self.library
                 )
             },
@@ -683,11 +802,11 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
         """End to end: an expression axis produces its own numbers."""
 
         series = self.bind(
-            self.rows_for("jd", "rel_bg", self.library)[2, "object", None], "R"
+            self.first_row("jd", "rel_bg", self.library), 2, "object", "R"
         )
         with start_db_session() as db_session:
             _, y_values, _ = get_series_data(
-                series, "jd", "rel_bg", self.library, db_session
+                series, "jd", self.library, db_session
             )
 
         # bg_center is 100, 101, 102 for these frames.
@@ -697,15 +816,15 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
         """Both axes at once, one of each kind, sharing a query."""
 
         series = self.bind(
-            self.rows_for("bg_center", "rel_bg", self.library)[
-                2, "object", None
-            ],
+            self.first_row("bg_center", "rel_bg", self.library),
+            2,
+            "object",
             "R",
             "R",
         )
         with start_db_session() as db_session:
             x_values, y_values, _ = get_series_data(
-                series, "bg_center", "rel_bg", self.library, db_session
+                series, "bg_center", self.library, db_session
             )
 
         self.assertEqual(x_values.tolist(), [100.0, 101.0, 102.0])
@@ -715,7 +834,7 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
         """Neither a diagnostic nor an expression, so nothing to plot."""
 
         with self.assertRaises(PipelineError):
-            self.rows_for("jd", "no_such_thing", self.library)
+            self.pairs_for("jd", "no_such_thing", self.library)
 
 
 class TestSeriesGrouping(unittest.TestCase):
