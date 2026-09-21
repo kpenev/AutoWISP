@@ -62,7 +62,7 @@ from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
 )
 from autowisp.browser_interface.diagnostics.series_table import (
     get_available_series,
-    get_binding_response,
+    get_table_response,
     make_id,
     split_pair_id,
 )
@@ -77,14 +77,14 @@ _first_jd = 2460000.5
 _night_separation = 1.0
 
 
-class TestTwoChannelRow(unittest.TestCase):
-    """A row binding a channel per axis, which is what the columns are for.
+class TwoChannelProject(unittest.TestCase):
+    """The fixture the classes below share, holding no tests of its own.
 
-    Its own fixture rather than the shared one, which records a single
+    Its own project rather than the shared one, which records a single
     channel: giving that one a second would change what every other
     series-table test sees.  Two sessions, one per kind of camera -- a
-    colour one with a choice to offer and a monochrome one without -- since
-    the table treats them differently and a project may hold both.
+    colour one with a choice to offer and a monochrome one without --
+    since the table treats them differently and a project may hold both.
     """
 
     #: ``bg_center`` per channel, distinct so that reading the wrong one
@@ -273,6 +273,10 @@ class TestTwoChannelRow(unittest.TestCase):
             "channels": list(channels),
         }
 
+
+class TestChannelColumns(TwoChannelProject):
+    """What each column of a row offers, given what the project records."""
+
     def test_a_colour_session_offers_a_choice(self):
         """Both channels, with the images each would draw."""
 
@@ -301,25 +305,46 @@ class TestTwoChannelRow(unittest.TestCase):
             len(self.first_row("bg_center", "bg_center")["slots"]), 2
         )
 
-    def rebind(self, row, *channels, session_id=None):
-        """Return what the server answers when *row* is moved and rebound.
+
+class TestRebinding(TwoChannelProject):
+    """What the server answers when a row's binding changes.
+
+    Its own class rather than more of the one above: what a column offers
+    is a question about the project, where this is a question about one
+    edit and what the figure is drawn from afterwards. They share only the
+    fixture.
+    """
+
+    def rebinding(self, row, *channels, session_id=None, automatic=True):
+        """Return ``(rows to draw, fields)`` for *row* moved and rebound.
 
         The monochrome session unless told otherwise, that being the move
-        which changes what the columns may offer.
+        which changes what the columns may offer. *automatic* says what
+        the client reports about the row's colour and label, which is what
+        decides whether the server replaces them.
         """
 
-        posted = self.moved_to(
-            row,
-            self.mono_session_id if session_id is None else session_id,
-            *channels,
-        )
+        posted = {
+            **self.moved_to(
+                row,
+                self.mono_session_id if session_id is None else session_id,
+                *channels,
+            ),
+            "automatic_color": automatic,
+            "automatic_label": automatic,
+        }
         with start_db_session() as db_session:
-            return get_binding_response(
+            return get_table_response(
                 {"bind": posted["id"], "datasets": {posted["id"]: posted}},
                 x_diagnostic="jd",
                 expressions={},
                 db_session=db_session,
             )
+
+    def rebind(self, row, *channels, session_id=None):
+        """Return only what a rebinding answers, discarding the rows."""
+
+        return self.rebinding(row, *channels, session_id=session_id)[1]
 
     def test_a_pair_change_is_answered_with_the_channels_unset(self):
         """Which channels a column may offer depends on the pair, so the
@@ -371,18 +396,167 @@ class TestTwoChannelRow(unittest.TestCase):
         self.assertIn('data-channel="R"', response["slot_cells"])
 
     def test_nothing_is_answered_without_a_rebound_row(self):
-        """Which is every other redraw: a colour, a marker, a row toggled."""
+        """Which is every other redraw: a colour, a marker, a row toggled.
+
+        The rows still come back, those being what the figure is drawn
+        from whether or not anything was rebound.
+        """
 
         with start_db_session() as db_session:
             self.assertEqual(
-                get_binding_response(
+                get_table_response(
                     {"datasets": {}},
                     x_diagnostic="jd",
                     expressions={},
                     db_session=db_session,
                 ),
-                {},
+                ([], {}),
             )
+
+    def test_an_automatic_colour_is_corrected_before_drawing(self):
+        """The whole point of answering before the figure is made.
+
+        A row rebound onto another channel is drawn in that channel's
+        colour, with a legend naming it, in the same round trip that
+        writes them into the table -- rather than drawn in the colour of
+        the binding it just left while the table shows the new one.
+        """
+
+        row = self.first_row("jd", "bg_center")
+        drawn, fields = self.rebinding(row, "R")
+
+        self.assertEqual(len(drawn), 1)
+        self.assertEqual(drawn[0]["color"], fields["color"])
+        self.assertEqual(drawn[0]["label"], fields["label"])
+        self.assertNotEqual(drawn[0]["color"], row["color"])
+
+    def test_a_colour_the_user_chose_survives_the_rebinding(self):
+        """Theirs, in the figure as well as in the table.
+
+        Colouring by quantity rather than by channel is a thing a user may
+        want, and a rebinding must not quietly undo it.
+        """
+
+        row = {**self.first_row("jd", "bg_center"), "color": "#123456"}
+        drawn, fields = self.rebinding(row, "R", automatic=False)
+
+        self.assertEqual(drawn[0]["color"], "#123456")
+        # What the binding *would* make default is still reported, for the
+        # client to apply or ignore by the same test the server just made.
+        self.assertNotEqual(fields["color"], "#123456")
+
+    def test_no_row_but_the_rebound_one_is_touched(self):
+        """A rebinding answers for the row that was rebound, and no other."""
+
+        row = self.first_row("jd", "bg_center")
+        other = {
+            **self.moved_to(row, self.session_id, "B"),
+            "id": make_id("bg_center", 1),
+            "color": "#ffffff",
+            "label": "left alone",
+            "automatic_color": True,
+            "automatic_label": True,
+        }
+        bound = {
+            **self.moved_to(row, self.mono_session_id, "R"),
+            "automatic_color": True,
+            "automatic_label": True,
+        }
+
+        with start_db_session() as db_session:
+            drawn, _ = get_table_response(
+                {
+                    "bind": bound["id"],
+                    "datasets": {bound["id"]: bound, other["id"]: other},
+                },
+                x_diagnostic="jd",
+                expressions={},
+                db_session=db_session,
+            )
+
+        untouched = next(r for r in drawn if r["id"] == other["id"])
+        self.assertEqual(untouched["color"], "#ffffff")
+        self.assertEqual(untouched["label"], "left alone")
+
+
+class TestAddedRow(TwoChannelProject):
+    """What a press of ``+`` earns: a copy of the row it was pressed in."""
+
+    def add_below(self, row, *others):
+        """Return ``(rows to draw, fields)`` for ``+`` pressed in *row*."""
+
+        datasets = {
+            entry["id"]: entry for entry in (row,) + others if entry is not None
+        }
+        with start_db_session() as db_session:
+            return get_table_response(
+                {"add": row["id"], "datasets": datasets},
+                x_diagnostic="jd",
+                expressions={},
+                db_session=db_session,
+            )
+
+    def test_the_copy_carries_the_pair_and_channels(self):
+        """The next series usually differs in one thing, so copying
+        leaves only that thing to change."""
+
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
+        )
+        drawn, fields = self.add_below(row)
+
+        self.assertEqual(fields["after"], row["id"])
+        self.assertEqual(len(drawn), 2)
+        self.assertEqual(drawn[1]["pair"], row["pair"])
+        self.assertEqual(drawn[1]["channels"], ["B"])
+
+    def test_the_copy_is_drawn_with_the_figure_that_carries_it(self):
+        """Rather than the table gaining a row the plot catches up with."""
+
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
+        )
+        drawn, _ = self.add_below(row)
+
+        self.assertEqual(drawn[1]["count"], len(self.values_of["B"]))
+
+    def test_the_copy_takes_the_next_ordinal(self):
+        """And one past the highest, so a gap left by a removal is not
+        reused while the row that had it may still be on the page."""
+
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
+        )
+        third = {**row, "id": make_id("bg_center", 2)}
+
+        _, fields = self.add_below(row, third)
+
+        self.assertIn(
+            'id="' + make_id("bg_center", 3) + '"', fields["added_row"]
+        )
+
+    def test_the_copy_is_rendered_as_a_row(self):
+        """Through the one row template, so it arrives able to do
+        everything a row rendered with the page can."""
+
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
+        )
+        _, fields = self.add_below(row)
+
+        for expected in (
+            'class="diagnostic-row active"',
+            'class="add-row"',
+            'class="remove-row"',
+            'class="pair-select"',
+            'class="slot-cell"',
+            'class="series-count"',
+        ):
+            self.assertIn(expected, fields["added_row"])
+
+
+class TestSeriesValues(TwoChannelProject):
+    """Which of the posted rows are drawn, and what each one reads."""
 
     def test_which_rows_are_drawn(self):
         """Every row is posted, so five of them have to be skipped here.

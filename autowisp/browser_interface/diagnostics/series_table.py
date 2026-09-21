@@ -11,6 +11,13 @@ fill them would be work proportional to the whole image collection; every
 question asked here is answered by a SQL aggregate instead.
 """
 
+# Past the line limit, and most of what is past it is prose: the rules
+# here are short and the reasons for them are not. What the module covers
+# is one subject -- what a row of this table means, what it may be bound
+# to, and what a change to one earns -- and the three would have to be
+# read together whatever file they sat in.
+# pylint: disable=too-many-lines
+
 from sqlalchemy import select
 
 from django.template.loader import render_to_string
@@ -151,6 +158,53 @@ def get_series_key(series):
         image_type,
         tuple(series.get("channels", ())),
     )
+
+
+def posted_rows(post_data):
+    """
+    Return the rows of a posted table as a list, each carrying its id.
+
+    The client posts them keyed by id, since that is what it has to look
+    them up by; everything on the server wants a row to be one object that
+    knows its own id. The single place that turns one shape into the other.
+    """
+
+    return [
+        {"id": row_id, **config}
+        for row_id, config in post_data.get("datasets", {}).items()
+    ]
+
+
+def next_row_id(row, row_ids):
+    """
+    Return the id for a row added beside *row*, drawing the same quantity.
+
+    One past the highest ordinal among that quantity's rows rather than
+    one past *row*'s own, so that the id stays unique after a removal has
+    left a gap: reusing a freed ordinal would collide with nothing on the
+    page, but the id is also the suffix of five element ids, and a second
+    row answering to them while the first is still being edited is the
+    kind of bug that shows up as one row's colour landing on another's.
+
+    Args:
+        row(dict):    The row the new one is built beside, as the client
+            posted it. Only the quantity in its id is read here.
+
+        row_ids(iterable):    Every row id on the page, the new one having
+            to be unique among all of them.
+
+    Returns:
+        str:    The id, as :func:`make_id` builds it.
+    """
+
+    quantity, _ = split_row_id(row["id"])
+    taken = [
+        ordinal
+        for other_quantity, ordinal in map(split_row_id, row_ids)
+        if other_quantity == quantity
+    ]
+
+    return make_id(quantity, max(taken, default=-1) + 1)
 
 
 def make_series(row_id, series_key, options, slots, count):
@@ -878,26 +932,66 @@ def get_axes_slot_needs(x_diagnostic, y_diagnostic, expressions, quantile_name):
     ]
 
 
-def get_binding_response(post_data, *, x_diagnostic, expressions, db_session):
+def get_row_options(y_diagnostic, *, x_diagnostic, expressions, db_session):
     """
-    Return what a row whose binding has changed earns.
+    Return what a row drawing one quantity against the page's x is built from.
 
-    Two edits ask for this: choosing the last of a row's channels, and
-    choosing another (session, image type) pair.  The second is a
-    rebinding as much as the first, since which channels a column may
-    offer depends on the pair, so it is answered even while the channels
-    are unset.
-
-    Merged into the figure's JSON response, so that either edit costs one
-    round trip rather than two. Nothing here re-renders the table: the
-    client replaces the row's channel cells and the values that follow
-    from its binding, which is what lets every other row keep its node,
-    and with it what was typed into it and its place under whatever sort
-    is in force.
+    The three things that have to be worked out before any row can be
+    built: what each channel column reads, what each may be bound to, and
+    the (session, image type) pairs the row may name.
 
     Args:
-        post_data(dict):    The whole POST, holding every row's state and
-            ``bind``, the id of the row that was edited.
+        y_diagnostic(str):    The quantity the row draws, from its id.
+
+        x_diagnostic(str):    Quantity on the X axis.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        tuple:    ``(slot_needs, options, pair_options)``, as
+            :func:`get_axes_slot_needs`, :func:`get_slot_options` and
+            :func:`get_pair_options` return them.
+    """
+
+    slot_needs = get_axes_slot_needs(
+        x_diagnostic, y_diagnostic, expressions, None
+    )
+    options, labels = (
+        get_slot_options(slot_needs, db_session) if slot_needs else ({}, {})
+    )
+
+    return (
+        slot_needs,
+        options,
+        get_pair_options(slot_needs, options, labels, db_session),
+    )
+
+
+def get_table_response(post_data, *, x_diagnostic, expressions, db_session):
+    """
+    Return the rows to draw, and what the edit behind this redraw earns.
+
+    Three kinds of redraw arrive here. A row was rebound (``bind``) --
+    its last channel chosen, or another (session, image type) pair, which
+    is a rebinding as much as the first since which channels a column may
+    offer depends on the pair, and so is answered even while the channels
+    are unset. Or ``+`` was pressed in a row (``add``), which earns a copy
+    of it. Or nothing structural happened at all -- a colour, a marker, a
+    row switched off -- which earns the figure and nothing else.
+
+    Every one of them rides on the redraw the edit causes anyway, so each
+    costs one round trip rather than two, and the table and the figure are
+    answered together. Nothing here re-renders the table: the client
+    replaces a row's channel cells, or inserts one row, which is what lets
+    every other row keep its node, and with it what was typed into it and
+    its place under whatever sort is in force.
+
+    Args:
+        post_data(dict):    The whole POST, holding every row's state and,
+            where an edit is being answered, ``bind`` or ``add``: the id
+            of the row it happened in.
 
         x_diagnostic(str):    Quantity on the X axis.  The y comes from
             the row id, each row naming the quantity it draws.
@@ -907,35 +1001,48 @@ def get_binding_response(post_data, *, x_diagnostic, expressions, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        dict:    ``bind`` echoed back with the row's ``count``, its channel
-            cells rendered for the pair it now names, that session's
-            ``start`` and ``end``, and the colour and label its binding
-            makes default. Empty when nothing was bound, which is every
-            other redraw.
+        tuple:
+            list:    The rows the figure is drawn from: those posted, plus
+                an added row, and with a rebound row's colour and label
+                replaced by the defaults of its new binding wherever the
+                client reports them still automatic. Drawing from these is
+                what stops a rebound row appearing in the colour and
+                legend of the binding it has just left while the table
+                beside it shows the new ones.
+
+            dict:    For a rebinding, ``bind`` echoed back with the row's
+                ``count``, its channel cells rendered for the pair it now
+                names, that session's ``start`` and ``end``, and the
+                colour and label its binding makes default. For an
+                addition, ``added_row``, the markup to insert, and
+                ``after``, the row to insert it below. Empty when nothing
+                was edited, which is every other redraw.
     """
 
-    row_id = post_data.get("bind")
+    rows = posted_rows(post_data)
     datasets = post_data.get("datasets", {})
-    if not row_id or row_id not in datasets:
-        return {}
+    adding = bool(post_data.get("add"))
+    edited = post_data.get("add") if adding else post_data.get("bind")
+    if not edited or edited not in datasets:
+        return rows, {}
 
-    series_key = get_series_key(datasets[row_id])
-    y_diagnostic, _ = split_row_id(row_id)
-    slot_needs = get_axes_slot_needs(
-        x_diagnostic, y_diagnostic, expressions, None
+    source = {"id": edited, **datasets[edited]}
+    series_key = get_series_key(source)
+    slot_needs, options, pair_options = get_row_options(
+        split_row_id(edited)[0],
+        x_diagnostic=x_diagnostic,
+        expressions=expressions,
+        db_session=db_session,
     )
-    options, labels = (
-        get_slot_options(slot_needs, db_session) if slot_needs else ({}, {})
-    )
-    pair_options = get_pair_options(slot_needs, options, labels, db_session)
-    pair = make_id(series_key.session_id, series_key.image_type)
-    if pair not in {option["value"] for option in pair_options}:
+    if make_id(series_key.session_id, series_key.image_type) not in {
+        option["value"] for option in pair_options
+    }:
         # The row names a pair this table cannot offer, the project having
         # changed since the table was rendered.
-        return {}
+        return rows, {}
 
     entry = make_row_for_pair(
-        row_id,
+        next_row_id(source, datasets) if adding else edited,
         series_key,
         slot_needs=slot_needs,
         options=options,
@@ -943,14 +1050,40 @@ def get_binding_response(post_data, *, x_diagnostic, expressions, db_session):
         db_session=db_session,
     )
 
-    return {
-        "bind": row_id,
-        "count": entry["count"],
-        "color": entry["color"],
-        "label": entry["label"],
-        "start": entry["start"],
-        "end": entry["end"],
-        "slot_cells": render_to_string(
-            "diagnostics/_slot_cells.html", {"diagnostic": entry}
-        ),
+    if adding:
+        # Drawn from the response that carries it, so the row and its
+        # series arrive together rather than the table gaining a row the
+        # figure only catches up with on the next redraw.
+        return rows + [entry], {
+            "added_row": render_to_string(
+                "diagnostics/_series_row.html", {"diagnostic": entry}
+            ),
+            "after": edited,
+        }
+
+    # The colour and label of the *new* binding, applied before the figure
+    # is drawn rather than written into the table after it. Only where the
+    # client reports the field still automatic, which is the same test
+    # ``applyTableResponse`` makes before accepting them -- both sides
+    # judging the same state, so exactly the fields the server corrects
+    # here are the ones the client will take.
+    automatic = {
+        field: entry[field]
+        for field in ("color", "label")
+        if datasets[edited].get("automatic_" + field)
     }
+
+    return (
+        [row if row["id"] != edited else {**row, **automatic} for row in rows],
+        {
+            "bind": edited,
+            "count": entry["count"],
+            "color": entry["color"],
+            "label": entry["label"],
+            "start": entry["start"],
+            "end": entry["end"],
+            "slot_cells": render_to_string(
+                "diagnostics/_slot_cells.html", {"diagnostic": entry}
+            ),
+        },
+    )

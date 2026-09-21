@@ -42,6 +42,7 @@ from .series_table import (
     get_available_series,
     get_recorded_diagnostics,
     get_series_key,
+    posted_rows,
     resolve_quantity,
     split_row_id,
 )
@@ -449,41 +450,60 @@ def update_plot_view(
         figure_factory: Callable accepting ``series_list``, ``db_session``,
                         ``figure_config``, plus any URL kwargs as keyword
                         arguments.
-        session_key:    If given, the raw POST data is stored in the session
-                        under this key so a download view can retrieve it.
+        session_key:    If given, the posted plot configuration is stored in
+                        the session under this key so a download view can
+                        retrieve it.
         extra:          Optional callable given the whole POST, the database
-                        session and the URL kwargs, returning a dict merged
-                        into the response.  What a redraw answers *besides*
-                        the figure -- a newly bound row's count and its
-                        spare -- rides along here, so that one action costs
-                        one round trip.
+                        session and the URL kwargs, returning ``(rows,
+                        fields)``: the rows to draw, and what a redraw
+                        answers *besides* the figure -- a rebound row's
+                        count and cells -- which rides along in the
+                        response so that one action costs one round trip.
+                        It decides what is drawn as well as what is said,
+                        because a row whose binding has just changed has to
+                        be drawn with the colour and label of the binding
+                        it now has.
 
     Returns:
         JsonResponse with ``plot_data`` containing the SVG string.
     """
     post_data = json.loads(request.body.decode())
-    if session_key:
-        request.session[session_key] = post_data
-        request.session.modified = True
-    series_list = [
-        {"id": series_id, **config}
-        for series_id, config in post_data.get("datasets", {}).items()
-    ]
     figure_config = post_data.get("figure_config")
 
     setup_svg_matplotlib()
 
     with start_db_session() as db_session:
+        # Before the figure, not after it: the rows it hands back are the
+        # ones drawn. Answering afterwards left the figure showing a
+        # rebound row in the colour and legend of the binding it had just
+        # left, while the table beside it showed the new ones.
+        if extra is None:
+            series_list, alongside = posted_rows(post_data), {}
+        else:
+            series_list, alongside = extra(
+                post_data, db_session=db_session, **url_kwargs
+            )
+
+        if session_key:
+            # Stored after ``extra`` and from what it returned, so that
+            # Download Figure straight after a rebinding regenerates what
+            # is on the screen rather than what the client had posted.
+            request.session[session_key] = {
+                **post_data,
+                "datasets": {
+                    row["id"]: {
+                        key: value for key, value in row.items() if key != "id"
+                    }
+                    for row in series_list
+                },
+            }
+            request.session.modified = True
+
         fig = figure_factory(
             series_list,
             db_session=db_session,
             figure_config=figure_config,
             **url_kwargs,
-        )
-        alongside = (
-            {}
-            if extra is None
-            else extra(post_data, db_session=db_session, **url_kwargs)
         )
 
     return figure_to_svg_response(fig, **alongside)
@@ -505,10 +525,7 @@ def download_plot_view(request, figure_factory, session_key, **url_kwargs):
         HttpResponse with PDF content.
     """
     post_data = request.session.get(session_key, {})
-    series_list = [
-        {"id": series_id, **config}
-        for series_id, config in post_data.get("datasets", {}).items()
-    ]
+    series_list = posted_rows(post_data)
     figure_config = post_data.get("figure_config")
 
     matplotlib.use("pdf")

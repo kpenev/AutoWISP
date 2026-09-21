@@ -15,6 +15,22 @@ nothing until it is bound whatever its toggle says.
 Takes one context variable, `diagnostic`, as `make_series` builds it.
 {% endcomment %}
 <tr class="diagnostic-row active" id="{{ diagnostic.id }}">
+    {% comment %} A copy of this row, and away with it. The copy is what
+       makes a second series quick to build: the next one usually differs
+       from this one in a single thing, so copying leaves only that to
+       change. Removing loses nothing that `+` and the dropdowns cannot
+       build again, which is why it needs no confirming.
+    {% endcomment %}
+    <td class="row-button">
+        <button type="button"
+                class="add-row"
+                title="Add a copy of this row below it">+</button>
+    </td>
+    <td class="row-button">
+        <button type="button"
+                class="remove-row"
+                title="Remove this row">&minus;</button>
+    </td>
     <td>
         <input type="color"
                id="plot-color:{{ diagnostic.id }}"

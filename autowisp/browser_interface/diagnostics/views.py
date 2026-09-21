@@ -22,7 +22,7 @@ from .image_diagnostics_views import (
     create_diagnostics_figure,
     plot_session_key,
 )
-from .series_table import get_binding_response
+from .series_table import get_table_response
 from .preview_calibrated import preview_calibrated_image, get_image_overlay
 from .expression_views import (
     list_expressions,
@@ -54,7 +54,7 @@ def update_diagnostics_plot(request, x_diagnostic):
         request,
         create_diagnostics_figure,
         session_key=plot_session_key,
-        extra=get_binding_response,
+        extra=get_table_response,
         x_diagnostic=x_diagnostic,
         expressions=get_expressions(),
     )

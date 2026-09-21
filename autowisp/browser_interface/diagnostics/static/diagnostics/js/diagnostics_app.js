@@ -51,6 +51,8 @@ function getSelectedDatasets()
         let seriesId = row.id;
         let button = document.getElementById("marker-button:" + seriesId);
         let marker = button.children[0].className.baseVal.split(" ")[1];
+        let color = document.getElementById("plot-color:" + seriesId);
+        let label = document.getElementById("label:" + seriesId);
         datasets[seriesId] = {
             "selected": row.classList.contains("active"),
             // The observing session and image type, opaque here: the row
@@ -58,31 +60,39 @@ function getSelectedDatasets()
             // apart, as it does the row id.
             "pair": row.querySelector(".pair-select").value,
             "channels": getRowChannels(row),
-            "color": document.getElementById(
-                "plot-color:" + seriesId
-            ).value,
+            "color": color.value,
             "marker": marker,
             "scale": document.getElementById(
                 "scale:" + seriesId
             ).value,
-            "label": document.getElementById(
-                "label:" + seriesId
-            ).value,
+            "label": label.value,
+            // Whether each still holds what it was rendered with, which
+            // is what tells the server it may replace them with the
+            // defaults of a new binding -- before the figure is drawn, so
+            // the plot and the table never disagree about a row that has
+            // just been rebound. The same test applyTableResponse makes
+            // when the answer comes back, so both mean the same fields.
+            "automatic_color": color.value === color.dataset.default,
+            "automatic_label": label.value === label.dataset.default,
         };
     }
     let display = document.getElementById("diagnostics-display");
     let rect = display.getBoundingClientRect();
     let legendToggle = document.getElementById("legend-toggle");
 
-    // Set by the dropdown that just rebound a row, and cleared here so
-    // that the next redraw -- a colour, a marker, a row switched on -- does
-    // not ask for its count and cells all over again.
+    // Set by whatever was just done to a row -- a dropdown rebinding it,
+    // or `+` asking for a copy of it -- and cleared here so that the next
+    // redraw, a colour or a marker or a row switched on, does not ask for
+    // the same thing all over again.
     const bind = getSelectedDatasets.bind;
+    const add = getSelectedDatasets.add;
     getSelectedDatasets.bind = null;
+    getSelectedDatasets.add = null;
 
     return {
         "datasets": datasets,
         "bind": bind,
+        "add": add,
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
             "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
@@ -90,8 +100,20 @@ function getSelectedDatasets()
     };
 }
 
-function applyBinding(data)
+function applyTableResponse(data)
 {
+    // The copy `+` asked for, inserted directly below the row it was
+    // taken from. Directly below holds under any sort, the sort library
+    // not re-sorting when a row appears.
+    if ( data.added_row ) {
+        const source = document.getElementById(data.after);
+        if ( source ) {
+            source.insertAdjacentHTML("afterend", data.added_row);
+            wireDiagnosticRow(source.nextElementSibling);
+            refreshRemoveButtons();
+        }
+    }
+
     // What a rebound row earns: its count, the channel cells its pair
     // offers, that session's start and end, and the defaults that follow
     // from what it now binds.
@@ -139,7 +161,7 @@ function applyBinding(data)
 
 function showDiagnosticsPlot(data)
 {
-    applyBinding(data);
+    applyTableResponse(data);
     let downloadBtn = document.getElementById("download-button");
     if (downloadBtn)
         downloadBtn.style.display = "inline";
@@ -206,6 +228,37 @@ function onRowChange(event)
         updateFigure();
 }
 
+function onAddRow(event)
+{
+    // Asked for on the redraw the new row needs anyway, rather than in a
+    // request of its own: the payload already carries the clicked row's
+    // state and every row id on the page, which is all the server needs
+    // to build the copy and give it an id of its own.
+    getSelectedDatasets.add = event.target.closest(".diagnostic-row").id;
+    updateFigure();
+}
+
+function onRemoveRow(event)
+{
+    // Nothing to ask the server, the table being the only place this row
+    // exists: it goes, and the figure is redrawn without it. Nothing is
+    // lost that `+` and the dropdowns cannot build again, which is why
+    // this asks for no confirmation.
+    event.target.closest(".diagnostic-row").remove();
+    refreshRemoveButtons();
+    updateFigure();
+}
+
+function refreshRemoveButtons()
+{
+    // The page needs a row to draw anything at all, so the last one
+    // cannot be removed. Said with a disabled button rather than by
+    // refusing the click, so that it is visible before it is tried.
+    const rows = document.querySelectorAll(".diagnostic-row");
+    for ( const row of rows )
+        row.querySelector(".remove-row").disabled = rows.length < 2;
+}
+
 function stopClick(event)
 {
     event.stopPropagation();
@@ -246,8 +299,21 @@ function wireDiagnosticRow(row)
     // editing a row would otherwise toggle it: choosing a marker or a
     // channel, or picking a colour, would undraw the series rather than
     // redraw it in what was just chosen.
-    for ( const control of row.querySelectorAll("input, select, .dropdown") )
+    for ( const control of
+          row.querySelectorAll("input, select, button, .dropdown") )
         control.addEventListener("click", stopClick);
+
+    row.querySelector(".add-row").addEventListener("click", onAddRow);
+    row.querySelector(".remove-row").addEventListener("click", onRemoveRow);
+
+    // A colour, a scale or a label changes only how a series looks, so
+    // there is nothing to ask the server and the figure is simply
+    // redrawn. On `change` rather than `input`: dragging through a colour
+    // picker then redraws once it is settled rather than at every shade
+    // on the way, and a label redraws when it is finished rather than per
+    // keystroke.
+    for ( const input of row.querySelectorAll("input") )
+        input.addEventListener("change", updateFigure);
 
     // The row's marker menu, wired here so that a row built after page
     // load gets a working one too. Rows the page-load pass already covered
@@ -273,6 +339,7 @@ function initImageDiagnostics(plotURL)
         "change", refreshSortKey
     );
     document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
+    refreshRemoveButtons();
 
     // A row arrives drawn, so the figure is asked for at once rather than
     // waiting for a first click that no longer has to happen.

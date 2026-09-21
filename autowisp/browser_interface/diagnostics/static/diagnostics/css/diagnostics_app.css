@@ -32,6 +32,38 @@
     opacity: 0.5;
 }
 
+/* The add and remove columns, kept to the width of the character on the
+ * button: they sit before every column that carries information, and any
+ * width beyond the glyph is width taken from those. */
+#diagnostics-table-parent .row-button {
+    width: 1px;
+    padding: 0 0.15rem;
+}
+
+#diagnostics-table-parent .row-button button {
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 0.25rem;
+    border: none;
+    cursor: pointer;
+    background-color: #000;
+    color: #fff;
+}
+
+#diagnostics-table-parent .row-button button:hover:enabled {
+    background-color: #99f;
+    color: #000;
+}
+
+/* The page needs a row to draw anything, so the last one cannot be
+ * removed. Faded rather than hidden, so the column keeps its width and
+ * the button stays where it will be once there is a second row. */
+#diagnostics-table-parent .row-button button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
 #diagnostics-table-parent tbody tr.active {
     opacity: 1.0;
     background-color: #336;

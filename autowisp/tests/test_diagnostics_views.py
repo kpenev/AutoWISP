@@ -56,6 +56,7 @@ from autowisp.browser_interface.diagnostics.series_table import (
     get_series_key,
     make_id,
     make_slot_cells,
+    next_row_id,
     split_pair_id,
     split_row_id,
     unset_option_text,
@@ -287,6 +288,43 @@ class TestRowId(unittest.TestCase):
         """One quantity may be drawn by any number of rows."""
 
         self.assertNotEqual(make_id("bg_center", 0), make_id("bg_center", 1))
+
+    def test_an_added_row_takes_the_next_ordinal(self):
+        """``+`` copies a row, and the copy needs an id of its own."""
+
+        self.assertEqual(
+            next_row_id(
+                {"id": make_id("bg_center", 0)}, [make_id("bg_center", 0)]
+            ),
+            make_id("bg_center", 1),
+        )
+
+    def test_an_ordinal_freed_by_a_removal_is_not_reused(self):
+        """One past the highest in use, not the first gap in the run.
+
+        The id is the suffix of five element ids, so a second row
+        answering to them would show up as one row's colour arriving on
+        another's.
+        """
+
+        self.assertEqual(
+            next_row_id(
+                {"id": make_id("bg_center", 0)},
+                [make_id("bg_center", 0), make_id("bg_center", 3)],
+            ),
+            make_id("bg_center", 4),
+        )
+
+    def test_another_quantity_does_not_crowd_the_ordinals(self):
+        """They count per quantity, the two together making the id."""
+
+        self.assertEqual(
+            next_row_id(
+                {"id": make_id("bg_center", 0)},
+                [make_id("bg_center", 0), make_id("smooth_bg", 7)],
+            ),
+            make_id("bg_center", 1),
+        )
 
     def test_a_pair_id_round_trips(self):
         """The dropdown's value, opaque to the client exactly as a row id is."""
