@@ -289,6 +289,28 @@ async function addOrJumpToSection()
             bar.dataset.sectionUrl.replace("YPLACEHOLDER", quantity)
             + "?taken=" + encodeURIComponent(taken)
         );
+
+        // Only a section may be inserted here. A quantity the server
+        // cannot build one for -- one naming nothing that resolves --
+        // comes back as something else entirely, and pasting that into
+        // the table strews a second copy of the whole page across this
+        // one.
+        //
+        // `redirected` is the test rather than `ok`, because a failure
+        // does not arrive as a failing status: the error middleware
+        // records the error, queues a message naming it and sends the
+        // browser back where it came from, which fetch follows without
+        // complaint and reports as a perfectly good 200. Following it
+        // ourselves is what puts that message in front of the user.
+        if ( response.redirected ) {
+            window.location.href = response.url;
+            return;
+        }
+        if ( !response.ok ) {
+            alert("Could not add " + quantity + ": " + response.status);
+            return;
+        }
+
         document.getElementById("diagnostics-table-parent")
                 .insertAdjacentHTML("beforeend", await response.text());
 
@@ -324,10 +346,11 @@ function onToggleSection(event)
 {
     // Collapsed, a section still shows its header -- what it draws, and
     // how much of the plot came from it -- so what is hidden is only the
-    // rows, which is what takes the room.
-    const section = event.target.closest(".diagnostics-section");
-    const collapsed = section.classList.toggle("collapsed");
-    event.target.textContent = collapsed ? "+" : "−";
+    // rows, which is what takes the room. The caret follows the class in
+    // CSS, so nothing here has to keep a glyph in step.
+    event.currentTarget
+         .closest(".diagnostics-section")
+         .classList.toggle("collapsed");
 }
 
 function onRemoveSection(event)
@@ -360,10 +383,19 @@ function refreshDrawnCounts()
 
 function wireSection(section)
 {
-    section.querySelector(".section-toggle")
-           .addEventListener("click", onToggleSection);
-    section.querySelector(".remove-section")
-           .addEventListener("click", onRemoveSection);
+    // One listener, on the whole section, rather than one per part that
+    // ought to respond: the bracket and the header both exist to say
+    // where a section begins and neither does anything else, and so does
+    // any space beside them. What must *not* collapse the section is its
+    // rows, so the body stops the click before it reaches here.
+    section.addEventListener("click", onToggleSection);
+    section.querySelector(".section-body").addEventListener("click", stopClick);
+
+    // Inside the header, so its click would collapse the section on the
+    // way out without this.
+    const remove = section.querySelector(".remove-section");
+    remove.addEventListener("click", stopClick);
+    remove.addEventListener("click", onRemoveSection);
 }
 
 function onAddRow(event)
