@@ -16,7 +16,6 @@ from .detrending_diagnostics_views import (
     download_detrending_diagnostics_plot,
 )
 from .image_diagnostics_views import (
-    display_image_diagnostics,
     update_plot_view,
     download_plot_view,
     create_diagnostics_figure,
@@ -36,18 +35,34 @@ from .expression_views import (
 # pylint: enable=unused-import
 
 from . import image_diagnostics_views
-from .expression_data import get_expressions
+from .expression_data import get_expressions, get_expression_descriptions
 
 
-def display_diagnostics(request, x_diagnostic, y_diagnostic):
-    """Show the series table for an axis pair, expressions included."""
+def display_diagnostics(request, x_quantity, y_quantities):
+    """Show a section per y quantity, the library and its prose included."""
 
     return image_diagnostics_views.display_diagnostics(
-        request, x_diagnostic, y_diagnostic, get_expressions()
+        request,
+        x_quantity,
+        y_quantities,
+        get_expressions(),
+        get_expression_descriptions(),
     )
 
 
-def update_diagnostics_plot(request, x_diagnostic):
+def diagnostics_section(request, x_quantity, y_quantity):
+    """Render one section, for the y selector to append to the page."""
+
+    return image_diagnostics_views.diagnostics_section(
+        request,
+        x_quantity,
+        y_quantity,
+        get_expressions(),
+        get_expression_descriptions(),
+    )
+
+
+def update_diagnostics_plot(request, x_quantity):
     """Redraw the figure, with the library available to every row."""
 
     return update_plot_view(
@@ -55,18 +70,18 @@ def update_diagnostics_plot(request, x_diagnostic):
         create_diagnostics_figure,
         session_key=plot_session_key,
         extra=get_table_response,
-        x_diagnostic=x_diagnostic,
+        x_quantity=x_quantity,
         expressions=get_expressions(),
     )
 
 
-def download_diagnostics_plot(request, x_diagnostic):
+def download_diagnostics_plot(request, x_quantity):
     """Regenerate the last figure as a PDF, library and all."""
 
     return download_plot_view(
         request,
         create_diagnostics_figure,
         session_key=plot_session_key,
-        x_diagnostic=x_diagnostic,
+        x_quantity=x_quantity,
         expressions=get_expressions(),
     )

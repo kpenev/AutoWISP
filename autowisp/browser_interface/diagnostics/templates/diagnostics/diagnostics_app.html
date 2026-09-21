@@ -15,15 +15,19 @@
 {% if available_diagnostics %}
 <div class="lcars-bar horizontal"
      id="diag-selector-bar"
-     data-diagnostics-url="{% url 'diagnostics:display_diagnostics' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
+     data-diagnostics-url="{% url 'diagnostics:display_diagnostics' x_quantity='XPLACEHOLDER' y_quantities='YPLACEHOLDER' %}"
+     data-section-url="{% url 'diagnostics:diagnostics_section' x_quantity=x_quantity y_quantity='YPLACEHOLDER' %}">
+    {% comment %} An action rather than a state: choosing a quantity adds
+       its section, or scrolls to it if the page already has one. The
+       leading placeholder is what the selector returns to afterwards --
+       without it, choosing the quantity already shown would fire no
+       `change` at all. {% endcomment %}
     <select id="diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
-            onchange="navigateDiagnostics()">
+            onchange="addOrJumpToSection()">
+        <option value="">Add or go to&hellip;</option>
         {% for diag_name in available_diagnostics %}
-        <option value="{{ diag_name }}"
-                {% if diag_name == y_diagnostic %}selected{% endif %}>
-            {{ diag_name }}
-        </option>
+        <option value="{{ diag_name }}">{{ diag_name }}</option>
         {% endfor %}
     </select>
     <select id="x-diagnostic-selector"
@@ -31,7 +35,7 @@
             onchange="navigateDiagnostics()">
         {% for diag_name in available_diagnostics %}
         <option value="{{ diag_name }}"
-                {% if diag_name == x_diagnostic %}selected{% endif %}>
+                {% if diag_name == x_quantity %}selected{% endif %}>
             {{ diag_name }}
         </option>
         {% endfor %}
@@ -58,38 +62,14 @@
 
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
+    {% comment %} One section per y quantity, in the order the URL names
+       them -- which is the order they took their markers in, and the
+       order the legend follows. A section added later is appended here.
+    {% endcomment %}
     <div id="diagnostics-table-parent">
-        {% comment %} "asc": first click sorts ascending, which the library does not
-           default to.  A first click that jumps to descending reads as the
-           table having been shuffled rather than ordered. {% endcomment %}
-        <table class="lcars-table standard-header sortable asc">
-            <thead>
-                <tr>
-                    {% comment %} The two button columns, headed by
-                       nothing: what they do is on the buttons
-                       themselves. {% endcomment %}
-                    <th class="no-sort"></th>
-                    <th class="no-sort"></th>
-                    <th class="no-sort">Color</th>
-                    <th class="no-sort">Style</th>
-                    <th class="no-sort">Scale</th>
-                    <th class="no-sort">Label</th>
-                    {% comment %} All sortable, the dropdown columns
-                       included: each of those cells carries a `data-sort`
-                       holding the text of its selected option, so it sorts
-                       by what it shows rather than by the run-together
-                       text of the dropdown. {% endcomment %}
-                    {% for field in diagnostics_fields %}
-                    <th>{{ field }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody class="lcars-table select-row">
-                {% for diagnostic in diagnostics_list %}
-                {% include "diagnostics/_series_row.html" %}
-                {% endfor %}
-            </tbody>
-        </table>
+        {% for section in sections %}
+        {% include "diagnostics/_series_section.html" %}
+        {% endfor %}
     </div>
     <div id="plot-sep" class="lcars-bracket hollow top"></div>
     <div id="diagnostics-display" class="fill-space">

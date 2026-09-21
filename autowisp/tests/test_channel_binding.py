@@ -247,22 +247,22 @@ class TwoChannelProject(unittest.TestCase):
                         )
         # pylint: enable=not-callable
 
-    def table_for(self, x_diagnostic, y_diagnostic):
-        """Return what the series table offers for an axis pair."""
+    def table_for(self, x_quantity, y_quantity):
+        """Return what one section's table offers for an axis pair."""
 
         with start_db_session() as db_session:
             return get_available_series(
-                x_diagnostic, y_diagnostic, {}, db_session
+                x_quantity, y_quantity, {}, db_session, marker="o"
             )
 
-    def first_row(self, x_diagnostic, y_diagnostic):
+    def first_row(self, x_quantity, y_quantity):
         """Return the row the table starts with, on the colour session.
 
         Both sessions begin at the same moment in this fixture, so the
         pairs are ordered by their text and ``colour_night`` comes first.
         """
 
-        return self.table_for(x_diagnostic, y_diagnostic)["diagnostics_list"][0]
+        return self.table_for(x_quantity, y_quantity)["diagnostics_list"][0]
 
     def moved_to(self, row, session_id, *channels):
         """Return *row* as the client posts it after moving it to a session."""
@@ -336,7 +336,7 @@ class TestRebinding(TwoChannelProject):
         with start_db_session() as db_session:
             return get_table_response(
                 {"bind": posted["id"], "datasets": {posted["id"]: posted}},
-                x_diagnostic="jd",
+                x_quantity="jd",
                 expressions={},
                 db_session=db_session,
             )
@@ -381,7 +381,21 @@ class TestRebinding(TwoChannelProject):
         response = self.rebind(self.first_row("jd", "bg_center"), "R")
 
         self.assertEqual(response["count"], len(self.mono_values))
-        self.assertEqual(response["label"], "mono_night object R")
+        self.assertEqual(response["label"], "bg_center mono_night object R")
+
+    def test_a_label_names_its_quantity_first(self):
+        """So that a legend entry says which section a series belongs to.
+
+        With one section that is redundant, but prefixing always keeps the
+        rule simple -- and the label is the user's to rewrite either way.
+        """
+
+        label = self.first_row("jd", "bg_center")["label"]
+
+        self.assertTrue(
+            label.startswith("bg_center "),
+            f"expected the quantity first, got {label!r}",
+        )
 
     def test_a_channel_the_new_pair_lacks_is_dropped(self):
         """``B`` is recorded for the colour session alone.
@@ -406,7 +420,7 @@ class TestRebinding(TwoChannelProject):
             self.assertEqual(
                 get_table_response(
                     {"datasets": {}},
-                    x_diagnostic="jd",
+                    x_quantity="jd",
                     expressions={},
                     db_session=db_session,
                 ),
@@ -469,7 +483,7 @@ class TestRebinding(TwoChannelProject):
                     "bind": bound["id"],
                     "datasets": {bound["id"]: bound, other["id"]: other},
                 },
-                x_diagnostic="jd",
+                x_quantity="jd",
                 expressions={},
                 db_session=db_session,
             )
@@ -491,7 +505,7 @@ class TestAddedRow(TwoChannelProject):
         with start_db_session() as db_session:
             return get_table_response(
                 {"add": row["id"], "datasets": datasets},
-                x_diagnostic="jd",
+                x_quantity="jd",
                 expressions={},
                 db_session=db_session,
             )

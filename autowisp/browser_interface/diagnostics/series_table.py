@@ -11,46 +11,29 @@ fill them would be work proportional to the whole image collection; every
 question asked here is answered by a SQL aggregate instead.
 """
 
-# Past the line limit, and most of what is past it is prose: the rules
-# here are short and the reasons for them are not. What the module covers
-# is one subject -- what a row of this table means, what it may be bound
-# to, and what a change to one earns -- and the three would have to be
-# read together whatever file they sat in.
-# pylint: disable=too-many-lines
-
 from sqlalchemy import select
 
 from django.template.loader import render_to_string
 
 from autowisp.browser_interface.core.plot_utils import channel_colors
-from autowisp.diagnostics.diagnostic_types import (
-    is_quantile_diagnostic,
-    quantiles_quantity,
-)
 from autowisp.diagnostics.expression_series import (
     SeriesKey,
     count_images_with_all,
     count_images_with_channels,
-    time_quantity,
 )
 from autowisp.diagnostics.expressions import (
     get_expression_parameters,
     get_needed_values,
     get_quantity_arity,
-    order_expressions,
 )
-from autowisp.exceptions import PipelineError
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import (
-    DiagnosticType,
-    ImageDiagnostics,
-    ObservingSession,
-)
+from autowisp.database.data_model import ObservingSession
 
 # pylint: enable=no-name-in-module
 
+from .quantities import resolve_quantity
 
 #: Separates the fields of the two ids the client round-trips: a row's,
 #: ``quantity|ordinal``, and the value of one option of the session and
@@ -207,7 +190,10 @@ def next_row_id(row, row_ids):
     return make_id(quantity, max(taken, default=-1) + 1)
 
 
-def make_series(row_id, series_key, options, slots, count):
+# Six things a row is made of, each named at the call site. Grouping them
+# would only move the list somewhere less visible.
+# pylint: disable=too-many-arguments
+def make_series(row_id, series_key, options, slots, count, *, marker):
     """
     Build the entry describing one row of the series table.
 
@@ -228,6 +214,11 @@ def make_series(row_id, series_key, options, slots, count):
         count(int):    The number of images contributing, or ``None``
             where nothing is bound yet and there is nothing to count.
 
+        marker(str):    What the row is drawn with to begin with, which
+            its section decides: the default tells quantities apart by
+            shape, as the colour tells channels apart. Editable
+            afterwards, like the colour.
+
     Returns:
         dict:    A series entry with the keys expected by
             ``diagnostics/_series_row.html`` and
@@ -244,9 +235,15 @@ def make_series(row_id, series_key, options, slots, count):
             series_key.channel[0].upper() if series_key.channel else "",
             "#ffffff",
         ),
-        "marker": "o",
+        "marker": marker,
         "scale": "1.0",
-        "label": " ".join([chosen["text"], *series_key.channels]),
+        # The quantity first, so that a legend entry says which of the
+        # page's sections it belongs to. With one section that is
+        # redundant, but prefixing always keeps the rule simple, and the
+        # label is the user's to rewrite either way.
+        "label": " ".join(
+            [split_row_id(row_id)[0], chosen["text"], *series_key.channels]
+        ),
         "pair": pair,
         # The cell sorts by what it shows -- the label rather than the id
         # behind it -- so that sorting by this column puts the sessions in
@@ -260,158 +257,7 @@ def make_series(row_id, series_key, options, slots, count):
     }
 
 
-def get_recorded_diagnostics(db_session):
-    """
-    Return the ``DiagnosticType`` names anything has recorded in this project.
-
-    A per-type ``EXISTS`` probe rather than a ``GROUP BY`` over the whole of
-    ``image_diagnostics``: the question is only which names are in use, and
-    the grouped form has to walk every row to answer it.
-
-    The names come back raw, individual ``pixel_q*`` entries included --
-    before :func:`get_available_diagnostics` collapses them into the family
-    name.  That is what an expression has to be judged against, since one
-    may reference a concrete quantile.
-
-    Args:
-        db_session:    An active SQLAlchemy database session.
-
-    Returns:
-        list:    The names in use, in ``DiagnosticType`` order.
-    """
-
-    names = []
-    for type_id, name in db_session.execute(
-        select(DiagnosticType.id, DiagnosticType.name).order_by(
-            DiagnosticType.id
-        )
-    ).all():
-        in_use = db_session.execute(
-            select(
-                select(ImageDiagnostics.id)
-                .where(ImageDiagnostics.diagnostic_id == type_id)
-                .exists()
-            )
-        ).scalar()
-        if in_use:
-            names.append(name)
-
-    return names
-
-
-def get_available_diagnostics(recorded, expressions):
-    """
-    Return every quantity an axis may be set to.
-
-    One flat list rather than diagnostics and expressions kept apart: an
-    axis reads a name, and a recorded diagnostic is simply an expression of
-    itself as far as anything downstream is concerned.  Sharing one name
-    space is what lets the selectors, the URL and the series table treat
-    all of them alike, and it is why an expression may not take a
-    diagnostic's name.
-
-    Args:
-        recorded(list):    What :func:`get_recorded_diagnostics` found.
-
-        expressions(dict):    The library, ``{name: expression}``.
-
-    Returns:
-        list:    ``jd``, then every recorded diagnostic -- with the
-            individual quantiles standing down in favour of the family name
-            that expands to one series per member -- then the expressions
-            this project has the data to draw.
-    """
-
-    result = [time_quantity] + [
-        name for name in recorded if not is_quantile_diagnostic(name)
-    ]
-    if any(is_quantile_diagnostic(name) for name in recorded):
-        result.append(quantiles_quantity)
-
-    return result + get_available_expressions(expressions, recorded)
-
-
-def get_available_expressions(expressions, recorded):
-    """
-    Return the expressions this project has the data to draw.
-
-    Availability, not validity.  Every stored expression is valid in every
-    project -- the vocabulary is the same everywhere, see
-    :mod:`autowisp.diagnostics.diagnostic_types` -- so filtering by
-    :func:`~autowisp.diagnostics.expressions.check_expression` would filter
-    nothing and offer all of them everywhere.  What decides whether one is
-    offered *here* is whether the diagnostics it reaches, transitively, have
-    actually been recorded.
-
-    Args:
-        expressions(dict):    The library, ``{name: expression}``.
-
-        recorded(list):    What :func:`get_recorded_diagnostics` found.
-            The raw names, since an expression may reference a concrete
-            ``pixel_q*`` rather than the family.
-
-    Returns:
-        list:    The names whose every diagnostic is recorded here,
-            alphabetically.
-    """
-
-    recorded = set(recorded)
-
-    available = []
-    for name in sorted(expressions):
-        try:
-            _, needed = order_expressions([name], expressions)
-        except PipelineError:
-            # A stored cycle, or a name no version of AutoWISP defines.
-            # Saying so is the management page's business; here it is
-            # merely not offered, so that one broken expression cannot stop
-            # the plot page rendering.
-            continue
-        # jd is known for every image of the canonical list, so it never
-        # counts against availability.
-        if needed - {time_quantity} <= recorded:
-            available.append(name)
-
-    return available
-
-
-def resolve_quantity(quantity_name, quantile_name):
-    """
-    Map an axis name onto the concrete quantity for one series.
-
-    ``pixel_quantiles`` names a family rather than a quantity: each series picks
-    one ``pixel_q*`` member of it, recorded in the series id.  Resolving
-    that here, once, is what lets everything downstream handle a single
-    concrete name -- leaving ``jd`` as the only quantity that still needs a
-    branch anywhere, because it alone comes from the image table rather than
-    from ``image_diagnostics``.
-
-    Args:
-        quantity_name(str):    The name an axis was selected as.
-
-        quantile_name(str):    The ``pixel_q*`` this series stands for, or
-            ``None`` outside a quantile expansion.
-
-    Returns:
-        str:    The quantity to actually read.
-    """
-
-    if quantity_name == quantiles_quantity:
-        return quantile_name
-    return quantity_name
-
-
-def get_quantile_names(db_session):
-    """Return the ``pixel_q*`` diagnostic names in use, quantile order."""
-
-    return [
-        row[0]
-        for row in db_session.execute(
-            select(DiagnosticType.name)
-            .where(DiagnosticType.name.like("pixel_q%"))
-            .order_by(DiagnosticType.name)
-        ).all()
-    ]
+# pylint: enable=too-many-arguments
 
 
 def get_axis_slots(quantity, expressions):
@@ -755,6 +601,7 @@ def make_row_for_pair(
     slot_needs,
     options,
     pair_options,
+    marker,
     db_session,
 ):
     """
@@ -776,6 +623,8 @@ def make_row_for_pair(
         options(dict):    What :func:`get_slot_options` returned.
 
         pair_options(list):    What :func:`get_pair_options` returned.
+
+        marker(str):    The marker the row's section starts its rows with.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -810,15 +659,18 @@ def make_row_for_pair(
                 pair, 0
             )
         ),
+        marker=marker,
     )
 
 
 # pylint: enable=too-many-arguments
 
 
-def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
+def get_available_series(
+    x_quantity, y_quantity, expressions, db_session, *, marker
+):
     """
-    Return what the series table offers for an axis pair, and its first row.
+    Return what one section's table offers, and the row it starts with.
 
     A row is a series the user builds, so what this answers is what its
     dropdowns may offer: the (session, image type) pairs where every
@@ -834,9 +686,9 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
     question about rows, and stays a SQL aggregate.
 
     Args:
-        x_diagnostic(str):    Quantity on the X axis.
+        x_quantity(str):    Quantity on the X axis.
 
-        y_diagnostic(str):    Quantity on the Y axis, which is what the
+        y_quantity(str):    Quantity on the Y axis, which is what the
             rows draw and therefore what their ids name.
 
         expressions(dict):    The library, ``{name: expression}``, passed in
@@ -845,9 +697,13 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
 
         db_session:    An active SQLAlchemy database session.
 
+        marker(str):    What this section's rows are drawn with to begin
+            with, chosen for the section rather than for the row so that
+            the quantities on a plot are told apart by shape.
+
     Returns:
         dict:    ``diagnostics_fields``, ``pair_options`` and
-            ``diagnostics_list``, in the format ``diagnostics_app.html``
+            ``diagnostics_list``, in the format ``_series_section.html``
             expects.
 
     Raises:
@@ -861,12 +717,12 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
     # constrains nothing.
     per_axis = [
         get_axis_slots(resolve_quantity(quantity_name, None), expressions)
-        for quantity_name in (x_diagnostic, y_diagnostic)
+        for quantity_name in (x_quantity, y_quantity)
     ]
     headings = [
         heading
         for axis, axis_name, slots in zip(
-            ("x", "y"), (x_diagnostic, y_diagnostic), per_axis
+            ("x", "y"), (x_quantity, y_quantity), per_axis
         )
         for heading in get_slot_headings(axis, axis_name, slots)
     ]
@@ -882,11 +738,12 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
         session_id, image_type = split_pair_id(pair_options[0]["value"])
         rows.append(
             make_row_for_pair(
-                make_id(y_diagnostic, 0),
+                make_id(y_quantity, 0),
                 SeriesKey(session_id, image_type, ()),
                 slot_needs=slot_needs,
                 options=options,
                 pair_options=pair_options,
+                marker=marker,
                 db_session=db_session,
             )
         )
@@ -902,7 +759,7 @@ def get_available_series(x_diagnostic, y_diagnostic, expressions, db_session):
     }
 
 
-def get_axes_slot_needs(x_diagnostic, y_diagnostic, expressions, quantile_name):
+def get_axes_slot_needs(x_quantity, y_quantity, expressions, quantile_name):
     """Return what each channel column of the table reads, in column order.
 
     The x quantity's slots followed by the y quantity's, concatenated
@@ -910,9 +767,9 @@ def get_axes_slot_needs(x_diagnostic, y_diagnostic, expressions, quantile_name):
     the two axes' slots are unrelated even when written alike.
 
     Args:
-        x_diagnostic(str):    Quantity on the X axis.
+        x_quantity(str):    Quantity on the X axis.
 
-        y_diagnostic(str):    Quantity on the Y axis.
+        y_quantity(str):    Quantity on the Y axis.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -925,14 +782,14 @@ def get_axes_slot_needs(x_diagnostic, y_diagnostic, expressions, quantile_name):
 
     return [
         needed
-        for quantity_name in (x_diagnostic, y_diagnostic)
+        for quantity_name in (x_quantity, y_quantity)
         for _, needed in get_axis_slots(
             resolve_quantity(quantity_name, quantile_name), expressions
         )
     ]
 
 
-def get_row_options(y_diagnostic, *, x_diagnostic, expressions, db_session):
+def get_row_options(y_quantity, *, x_quantity, expressions, db_session):
     """
     Return what a row drawing one quantity against the page's x is built from.
 
@@ -941,9 +798,9 @@ def get_row_options(y_diagnostic, *, x_diagnostic, expressions, db_session):
     the (session, image type) pairs the row may name.
 
     Args:
-        y_diagnostic(str):    The quantity the row draws, from its id.
+        y_quantity(str):    The quantity the row draws, from its id.
 
-        x_diagnostic(str):    Quantity on the X axis.
+        x_quantity(str):    Quantity on the X axis.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -955,9 +812,7 @@ def get_row_options(y_diagnostic, *, x_diagnostic, expressions, db_session):
             :func:`get_pair_options` return them.
     """
 
-    slot_needs = get_axes_slot_needs(
-        x_diagnostic, y_diagnostic, expressions, None
-    )
+    slot_needs = get_axes_slot_needs(x_quantity, y_quantity, expressions, None)
     options, labels = (
         get_slot_options(slot_needs, db_session) if slot_needs else ({}, {})
     )
@@ -969,7 +824,7 @@ def get_row_options(y_diagnostic, *, x_diagnostic, expressions, db_session):
     )
 
 
-def get_table_response(post_data, *, x_diagnostic, expressions, db_session):
+def get_table_response(post_data, *, x_quantity, expressions, db_session):
     """
     Return the rows to draw, and what the edit behind this redraw earns.
 
@@ -993,7 +848,7 @@ def get_table_response(post_data, *, x_diagnostic, expressions, db_session):
             where an edit is being answered, ``bind`` or ``add``: the id
             of the row it happened in.
 
-        x_diagnostic(str):    Quantity on the X axis.  The y comes from
+        x_quantity(str):    Quantity on the X axis.  The y comes from
             the row id, each row naming the quantity it draws.
 
         expressions(dict):    The library, ``{name: expression}``.
@@ -1030,7 +885,7 @@ def get_table_response(post_data, *, x_diagnostic, expressions, db_session):
     series_key = get_series_key(source)
     slot_needs, options, pair_options = get_row_options(
         split_row_id(edited)[0],
-        x_diagnostic=x_diagnostic,
+        x_quantity=x_quantity,
         expressions=expressions,
         db_session=db_session,
     )
@@ -1047,6 +902,14 @@ def get_table_response(post_data, *, x_diagnostic, expressions, db_session):
         slot_needs=slot_needs,
         options=options,
         pair_options=pair_options,
+        # A copy starts with its section's marker rather than the marker
+        # of the row it was copied from, which may have been set by hand:
+        # the client posts what the section's is. A rebound row keeps
+        # whatever it is already drawn with, the client sending it back
+        # unchanged, so what is passed here reaches only the copy.
+        marker=(
+            post_data.get("section_marker") or source.get("marker") or "o"
+        ),
         db_session=db_session,
     )
 

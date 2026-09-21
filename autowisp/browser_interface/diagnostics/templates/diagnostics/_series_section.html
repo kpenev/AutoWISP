@@ -1,0 +1,77 @@
+{% comment %} One section of the diagnostics page: the table of rows
+drawing one y quantity, under a header saying what that quantity is.
+
+A partial because a section arrives two ways and must be the same thing
+either way: the page includes one per quantity the URL names, and the y
+selector fetches one from the section route to append to a page already
+built.
+
+A plain header rather than <details>/<summary>: the header carries
+controls, and clicking one of those must not collapse the section.
+
+Takes one context variable, `section`, as `build_section` returns it.
+{% endcomment %}
+<div class="diagnostics-section"
+     id="section:{{ section.quantity.name }}"
+     data-quantity="{{ section.quantity.name }}"
+     data-marker="{{ section.marker }}">
+    <div class="section-header">
+        <button type="button"
+                class="section-toggle"
+                title="Collapse or expand this section">&minus;</button>
+        <span class="section-name">{{ section.quantity.name }}</span>
+        {% comment %} Display only: it says what this section's rows are
+           drawn with before anyone edits them, which is how the
+           quantities on one plot are told apart. {% endcomment %}
+        <span class="section-marker">
+            {% include "core/plot_marker.html" with symb=section.marker size="20" svg="T" %}
+        </span>
+        {% if section.quantity.expression %}
+        <code class="section-expression">{{ section.quantity.expression }}</code>
+        {% endif %}
+        <span class="section-description">{{ section.quantity.description }}</span>
+        {% comment %} How many of this section's rows reach the plot,
+           kept current by the client: a collapsed section still says how
+           much of what is drawn came from it. {% endcomment %}
+        <span class="section-drawn">{{ section.diagnostics_list|length }}</span>
+        <button type="button"
+                class="remove-section"
+                title="Remove this section">&times;</button>
+    </div>
+    <div class="section-body">
+        {% comment %} "asc": first click sorts ascending, which the library does not
+           default to.  A first click that jumps to descending reads as the
+           table having been shuffled rather than ordered. {% endcomment %}
+        <table class="lcars-table standard-header sortable asc">
+            <thead>
+                <tr>
+                    {% comment %} The two button columns, headed by
+                       nothing: what they do is on the buttons
+                       themselves. {% endcomment %}
+                    <th class="no-sort"></th>
+                    <th class="no-sort"></th>
+                    <th class="no-sort">Color</th>
+                    <th class="no-sort">Style</th>
+                    <th class="no-sort">Scale</th>
+                    <th class="no-sort">Label</th>
+                    {% comment %} All sortable, the dropdown columns
+                       included: each of those cells carries a `data-sort`
+                       holding the text of its selected option, so it sorts
+                       by what it shows rather than by the run-together
+                       text of the dropdown. Each section sorts on its own,
+                       the library installing one listener on the document
+                       and needing no initialization, so a table appended
+                       later sorts like the rest. {% endcomment %}
+                    {% for field in section.diagnostics_fields %}
+                    <th>{{ field }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="lcars-table select-row">
+                {% for diagnostic in section.diagnostics_list %}
+                {% include "diagnostics/_series_row.html" %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

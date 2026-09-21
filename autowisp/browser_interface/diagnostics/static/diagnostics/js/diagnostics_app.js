@@ -1,11 +1,40 @@
+function sectionQuantities()
+{
+    // In page order, which is the order the URL lists them, the order
+    // they took their markers in, and the order of the legend.
+    return Array.from(
+        document.querySelectorAll(".diagnostics-section")
+    ).map((section) => section.dataset.quantity);
+}
+
+function pageUrl(xQuantity)
+{
+    const bar = document.getElementById("diag-selector-bar");
+    return bar.dataset.diagnosticsUrl
+        .replace("XPLACEHOLDER", xQuantity)
+        .replace("YPLACEHOLDER", sectionQuantities().join(","));
+}
+
+function refreshPageUrl()
+{
+    // So the page can be bookmarked or reloaded as it is seen, sections
+    // and all. replaceState rather than pushState: Back should leave the
+    // page, not undo the additions one at a time.
+    history.replaceState(null, "", pageUrl(currentXQuantity()));
+}
+
+function currentXQuantity()
+{
+    return document.getElementById("x-diagnostic-selector").value;
+}
+
 function navigateDiagnostics()
 {
-    const bar = document.getElementById('diag-selector-bar');
-    const yDiag = document.getElementById('diagnostic-selector').value;
-    const xDiag = document.getElementById('x-diagnostic-selector').value;
-    window.location.href = bar.dataset.diagnosticsUrl
-        .replace('XPLACEHOLDER', xDiag)
-        .replace('YPLACEHOLDER', yDiag);
+    // Every section's channel columns depend on the x, so changing it
+    // rebuilds the page rather than patching it -- carrying the sections
+    // across, since those are what the user asked to look at. What is
+    // lost is the row state, which is what changing x has always cost.
+    window.location.href = pageUrl(currentXQuantity());
 }
 
 function selectSymbol(event)
@@ -86,13 +115,21 @@ function getSelectedDatasets()
     // the same thing all over again.
     const bind = getSelectedDatasets.bind;
     const add = getSelectedDatasets.add;
+    const sectionMarker = getSelectedDatasets.sectionMarker;
     getSelectedDatasets.bind = null;
     getSelectedDatasets.add = null;
+    getSelectedDatasets.sectionMarker = null;
+
+    // Every change to what is drawn -- a row switched off, a channel
+    // chosen, a row removed -- asks for a redraw, so this is the one
+    // place that sees all of them.
+    refreshDrawnCounts();
 
     return {
         "datasets": datasets,
         "bind": bind,
         "add": add,
+        "section_marker": sectionMarker,
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
             "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
@@ -111,6 +148,9 @@ function applyTableResponse(data)
             source.insertAdjacentHTML("afterend", data.added_row);
             wireDiagnosticRow(source.nextElementSibling);
             refreshRemoveButtons();
+            // The row arrived after the counts were last taken, and it is
+            // drawn by the figure this same response carries.
+            refreshDrawnCounts();
         }
     }
 
@@ -228,13 +268,119 @@ function onRowChange(event)
         updateFigure();
 }
 
+async function addOrJumpToSection()
+{
+    // One control for both, because a user picking a quantity wants to
+    // look at it and does not much care whether it is already there.
+    const selector = document.getElementById("diagnostic-selector");
+    const quantity = selector.value;
+
+    // Back to the placeholder, so that picking the same quantity a
+    // second time is still a change the selector reports.
+    selector.value = "";
+    if ( !quantity )
+        return;
+
+    let section = document.getElementById("section:" + quantity);
+    if ( !section ) {
+        const bar = document.getElementById("diag-selector-bar");
+        const taken = sectionMarkers().join(",");
+        const response = await fetch(
+            bar.dataset.sectionUrl.replace("YPLACEHOLDER", quantity)
+            + "?taken=" + encodeURIComponent(taken)
+        );
+        document.getElementById("diagnostics-table-parent")
+                .insertAdjacentHTML("beforeend", await response.text());
+
+        section = document.getElementById("section:" + quantity);
+        wireSection(section);
+        section.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
+        refreshRemoveButtons();
+        refreshDrawnCounts();
+        refreshPageUrl();
+
+        // Only where the new section brings something to draw. Its row is
+        // bound already where each of its channel columns has a single
+        // channel recorded; on a colour camera it waits to be bound and
+        // the figure is exactly as it was, so redrawing would rebuild it
+        // to look the same.
+        if ( Array.from(section.querySelectorAll(".diagnostic-row"))
+                  .some(isRowBound) )
+            updateFigure();
+    }
+
+    section.classList.remove("collapsed");
+    section.scrollIntoView({block: "start"});
+}
+
+function sectionMarkers()
+{
+    return Array.from(
+        document.querySelectorAll(".diagnostics-section")
+    ).map((section) => section.dataset.marker);
+}
+
+function onToggleSection(event)
+{
+    // Collapsed, a section still shows its header -- what it draws, and
+    // how much of the plot came from it -- so what is hidden is only the
+    // rows, which is what takes the room.
+    const section = event.target.closest(".diagnostics-section");
+    const collapsed = section.classList.toggle("collapsed");
+    event.target.textContent = collapsed ? "+" : "−";
+}
+
+function onRemoveSection(event)
+{
+    removeSection(event.target.closest(".diagnostics-section"));
+    updateFigure();
+}
+
+function removeSection(section)
+{
+    section.remove();
+    refreshRemoveButtons();
+    refreshDrawnCounts();
+    refreshPageUrl();
+}
+
+function refreshDrawnCounts()
+{
+    // What each section contributes to the plot: its rows that are both
+    // switched on and bound, an unbound row naming no data to draw.
+    for ( const section of document.querySelectorAll(".diagnostics-section") ) {
+        const drawn = Array.from(
+            section.querySelectorAll(".diagnostic-row")
+        ).filter(
+            (row) => row.classList.contains("active") && isRowBound(row)
+        );
+        section.querySelector(".section-drawn").textContent = drawn.length;
+    }
+}
+
+function wireSection(section)
+{
+    section.querySelector(".section-toggle")
+           .addEventListener("click", onToggleSection);
+    section.querySelector(".remove-section")
+           .addEventListener("click", onRemoveSection);
+}
+
 function onAddRow(event)
 {
     // Asked for on the redraw the new row needs anyway, rather than in a
     // request of its own: the payload already carries the clicked row's
     // state and every row id on the page, which is all the server needs
     // to build the copy and give it an id of its own.
-    getSelectedDatasets.add = event.target.closest(".diagnostic-row").id;
+    const row = event.target.closest(".diagnostic-row");
+    const section = row.closest(".diagnostics-section");
+
+    getSelectedDatasets.add = row.id;
+    // The copy starts with the section's marker rather than with the
+    // marker of the row it was copied from, which may have been set by
+    // hand. The detrending page has no sections and sends none, and the
+    // server then keeps the source's marker.
+    getSelectedDatasets.sectionMarker = section ? section.dataset.marker : null;
     updateFigure();
 }
 
@@ -244,19 +390,39 @@ function onRemoveRow(event)
     // exists: it goes, and the figure is redrawn without it. Nothing is
     // lost that `+` and the dropdowns cannot build again, which is why
     // this asks for no confirmation.
-    event.target.closest(".diagnostic-row").remove();
-    refreshRemoveButtons();
+    const row = event.target.closest(".diagnostic-row");
+    const section = row.closest(".diagnostics-section");
+
+    row.remove();
+
+    // A section with no rows left draws nothing and offers nothing, so it
+    // goes with its last row -- unless it is the only section, the page
+    // needing a quantity to name in its URL.
+    if ( section
+         && !section.querySelector(".diagnostic-row")
+         && document.querySelectorAll(".diagnostics-section").length > 1 )
+        removeSection(section);
+    else
+        refreshRemoveButtons();
+
     updateFigure();
 }
 
 function refreshRemoveButtons()
 {
-    // The page needs a row to draw anything at all, so the last one
-    // cannot be removed. Said with a disabled button rather than by
-    // refusing the click, so that it is visible before it is tried.
+    // The page needs a row to draw anything at all, and a section to name
+    // in its URL, so the last of each cannot be removed. Said with a
+    // disabled button rather than by refusing the click, so that it is
+    // visible before it is tried.
     const rows = document.querySelectorAll(".diagnostic-row");
     for ( const row of rows )
         row.querySelector(".remove-row").disabled = rows.length < 2;
+
+    // Empty on the detrending page, which loads this file but has no
+    // sections, so this does nothing there.
+    const sections = document.querySelectorAll(".diagnostics-section");
+    for ( const section of sections )
+        section.querySelector(".remove-section").disabled = sections.length < 2;
 }
 
 function stopClick(event)
@@ -338,6 +504,7 @@ function initImageDiagnostics(plotURL)
     document.getElementById("diagnostics-table-parent").addEventListener(
         "change", refreshSortKey
     );
+    document.querySelectorAll(".diagnostics-section").forEach(wireSection);
     document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
     refreshRemoveButtons();
 

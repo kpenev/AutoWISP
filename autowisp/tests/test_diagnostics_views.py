@@ -1,11 +1,14 @@
-"""Tests for the BUI diagnostics view modules.
+"""Tests for what the BUI diagnostics views ask of a project.
 
 What the series table offers for a pair of axes -- the (session, image
 type) pairs a row may be drawn for, and the one row the table starts with
--- what a row means once the client posts it back, and how the figure
-below offsets and groups what those rows draw.
+-- what a row reads once the client posts it back, and how the figure
+below offsets what those rows draw.  Every one of them is a question
+about an observing project, so each needs the throwaway database this
+builds, following ``test_error_render``.
 
-Uses a throwaway project database, following ``test_error_render``.
+The rules that need no project -- ids, channel columns, section headers
+and markers -- are in ``test_diagnostics_rules``.
 """
 
 import tempfile
@@ -46,20 +49,17 @@ from autowisp.exceptions import PipelineError
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
     create_diagnostics_figure,
     get_series_data,
-    group_series_by_x_overlap,
 )
-from autowisp.browser_interface.diagnostics.series_table import (
+from autowisp.browser_interface.diagnostics.quantities import (
     get_available_diagnostics,
     get_available_expressions,
-    get_available_series,
     get_recorded_diagnostics,
-    get_series_key,
+)
+from autowisp.browser_interface.diagnostics.series_table import (
+    get_available_series,
     make_id,
-    make_slot_cells,
-    next_row_id,
     split_pair_id,
     split_row_id,
-    unset_option_text,
 )
 
 # pylint: enable=wrong-import-position
@@ -113,15 +113,19 @@ class DiagnosticsViewTestCase(unittest.TestCase):
     #: say which images a series is supposed to be built from.
     images_of = {}
 
-    def table_for(self, x_diagnostic, y_diagnostic, expressions=None):
-        """Return what the series table offers for an axis pair."""
+    def table_for(self, x_quantity, y_quantity, expressions=None, marker="o"):
+        """Return what one section's table offers for an axis pair."""
 
         with start_db_session() as db_session:
             return get_available_series(
-                x_diagnostic, y_diagnostic, expressions or {}, db_session
+                x_quantity,
+                y_quantity,
+                expressions or {},
+                db_session,
+                marker=marker,
             )
 
-    def pairs_for(self, x_diagnostic, y_diagnostic, expressions=None):
+    def pairs_for(self, x_quantity, y_quantity, expressions=None):
         """Return the ``(session_id, image_type)`` pairs a row may name.
 
         What the table used to answer with a row each, and now answers
@@ -130,15 +134,15 @@ class DiagnosticsViewTestCase(unittest.TestCase):
 
         return [
             split_pair_id(option["value"])
-            for option in self.table_for(
-                x_diagnostic, y_diagnostic, expressions
-            )["pair_options"]
+            for option in self.table_for(x_quantity, y_quantity, expressions)[
+                "pair_options"
+            ]
         ]
 
-    def first_row(self, x_diagnostic, y_diagnostic, expressions=None):
+    def first_row(self, x_quantity, y_quantity, expressions=None):
         """Return the row the table starts with, on the earliest session."""
 
-        return self.table_for(x_diagnostic, y_diagnostic, expressions)[
+        return self.table_for(x_quantity, y_quantity, expressions)[
             "diagnostics_list"
         ][0]
 
@@ -242,114 +246,6 @@ class DiagnosticsViewTestCase(unittest.TestCase):
                                 )
                             )
         # pylint: enable=not-callable
-
-
-class TestRowId(unittest.TestCase):
-    """The row id, a round trip through the client and back.
-
-    It becomes an HTML element id, five more element ids are built from
-    it, and it keys the ``datasets`` object the client posts back -- so it
-    has to survive all of that as an opaque string. What it deliberately
-    does *not* carry is anything the row can edit: the session, the image
-    type and the channels are all chosen in the row, and an id that
-    changed as they were would take every element id with it.
-    """
-
-    def test_a_row_names_its_quantity_and_its_place(self):
-        """And nothing else, those being the only things it cannot edit."""
-
-        self.assertEqual(
-            split_row_id(make_id("bg_center", 0)), ("bg_center", 0)
-        )
-
-    def test_underscores_are_harmless(self):
-        """A diagnostic name carries them, and the separator is not one.
-
-        This is what an earlier encoding could not do without guessing
-        which underscores separated fields and which belonged to a name.
-        """
-
-        self.assertEqual(
-            split_row_id(make_id("pixel_q999", 3)), ("pixel_q999", 3)
-        )
-
-    def test_an_ambiguous_field_is_refused(self):
-        """Failing loudly beats an id that silently pairs wrong data."""
-
-        with self.assertRaises(ValueError):
-            make_id("we|rd", 0)
-
-    def test_the_quantity_is_part_of_the_identity(self):
-        """Two rows drawing different quantities must not collide."""
-
-        self.assertNotEqual(make_id("bg_center", 0), make_id("smooth_bg", 0))
-
-    def test_siblings_differ_by_their_ordinal(self):
-        """One quantity may be drawn by any number of rows."""
-
-        self.assertNotEqual(make_id("bg_center", 0), make_id("bg_center", 1))
-
-    def test_an_added_row_takes_the_next_ordinal(self):
-        """``+`` copies a row, and the copy needs an id of its own."""
-
-        self.assertEqual(
-            next_row_id(
-                {"id": make_id("bg_center", 0)}, [make_id("bg_center", 0)]
-            ),
-            make_id("bg_center", 1),
-        )
-
-    def test_an_ordinal_freed_by_a_removal_is_not_reused(self):
-        """One past the highest in use, not the first gap in the run.
-
-        The id is the suffix of five element ids, so a second row
-        answering to them would show up as one row's colour arriving on
-        another's.
-        """
-
-        self.assertEqual(
-            next_row_id(
-                {"id": make_id("bg_center", 0)},
-                [make_id("bg_center", 0), make_id("bg_center", 3)],
-            ),
-            make_id("bg_center", 4),
-        )
-
-    def test_another_quantity_does_not_crowd_the_ordinals(self):
-        """They count per quantity, the two together making the id."""
-
-        self.assertEqual(
-            next_row_id(
-                {"id": make_id("bg_center", 0)},
-                [make_id("bg_center", 0), make_id("smooth_bg", 7)],
-            ),
-            make_id("bg_center", 1),
-        )
-
-    def test_a_pair_id_round_trips(self):
-        """The dropdown's value, opaque to the client exactly as a row id is."""
-
-        self.assertEqual(
-            split_pair_id(make_id(7, "twilight_flat")), (7, "twilight_flat")
-        )
-
-    def test_the_key_comes_from_what_the_client_posts(self):
-        """All of it: the pair is edited in the row as the channels are.
-
-        Reading the session or the type from the id would read what the
-        row was rendered with rather than what its dropdown now says.
-        """
-
-        self.assertEqual(
-            get_series_key(
-                {
-                    "id": make_id("bg_center", 2),
-                    "pair": make_id(7, "object"),
-                    "channels": ["R", "B"],
-                }
-            ),
-            SeriesKey(7, "object", ("R", "B")),
-        )
 
 
 class TestAvailableQuantities(DiagnosticsViewTestCase):
@@ -577,65 +473,6 @@ class TestInitialRow(DiagnosticsViewTestCase):
         self.assertEqual(row["count"], _frames_per_night[0]["object"])
 
 
-class TestSlotCells(unittest.TestCase):
-    """What each channel column of a row offers, and what a move keeps.
-
-    Pure, so the rules can be checked without a database or a browser.
-    """
-
-    def test_a_column_with_one_channel_is_settled(self):
-        """Asking for a click with one possible outcome is ceremony."""
-
-        cells = make_slot_cells([{"R": 3}], ())
-
-        self.assertTrue(cells[0]["fixed"])
-        self.assertEqual(cells[0]["value"], "R")
-        self.assertEqual(cells[0]["sort"], "R")
-
-    def test_a_column_with_a_choice_starts_unset(self):
-        """Nothing picks one of several channels on the user's behalf."""
-
-        cells = make_slot_cells([{"R": 3, "B": 2}], ())
-
-        self.assertFalse(cells[0]["fixed"])
-        self.assertEqual(cells[0]["value"], "")
-        self.assertEqual(cells[0]["sort"], unset_option_text)
-
-    def test_a_channel_the_pair_still_offers_is_kept(self):
-        """The user chose it, and it remains an answer here."""
-
-        self.assertEqual(
-            make_slot_cells([{"R": 3, "B": 2}], ("B",))[0]["value"], "B"
-        )
-
-    def test_a_channel_the_pair_does_not_offer_is_cleared(self):
-        """Rather than quietly bound to something the user never chose."""
-
-        self.assertEqual(
-            make_slot_cells([{"R": 3, "G": 1}], ("B",))[0]["value"], ""
-        )
-
-    def test_each_column_is_decided_on_its_own(self):
-        """One axis may have a channel to choose where the other has none."""
-
-        cells = make_slot_cells([{"R": 3}, {"R": 3, "B": 2}], ("R", "B"))
-
-        self.assertEqual([cell["fixed"] for cell in cells], [True, False])
-
-    def test_an_option_carries_the_text_it_shows(self):
-        """One place decides it, since the cell sorts by that same text."""
-
-        self.assertEqual(
-            [
-                (option["value"], option["text"])
-                for option in make_slot_cells([{"R": 3, "B": 2}], ())[0][
-                    "options"
-                ]
-            ],
-            [("", unset_option_text), ("B", "B (2)"), ("R", "R (3)")],
-        )
-
-
 class TestSharedTimeOffset(DiagnosticsViewTestCase):
     """The x-offset is one value for the whole figure, not per series."""
 
@@ -672,7 +509,7 @@ class TestSharedTimeOffset(DiagnosticsViewTestCase):
             with mock.patch(target) as plot_series:
                 create_diagnostics_figure(
                     series_list,
-                    x_diagnostic="jd",
+                    x_quantity="jd",
                     expressions={},
                     db_session=db_session,
                     # Nothing is drawn once plotting is mocked, so asking
@@ -873,49 +710,6 @@ class TestExpressionAxis(DiagnosticsViewTestCase):
 
         with self.assertRaises(PipelineError):
             self.pairs_for("jd", "no_such_thing", self.library)
-
-
-class TestSeriesGrouping(unittest.TestCase):
-    """``group_series_by_x_overlap`` splits only non-overlapping ranges."""
-
-    @staticmethod
-    def _entry(jd_values):
-        """Build the tuple shape the grouping helper consumes."""
-
-        return ({}, numpy.asarray(jd_values), None, None)
-
-    def test_disjoint_ranges_split(self):
-        """Two nights a day apart occupy separate subplots."""
-
-        groups = group_series_by_x_overlap(
-            [
-                self._entry([_first_jd, _first_jd + 0.1]),
-                self._entry(
-                    [
-                        _first_jd + _night_separation,
-                        _first_jd + _night_separation + 0.1,
-                    ]
-                ),
-            ]
-        )
-        self.assertEqual(len(groups), 2)
-
-    def test_overlapping_ranges_merge(self):
-        """Overlapping ranges share one subplot.
-
-        This is the case a non-time x axis reduces to once the grouping is
-        generalized from JD to arbitrary x, so it must keep holding.
-        """
-
-        groups = group_series_by_x_overlap(
-            [
-                self._entry([0.0, 10.0]),
-                self._entry([5.0, 15.0]),
-                self._entry([12.0, 20.0]),
-            ]
-        )
-        self.assertEqual(len(groups), 1)
-        self.assertEqual(len(groups[0]), 3)
 
 
 if __name__ == "__main__":

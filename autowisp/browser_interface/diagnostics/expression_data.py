@@ -34,3 +34,25 @@ def get_expressions():
     """
 
     return dict(DiagnosticExpression.objects.values_list("name", "expression"))
+
+
+def get_expression_descriptions():
+    """
+    Return ``{name: description}`` for the stored expressions.
+
+    Kept apart from :func:`get_expressions`, which everything that
+    *evaluates* an expression consumes: what a quantity is for is of no
+    interest to the evaluator, and a dictionary carrying both would have
+    to be taken apart again by every caller of it.
+
+    Returns:
+        dict:    Every stored expression's description, the empty string
+            where one was left blank.
+    """
+
+    return {
+        name: description or ""
+        for name, description in DiagnosticExpression.objects.values_list(
+            "name", "description"
+        )
+    }

@@ -22,7 +22,7 @@ from matplotlib.figure import Figure
 import numpy
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.urls import reverse
 
 from autowisp.browser_interface.core.plot_utils import (
@@ -37,18 +37,24 @@ from autowisp.diagnostics.expression_series import (
 )
 from autowisp.diagnostics.expressions import get_quantity_arity
 
-from .series_table import (
+from .quantities import (
+    describe_quantity,
     get_available_diagnostics,
-    get_available_series,
+    get_diagnostic_descriptions,
     get_recorded_diagnostics,
+    next_section_marker,
+    resolve_quantity,
+    section_markers,
+)
+from .series_table import (
+    get_available_series,
     get_series_key,
     posted_rows,
-    resolve_quantity,
     split_row_id,
 )
 
 
-def get_series_data(series, x_diagnostic, expressions, db_session):
+def get_series_data(series, x_quantity, expressions, db_session):
     """
     Query the paired x/y values for a single series.
 
@@ -63,7 +69,7 @@ def get_series_data(series, x_diagnostic, expressions, db_session):
             id it was rendered with, and the pair and channels its
             dropdowns say.
 
-        x_diagnostic(str):    Quantity on the X axis, which the page
+        x_quantity(str):    Quantity on the X axis, which the page
             supplies: it is the one thing a row does not choose.  The y
             comes from the row's own id, which names the quantity it
             draws.
@@ -79,10 +85,10 @@ def get_series_data(series, x_diagnostic, expressions, db_session):
     """
 
     series_key = get_series_key(series)
-    y_diagnostic, _ = split_row_id(series["id"])
+    y_quantity, _ = split_row_id(series["id"])
     quantities = [
         resolve_quantity(quantity_name, series_key.quantile_name)
-        for quantity_name in (x_diagnostic, y_diagnostic)
+        for quantity_name in (x_quantity, y_quantity)
     ]
 
     # The row's channels are the two axes' bindings laid end to end, in
@@ -273,7 +279,7 @@ def create_figure(num_plots, plot_height_frac, aspect_ratio, num_columns):
     return fig, all_axes
 
 
-def collect_series_data(series_list, x_diagnostic, expressions, db_session):
+def collect_series_data(series_list, x_quantity, expressions, db_session):
     """
     Read the selected series, dropping those with nothing to draw.
 
@@ -286,7 +292,7 @@ def collect_series_data(series_list, x_diagnostic, expressions, db_session):
     Args:
         series_list(list):    Every row as the client posted it back.
 
-        x_diagnostic(str):    Quantity on the X axis, shared by the whole
+        x_quantity(str):    Quantity on the X axis, shared by the whole
             figure.  Each row names its own y through its id.
 
         expressions(dict):    The library, ``{name: expression}``.
@@ -316,7 +322,7 @@ def collect_series_data(series_list, x_diagnostic, expressions, db_session):
         if not channels or not all(channels) or not series.get("pair"):
             continue
         x_values, y_values, image_ids = get_series_data(
-            series, x_diagnostic, expressions, db_session
+            series, x_quantity, expressions, db_session
         )
         x_values = numpy.atleast_1d(x_values)
         y_values = numpy.atleast_1d(y_values)
@@ -365,7 +371,7 @@ def draw_series_group(axes, group, x_offset):
 def create_diagnostics_figure(
     series_list,
     *,
-    x_diagnostic,
+    x_quantity,
     expressions,
     db_session,
     figure_config=None,
@@ -377,7 +383,7 @@ def create_diagnostics_figure(
         series_list(list):    Every row as the client posted it back.
             Only those with a non-empty ``marker`` are plotted.
 
-        x_diagnostic(str):    Quantity on the X axis, which every series
+        x_quantity(str):    Quantity on the X axis, which every series
             shares.  What each draws against it comes from its own id.
 
         expressions(dict):    The library, ``{name: expression}``.
@@ -392,10 +398,10 @@ def create_diagnostics_figure(
     """
 
     figure_config = figure_config or {}
-    against_time = x_diagnostic == time_quantity
+    against_time = x_quantity == time_quantity
 
     series_data = collect_series_data(
-        series_list, x_diagnostic, expressions, db_session
+        series_list, x_quantity, expressions, db_session
     )
 
     # Julian dates are large numbers spanning a tiny range, so the axis is
@@ -419,7 +425,7 @@ def create_diagnostics_figure(
 
     for axes, group in zip(all_axes.flatten(), groups):
         draw_series_group(axes, group, x_offset)
-        axes.set_xlabel(f"JD - {x_offset!r}" if against_time else x_diagnostic)
+        axes.set_xlabel(f"JD - {x_offset!r}" if against_time else x_quantity)
         # Named for what this subplot drew rather than for the page: a row
         # carries the quantity it draws, and a subplot holds the rows whose
         # x ranges overlap, which need not be all of them.  In the order
@@ -556,53 +562,162 @@ def download_plot_view(request, figure_factory, session_key, **url_kwargs):
 plot_session_key = "diagnostics_last"
 
 
-def display_diagnostics(request, x_diagnostic, y_diagnostic, expressions):
-    """View displaying the table of available series for an axis pair.
+# Each names one thing a section cannot be built without, and the caller
+# holds all of them.
+# pylint: disable=too-many-arguments
+def build_section(
+    section_y, *, x_quantity, expressions, descriptions, marker, db_session
+):
+    """
+    Return everything one section of the page is rendered from.
 
-    The library arrives as an argument rather than being fetched here: it
-    is the one thing on this page that comes from the browser-interface
-    database, and keeping it out means everything in this module can be
-    tested against a project database alone.  ``views.py`` supplies it.
+    A section is the table for the pair ``(x, section_y)``, headed by what
+    that quantity is. Its channel columns depend on the quantity it draws,
+    which is what a section is *for*: quantities binding different numbers
+    of channels cannot share one table, so each gets its own.
+
+    Args:
+        section_y(str):    The quantity this section draws.
+
+        x_quantity(str):    Quantity on the X axis, shared by the page.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        descriptions(dict):    What each quantity means, the recorded
+            diagnostics' and the expressions' together.
+
+        marker(str):    What this section's rows start out drawn with.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        dict:    The section, as ``_series_section.html`` renders it.
+    """
+
+    section = get_available_series(
+        x_quantity, section_y, expressions, db_session, marker=marker
+    )
+    section["quantity"] = describe_quantity(
+        section_y, expressions, descriptions
+    )
+    section["marker"] = marker
+
+    return section
+
+
+# pylint: enable=too-many-arguments
+
+
+def display_diagnostics(
+    request, x_quantity, y_quantities, expressions, expression_descriptions
+):
+    """View displaying a section per y quantity, all against one x.
+
+    Args:
+        request:    The Django request.
+
+        x_quantity(str):    Quantity on the X axis. The page has one, and
+            a user wanting a second opens another tab: everything drawn
+            here shares it.
+
+        y_quantities(list):    What the sections draw, in the order the
+            URL names them, which is the order they appear in and the
+            order they take their markers in.
+
+        expressions(dict):    The library.  It arrives as an argument
+            rather than being fetched here because it comes from the
+            browser-interface database, and keeping that out means
+            everything in this module can be tested against a project
+            database alone.  ``views.py`` supplies it.
+
+        expression_descriptions(dict):    What each expression is for,
+            from the same database and passed in for the same reason. The
+            recorded diagnostics describe themselves in the project one,
+            and the two are merged here.
     """
 
     with start_db_session() as db_session:
-        context = get_available_series(
-            x_diagnostic, y_diagnostic, expressions, db_session
-        )
-        context["available_diagnostics"] = get_available_diagnostics(
-            get_recorded_diagnostics(db_session), expressions
-        )
+        recorded = get_recorded_diagnostics(db_session)
+        # An expression may not take a recorded diagnostic's name, so
+        # neither can shadow the other and the merge is unambiguous.
+        descriptions = {
+            **get_diagnostic_descriptions(db_session),
+            **expression_descriptions,
+        }
+        sections = [
+            build_section(
+                section_y,
+                x_quantity=x_quantity,
+                expressions=expressions,
+                descriptions=descriptions,
+                marker=marker,
+                db_session=db_session,
+            )
+            for section_y, marker in zip(y_quantities, section_markers)
+        ]
+        available = get_available_diagnostics(recorded, expressions)
 
-    context["x_diagnostic"] = x_diagnostic
-    context["y_diagnostic"] = y_diagnostic
+    context = {
+        "sections": sections,
+        "available_diagnostics": available,
+    }
+    context["x_quantity"] = x_quantity
+    context["y_quantities"] = y_quantities
+    # Named for the x alone. The sections come and go without the page
+    # being reloaded, so a title naming them would be wrong as soon as one
+    # was added.
     context["diagnostics_title"] = (
-        y_diagnostic
-        if x_diagnostic == time_quantity
-        else f"{x_diagnostic} vs {y_diagnostic}"
+        "Diagnostics"
+        if x_quantity == time_quantity
+        else f"Diagnostics against {x_quantity}"
     )
     # No y in either: every posted row names the quantity it draws, so
     # redrawing and downloading ask only for the x they share.
     context["update_plot_url"] = reverse(
         "diagnostics:update_diagnostics_plot",
-        kwargs={"x_diagnostic": x_diagnostic},
+        kwargs={"x_quantity": x_quantity},
     )
     context["download_pdf_url"] = reverse(
         "diagnostics:download_diagnostics_plot",
-        kwargs={"x_diagnostic": x_diagnostic},
+        kwargs={"x_quantity": x_quantity},
     )
 
     return render(request, "diagnostics/diagnostics_app.html", context)
 
 
-def display_image_diagnostics(_request, diagnostic_name):
-    """Redirect the pre-merge time-series URL onto the merged view.
+def diagnostics_section(
+    request, x_quantity, y_quantity, expressions, expression_descriptions
+):
+    """Return one rendered section, for adding one without a reload.
 
-    Kept so that links built before the merge keep working, including the
-    six ``{% url %}`` tags in ``processing/progress.html``.
+    A request of its own rather than something a redraw carries, unlike
+    the row ``+`` adds: a new section's row is bound only where each of
+    its channel columns has a single channel recorded, so on a colour
+    camera it arrives unbound, draws nothing, and the figure is unchanged.
+    Asking for the section alone leaves that figure alone; folding this
+    into a redraw would rebuild it to look exactly as it already does.
+
+    The markers the page's sections already start with arrive as
+    ``taken``, comma separated, since sections have come and gone in the
+    browser since the page was built and the server cannot know otherwise
+    which markers are still spoken for.
     """
 
-    return redirect(
-        "diagnostics:display_diagnostics",
-        x_diagnostic=time_quantity,
-        y_diagnostic=diagnostic_name,
+    taken = request.GET.get("taken", "")
+
+    with start_db_session() as db_session:
+        section = build_section(
+            y_quantity,
+            x_quantity=x_quantity,
+            expressions=expressions,
+            descriptions={
+                **get_diagnostic_descriptions(db_session),
+                **expression_descriptions,
+            },
+            marker=next_section_marker(taken.split(",") if taken else []),
+            db_session=db_session,
+        )
+
+    return render(
+        request, "diagnostics/_series_section.html", {"section": section}
     )

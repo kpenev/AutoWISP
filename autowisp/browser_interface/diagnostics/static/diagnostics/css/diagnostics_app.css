@@ -27,6 +27,75 @@
     z-index: 10;
 }
 
+/* One section per y quantity, each its own table under its own header. */
+.diagnostics-section {
+    margin-bottom: 0.5rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.15rem 0.25rem;
+    background-color: #336;
+}
+
+.section-header .section-name {
+    font-weight: bold;
+}
+
+/* The expression, in monospace as the expression page shows it, so that
+ * what a section draws can be read rather than guessed from its name. */
+.section-header .section-expression {
+    font-family: monospace;
+    color: #ccf;
+}
+
+/* Takes the room left over, so the controls stay at the two ends however
+ * long the description is. */
+.section-header .section-description {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* How many of this section's rows reach the plot. Readable while the
+ * section is collapsed, which is when it is the only thing it says about
+ * what is drawn. */
+.section-header .section-drawn::before {
+    content: "drawn: ";
+}
+
+.section-header button {
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 0.3rem;
+    border: none;
+    cursor: pointer;
+    background-color: #000;
+    color: #fff;
+}
+
+.section-header button:hover:enabled {
+    background-color: #99f;
+    color: #000;
+}
+
+/* The page needs a section to name in its URL, so the last one cannot be
+ * removed. Faded rather than hidden, as the row buttons are. */
+.section-header button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+/* Collapsed hides the rows and nothing else: the header goes on saying
+ * what the section draws and how much of the plot came from it. */
+.diagnostics-section.collapsed .section-body {
+    display: none;
+}
+
 #diagnostics-table-parent tbody tr {
     cursor: pointer;
     opacity: 0.5;

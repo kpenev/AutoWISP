@@ -20,6 +20,7 @@ py_src = [
   'test_database_migration.py',
   'test_detrending_stat.py',
   'test_diagnostic_expressions.py',
+  'test_diagnostics_rules.py',
   'test_diagnostics_views.py',
   'test_epd.py',
   'test_evaluator.py',
