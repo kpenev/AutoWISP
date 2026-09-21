@@ -106,3 +106,31 @@ function updateFigure()
 }
 
 
+function handleDropdownClick(event)
+{
+    // A marker menu opens on a click and stays open until something
+    // closes it, like every other control on a series row. Opening on
+    // hover meant brushing past a button opened a menu nobody asked for,
+    // and choosing from one meant keeping the pointer inside a narrow
+    // strip the whole way down.
+    //
+    // One listener on the document rather than one per menu, so a menu
+    // rendered after the page was built needs no wiring. In the capture
+    // phase, so that it is reached even where a click is stopped from
+    // bubbling -- which it is on a series row, where a click on a control
+    // must not also toggle whether the row is drawn.
+    //
+    // Closing first and then deciding whether to open is what makes a
+    // second click on the same button close its menu, and a click
+    // anywhere else close it without opening another.
+    const open = document.querySelector(".dropdown.open");
+    if ( open )
+        open.classList.remove("open");
+
+    const button = event.target.closest(".dropbtn");
+    if ( button && button.closest(".dropdown") !== open )
+        button.closest(".dropdown").classList.add("open");
+}
+
+document.addEventListener("click", handleDropdownClick, true);
+

@@ -473,10 +473,10 @@ def update_plot_view(
     setup_svg_matplotlib()
 
     with start_db_session() as db_session:
-        # Before the figure, not after it: the rows it hands back are the
-        # ones drawn. Answering afterwards left the figure showing a
-        # rebound row in the colour and legend of the binding it had just
-        # left, while the table beside it showed the new ones.
+        # Before the figure, because the rows it returns are the ones
+        # drawn: a row whose binding has just changed has to reach the
+        # figure with the colour and label of the binding it now has,
+        # rather than the ones the client posted with it.
         if extra is None:
             series_list, alongside = posted_rows(post_data), {}
         else:

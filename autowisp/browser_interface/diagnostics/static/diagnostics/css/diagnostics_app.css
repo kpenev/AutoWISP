@@ -56,9 +56,8 @@
     color: #000;
 }
 
-/* The page needs a row to draw anything, so the last one cannot be
- * removed. Faded rather than hidden, so the column keeps its width and
- * the button stays where it will be once there is a second row. */
+/* Faded rather than hidden, so the column keeps its width and the button
+ * stays where it will be once there is a second row. */
 #diagnostics-table-parent .row-button button:disabled {
     opacity: 0.3;
     cursor: default;
@@ -162,7 +161,10 @@
     background-color: #555
 }
 
-.dropdown:hover .dropdown-content {
+/* Open while the class is set, which handleDropdownClick does on a click
+ * and undoes on the next one anywhere: the menu stays put while the
+ * pointer travels down it. */
+.dropdown.open .dropdown-content {
     display: block;
     position: absolute;
 }
