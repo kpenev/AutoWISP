@@ -65,6 +65,8 @@ install.
 Tests use Python `unittest` (pytest-compatible). They download test data automatically and run pipeline steps sequentially:
 
 ```bash
+conda activate autowisp          # or whatever the environment is called
+pip install .                    # the suite runs the *installed* package
 python -m autowisp.tests <failed_test_dir> -v    # Run all tests
 python -m autowisp.tests failed_test -v           # CI convention
 
@@ -72,11 +74,36 @@ python -m autowisp.tests failed_test -v           # CI convention
 python -m autowisp.tests failed_test -v -k TestCalibrate
 ```
 
+**Activate the environment; do not reach into it.** Calling
+`~/miniforge3/envs/autowisp/bin/python -m autowisp.tests` runs the right
+interpreter but leaves the environment's `bin` off `PATH`, so every test that
+shells out to a `wisp-*` console script dies with `FileNotFoundError:
+'wisp-calibrate'`. That is 21 errors that look like the pipeline is broken and
+are not, and they cost a full 16-minute run to find out. Non-interactive
+shells need `source ~/miniforge3/etc/profile.d/conda.sh` before
+`conda activate`.
+
+**Select tests with `-k`, rather than running a module directly.** The full
+suite is too slow to run after every edit, but `python -m autowisp.tests
+failed_test -v -k TestCalibrate` still imports `__main__`, which is where the
+suite collects from and the first thing CI trips over. `python -m unittest
+autowisp.tests.test_x` costs about the same and skips that entirely, so it
+passes happily while the suite cannot even start. Run the whole thing before
+pushing for CI.
+
 The `<failed_test_dir>` argument is **required** — it's where artifacts from failed tests are preserved for debugging. Tests run in a temporary directory, copy test data there, and clean up on success.
 
 Test classes (in order of pipeline dependency): `TestCalibrate` → `TestStackToMaster` → `TestFindStars` → `TestSolveAstrometry` → `TestFitStarShape` → `TestMeasureAperturePhotometry` → `TestFitSourceExtractedPSFMap` → `TestFitMagnitudes` → `TestCreateLightcurves` → `TestEPD` → `TestTFA` → `TestDetrendingStat`
 
 Base test class: `AutoWISPTestCase` (extends `astrowisp.tests.utilities.FloatTestCase`). Use `self.run_step(command)` to invoke pipeline CLI commands within tests.
+
+**A new test class must be imported into `autowisp/tests/__main__.py`**, which
+is where the suite collects from — an unimported class is never run and nothing
+says so. `test_suite_registration` compares what the runner reaches with what
+the modules define and fails naming whatever is unreachable, so this is caught
+rather than remembered. Two test classes may not share a name across modules:
+the imports land in one namespace, where the second silently replaces the
+first.
 
 ## Linting
 
