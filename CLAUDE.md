@@ -83,6 +83,18 @@ are not, and they cost a full 16-minute run to find out. Non-interactive
 shells need `source ~/miniforge3/etc/profile.d/conda.sh` before
 `conda activate`.
 
+**Import the checkout, not site-packages.** `TestUpgradeFromRelease` migrates
+each tagged release's schema forward, which needs the repository's history, so
+it asks `git -C os.path.dirname(__file__) rev-parse --show-toplevel` whether
+the test file it is running from is inside a checkout. An installed copy is
+not, so it skips — correctly, there being no history to export, but three
+migration tests then vanish into the skip count. Run from the repository root,
+or set `PYTHONPATH=<repo>`; the working directory matters only because
+`python -m` puts it on `sys.path`. Installing first is what keeps this honest:
+the tree and site-packages then agree, so the in-process tests and the `wisp-*`
+subprocesses exercise the same code. A skip count above 1 is the tell — the one
+expected skip is the server-only backup check, which the MariaDB jobs run.
+
 **Select tests with `-k`, rather than running a module directly.** The full
 suite is too slow to run after every edit, but `python -m autowisp.tests
 failed_test -v -k TestCalibrate` still imports `__main__`, which is where the
