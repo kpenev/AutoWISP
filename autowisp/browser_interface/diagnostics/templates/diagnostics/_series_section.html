@@ -50,6 +50,18 @@ Takes one context variable, `section`, as `build_section` returns it.
                 <code class="section-expression">{{ section.quantity.expression }}</code>
                 {% endif %}
                 <span class="section-description">{{ section.quantity.description }}</span>
+                {% comment %} Which y axis this section's quantity is
+                   drawn against. Sharing is the default because two
+                   quantities wrongly sharing one show it at once -- one
+                   is flattened -- where two wrongly separated are each
+                   rescaled to fill the height and look comparable when
+                   they are not. The options are rebuilt by the client as
+                   sections come and go. {% endcomment %}
+                <label class="section-axis">y axis
+                    <select class="axis-select">
+                        <option value="1" selected>1</option>
+                    </select>
+                </label>
                 {% comment %} How many of this section's rows reach the
                    plot, kept current by the client: a collapsed section
                    still says how much of what is drawn came from it.

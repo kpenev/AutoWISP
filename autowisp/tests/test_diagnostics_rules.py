@@ -25,6 +25,7 @@ import numpy
 
 from autowisp.diagnostics.expression_series import SeriesKey
 from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
+    assign_y_axes,
     group_series_by_x_overlap,
 )
 from autowisp.browser_interface.diagnostics.quantities import (
@@ -310,6 +311,97 @@ class TestSlotCells(unittest.TestCase):
                 ]
             ],
             [("", unset_option_text), ("B", "B (2)"), ("R", "R (3)")],
+        )
+
+
+class TestYAxisAssignment(unittest.TestCase):
+    """Which quantities share a y axis, and in what order the axes come.
+
+    A user says which *number* each quantity should be on, that being far
+    easier to say than an ordering; turning those numbers into axes is
+    what this does.
+    """
+
+    def test_everything_shares_one_axis_by_default(self):
+        """Sharing is the safe answer, and the usual one.
+
+        Two quantities wrongly sharing an axis show it at once -- one of
+        them is flattened -- where two wrongly separated are each rescaled
+        to fill the height and invite a comparison that is not there.
+        """
+
+        self.assertEqual(
+            assign_y_axes(["bg_center", "smooth_bg"], {}),
+            [["bg_center", "smooth_bg"]],
+        )
+
+    def test_a_quantity_asked_onto_its_own_axis_gets_one(self):
+        """Different units on a shared x is what the second axis is for."""
+
+        self.assertEqual(
+            assign_y_axes(
+                ["bg_center", "num_extracted_src"],
+                {"bg_center": 1, "num_extracted_src": 2},
+            ),
+            [["bg_center"], ["num_extracted_src"]],
+        )
+
+    def test_a_number_nothing_uses_is_skipped(self):
+        """Asking for 1 and 3 draws two axes, not three with a gap.
+
+        The number groups and orders; it does not count the axes, which
+        would make an empty one in the middle.
+        """
+
+        self.assertEqual(
+            assign_y_axes(
+                ["bg_center", "smooth_bg"],
+                {"bg_center": 1, "smooth_bg": 3},
+            ),
+            [["bg_center"], ["smooth_bg"]],
+        )
+
+    def test_an_axis_keeps_its_quantities_in_section_order(self):
+        """Which is the order of the legend and of everything else."""
+
+        self.assertEqual(
+            assign_y_axes(
+                ["a", "b", "c"],
+                {"a": 2, "b": 1, "c": 2},
+            ),
+            [["b"], ["a", "c"]],
+        )
+
+    def test_a_quantity_that_is_not_drawn_makes_no_axis(self):
+        """A section switched off entirely leaves no empty scale behind."""
+
+        self.assertEqual(
+            assign_y_axes(["bg_center"], {"bg_center": 1, "smooth_bg": 2}),
+            [["bg_center"]],
+        )
+
+    def test_a_quantity_is_named_once_however_many_rows_draw_it(self):
+        """Rows of one section share its axis and its label."""
+
+        self.assertEqual(
+            assign_y_axes(["bg_center", "bg_center"], {}), [["bg_center"]]
+        )
+
+    def test_nothing_drawn_makes_no_axes_at_all(self):
+        """The caller then has nothing to label or to draw a legend for."""
+
+        self.assertEqual(assign_y_axes([], {"bg_center": 2}), [])
+
+    def test_an_unanswerable_number_falls_to_the_first_axis(self):
+        """A plot is not worth failing over a malformed request.
+
+        The client sends what a dropdown said, and a page from before
+        these existed sends nothing at all.
+        """
+
+        self.assertEqual(
+            assign_y_axes(["a", "b"], {"a": "not a number", "b": None}),
+            [["a", "b"]],
         )
 
 

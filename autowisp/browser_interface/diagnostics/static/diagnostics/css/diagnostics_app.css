@@ -128,6 +128,19 @@
     content: "drawn: ";
 }
 
+/* Which y axis this section is drawn against. Kept from growing with its
+ * longest option, which names a quantity, so that the description beside
+ * it keeps the room instead. */
+.section-header .section-axis {
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.section-header .axis-select {
+    max-width: 8rem;
+    margin-left: 0.25rem;
+}
+
 .section-header button {
     font-family: inherit;
     font-size: 16px;

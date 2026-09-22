@@ -524,6 +524,87 @@ class TestInitialRow(DiagnosticsViewTestCase):
         self.assertEqual(row["count"], _frames_per_night[0]["object"])
 
 
+class TestSeparateYAxes(DiagnosticsViewTestCase):
+    """Quantities in different units sharing an x but not a y scale.
+
+    Only ``reverse`` is mocked, so the artists, the labels and the legend
+    are the real ones: the per-point click-through URL needs Django
+    settings and is not what any of this is about.
+    """
+
+    def figure_for(self, y_axes):
+        """Draw ``bg_center`` and ``pixel_q99`` with the given assignment."""
+
+        rows = [
+            self.bind(self.first_row("jd", quantity), 1, "object", "R")
+            for quantity in ("bg_center", "pixel_q99")
+        ]
+        target = (
+            "autowisp.browser_interface.diagnostics"
+            ".image_diagnostics_views.reverse"
+        )
+        with start_db_session() as db_session:
+            with mock.patch(target, return_value="/preview"):
+                return create_diagnostics_figure(
+                    rows,
+                    x_quantity="jd",
+                    expressions={},
+                    db_session=db_session,
+                    figure_config={"y_axes": y_axes},
+                )
+
+    def test_sharing_one_axis_draws_one(self):
+        """Both quantities on the same scale, named on the same label."""
+
+        figure = self.figure_for({})
+
+        self.assertEqual(len(figure.axes), 1)
+        self.assertEqual(figure.axes[0].get_ylabel(), "bg_center, pixel_q99")
+
+    def test_separate_numbers_draw_an_axis_each(self):
+        """A twin per further axis, each labelled for what it carries."""
+
+        figure = self.figure_for({"bg_center": 1, "pixel_q99": 2})
+
+        self.assertEqual(len(figure.axes), 2)
+        self.assertEqual(
+            [axes.get_ylabel() for axes in figure.axes],
+            ["bg_center", "pixel_q99"],
+        )
+
+    def test_the_legend_sits_on_the_topmost_axis(self):
+        """Naming every series, wherever it was drawn.
+
+        On the host it would be painted under the twin's points, and each
+        axis on its own would name only what it drew.
+        """
+
+        figure = self.figure_for({"bg_center": 1, "pixel_q99": 2})
+
+        self.assertIsNone(figure.axes[0].get_legend())
+        legend = figure.axes[-1].get_legend()
+        self.assertEqual(
+            [text.get_text() for text in legend.get_texts()],
+            [series["label"] for series in self.drawn_labels()],
+        )
+
+    def drawn_labels(self):
+        """Return the rows the figure draws, in the order it draws them."""
+
+        return [
+            self.first_row("jd", quantity)
+            for quantity in ("bg_center", "pixel_q99")
+        ]
+
+    def test_the_x_axis_and_grid_stay_on_the_host(self):
+        """Twin grids interleave into a mesh saying nothing about either."""
+
+        figure = self.figure_for({"bg_center": 1, "pixel_q99": 2})
+
+        self.assertTrue(figure.axes[0].get_xlabel())
+        self.assertFalse(figure.axes[1].get_xlabel())
+
+
 class TestSharedTimeOffset(DiagnosticsViewTestCase):
     """The x-offset is one value for the whole figure, not per series."""
 

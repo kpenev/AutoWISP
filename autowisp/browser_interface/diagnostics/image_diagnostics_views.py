@@ -340,28 +340,47 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
     return series_data
 
 
-def draw_series_group(axes, group, x_offset):
+def assign_y_axes(drawn, requested):
     """
-    Plot every series sharing one set of axes.
+    Return the quantities to put on each y axis, in the order drawn.
+
+    Sharing an axis is the safe default and the usual answer: two
+    quantities wrongly sharing one show it at once, since one of them is
+    flattened, where two wrongly given separate axes are rescaled to fill
+    the same height and invite a reader to compare what cannot be
+    compared.
+
+    What a user asks for is an axis *number* per quantity, which is easier
+    to say than an ordering. Turning numbers into axes is what happens
+    here: numbers nothing drawn uses are skipped, so asking for 1 and 3
+    draws two axes rather than three with an empty one between them, and
+    the number is only ever a way of grouping and ordering.
 
     Args:
-        axes:    The matplotlib Axes the group was assigned.
+        drawn(iterable):    The quantities actually drawn, in section
+            order. Repeats are ignored: a quantity is on one axis however
+            many rows draw it.
 
-        group(list):    ``(series, x_values, y_values, image_ids)`` tuples,
-            as grouped by :func:`group_series_by_x_overlap`.
-
-        x_offset(float):    Subtracted from every x value.  Shared by the
-            whole figure so the series keep their spacing relative to each
-            other.
+        requested(dict):    ``{quantity: axis number}``, as the client
+            posts it. A quantity missing from it, or carrying something
+            that is not a number, falls to the first axis -- an
+            unanswered question is not worth failing a plot over.
 
     Returns:
-        None
+        list:    One list of quantity names per axis, the first being the
+            host. Each list is in section order, and the axes are ordered
+            by the number asked for. Empty when nothing is drawn.
     """
 
-    for series, x_values, y_values, image_ids in group:
-        plot_image_diagnostic_series(
-            axes, x_values - x_offset, y_values, image_ids, series
-        )
+    wanted = {}
+    for quantity in dict.fromkeys(drawn):
+        try:
+            number = int(requested.get(quantity, 1))
+        except (TypeError, ValueError):
+            number = 1
+        wanted.setdefault(number, []).append(quantity)
+
+    return [wanted[number] for number in sorted(wanted)]
 
 
 def create_diagnostics_figure(
@@ -419,22 +438,110 @@ def create_diagnostics_figure(
     if all_axes is None:
         return fig
 
-    for axes, group in zip(all_axes.flatten(), groups):
-        draw_series_group(axes, group, x_offset)
-        axes.set_xlabel(f"JD - {x_offset!r}" if against_time else x_quantity)
-        # Named for what this subplot drew rather than for the page: a row
-        # carries the quantity it draws, and a subplot holds the rows whose
-        # x ranges overlap, which need not be all of them.  In the order
-        # they were drawn, and each named once however many rows drew it.
-        axes.set_ylabel(
-            ", ".join(dict.fromkeys(series["quantity"] for series, *_ in group))
+    # Decided from everything drawn rather than per subplot, so that a
+    # quantity keeps the same axis, the same side and the same label in
+    # every night. Built per subplot, a night drawing only the second
+    # quantity would put it on the host, its label crossing to the other
+    # side of the plot from where the night above has it. The scales still
+    # differ between nights -- each subplot autoscales to what it holds,
+    # which is deliberate -- so what this keeps steady is where to look,
+    # not what the heights mean.
+    per_axis = assign_y_axes(
+        (series["quantity"] for series, *_ in series_data),
+        figure_config.get("y_axes", {}),
+    )
+
+    for host, group in zip(all_axes.flatten(), groups):
+        draw_group_on_axes(
+            host,
+            group,
+            per_axis,
+            x_offset,
+            figure_config.get("show_legend", True),
         )
-        if figure_config.get("show_legend", True):
-            axes.legend()
-        axes.grid(True, linewidth=0.2)
+        host.set_xlabel(f"JD - {x_offset!r}" if against_time else x_quantity)
+        # The host alone: twin grids interleave into a mesh that says
+        # nothing about either scale.
+        host.grid(True, linewidth=0.2)
 
     fig.tight_layout()
     return fig
+
+
+def draw_group_on_axes(host, group, per_axis, x_offset, show_legend):
+    """
+    Draw one night's series, each on the axis its quantity was given.
+
+    Args:
+        host:    The subplot this night was assigned, which carries the
+            first y axis, the x axis and the grid.
+
+        group(list):    ``(series, x_values, y_values, image_ids)`` tuples
+            for this night.
+
+        per_axis(list):    What :func:`assign_y_axes` returned: the
+            quantities on each axis, the first being the host's.
+
+        x_offset(float):    Subtracted from every x value.
+
+        show_legend(bool):    Whether to draw the merged legend.
+
+    Returns:
+        None
+    """
+
+    axes_for = {}
+    axes = []
+    for number, quantities in enumerate(per_axis):
+        # A twin shares the x axis and brings a y scale of its own. From
+        # the third onwards its spine is pushed outwards, so that the
+        # scales stand side by side instead of on top of one another.
+        this = host if number == 0 else host.twinx()
+        if number > 1:
+            this.spines.right.set_position(("axes", 1 + 0.12 * (number - 1)))
+        this.set_ylabel(", ".join(quantities))
+        axes.append(this)
+        for quantity in quantities:
+            axes_for[quantity] = this
+
+    for series, x_values, y_values, image_ids in group:
+        plot_image_diagnostic_series(
+            axes_for.get(series["quantity"], host),
+            x_values - x_offset,
+            y_values,
+            image_ids,
+            series,
+        )
+
+    if show_legend:
+        draw_merged_legend(axes)
+
+
+def draw_merged_legend(axes):
+    """
+    Draw one legend for a subplot, naming what every one of its axes drew.
+
+    On the topmost axis rather than the host, and gathering the handles by
+    hand, because neither happens by itself: each axis offers only the
+    series drawn on it, and a legend belonging to the host is painted
+    underneath the twins that sit above it.
+
+    Args:
+        axes(list):    The subplot's axes, host first, as
+            :func:`draw_group_on_axes` built them.
+
+    Returns:
+        None
+    """
+
+    handles, labels = [], []
+    for each in axes:
+        each_handles, each_labels = each.get_legend_handles_labels()
+        handles += each_handles
+        labels += each_labels
+
+    if handles:
+        axes[-1].legend(handles, labels)
 
 
 def update_plot_view(

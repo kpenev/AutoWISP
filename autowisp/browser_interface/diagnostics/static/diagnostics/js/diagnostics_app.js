@@ -133,6 +133,9 @@ function getSelectedDatasets()
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
             "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
+            // Layout rather than data, so it travels with the rest of
+            // the layout and the download view replays it.
+            "y_axes": getYAxes(),
         },
     };
 }
@@ -147,7 +150,7 @@ function applyTableResponse(data)
         if ( source ) {
             source.insertAdjacentHTML("afterend", data.added_row);
             wireDiagnosticRow(source.nextElementSibling);
-            refreshRemoveButtons();
+            refreshControls();
             // The row arrived after the counts were last taken, and it is
             // drawn by the figure this same response carries.
             refreshDrawnCounts();
@@ -317,7 +320,7 @@ async function addOrJumpToSection()
         section = document.getElementById("section:" + quantity);
         wireSection(section);
         section.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
-        refreshRemoveButtons();
+        refreshControls();
         refreshDrawnCounts();
         refreshPageUrl();
 
@@ -362,9 +365,75 @@ function onRemoveSection(event)
 function removeSection(section)
 {
     section.remove();
-    refreshRemoveButtons();
+    refreshControls();
     refreshDrawnCounts();
     refreshPageUrl();
+}
+
+function refreshAxisOptions()
+{
+    // One option per section, since a page of N sections can use at most
+    // N axes. Rebuilt whenever that number changes, keeping whatever each
+    // section was already set to -- removing a section must not quietly
+    // move another one's quantity onto a different scale.
+    const sections = document.querySelectorAll(".diagnostics-section");
+
+    // Read every choice before changing any of them, since each option's
+    // label depends on what the others are set to.
+    const chosen = new Map(
+        Array.from(sections, (section) => [
+            section,
+            section.querySelector(".axis-select").value || "1",
+        ])
+    );
+
+    // An axis means more as the quantity already on it than as a number,
+    // so each option says which one that is -- the first in section
+    // order, an axis being able to carry several. A number nothing has
+    // taken yet stands alone: choosing it is asking for a new scale.
+    const firstOn = new Map();
+    for ( const section of sections )
+        if ( !firstOn.has(chosen.get(section)) )
+            firstOn.set(chosen.get(section), section.dataset.quantity);
+
+    for ( const section of sections ) {
+        const select = section.querySelector(".axis-select");
+        select.replaceChildren(...Array.from(sections, (ignored, index) => {
+            const number = String(index + 1);
+            const option = document.createElement("option");
+            option.value = number;
+            option.textContent = firstOn.has(number)
+                ? number + ": " + firstOn.get(number)
+                : number;
+            return option;
+        }));
+        // The choice survives only while there is still an axis to hold
+        // it: a section set to 3 on a page cut down to two sections falls
+        // back to the first, as it would be drawn anyway.
+        select.value =
+            Number(chosen.get(section)) <= sections.length
+                ? chosen.get(section)
+                : "1";
+    }
+}
+
+function onAxisChange()
+{
+    // Every selector's labels name the first quantity on each axis, so
+    // moving one section changes what the others read.
+    refreshAxisOptions();
+    updateFigure();
+}
+
+function getYAxes()
+{
+    // What the figure needs: which axis number each *quantity* is on,
+    // the quantity being what a row names and the figure groups by.
+    const axes = {};
+    for ( const section of document.querySelectorAll(".diagnostics-section") )
+        axes[section.dataset.quantity] =
+            Number(section.querySelector(".axis-select").value);
+    return axes;
 }
 
 function refreshDrawnCounts()
@@ -390,6 +459,13 @@ function wireSection(section)
     // rows, so the body stops the click before it reaches here.
     section.addEventListener("click", onToggleSection);
     section.querySelector(".section-body").addEventListener("click", stopClick);
+
+    // In the header, so its click would collapse the section; and a
+    // change to it is a change to the figure's layout, nothing the
+    // server has to work out.
+    const axis = section.querySelector(".axis-select");
+    axis.addEventListener("click", stopClick);
+    axis.addEventListener("change", onAxisChange);
 
     // Inside the header, so its click would collapse the section on the
     // way out without this.
@@ -435,13 +511,17 @@ function onRemoveRow(event)
          && document.querySelectorAll(".diagnostics-section").length > 1 )
         removeSection(section);
     else
-        refreshRemoveButtons();
+        refreshControls();
 
     updateFigure();
 }
 
-function refreshRemoveButtons()
+function refreshControls()
 {
+    // Everything whose choices depend on what the page now holds, called
+    // wherever a row or a section arrives or leaves -- one function, so
+    // that adding a control of this kind cannot miss a call site.
+    //
     // The page needs a row to draw anything at all, and a section to name
     // in its URL, so the last of each cannot be removed. Said with a
     // disabled button rather than by refusing the click, so that it is
@@ -451,10 +531,12 @@ function refreshRemoveButtons()
         row.querySelector(".remove-row").disabled = rows.length < 2;
 
     // Empty on the detrending page, which loads this file but has no
-    // sections, so this does nothing there.
+    // sections, so the rest does nothing there.
     const sections = document.querySelectorAll(".diagnostics-section");
     for ( const section of sections )
         section.querySelector(".remove-section").disabled = sections.length < 2;
+
+    refreshAxisOptions();
 }
 
 function stopClick(event)
@@ -538,7 +620,7 @@ function initImageDiagnostics(plotURL)
     );
     document.querySelectorAll(".diagnostics-section").forEach(wireSection);
     document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
-    refreshRemoveButtons();
+    refreshControls();
 
     // A row arrives drawn, so the figure is asked for at once rather than
     // waiting for a first click that no longer has to happen.
