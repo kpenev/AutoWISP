@@ -120,7 +120,7 @@ def get_detrending_performance_data(
 
     if detrending_mode.lower() == "mfit":
         data, num_cat_columns = read_stat_data(catalog_fname, stat_fname)
-        (num_unrejected_columns, scatter_columns, expected_scatter_columns) = (
+        num_unrejected_columns, scatter_columns, expected_scatter_columns = (
             detect_magfit_stat_columns(
                 data, len(data.columns) - num_cat_columns, skip_first_stat
             )

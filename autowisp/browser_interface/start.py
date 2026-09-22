@@ -26,7 +26,7 @@ def parse_command_line():
     )
     parser.add_argument(
         "--hostname",
-        default='',
+        default="",
         metavar="[<HOSTNAME>:]<PORT>",
         help="The port to run the surver on and optionally hostname. By "
         "default automatically finds an oppen port on localhost.",
@@ -138,9 +138,10 @@ def main():
     # otherwise any later output (e.g. a warning or a traceback) is written to
     # a closed file and the interpreter dies with "lost sys.stderr".
     original_streams = (sys.stdout, sys.stderr)
-    with open(filenames["out"], "w", encoding="utf-8") as outf, open(
-        filenames["err"], "w", encoding="utf-8"
-    ) as errf:
+    with (
+        open(filenames["out"], "w", encoding="utf-8") as outf,
+        open(filenames["err"], "w", encoding="utf-8") as errf,
+    ):
         try:
             sys.stdout = outf
             sys.stderr = errf
