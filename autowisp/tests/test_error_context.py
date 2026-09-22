@@ -11,6 +11,7 @@ in ``setUp``).
 import glob
 import os
 import pickle
+import signal
 import tempfile
 import unittest
 from multiprocessing import Process, Queue
@@ -1044,6 +1045,15 @@ class TestExitSignalDecode(unittest.TestCase):
 
         self.assertEqual(ecmod.decode_exit_signals([None, 0]), [])
 
+    # Pretending to be POSIX does not conjure up POSIX's signals: the
+    # names come from the running platform's own table, and Windows has
+    # no SIGKILL (it does have SIGSEGV, which is why only 9 is missing).
+    # Skipped there rather than asserted around, the subject of the test
+    # being the names themselves.
+    @unittest.skipUnless(
+        hasattr(signal, "SIGKILL"),
+        "decoding -9 needs a platform whose signal table has SIGKILL",
+    )
     def test_posix_signals_and_plain_codes(self):
         """POSIX: negative codes decode to their signal; positive don't."""
 
