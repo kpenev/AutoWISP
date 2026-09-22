@@ -311,9 +311,10 @@ class ImageProcessingManager(ProcessingManager):
         Only splits batches by the best master for each image.
 
         Args:
-            batch([Image, channel, status]):    List of database image instances
-                and for channels which to find the configuration(s). The channel
-                should be ``None`` for the ``calibrate`` step
+            batch(list):    ``(Image, channel, status)`` tuples: the
+                database image instances and the channels to find the
+                configuration(s) for. The channel should be ``None`` for
+                the ``calibrate`` step
 
             master_expression_values(tuple):    The values the expressions
                 required to select input masters or to guarantee a unique output

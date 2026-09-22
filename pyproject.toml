@@ -97,8 +97,23 @@ documentation = 'https://kpenev.github.io/AutoWISP/'
 [project.optional-dependencies]
 test = []
 
-browser_interface = [
-    'Django'
+# Building the documentation, which nothing else needs -- `pip install
+# autowisp` should not drag a documentation toolchain along with it.
+#
+# Install these into the same environment as autowisp itself, not
+# system-wide: `sphinx-build` imports every module it documents, so the
+# interpreter running it has to be the one that can import the package
+# and everything the package imports.
+docs = [
+    # nbsphinx highlights a notebook's cells with the ``ipython3`` lexer,
+    # which is registered by IPython rather than by Pygments.
+    'ipython',
+    'nbsphinx',
+    'sphinx',
+    # The theme conf.py names, and the two extensions it lists that are
+    # not part of Sphinx itself.
+    'sphinx_mdinclude',
+    'sphinx_rtd_theme',
 ]
 
 [tool.black]

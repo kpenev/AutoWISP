@@ -446,8 +446,9 @@ def _count_images(matching, required, per_channel, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        list:    ``(session_label, session_id, image_type[, channel],
-            count)`` tuples, the channel present only when *per_channel*.
+        list:    One tuple per series, holding the session label, the
+            session id, the image type, the channel where *per_channel*,
+            and the count.
     """
 
     grouped = [ImageDiagnostics.image_id]

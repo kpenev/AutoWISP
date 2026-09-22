@@ -377,8 +377,8 @@ def cleanup_errors(*, older_than=None):
             the aged-row pass and only sweeps orphans/dangling rows.
 
     Returns:
-        dict:    Counts ``{"removed_rows", "removed_files",
-            "cleared_dangling"}``.
+        dict:    Counts under the keys ``removed_rows``,
+            ``removed_files`` and ``cleared_dangling``.
     """
 
     project_home = get_project_home()

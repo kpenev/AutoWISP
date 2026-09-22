@@ -170,20 +170,49 @@ AstroWISP (`/home/kpenev/projects/git/AstroWISP/`) is the lower-level C++/Python
 Sphinx sources live in `documentation/source/`; the published `docs/` folder is
 build output (~1181 tracked files) served by GitHub Pages.
 
-Regenerate `documentation/source/wisp_options.rst` **first** by running
-`documentation/source/document_options.py` — it is gitignored and is built from
-a throwaway project, so it needs the current code installed. Skipping it does
-not fail the build: you get a "toctree contains reference to nonexisting
-document" warning lost among ~56 pre-existing ones, no options page, and every
-`:option:` link silently unresolved. Then `rm -rf docs/` and
-`sphinx-build -b html documentation/source docs`.
+**The build is warning-free, and is meant to stay that way.** Any warning
+`make html` prints was introduced by the change in hand — there is no
+background noise left to lose it in, so read the output rather than the exit
+code, which is 0 either way.
 
-The wipe matters: commit 07817f54 deleted the sources for eleven pages whose
-built HTML is still tracked, and a plain rebuild does not remove them — they
-stay live, unreachable from the nav but reachable by URL and search. Wiping is
-safe: `sphinx.ext.githubpages` recreates `.nojekyll`, which is essential, since
-without it Pages runs Jekyll and ignores `_static/`, `_sources/` and `_images/`.
+**Build with `make html` from `documentation/`** — never by calling
+`sphinx-build` yourself. The Makefile does five things in order that a bare
+build does not, each guarding a failure that is silent rather than loud:
+
+- runs `document_options.py`, which regenerates the gitignored
+  `wisp_options.rst` from a throwaway project, so it needs the current code
+  installed. Skipping it does not fail the build: you get a "toctree contains
+  reference to nonexisting document" warning, no options page, and every
+  `:option:` link silently unresolved.
+- wipes `source/implementation` before `sphinx-apidoc`, which overwrites the
+  pages it generates but never deletes the ones whose module is gone.
+- passes `sphinx-apidoc` the exclusions in `APIDOCSKIP`: the modules that are
+  deliberately not installed, which would otherwise get a page autodoc cannot
+  fill, and the `data_model` submodules, whose classes the package page
+  already documents by way of its `__all__`.
+- wipes `build/`, because an incremental build only writes the pages it
+  re-reads while the whole of `build/html` replaces `docs/`, so anything
+  skipped goes missing from the published site.
+- wipes `docs/` before moving the new build in. That matters: commit 07817f54
+  deleted the sources for eleven pages whose built HTML is still tracked, and
+  a plain rebuild does not remove them — they stay live, unreachable from the
+  nav but reachable by URL and search. Wiping is safe: `sphinx.ext.githubpages`
+  recreates `.nojekyll`, which is essential, since without it Pages runs Jekyll
+  and ignores `_static/`, `_sources/` and `_images/`.
+
 Keep the rebuild as its own commit; it rewrites every page.
+
+The toolchain is an extra, `pip install .[docs]`, and belongs in **the same
+environment as autowisp** — `sphinx-build` imports every module it documents,
+so a system-wide Sphinx whose interpreter cannot import `autowisp` produces a
+full set of API pages with every `automodule` silently empty. Graphviz (`dot`)
+must be on PATH for the inheritance diagrams.
+
+`conf.py` calls `django.setup()`, because the browser interface is Django
+applications and importing one of its modules needs the application registry.
+That works only while the applications name each other by their full import
+path; a short name reintroduces the empty pages, and worse, a second module
+identity for a model Django has already registered.
 
 ## Issue Tracking
 

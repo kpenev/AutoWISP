@@ -1,7 +1,30 @@
 """Configuration for SPHINX to generate documentation."""
 
+import os
 import sys
 import inspect
+
+import django
+
+# The browser interface is Django applications, and importing one of its
+# modules needs the application registry ready: a ``models.py`` fails
+# outright without it.  Set up exactly as the interface itself does, by the
+# full path -- the apps name each other that way too, so there is one
+# module identity here and no chance of a class being registered twice.
+#
+# The data directory is created because the logging configuration opens a
+# file in it, which is what ``start.py`` does before serving. Nothing else
+# here touches it: no database is opened by importing settings.
+# pylint: disable=wrong-import-position
+from autowisp.browser_interface.django_project import settings as bui_settings
+
+os.makedirs(bui_settings.BASE_DIR, exist_ok=True)
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "autowisp.browser_interface.django_project.settings",
+)
+django.setup()
+# pylint: enable=wrong-import-position
 
 # -*- coding: utf-8 -*-
 #
@@ -89,7 +112,11 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
+#
+# sphinx-apidoc writes a modules.rst whose only content is a toctree of the
+# package it documented. index.rst links that package directly, so the page
+# is reachable from nothing and reports itself as such.
+exclude_patterns = ["implementation/modules.rst"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -107,8 +134,8 @@ html_theme = "sphinx_rtd_theme"
 # documentation.
 #
 html_theme_options = {
-    'collapse_navigation': False,
-    'navigation_depth': 2,
+    "collapse_navigation": False,
+    "navigation_depth": 2,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -194,7 +221,12 @@ texinfo_documents = [
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"python": ("https://docs.python.org/", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/", None),
+    # The data model inherits docstrings from SQLAlchemy's declarative
+    # base, and those link into SQLAlchemy's own documentation.
+    "sqlalchemy": ("https://docs.sqlalchemy.org/en/20/", None),
+}
 
 # -- Options for todo extension ----------------------------------------------
 
@@ -203,7 +235,16 @@ todo_include_todos = True
 
 # -- Options for autodoc extension -------------------------------------------
 
-autodoc_default_flags = ["members", "undoc-members", "show-inheritance"]
+# What every ``automodule`` gets without asking. The apidoc-generated
+# pages spell these out themselves, from SPHINX_APIDOC_OPTIONS in the
+# Makefile; this is what the hand-written pages get. (The old spelling,
+# ``autodoc_default_flags``, was removed from Sphinx years ago and had
+# been doing nothing.)
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
 
 autodoc_mock_imports = ["autowisp.database.DbSource"]
 
@@ -212,11 +253,45 @@ autodoc_mock_imports = ["autowisp.database.DbSource"]
 napoleon_include_private_with_doc = True
 napoleon_include_special_with_doc = True
 napoleon_include_init_with_doc = True
+# An ``Attributes:`` section becomes ``:ivar:`` fields rather than
+# ``attribute`` directives. The directives declare targets of their own,
+# which collide with the ones autodoc declares for the same attributes --
+# every documented dataclass field otherwise reports itself as documented
+# twice on its own page.
+napoleon_use_ivar = True
 # pylint: enable=invalid-name
 
 inheritance_graph_attrs = dict(
     rankdir="TB", fontsize="24", ratio="auto", size="120"
 )
+
+
+def diagrammable(class_name, obj=None):
+    """
+    Return whether ``inheritance-diagram`` can draw this class.
+
+    Two kinds it cannot, each of which is a warning and an absent figure
+    rather than a failure:
+
+    * a private class, which the directive drops from the graph it builds
+      -- asking for a diagram of one alone leaves the graph empty;
+    * a class nested in another, whose dotted name the directive reads as
+      a module path and fails to import.
+
+    Args:
+        class_name(str):    The name the diagram would be asked for.
+
+        obj:    The class itself, where there is one. Its ``__qualname__``
+            is what says whether it is nested, the name alone being unable
+            to tell ``module.Outer.Inner`` from a class in a submodule.
+
+    Returns:
+        bool:    Whether to ask for the diagram.
+    """
+
+    qualname = getattr(obj, "__qualname__", class_name.rpartition(".")[2])
+
+    return "." not in qualname and not qualname.startswith("_")
 
 
 # Call signature defined by SPHINX autodoc plugin.
@@ -227,15 +302,18 @@ def add_inheritance_diagram(app, what, name, obj, options, lines):
 
     if what == "module" and name not in autodoc_mock_imports:
         class_list = [
-            member[0]
-            for member in inspect.getmembers(sys.modules[name], inspect.isclass)
+            member_name
+            for member_name, member in inspect.getmembers(
+                sys.modules[name], inspect.isclass
+            )
+            if diagrammable(member_name, member)
         ]
         if class_list:
             lines.insert(0, "")
             lines.insert(0, ".. inheritance-diagram:: " + " ".join(class_list))
             lines.insert(0, "=========================")
             lines.insert(0, "Class Inheritance Diagram")
-    elif what == "class":
+    elif what == "class" and diagrammable(name, obj):
         lines.insert(0, "")
         lines.insert(0, ".. inheritance-diagram:: " + name)
 
