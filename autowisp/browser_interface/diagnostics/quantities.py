@@ -15,10 +15,6 @@ asked here is only which names are on offer.
 
 from sqlalchemy import select
 
-from autowisp.diagnostics.diagnostic_types import (
-    is_quantile_diagnostic,
-    quantiles_quantity,
-)
 from autowisp.diagnostics.expression_series import time_quantity
 from autowisp.diagnostics.expressions import order_expressions
 from autowisp.exceptions import PipelineError
@@ -86,19 +82,15 @@ def get_available_diagnostics(recorded, expressions):
         expressions(dict):    The library, ``{name: expression}``.
 
     Returns:
-        list:    ``jd``, then every recorded diagnostic -- with the
-            individual quantiles standing down in favour of the family name
-            that expands to one series per member -- then the expressions
-            this project has the data to draw.
+        list:    ``jd``, then every recorded diagnostic, then the
+            expressions this project has the data to draw.
     """
 
-    result = [time_quantity] + [
-        name for name in recorded if not is_quantile_diagnostic(name)
-    ]
-    if any(is_quantile_diagnostic(name) for name in recorded):
-        result.append(quantiles_quantity)
-
-    return result + get_available_expressions(expressions, recorded)
+    return (
+        [time_quantity]
+        + list(recorded)
+        + get_available_expressions(expressions, recorded)
+    )
 
 
 def get_available_expressions(expressions, recorded):
@@ -143,32 +135,6 @@ def get_available_expressions(expressions, recorded):
             available.append(name)
 
     return available
-
-
-def resolve_quantity(quantity_name, quantile_name):
-    """
-    Map an axis name onto the concrete quantity for one series.
-
-    ``pixel_quantiles`` names a family rather than a quantity: each series picks
-    one ``pixel_q*`` member of it, recorded in the series id.  Resolving
-    that here, once, is what lets everything downstream handle a single
-    concrete name -- leaving ``jd`` as the only quantity that still needs a
-    branch anywhere, because it alone comes from the image table rather than
-    from ``image_diagnostics``.
-
-    Args:
-        quantity_name(str):    The name an axis was selected as.
-
-        quantile_name(str):    The ``pixel_q*`` this series stands for, or
-            ``None`` outside a quantile expansion.
-
-    Returns:
-        str:    The quantity to actually read.
-    """
-
-    if quantity_name == quantiles_quantity:
-        return quantile_name
-    return quantity_name
 
 
 def get_diagnostic_descriptions(db_session):

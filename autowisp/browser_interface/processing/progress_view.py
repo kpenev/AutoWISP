@@ -26,6 +26,9 @@ from autowisp.database.data_model import ImageProcessingProgress, PipelineRun
 
 # pylint: enable=no-name-in-module
 
+from autowisp.browser_interface.diagnostics.quantities import (
+    get_quantile_names,
+)
 from .log_views import datetime_fmt
 
 logger = logging.getLogger(__name__)
@@ -145,5 +148,16 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
         selected_tokens = set(request.session["selected_step_tokens"])
 
     context["selected_tokens"] = selected_tokens
+
+    # The calibration bar links to every quantile recorded, each its own
+    # section of one plot, there being no longer a single name standing
+    # for the family. Empty until one is recorded, since the URL converter
+    # cannot build a section list out of nothing -- which is the same as
+    # the other bars, whose links lead nowhere until there is something to
+    # show.
+    with start_db_session() as db_session:
+        context["quantile_quantities"] = ",".join(
+            get_quantile_names(db_session)
+        )
 
     return render(request, "processing/progress.html", context)

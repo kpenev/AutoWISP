@@ -1,10 +1,10 @@
 """Views for displaying per-image diagnostics.
 
-One quantity may be plotted against another, where a quantity is a
-``DiagnosticType`` name, the ``pixel_quantiles`` pseudo-name expanding to
-one series per ``pixel_q*``, or ``jd``.  Plotting against time is not a separate
-mode: it is ``x="jd"``, which resolves through the same path as everything
-else because the canonical image list already carries the Julian dates.
+Quantities may be plotted against one another, where a quantity is a
+``DiagnosticType`` name, an expression over those, or ``jd``.  Plotting
+against time is not a separate mode: it is ``x="jd"``, which resolves
+through the same path as everything else because the canonical image list
+already carries the Julian dates.
 
 The figure half of the page: reading the values a row asks for, drawing
 them, and the Django views that serve it. What the *table* above the plot
@@ -43,7 +43,6 @@ from .quantities import (
     get_diagnostic_descriptions,
     get_recorded_diagnostics,
     next_section_marker,
-    resolve_quantity,
     section_markers,
 )
 from .series_table import (
@@ -86,10 +85,7 @@ def get_series_data(series, x_quantity, expressions, db_session):
 
     series_key = get_series_key(series)
     y_quantity, _ = split_row_id(series["id"])
-    quantities = [
-        resolve_quantity(quantity_name, series_key.quantile_name)
-        for quantity_name in (x_quantity, y_quantity)
-    ]
+    quantities = [x_quantity, y_quantity]
 
     # The row's channels are the two axes' bindings laid end to end, in
     # the order the columns are, so each axis takes as many as the

@@ -212,7 +212,14 @@ Processing Progress
                         <span class="tooltiptext">
                             {% if step.0 == 'calibrate' %}
                             Review calibration diagnostics
-                            {% url 'diagnostics:display_diagnostics' x_quantity='jd' y_quantities='pixel_quantiles' as diagnostic_url %}
+                            {% comment %} One section per recorded
+                               quantile, there being no single name for
+                               the family any more. No link at all until
+                               one is recorded, as with the bars whose
+                               steps have not run. {% endcomment %}
+                            {% if quantile_quantities %}
+                            {% url 'diagnostics:display_diagnostics' x_quantity='jd' y_quantities=quantile_quantities as diagnostic_url %}
+                            {% endif %}
                             {% elif step.0 == 'find' and step.1 == 'stars' %}
                             Review star finding diagnostics
                             {% url 'diagnostics:display_diagnostics' x_quantity='jd' y_quantities='num_extracted_src' as diagnostic_url %}

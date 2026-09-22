@@ -33,8 +33,6 @@ from autowisp.database.data_model import ObservingSession
 
 # pylint: enable=no-name-in-module
 
-from .quantities import resolve_quantity
-
 #: Separates the fields of the two ids the client round-trips: a row's,
 #: ``quantity|ordinal``, and the value of one option of the session and
 #: type dropdown, ``session id|image type``.  Not the underscore an earlier
@@ -716,7 +714,7 @@ def get_available_series(
     # either way -- it is known for every image of the session and so
     # constrains nothing.
     per_axis = [
-        get_axis_slots(resolve_quantity(quantity_name, None), expressions)
+        get_axis_slots(quantity_name, expressions)
         for quantity_name in (x_quantity, y_quantity)
     ]
     headings = [
@@ -759,7 +757,7 @@ def get_available_series(
     }
 
 
-def get_axes_slot_needs(x_quantity, y_quantity, expressions, quantile_name):
+def get_axes_slot_needs(x_quantity, y_quantity, expressions):
     """Return what each channel column of the table reads, in column order.
 
     The x quantity's slots followed by the y quantity's, concatenated
@@ -773,9 +771,6 @@ def get_axes_slot_needs(x_quantity, y_quantity, expressions, quantile_name):
 
         expressions(dict):    The library, ``{name: expression}``.
 
-        quantile_name(str):    The ``pixel_q*`` a row stands for, or
-            ``None`` outside a quantile expansion.
-
     Returns:
         list:    One ``frozenset`` of diagnostic names per column.
     """
@@ -783,9 +778,7 @@ def get_axes_slot_needs(x_quantity, y_quantity, expressions, quantile_name):
     return [
         needed
         for quantity_name in (x_quantity, y_quantity)
-        for _, needed in get_axis_slots(
-            resolve_quantity(quantity_name, quantile_name), expressions
-        )
+        for _, needed in get_axis_slots(quantity_name, expressions)
     ]
 
 
@@ -812,7 +805,7 @@ def get_row_options(y_quantity, *, x_quantity, expressions, db_session):
             :func:`get_pair_options` return them.
     """
 
-    slot_needs = get_axes_slot_needs(x_quantity, y_quantity, expressions, None)
+    slot_needs = get_axes_slot_needs(x_quantity, y_quantity, expressions)
     options, labels = (
         get_slot_options(slot_needs, db_session) if slot_needs else ({}, {})
     )
@@ -907,9 +900,7 @@ def get_table_response(post_data, *, x_quantity, expressions, db_session):
         # the client posts what the section's is. A rebound row keeps
         # whatever it is already drawn with, the client sending it back
         # unchanged, so what is passed here reaches only the copy.
-        marker=(
-            post_data.get("section_marker") or source.get("marker") or "o"
-        ),
+        marker=(post_data.get("section_marker") or source.get("marker") or "o"),
         db_session=db_session,
     )
 

@@ -29,7 +29,6 @@ import numpy
 from autowisp.diagnostics.diagnostic_types import (
     is_diagnostic,
     is_known_quantity,
-    is_reserved_name,
     time_quantity,
 )
 from autowisp.evaluator import Evaluator, EvaluatorBase
@@ -955,10 +954,11 @@ def check_expression(name, expression, current_library):
             f"{name!r} is not a valid name: use letters, digits, hyphens "
             "and underscores, so that it survives being put in a URL."
         )
-    if is_reserved_name(name):
+    if is_known_quantity(name):
         problems.append(
-            f"{name!r} already names a diagnostic, or the family of them "
-            "the selectors offer, and an expression cannot shadow either."
+            f"{name!r} already names a diagnostic, and an expression "
+            "cannot shadow one: the two share a name space, which is what "
+            "lets a selector and a URL treat them alike."
         )
 
     try:

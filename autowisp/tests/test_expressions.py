@@ -9,10 +9,7 @@ import unittest
 
 import numpy
 
-from autowisp.diagnostics.diagnostic_types import (
-    quantiles_quantity,
-    time_quantity,
-)
+from autowisp.diagnostics.diagnostic_types import time_quantity
 from autowisp.diagnostics.expressions import (
     QuantityLookUp,
     check_expression,
@@ -305,25 +302,16 @@ class TestQuantileNames(unittest.TestCase):
 
         self.assertTrue(check_expression("q", "pixel_quality * 2", {}))
 
-    def test_the_family_name_may_not_be_taken_either(self):
-        """``pixel_quantiles`` is a selector name, so it is reserved too.
+    def test_a_name_no_diagnostic_answers_to_is_unresolvable(self):
+        """``pixel_quantiles`` is one such name, and nothing special now.
 
-        It is the one reserved name that is not a readable quantity: it
-        stands for the whole ``pixel_q*`` family, expanding to one series
-        per member.  An expression allowed to take it would be swallowed by
-        that expansion and silently never drawn.
+        It once stood for the whole ``pixel_q*`` family and was reserved
+        against being taken by an expression. Each quantile is an ordinary
+        quantity with a section of its own, so the family name means
+        nothing to anything and refuses like any other typo.
         """
 
-        self.assertTrue(check_expression(quantiles_quantity, "1", {}))
-
-    def test_the_family_name_does_not_resolve_as_a_variable(self):
-        """Reserved is not the same as readable, and here they differ.
-
-        A family has no values of its own, so an expression referencing it
-        is a mistake rather than a way of reaching every quantile at once.
-        """
-
-        self.assertTrue(check_expression("q", f"{quantiles_quantity} * 2", {}))
+        self.assertTrue(check_expression("q", "pixel_quantiles * 2", {}))
 
     def test_a_quantile_survives_the_ordering_pass(self):
         """A composed expression must not be rejected by the cycle check.

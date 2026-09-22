@@ -263,26 +263,28 @@ class TestAvailableQuantities(DiagnosticsViewTestCase):
         with start_db_session() as db_session:
             return get_recorded_diagnostics(db_session)
 
-    def test_recorded_names_are_raw(self):
-        """The individual quantiles, not the family that replaces them.
-
-        This is the set an expression is judged against, and one may
-        reference a concrete ``pixel_q999``, so the collapse must happen
-        after rather than before.
-        """
+    def test_every_recorded_name_is_offered(self):
+        """Including each quantile, which is what an expression is judged
+        against and what a section may now draw."""
 
         self.assertEqual(sorted(self._recorded()), sorted(_diagnostic_names))
 
-    def test_selector_offers_the_family_not_its_members(self):
-        """One entry expanding to a series per quantile, and ``jd`` first."""
+    def test_the_selector_offers_each_quantile_and_no_family(self):
+        """A ``pixel_q*`` is an ordinary quantity with a section of its own.
+
+        The family name stood for all of them on one plot, which is what
+        sections do for any quantity -- so it earned its keep no longer,
+        and drawing one quantile against another needed an expression
+        while it existed.
+        """
 
         available = get_available_diagnostics(self._recorded(), {})
 
         self.assertEqual(available[0], "jd")
-        self.assertIn("pixel_quantiles", available)
         self.assertIn("bg_center", available)
+        self.assertNotIn("pixel_quantiles", available)
         for name in _quantile_names:
-            self.assertNotIn(name, available)
+            self.assertIn(name, available)
 
     def test_expressions_join_the_same_flat_list(self):
         """Not a second list beside it.
@@ -380,6 +382,55 @@ class TestAvailableQuantities(DiagnosticsViewTestCase):
 
         self.assertEqual(
             get_available_expressions(library, self._recorded()), []
+        )
+
+
+class TestQuantileSection(DiagnosticsViewTestCase):
+    """A ``pixel_q*`` draws like any other recorded diagnostic.
+
+    Which is the whole of what replaced the family: a quantile is named,
+    bound, counted and read exactly as ``bg_center`` is, and several of
+    them share a plot by being several sections rather than by one name
+    expanding into them.
+    """
+
+    def test_a_quantile_section_starts_with_a_row(self):
+        """Built from the same pairs, since only object frames record it."""
+
+        row = self.first_row("jd", "pixel_q99")
+
+        self.assertEqual(split_row_id(row["id"]), ("pixel_q99", 0))
+        self.assertEqual(row["count"], _frames_per_night[0]["object"])
+
+    def test_a_quantile_reads_its_own_values(self):
+        """No family stands between the name and the numbers."""
+
+        series = self.bind(self.first_row("jd", "pixel_q999"), 2, "object", "R")
+        with start_db_session() as db_session:
+            _, y_values, _ = get_series_data(series, "jd", {}, db_session)
+
+        self.assertEqual(
+            y_values.tolist(),
+            [300.0 + index for index in range(_frames_per_night[1]["object"])],
+        )
+
+    def test_one_quantile_against_another(self):
+        """What the family made impossible without an expression."""
+
+        series = self.bind(
+            self.first_row("pixel_q99", "pixel_q999"), 2, "object", "R", "R"
+        )
+        with start_db_session() as db_session:
+            x_values, y_values, _ = get_series_data(
+                series, "pixel_q99", {}, db_session
+            )
+
+        frames = _frames_per_night[1]["object"]
+        self.assertEqual(
+            x_values.tolist(), [200.0 + index for index in range(frames)]
+        )
+        self.assertEqual(
+            y_values.tolist(), [300.0 + index for index in range(frames)]
         )
 
 
