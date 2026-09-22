@@ -399,40 +399,112 @@ than the images, showing the scatter left after magnitude fitting, EPD
 and TFA. That is where you see whether the detrending stages actually
 improved anything, and by how much, rather than assuming they did.
 
+On either of the per-image plots the horizontal axis is one quantity, but
+the vertical is as many as you ask for. Background and star size against
+time on the same figure is how you see that the night the sky brightened
+is also the night the images went soft -- a thing neither plot shows on
+its own, and one that is easy to miss when the two are in different tabs.
+
 Choosing what to draw
 ---------------------
 
-Whichever plot you are on, the table above it lists what can be drawn:
-one row per observing session and image type -- and per quantile, where
-the quantiles are being plotted. Clicking a row adds its series to the
-figure, and the first four columns of that row are yours to set: the
-colour, the marker, a scale factor and the label the legend will use.
+This and the next section are about the per-image plots; the detrending
+plots are configured from a table too, but a simpler one, with nothing to
+bind and one row per set of light curves to compare.
 
-**The channel is chosen in the row.** Between them the two axes need one
-channel per quantity they draw, and each gets its own column: plotting
-``bg_center`` against time asks for one channel, plotting it against
-itself asks for two -- which is how a diagnostic is compared between
-channels. A column offers only the channels that session recorded the
-diagnostic in, with the number of images each would draw, so a night
-with nothing in it says so before you click.
+Each quantity on the vertical axis gets a **section** of the page: a
+header saying what it draws, and under it a table of the series drawn
+from it. A row of that table is one series -- one observing session, one
+image type, one channel per column -- and every section starts with one
+already there, on the earliest session, so that the page draws something
+before anything is chosen.
 
-A row draws nothing until every one of its columns is set. Completing
-them fills in the count and adds a fresh row below, still unbound, so
-the same session can be drawn again in other channels without
-disturbing what you already have. Once every combination is on the
-table no further row appears, there being nothing left to choose. And a
-camera with a single channel offers no choice at all: those rows arrive
-bound and counted, with the channel written as plain text.
+The first four columns of a row are yours to set: the colour, the marker,
+a scale factor and the label the legend will use. The marker menu offers
+line styles as well as point markers, so a series meant as a reference --
+a fit, a level, a night to compare the others against -- can be drawn as
+a line.
+
+**The session and image type are chosen in the row**, as the channels
+are, in a single dropdown: the pair is the unit everything here is
+counted by, so they travel together. Beside it, read-only, are when that
+session began and ended in UTC, which is what puts the rows in
+chronological order when the session labels are in no order at all.
+
+**The channel is chosen in the row too.** Between them the two axes need
+one channel per quantity they draw, and each gets its own column:
+plotting ``bg_center`` against time asks for one channel, plotting it
+against itself asks for two -- which is how a diagnostic is compared
+between channels. A column offers only the channels that session recorded
+the diagnostic in, with the number of images each would draw, so a night
+with nothing in it says so before you click. A camera with a single
+channel offers no choice at all: the cell states what it binds rather
+than asking.
+
+A row draws nothing until every one of its columns is set; completing
+them fills in the count and the row appears on the plot. Clicking a row
+toggles it without taking it apart, which is how a plot built from
+several rows is cycled through -- this channel against that one, this
+night against the next.
+
+**Rows are added by copying.** The ``+`` at the start of a row copies it
+below itself, and ``−`` removes it. Copying is what makes a second series
+quick to build, the next one usually differing from the last in a single
+thing. Removing needs no confirming, since ``+`` and the dropdowns build
+the row again, and a section goes with its last row. The page does need
+one row to draw anything at all, so the last one left on it greys out
+rather than refusing the click, which is visible before it is tried.
+
+**A row's colour and label follow what it is bound to** until you set
+them by hand. Rebinding a row rewrites both, so the legend and the
+channel colours stay honest while you are still choosing; type in either
+field and that one is yours from then on, and rebinding leaves it alone.
 
 The rows arrive ordered by session and then type. Clicking any column heading
-re-orders them, ascending on the first click and reversed on the next --
-excepting the channel columns, where a dropdown sorts by nothing anyone wants.
-Successive clicks compose, so sorting on the type and then on the session gives
-you the types grouped with the sessions still in order inside each. Sorting only
-moves the rows: what you have selected stays selected, the channels you have
-chosen stay chosen, and the colours and labels you have typed stay with their
-rows. Choosing a channel, or toggling a row plotting on/off, does not disturb
-the order.
+re-orders them, ascending on the first click and reversed on the next. A
+dropdown column sorts by what it shows -- the session or the channel chosen in
+it -- rather than by the run-together text of the dropdown. Successive clicks
+compose, so sorting on the type and then on the session gives you the types
+grouped with the sessions still in order inside each. Sorting only moves the
+rows: what you have selected stays selected, the channels you have chosen stay
+chosen, and the colours and labels you have typed stay with their rows.
+Choosing a channel, or toggling a row plotting on/off, does not disturb the
+order. Each section sorts on its own.
+
+Sections
+--------
+
+The "Add or go to..." selector at the top of the page is one control for
+two things, because a user picking a quantity wants to look at it and
+does not much care whether it is already there: picking one the page does
+not have adds its section at the bottom, and picking one it has scrolls
+to that section and opens it. The ``×`` on a header removes a section,
+and greys out on the last one: the page needs a quantity to name in its
+URL.
+
+Clicking anywhere on a header -- or on the bracket down the side of the
+section -- collapses it and expands it again. Collapsed, a section still
+shows its header, so what it draws and how many of its rows reach the
+plot stay readable while the rows themselves are out of the way.
+
+**Each section draws with its own marker**, shown on its header, so that
+the quantities on a plot are told apart by shape as the channels are told
+apart by colour. That is only where its rows start: the marker column
+still belongs to the row.
+
+**Sections share the vertical axis unless you separate them.** The
+``y axis`` selector on each header offers one axis per section, and
+sharing is the default, because two quantities wrongly sharing one show
+it at once -- one of them is flattened -- where two wrongly separated are
+each rescaled to fill the height and look comparable when they are not.
+Each option names the first quantity already on that axis, a bare number
+being an axis nothing has taken yet, so the choice reads as "beside the
+background" rather than as a number. Further axes are drawn to the right
+of the plot, their spines stepped outward, and the legend gathers every
+axis into one.
+
+The page's URL names the x quantity and every section, so the figure you
+built is what a bookmark or a reload brings back.
 
 Quantities of your own
 ----------------------
@@ -577,13 +649,6 @@ whatever it is built from, so the file always stands on its own. A file
 naming an expression you already have is the one thing importing cannot
 decide for you: everything else in it is imported, and it then shows you
 both versions side by side and asks.
-
-One thing to know about ``pixel_quantiles``: it names the whole family
-and expands to one row per quantile, so selecting it for *both* axes
-draws each quantile against itself -- a diagonal line, unless you give
-the two columns different channels, which draws one quantile between
-channels instead. To compare two *quantiles*, write the expression:
-``pixel_q999[0] / pixel_q99[0]``.
 
 Every point is a link
 ---------------------
