@@ -8,17 +8,15 @@ this module runs, so nothing here needs to arrange it.
 """
 
 import os
-import sys
 import time
 import unittest
-from pathlib import Path
 
 import django
 
-_browser_interface = Path(__file__).resolve().parents[1] / "browser_interface"
-if str(_browser_interface) not in sys.path:
-    sys.path.insert(0, str(_browser_interface))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_project.settings")
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "autowisp.browser_interface.django_project.settings",
+)
 django.setup()
 
 # pylint: disable=wrong-import-position
@@ -27,9 +25,11 @@ from django.conf import settings
 from django.core.management import call_command
 from django.db import connection
 
-from core.models import BuiModelBase
-from core.timestamp_triggers import timestamped_models
-from home.models import Project
+from autowisp.browser_interface.core.models import BuiModelBase
+from autowisp.browser_interface.core.timestamp_triggers import (
+    timestamped_models,
+)
+from autowisp.browser_interface.home.models import Project
 
 # pylint: enable=wrong-import-position
 

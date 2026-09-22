@@ -14,12 +14,7 @@ from pathlib import Path
 
 import platformdirs
 
-# Relative, because this module is imported under two different names: as
-# ``django_project.settings`` by manage.py, which runs with
-# ``browser_interface`` as sys.path[0], and as
-# ``autowisp.browser_interface.django_project.settings`` by start.py, which
-# does not.  A bare ``django_project`` resolves only in the first.
-from .db_config import get_databases
+from autowisp.browser_interface.django_project.db_config import get_databases
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,13 +42,17 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Application definition
 
+# Named by their full import path, as every app outside this project is.
+# The label Django derives from each -- the last component, so ``home``,
+# ``core`` and so on -- is what the tables and the migrations are written
+# against, and is unchanged by the spelling.
 INSTALLED_APPS = [
-    "home.apps.HomeConfig",
-    "results.apps.ResultsConfig",
-    "processing.apps.ProcessingConfig",
-    "diagnostics.apps.DiagnosticsConfig",
-    "configuration.apps.ConfigurationConfig",
-    "core.apps.CoreConfig",
+    "autowisp.browser_interface.home.apps.HomeConfig",
+    "autowisp.browser_interface.results.apps.ResultsConfig",
+    "autowisp.browser_interface.processing.apps.ProcessingConfig",
+    "autowisp.browser_interface.diagnostics.apps.DiagnosticsConfig",
+    "autowisp.browser_interface.configuration.apps.ConfigurationConfig",
+    "autowisp.browser_interface.core.apps.CoreConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -74,7 +73,7 @@ MIDDLEWARE = [
     "autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware",
 ]
 
-ROOT_URLCONF = "django_project.urls"
+ROOT_URLCONF = "autowisp.browser_interface.django_project.urls"
 
 TEMPLATES = [
     {
@@ -87,13 +86,14 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "core.context_processors.global_variables",
+                "autowisp.browser_interface.core.context_processors"
+                ".global_variables",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = "django_project.wsgi.application"
+WSGI_APPLICATION = "autowisp.browser_interface.django_project.wsgi.application"
 
 
 # Database

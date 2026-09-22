@@ -26,12 +26,21 @@ description: Conventions for BUI code
   browser hard-refresh (Cmd-Shift-R) to take effect. Editing CSS/JS alone will
   silently no-op against a cached stylesheet.
 
-- **Import another BUI app by its full path**, `from
+- **Name another BUI app by its full path**, `from
   autowisp.browser_interface.diagnostics.quantities import ...`, never with a
-  relative `..`. Django puts `browser_interface` on `sys.path` and loads each
-  app as a *top-level* package, so `processing.progress_view` doing `from
-  ..diagnostics import x` raises "attempted relative import beyond top-level
-  package". Relative imports *within* one app (`from .log_views import ...`)
-  are fine. Nothing catches this: the suite imports these modules by their
-  `autowisp.` path, where `..` resolves, so it only fails once Django loads the
-  URLconf — i.e. in the browser, after an install.
+  relative `..` and never by the bare app name. That holds for the strings too
+  — `INSTALLED_APPS`, each `AppConfig.name`, `ROOT_URLCONF`,
+  `WSGI_APPLICATION`, `DJANGO_SETTINGS_MODULE`, the context processors and
+  every `include()`. Relative imports *within* one app (`from .log_views
+  import ...`) are fine.
+
+  `manage.py` is run by path, which still leaves `browser_interface` on
+  `sys.path[0]`, so a bare `core.models` would import and run — under a second
+  module name, giving Django two model classes for one app label and the
+  documentation build an unimportable module. The app labels (`home`, `core`,
+  …) come from the last component of the full path, so the tables and the
+  migrations are unaffected by the spelling.
+
+  Nothing in the suite catches a bare name on its own; `python -m django check`
+  with only the repository on `PYTHONPATH` does, since `browser_interface` is
+  then not on the path at all.

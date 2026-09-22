@@ -12,11 +12,9 @@ HTML, and rendering them needs the template engine.
 """
 
 import os
-import sys
 import tempfile
 import unittest
 from datetime import datetime
-from pathlib import Path
 
 import django
 import matplotlib
@@ -30,10 +28,10 @@ matplotlib.use("Agg")
 # browser-interface database is never touched. Nothing here reads that
 # database -- rendering a template does not -- but configuring Django at
 # all would otherwise point at it.
-_browser_interface = Path(__file__).resolve().parents[1] / "browser_interface"
-if str(_browser_interface) not in sys.path:
-    sys.path.insert(0, str(_browser_interface))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_project.settings")
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "autowisp.browser_interface.django_project.settings",
+)
 django.setup()
 
 # pylint: disable=wrong-import-position
