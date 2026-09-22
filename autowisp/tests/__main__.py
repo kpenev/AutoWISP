@@ -57,6 +57,7 @@ from autowisp.tests.test_parameter_description_length import (
     TestParameterDescriptionLength,
 )
 from autowisp.tests.test_timestamp_triggers import TestTriggerQuoting
+from autowisp.tests.test_suite_registration import TestSuiteRegistration
 from autowisp.tests.test_database_migration import (
     TestAdditiveMigrations,
     TestRevisionChain,
@@ -65,6 +66,8 @@ from autowisp.tests.test_database_migration import (
     TestSqliteMigrationLock,
     TestConcurrentMigration,
     TestSchemaDrift,
+    TestTimestampTriggers,
+    TestUpgradeFromRelease,
 )
 from autowisp.tests.test_project_creation_guard import TestNewProjectGuard
 from autowisp.tests.test_error_persistence import (
@@ -84,9 +87,18 @@ from autowisp.tests.test_error_cli import (
     TestExitCodeFor,
     TestReportError,
     TestCliEntryPoint,
+    TestConfigParseErrors,
+    TestStepEntryBoundaries,
+    TestStepEntryEndToEnd,
 )
 from autowisp.tests.test_error_capture_middleware import (
     TestErrorCaptureMiddleware,
+)
+from autowisp.tests.test_related_files import (
+    TestMainProcessScopes,
+    TestHDF5ProductsAttachThemselves,
+    TestCatalogScopes,
+    TestWorkerPoolClassifiers,
 )
 from autowisp.tests.test_crash_report import (
     TestScrubText,
@@ -96,6 +108,7 @@ from autowisp.tests.test_crash_report import (
     TestCollectProvenance,
     TestBuildCrashReport,
     TestCrashReportCli,
+    TestCollectEnvironment,
 )
 from autowisp.tests.test_full_pipeline import TestFullPipeline
 from autowisp.tests.test_exception_hierarchy import (
@@ -104,6 +117,7 @@ from autowisp.tests.test_exception_hierarchy import (
     TestFrozenRow,
     TestSnapshotRow,
     TestToDetailDict,
+    TestCatalogRetryExhaustion,
 )
 from autowisp.tests.test_error_context import (
     TestErrorContextDataclass,
@@ -115,16 +129,33 @@ from autowisp.tests.test_error_context import (
     TestPoolPropagation,
     TestProcessQueuePropagation,
     TestNestingGuard,
+    TestExitSignalDecode,
+    TestResourceSnapshot,
 )
 from autowisp.tests.test_diagnostics_views import (
-    TestRowId,
-    TestQuantileSeriesExpansion,
+    TestAvailableQuantities,
+    TestQuantileSection,
+    TestPairOptions,
+    TestInitialRow,
+    TestSeparateYAxes,
     TestSharedTimeOffset,
-    TestSeriesGrouping,
     TestImageTypeSplit,
     TestExpressionAxis,
 )
-from autowisp.tests.test_channel_binding import TestTwoChannelRow
+from autowisp.tests.test_diagnostics_rules import (
+    TestRowId,
+    TestQuantityDescription,
+    TestSectionMarkers,
+    TestSlotCells,
+    TestYAxisAssignment,
+    TestSeriesGrouping,
+)
+from autowisp.tests.test_channel_binding import (
+    TestChannelColumns,
+    TestRebinding,
+    TestAddedRow,
+    TestTwoChannelSeriesValues,
+)
 from autowisp.tests.test_expression_series import (
     TestCanonicalImages,
     TestDiagnosticValues,

@@ -49,6 +49,7 @@ py_src = [
   'test_solve_astrometry.py',
   'test_source_finder.py',
   'test_stack_to_master.py',
+  'test_suite_registration.py',
   'test_templates.py',
   'test_timestamp_triggers.py',
   'test_tfa.py',

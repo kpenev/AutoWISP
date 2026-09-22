@@ -567,8 +567,14 @@ class TestAddedRow(TwoChannelProject):
             self.assertIn(expected, fields["added_row"])
 
 
-class TestSeriesValues(TwoChannelProject):
-    """Which of the posted rows are drawn, and what each one reads."""
+class TestTwoChannelSeriesValues(TwoChannelProject):
+    """Which of the posted rows are drawn, and what each one reads.
+
+    Named for its fixture rather than for its subject, ``test_expression_series``
+    having a ``TestSeriesValues`` of its own: the suite gathers every test class
+    into one module namespace, where two of a name means one silently replacing
+    the other.
+    """
 
     def test_which_rows_are_drawn(self):
         """Every row is posted, so five of them have to be skipped here.
