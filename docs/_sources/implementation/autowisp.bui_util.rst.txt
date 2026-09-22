@@ -3,5 +3,5 @@ autowisp.bui\_util module
 
 .. automodule:: autowisp.bui_util
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

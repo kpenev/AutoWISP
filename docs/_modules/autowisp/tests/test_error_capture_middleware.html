@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_error_capture_middleware &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,11 +165,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_error_capture_middleware</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the BUI error-capture middleware.</span>
+<span></span><span class="sd">"""Unit tests for the BUI error-capture middleware.</span>
 
 <span class="sd">The middleware is exercised directly with a mock request (no running</span>
 <span class="sd">Django server), against a throwaway project database.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
@@ -193,16 +193,16 @@
 <div class="viewcode-block" id="_mock_request">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_capture_middleware.html#autowisp.tests.test_error_capture_middleware._mock_request">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_mock_request</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A stand-in Django request exposing the attributes we snapshot.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A stand-in Django request exposing the attributes we snapshot."""</span>
 
     <span class="k">return</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
-        <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/processing/progress/&quot;</span><span class="p">,</span>
-        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
-        <span class="n">resolver_match</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">view_name</span><span class="o">=</span><span class="s2">&quot;processing:progress&quot;</span><span class="p">),</span>
+        <span class="n">path</span><span class="o">=</span><span class="s2">"/processing/progress/"</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">"POST"</span><span class="p">,</span>
+        <span class="n">resolver_match</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">view_name</span><span class="o">=</span><span class="s2">"processing:progress"</span><span class="p">),</span>
         <span class="n">GET</span><span class="o">=</span><span class="p">{},</span>
         <span class="c1"># Values present but should NOT be captured -- only keys.</span>
-        <span class="n">POST</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;hunter2&quot;</span><span class="p">,</span> <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="s2">&quot;calibrate&quot;</span><span class="p">},</span>
-        <span class="n">session</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">session_key</span><span class="o">=</span><span class="s2">&quot;abc123&quot;</span><span class="p">),</span>
+        <span class="n">POST</span><span class="o">=</span><span class="p">{</span><span class="s2">"password"</span><span class="p">:</span> <span class="s2">"hunter2"</span><span class="p">,</span> <span class="s2">"steps"</span><span class="p">:</span> <span class="s2">"calibrate"</span><span class="p">},</span>
+        <span class="n">session</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">session_key</span><span class="o">=</span><span class="s2">"abc123"</span><span class="p">),</span>
     <span class="p">)</span></div>
 
 
@@ -210,7 +210,7 @@
 <div class="viewcode-block" id="TestErrorCaptureMiddleware">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_capture_middleware.html#autowisp.tests.test_error_capture_middleware.TestErrorCaptureMiddleware">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestErrorCaptureMiddleware</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;process_exception records the error with a keys-only request snapshot.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""process_exception records the error with a keys-only request snapshot."""</span>
 
 <div class="viewcode-block" id="TestErrorCaptureMiddleware.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_capture_middleware.html#autowisp.tests.test_error_capture_middleware.TestErrorCaptureMiddleware.setUpClass">[docs]</a>
@@ -246,48 +246,48 @@
 <div class="viewcode-block" id="TestErrorCaptureMiddleware.test_unknown_exception_wrapped_and_recorded">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_capture_middleware.html#autowisp.tests.test_error_capture_middleware.TestErrorCaptureMiddleware.test_unknown_exception_wrapped_and_recorded">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_exception_wrapped_and_recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bare view exception is recorded as a BUI ViewError.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A bare view exception is recorded as a BUI ViewError."""</span>
 
         <span class="c1"># Returns None so Django still renders its 500.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">middleware</span><span class="o">.</span><span class="n">process_exception</span><span class="p">(</span>
-                <span class="n">_mock_request</span><span class="p">(),</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;missing&quot;</span><span class="p">)</span>
+                <span class="n">_mock_request</span><span class="p">(),</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">"missing"</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
         <span class="n">row</span><span class="p">,</span> <span class="n">_sidecar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_only_error</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="s2">&quot;bui&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span> <span class="s2">&quot;ViewError&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="s2">"bui"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span> <span class="s2">"ViewError"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">created</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCaptureMiddleware.test_request_snapshot_keys_only">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_capture_middleware.html#autowisp.tests.test_error_capture_middleware.TestErrorCaptureMiddleware.test_request_snapshot_keys_only">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_request_snapshot_keys_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The snapshot captures parameter keys, never their values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The snapshot captures parameter keys, never their values."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">middleware</span><span class="o">.</span><span class="n">process_exception</span><span class="p">(</span>
-            <span class="n">_mock_request</span><span class="p">(),</span> <span class="n">ViewError</span><span class="p">(</span><span class="s2">&quot;bad form&quot;</span><span class="p">)</span>
+            <span class="n">_mock_request</span><span class="p">(),</span> <span class="n">ViewError</span><span class="p">(</span><span class="s2">"bad form"</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">_row</span><span class="p">,</span> <span class="n">sidecar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_only_error</span><span class="p">()</span>
 
-        <span class="n">snapshot</span> <span class="o">=</span> <span class="n">sidecar</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">][</span><span class="s2">&quot;bui_request&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="s2">&quot;/processing/progress/&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;view_name&quot;</span><span class="p">],</span> <span class="s2">&quot;processing:progress&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;post_keys&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">[</span><span class="s2">&quot;post_keys&quot;</span><span class="p">])</span>
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="n">sidecar</span><span class="p">[</span><span class="s2">"details"</span><span class="p">][</span><span class="s2">"bui_request"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snapshot</span><span class="p">[</span><span class="s2">"path"</span><span class="p">],</span> <span class="s2">"/processing/progress/"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snapshot</span><span class="p">[</span><span class="s2">"view_name"</span><span class="p">],</span> <span class="s2">"processing:progress"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"password"</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">[</span><span class="s2">"post_keys"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"steps"</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">[</span><span class="s2">"post_keys"</span><span class="p">])</span>
         <span class="c1"># The secret value must not appear anywhere in the snapshot.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;hunter2&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">snapshot</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"hunter2"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">snapshot</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCaptureMiddleware.test_recording_failure_is_swallowed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_capture_middleware.html#autowisp.tests.test_error_capture_middleware.TestErrorCaptureMiddleware.test_recording_failure_is_swallowed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_recording_failure_is_swallowed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A failure while recording does not propagate from the hook.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A failure while recording does not propagate from the hook."""</span>
 
         <span class="n">bad_request</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">()</span>  <span class="c1"># missing everything</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span>
-            <span class="s2">&quot;autowisp.browser_interface.error_capture_middleware&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span>
+            <span class="s2">"autowisp.browser_interface.error_capture_middleware"</span><span class="p">,</span> <span class="s2">"ERROR"</span>
         <span class="p">):</span>
             <span class="c1"># A non-exception object makes attribute access inside fail,</span>
             <span class="c1"># which must be swallowed (and logged), not propagated.</span>
@@ -298,7 +298,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

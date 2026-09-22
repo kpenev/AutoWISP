@@ -3,5 +3,5 @@ autowisp.fit\_expression.FitTermsParser module
 
 .. automodule:: autowisp.fit_expression.FitTermsParser
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

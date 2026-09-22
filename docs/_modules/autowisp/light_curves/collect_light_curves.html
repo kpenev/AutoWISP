@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.collect_light_curves &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.light_curves.collect_light_curves</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Functions for creating light curves from DR files.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Functions for creating light curves from DR files."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">Formatter</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
@@ -185,14 +185,14 @@
 <div class="viewcode-block" id="DecodingStringFormatter">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DecodingStringFormatter</span><span class="p">(</span><span class="n">Formatter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add one more conversion type: ``'d'`` that calls decode on the arg."""</span>
 
 <div class="viewcode-block" id="DecodingStringFormatter.convert_field">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter.convert_field">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">convert_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">conversion</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;If conversion is ``&#39;d&#39;`` -&gt; ``value.decode()`` else pass to parent&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""If conversion is ``'d'`` -&gt; ``value.decode()`` else pass to parent"""</span>
 
-        <span class="k">if</span> <span class="n">conversion</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conversion</span> <span class="o">==</span> <span class="s2">"d"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">convert_field</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">conversion</span><span class="p">)</span></div>
 </div>
@@ -202,11 +202,11 @@
 <div class="viewcode-block" id="get_combined_sources">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.get_combined_sources">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_combined_sources</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return all sources which are in at lest one of the DR files.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return all sources which are in at lest one of the DR files."""</span>
 
     <span class="n">dr_sources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_filenames</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
             <span class="n">dr_sources</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="n">dr_file</span><span class="o">.</span><span class="n">get_source_ids</span><span class="p">(</span>
                     <span class="n">string_source_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
@@ -233,11 +233,11 @@
     <span class="n">observatory</span><span class="p">,</span>
     <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve everything the writing pass needs (see collect_light_curves).</span>
+<span class="w">    </span><span class="sd">"""Resolve everything the writing pass needs (see collect_light_curves).</span>
 
 <span class="sd">    Reads the first DR file and the single photref to settle the source</span>
 <span class="sd">    extraction configuration, the catalog and the source list, drops any</span>
-<span class="sd">    DR file with outlier pointing, and works out where each source&#39;s</span>
+<span class="sd">    DR file with outlier pointing, and works out where each source's</span>
 <span class="sd">    lightcurve goes.</span>
 
 <span class="sd">    Returns:</span>
@@ -247,23 +247,23 @@
 <span class="sd">            ``(sources, header)`` pair the caller returns, and</span>
 <span class="sd">            ``catalog_fname`` -- the resolved catalog filename, which only</span>
 <span class="sd">            the query knows and the caller scopes onto its errors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="n">srcid_formatter</span> <span class="o">=</span> <span class="n">DecodingStringFormatter</span><span class="p">()</span>
-    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">first_dr</span><span class="p">:</span>
-        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">first_dr</span><span class="p">:</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_psf_params"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">param</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">first_dr</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
-                <span class="s2">&quot;srcextract.psf_map.cfg.psf_params&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
+                <span class="s2">"srcextract.psf_map.cfg.psf_params"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
             <span class="p">)</span>
         <span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_magfit_iterations&quot;</span><span class="p">]:</span>
-            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"num_magfit_iterations"</span><span class="p">]:</span>
+            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">first_dr</span><span class="o">.</span><span class="n">get_num_magfit_iterations</span><span class="p">(</span><span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="p">)</span>
         <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
-            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span>
+            <span class="n">configuration</span><span class="p">[</span><span class="s2">"single_photref_dr_fname"</span><span class="p">],</span> <span class="s2">"r"</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">sphotref_dr</span><span class="p">:</span>
             <span class="p">(</span>
                 <span class="p">(</span><span class="n">catalog_sources</span><span class="p">,</span> <span class="n">catalog_header</span><span class="p">),</span>
@@ -272,14 +272,14 @@
             <span class="p">)</span> <span class="o">=</span> <span class="n">ensure_catalog</span><span class="p">(</span>
                 <span class="n">header</span><span class="o">=</span><span class="n">sphotref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">(),</span>
                 <span class="n">dr_files</span><span class="o">=</span><span class="n">dr_filenames</span><span class="p">,</span>
-                <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;lc&quot;</span><span class="p">),</span>
+                <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">"lc"</span><span class="p">),</span>
                 <span class="n">return_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">skytoframe_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;skytoframe_version&quot;</span><span class="p">],</span>
+                <span class="n">skytoframe_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"skytoframe_version"</span><span class="p">],</span>
             <span class="p">)</span>
         <span class="k">for</span> <span class="n">outlier_ind</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">outliers</span><span class="p">):</span>
             <span class="n">outlier_dr</span> <span class="o">=</span> <span class="n">dr_filenames</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">outlier_ind</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Data reduction file </span><span class="si">%s</span><span class="s2"> has outlier pointing. Discarding!&quot;</span><span class="p">,</span>
+                <span class="s2">"Data reduction file </span><span class="si">%s</span><span class="s2"> has outlier pointing. Discarding!"</span><span class="p">,</span>
                 <span class="n">outlier_dr</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">mark_end</span><span class="p">(</span><span class="n">outlier_dr</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -289,7 +289,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_sources</span><span class="p">):</span>
             <span class="n">skipped</span> <span class="o">=</span> <span class="n">dr_sources</span> <span class="o">-</span> <span class="n">catalog_source_ids</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Skipping </span><span class="si">%d</span><span class="s2"> DR sources not present in limited LC catalog&quot;</span><span class="p">,</span>
+                <span class="s2">"Skipping </span><span class="si">%d</span><span class="s2"> DR sources not present in limited LC catalog"</span><span class="p">,</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">skipped</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="n">data_io</span> <span class="o">=</span> <span class="n">LCDataIO</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
@@ -302,17 +302,17 @@
             <span class="n">observatory</span><span class="o">=</span><span class="n">observatory</span><span class="p">,</span>
             <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="n">frame_chunk</span> <span class="o">=</span> <span class="n">data_io</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
+    <span class="n">frame_chunk</span> <span class="o">=</span> <span class="n">data_io</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Generating LC filenames per: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_fname&quot;</span><span class="p">])</span>
+        <span class="s2">"Generating LC filenames per: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"lc_fname"</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="n">sources_lc_fnames</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span>
             <span class="n">source_id</span><span class="p">,</span>
             <span class="n">srcid_formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_fname&quot;</span><span class="p">],</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">"lc_fname"</span><span class="p">],</span>
                 <span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">source_id</span><span class="p">),</span>
-                <span class="n">PROJHOME</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;project_home&quot;</span><span class="p">],</span>
+                <span class="n">PROJHOME</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"project_home"</span><span class="p">],</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="n">data_io</span><span class="o">.</span><span class="n">source_destinations</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -326,12 +326,12 @@
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;data_io&quot;</span><span class="p">:</span> <span class="n">data_io</span><span class="p">,</span>
-        <span class="s2">&quot;dr_filenames&quot;</span><span class="p">:</span> <span class="n">dr_filenames</span><span class="p">,</span>
-        <span class="s2">&quot;sources_lc_fnames&quot;</span><span class="p">:</span> <span class="n">sources_lc_fnames</span><span class="p">,</span>
-        <span class="s2">&quot;frame_chunk&quot;</span><span class="p">:</span> <span class="n">frame_chunk</span><span class="p">,</span>
-        <span class="s2">&quot;catalog&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">catalog_sources</span><span class="p">,</span> <span class="n">catalog_header</span><span class="p">),</span>
-        <span class="s2">&quot;catalog_fname&quot;</span><span class="p">:</span> <span class="n">catalog_fname</span><span class="p">,</span>
+        <span class="s2">"data_io"</span><span class="p">:</span> <span class="n">data_io</span><span class="p">,</span>
+        <span class="s2">"dr_filenames"</span><span class="p">:</span> <span class="n">dr_filenames</span><span class="p">,</span>
+        <span class="s2">"sources_lc_fnames"</span><span class="p">:</span> <span class="n">sources_lc_fnames</span><span class="p">,</span>
+        <span class="s2">"frame_chunk"</span><span class="p">:</span> <span class="n">frame_chunk</span><span class="p">,</span>
+        <span class="s2">"catalog"</span><span class="p">:</span> <span class="p">(</span><span class="n">catalog_sources</span><span class="p">,</span> <span class="n">catalog_header</span><span class="p">),</span>
+        <span class="s2">"catalog_fname"</span><span class="p">:</span> <span class="n">catalog_fname</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -343,7 +343,7 @@
 <div class="viewcode-block" id="_write_lightcurves">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves._write_lightcurves">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_lightcurves</span><span class="p">(</span><span class="n">prepared</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the DR data to the lightcurves, one chunk of frames at a time.</span>
+<span class="w">    </span><span class="sd">"""Add the DR data to the lightcurves, one chunk of frames at a time.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        prepared(dict):    The result of :func:`_prepare_lc_collection`.</span>
@@ -352,12 +352,12 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">data_io</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">&quot;data_io&quot;</span><span class="p">]</span>
-    <span class="n">dr_filenames</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">&quot;dr_filenames&quot;</span><span class="p">]</span>
-    <span class="n">sources_lc_fnames</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">&quot;sources_lc_fnames&quot;</span><span class="p">]</span>
-    <span class="n">frame_chunk</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">&quot;frame_chunk&quot;</span><span class="p">]</span>
+    <span class="n">data_io</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">"data_io"</span><span class="p">]</span>
+    <span class="n">dr_filenames</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">"dr_filenames"</span><span class="p">]</span>
+    <span class="n">sources_lc_fnames</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">"sources_lc_fnames"</span><span class="p">]</span>
+    <span class="n">frame_chunk</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">"frame_chunk"</span><span class="p">]</span>
 
     <span class="n">num_processed</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">num_processed</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">):</span>
@@ -387,7 +387,7 @@
 
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lc_fname</span> <span class="ow">in</span> <span class="n">sources_lc_fnames</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">):</span>
-                <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lc_file</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">lc_file</span><span class="p">:</span>
                     <span class="n">lc_file</span><span class="o">.</span><span class="n">confirm_lc_length</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_filenames</span><span class="p">[</span><span class="n">num_processed</span><span class="p">:</span><span class="n">stop_processing</span><span class="p">]:</span>
@@ -410,7 +410,7 @@
     <span class="n">observatory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add the data from a collection of DR files to LCs, creating LCs if needed.</span>
 
 <span class="sd">    Args:</span>
@@ -431,7 +431,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        [(src ID part 1, src ID part 2, ...)];</span>
 <span class="sd">            The sources for which new lightcurves were created.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">prepared</span> <span class="o">=</span> <span class="n">_prepare_lc_collection</span><span class="p">(</span>
         <span class="n">dr_filenames</span><span class="p">,</span>
@@ -449,12 +449,12 @@
     <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span>
         <span class="n">related_files</span><span class="o">=</span><span class="p">[</span>
             <span class="n">RelatedFile</span><span class="p">(</span>
-                <span class="n">FileKind</span><span class="o">.</span><span class="n">CATALOG</span><span class="p">,</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">&quot;catalog_fname&quot;</span><span class="p">],</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span>
+                <span class="n">FileKind</span><span class="o">.</span><span class="n">CATALOG</span><span class="p">,</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">"catalog_fname"</span><span class="p">],</span> <span class="n">role</span><span class="o">=</span><span class="s2">"input"</span>
             <span class="p">)</span>
         <span class="p">]</span>
     <span class="p">):</span>
         <span class="n">_write_lightcurves</span><span class="p">(</span><span class="n">prepared</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">&quot;catalog&quot;</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="n">prepared</span><span class="p">[</span><span class="s2">"catalog"</span><span class="p">]</span></div>
 
 </pre></div>
 

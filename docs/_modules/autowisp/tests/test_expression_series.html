@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_expression_series &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_expression_series</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tests for reading one series&#39; values out of the project database.</span>
+<span></span><span class="sd">"""Tests for reading one series' values out of the project database.</span>
 
 <span class="sd">These cover tier 2 of the expression layer: the part that knows the project</span>
 <span class="sd">database but not Django, and turns a :class:`SeriesKey` into the</span>
@@ -177,7 +177,7 @@
 <span class="sd">The two-night fixture is the one ``test_diagnostics_views`` builds, imported</span>
 <span class="sd">rather than repeated: it is a project-database fixture rather than a view</span>
 <span class="sd">one, and the view tests and these want exactly the same rows.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -214,51 +214,51 @@
 <div class="viewcode-block" id="SeriesValuesTestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.SeriesValuesTestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SeriesValuesTestCase</span><span class="p">(</span><span class="n">DiagnosticsViewTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The two-night fixture, with the keys these tests ask about.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The two-night fixture, with the keys these tests ask about."""</span>
 
-    <span class="c1">#: The mixed night&#39;s object frames: three, all recording everything.</span>
-    <span class="n">objects</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,))</span>
+    <span class="c1">#: The mixed night's object frames: three, all recording everything.</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,))</span>
 
-    <span class="c1">#: The same night&#39;s flats: two, recording ``bg_center`` and no quantile.</span>
-    <span class="n">flats</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,))</span></div>
+    <span class="c1">#: The same night's flats: two, recording ``bg_center`` and no quantile.</span>
+    <span class="n">flats</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,))</span></div>
 
 
 
 <div class="viewcode-block" id="TestCanonicalImages">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCanonicalImages</span><span class="p">(</span><span class="n">SeriesValuesTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The list every array is padded onto.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The list every array is padded onto."""</span>
 
 <div class="viewcode-block" id="TestCanonicalImages.test_one_type_only">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages.test_one_type_only">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_type_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The list is per type, which is what confines an aggregate.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The list is per type, which is what confines an aggregate."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">image_ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
             <span class="n">flat_ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flats</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">flat_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">flat_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestCanonicalImages.test_the_channel_is_not_consulted">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages.test_the_channel_is_not_consulted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_channel_is_not_consulted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Channels share an index space, so the list cannot depend on one.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Channels share an index space, so the list cannot depend on one."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;no-such-channel&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"no-such-channel"</span><span class="p">):</span>
                 <span class="n">image_ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">(</span><span class="n">channel</span><span class="p">,)),</span> <span class="n">db_session</span>
                 <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">])</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestCanonicalImages.test_ordered_by_time">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCanonicalImages.test_ordered_by_time">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_ordered_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ordered, because every array is aligned to this one by position.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Ordered, because every array is aligned to this one by position."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">jd_values</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
@@ -271,121 +271,121 @@
 <div class="viewcode-block" id="TestDiagnosticValues">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestDiagnosticValues</span><span class="p">(</span><span class="n">SeriesValuesTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Padding several diagnostics onto that list in one query.</span>
+<span class="w">    </span><span class="sd">"""Padding several diagnostics onto that list in one query.</span>
 
 <span class="sd">    What is read is stated as ``{name: {channel tuples}}`` -- the shape the</span>
 <span class="sd">    walk that decides it produces -- because a diagnostic may be wanted in</span>
 <span class="sd">    more than one channel at once.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1">#: The fixture records everything in this one channel.</span>
-    <span class="n">recorded</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,)</span>
+    <span class="n">recorded</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,)</span>
 
 <div class="viewcode-block" id="TestDiagnosticValues.test_values_land_against_their_own_images">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_values_land_against_their_own_images">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_values_land_against_their_own_images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The fixture makes each value say which image it belongs to.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The fixture makes each value say which image it belongs to."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q99&quot;</span><span class="p">)},</span>
+                <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">)},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">]</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;pixel_q99&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">201.0</span><span class="p">,</span> <span class="mf">202.0</span><span class="p">]</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"pixel_q99"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">201.0</span><span class="p">,</span> <span class="mf">202.0</span><span class="p">]</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDiagnosticValues.test_a_diagnostic_the_type_lacks_is_all_nan">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_a_diagnostic_the_type_lacks_is_all_nan">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_diagnostic_the_type_lacks_is_all_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Flats record no quantiles, and still owe a full-length column.</span>
+<span class="w">        </span><span class="sd">"""Flats record no quantiles, and still owe a full-length column.</span>
 
 <span class="sd">        This is the case the padding exists for: an expression over a</span>
 <span class="sd">        diagnostic some frames lack must produce a series of the right</span>
 <span class="sd">        length with holes, not a shorter one that silently misaligns.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">flats</span><span class="p">,</span>
-                <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q99&quot;</span><span class="p">)},</span>
+                <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">)},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="n">quantile</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;pixel_q99&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]</span>
+        <span class="n">quantile</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">"pixel_q99"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">quantile</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">quantile</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">500.0</span><span class="p">,</span> <span class="mf">501.0</span><span class="p">]</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">500.0</span><span class="p">,</span> <span class="mf">501.0</span><span class="p">]</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDiagnosticValues.test_a_channel_nothing_was_recorded_in_is_all_nan">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_a_channel_nothing_was_recorded_in_is_all_nan">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_channel_nothing_was_recorded_in_is_all_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asking for a channel this camera never had is not an error.</span>
+<span class="w">        </span><span class="sd">"""Asking for a channel this camera never had is not an error.</span>
 
 <span class="sd">        It is the same padding one step further out: the join finds</span>
 <span class="sd">        nothing, so the column is NaN throughout rather than absent, and an</span>
 <span class="sd">        expression over it is undefined rather than broken.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;no-such-channel&quot;</span><span class="p">,)}},</span>
+                <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">,</span> <span class="p">(</span><span class="s2">"no-such-channel"</span><span class="p">,)}},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="n">missing</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][(</span><span class="s2">&quot;no-such-channel&quot;</span><span class="p">,)]</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"no-such-channel"</span><span class="p">,)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">missing</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">missing</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">]</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">]),</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">]</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDiagnosticValues.test_one_diagnostic_read_in_two_channels">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_one_diagnostic_read_in_two_channels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_diagnostic_read_in_two_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;What an expression comparing channels needs, in one query.</span>
+<span class="w">        </span><span class="sd">"""What an expression comparing channels needs, in one query.</span>
 
 <span class="sd">        Both columns come back against the same images, which is what</span>
 <span class="sd">        makes a ratio between them meaningful without any joining.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">,)}},</span>
+                <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"G"</span><span class="p">,)}},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">]),</span> <span class="p">[(</span><span class="s2">&quot;G&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,)])</span>
-        <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">]),</span> <span class="p">[(</span><span class="s2">"G"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,)])</span>
+        <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDiagnosticValues.test_every_array_is_the_same_length">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_every_array_is_the_same_length">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_every_array_is_the_same_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Alignment is by position, so a short column would be a bug.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Alignment is by position, so a short column would be a bug."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">},</span>
-                    <span class="s2">&quot;pixel_q99&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">},</span>
-                    <span class="s2">&quot;pixel_q999&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">},</span>
-                    <span class="s2">&quot;jd&quot;</span><span class="p">:</span> <span class="p">{()},</span>
+                    <span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">},</span>
+                    <span class="s2">"pixel_q99"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">},</span>
+                    <span class="s2">"pixel_q999"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recorded</span><span class="p">},</span>
+                    <span class="s2">"jd"</span><span class="p">:</span> <span class="p">{()},</span>
                 <span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
@@ -398,23 +398,23 @@
 <div class="viewcode-block" id="TestDiagnosticValues.test_time_comes_from_the_image_row">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_time_comes_from_the_image_row">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_time_comes_from_the_image_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``jd`` is not in image_diagnostics and needs no row there.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``jd`` is not in image_diagnostics and needs no row there."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;jd&quot;</span><span class="p">:</span> <span class="p">{()}},</span> <span class="n">db_session</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="p">{</span><span class="s2">"jd"</span><span class="p">:</span> <span class="p">{()}},</span> <span class="n">db_session</span>
             <span class="p">)</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">jd_values</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;jd&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;jd&quot;</span><span class="p">][()]),</span> <span class="nb">list</span><span class="p">(</span><span class="n">jd_values</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;jd&quot;</span><span class="p">][()]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="p">[</span><span class="s2">"jd"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"jd"</span><span class="p">][()]),</span> <span class="nb">list</span><span class="p">(</span><span class="n">jd_values</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"jd"</span><span class="p">][()]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDiagnosticValues.test_asking_for_nothing_still_gives_the_images">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_asking_for_nothing_still_gives_the_images">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_asking_for_nothing_still_gives_the_images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The caller needs the image list even with no diagnostic wanted.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The caller needs the image list even with no diagnostic wanted."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
@@ -422,50 +422,50 @@
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestDiagnosticValues.test_each_channel_is_asked_for_by_its_whole_key">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestDiagnosticValues.test_each_channel_is_asked_for_by_its_whole_key">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_each_channel_is_asked_for_by_its_whole_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape that keeps this affordable however big the archive.</span>
+<span class="w">        </span><span class="sd">"""The shape that keeps this affordable however big the archive.</span>
 
 <span class="sd">        A session holds a manageable number of images; the ``image`` table</span>
 <span class="sd">        will not, so the feature rests on anchoring to one observing</span>
 <span class="sd">        session and reaching ``image_diagnostics`` by its unique index on</span>
 <span class="sd">        ``(image_id, channel, diagnostic_id)``. Reading several channels</span>
 <span class="sd">        adds a join each, and every one has to pin all three columns --</span>
-<span class="sd">        drop the channel and the join matches every channel&#39;s row, which</span>
+<span class="sd">        drop the channel and the join matches every channel's row, which</span>
 <span class="sd">        is both wrong and a scan.</span>
 
 <span class="sd">        Asserted on the statement rather than on a query plan, because the</span>
 <span class="sd">        predicates are what this module decides; which index to use is the</span>
-<span class="sd">        database&#39;s business, and SQLite&#39;s answer would say nothing about</span>
+<span class="sd">        database's business, and SQLite's answer would say nothing about</span>
 <span class="sd">        the MariaDB servers that hold the large archives.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">statement</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
             <span class="n">_diagnostic_values_query</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q99&quot;</span><span class="p">],</span>
-                <span class="p">[</span><span class="s2">&quot;G&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">],</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">compile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;literal_binds&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+                <span class="p">[</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">],</span>
+                <span class="p">[</span><span class="s2">"G"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">],</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">compile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"literal_binds"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;image.observing_session_id = 2&quot;</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"image.observing_session_id = 2"</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
 
         <span class="c1"># Read the alias names out rather than assuming them: what</span>
         <span class="c1"># SQLAlchemy calls an anonymous alias is its own business and has</span>
         <span class="c1"># changed before.</span>
         <span class="n">aliases</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;LEFT OUTER JOIN image_diagnostics AS (\w+)&quot;</span><span class="p">,</span> <span class="n">statement</span>
+            <span class="sa">r</span><span class="s2">"LEFT OUTER JOIN image_diagnostics AS (\w+)"</span><span class="p">,</span> <span class="n">statement</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">aliases</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">aliases</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;image_id&quot;</span><span class="p">,</span> <span class="s2">&quot;diagnostic_id&quot;</span><span class="p">,</span> <span class="s2">&quot;channel&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"image_id"</span><span class="p">,</span> <span class="s2">"diagnostic_id"</span><span class="p">,</span> <span class="s2">"channel"</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                    <span class="n">statement</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alias</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> =&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">statement</span>
+                    <span class="n">statement</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">alias</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> ="</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">statement</span>
                 <span class="p">)</span></div>
 </div>
 
@@ -474,64 +474,64 @@
 <div class="viewcode-block" id="TestSeriesValues">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestSeriesValues</span><span class="p">(</span><span class="n">SeriesValuesTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolving quantities, which is where expressions enter.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resolving quantities, which is where expressions enter."""</span>
 
 <div class="viewcode-block" id="TestSeriesValues.test_plain_diagnostics_need_no_library">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_plain_diagnostics_need_no_library">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_plain_diagnostics_need_no_library</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A diagnostic and the time, which is every plot&#39;s usual x axis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A diagnostic and the time, which is every plot's usual x axis."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;jd&quot;</span><span class="p">:</span> <span class="p">{()},</span> <span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
+                <span class="p">{</span><span class="s2">"jd"</span><span class="p">:</span> <span class="p">{()},</span> <span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
                 <span class="p">{},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;jd&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="p">[</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"jd"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">image_ids</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_of</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestSeriesValues.test_an_expression_is_evaluated_per_series">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_an_expression_is_evaluated_per_series">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_an_expression_is_evaluated_per_series</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The aggregate sees this series&#39; images and no others.</span>
+<span class="w">        </span><span class="sd">"""The aggregate sees this series' images and no others.</span>
 
 <span class="sd">        ``bg_center`` runs 100, 101, 102 for these frames and 500, 501 for</span>
 <span class="sd">        the flats of the same night, so a median taken across the two would</span>
 <span class="sd">        be nowhere near zero.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;rel_bg&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
-                <span class="p">{</span><span class="s2">&quot;rel_bg&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] - nanmedian(bg_center[1])&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">"rel_bg"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
+                <span class="p">{</span><span class="s2">"rel_bg"</span><span class="p">:</span> <span class="s2">"bg_center[1] - nanmedian(bg_center[1])"</span><span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;rel_bg&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">]),</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"rel_bg"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">]),</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSeriesValues.test_both_axes_resolve_together">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_both_axes_resolve_together">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_both_axes_resolve_together</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Two quantities, one call -- the point of asking for both.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Two quantities, one call -- the point of asking for both."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;jd&quot;</span><span class="p">:</span> <span class="p">{()},</span> <span class="s2">&quot;twice_bg&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
-                <span class="p">{</span><span class="s2">&quot;twice_bg&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] * 2&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">"jd"</span><span class="p">:</span> <span class="p">{()},</span> <span class="s2">"twice_bg"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
+                <span class="p">{</span><span class="s2">"twice_bg"</span><span class="p">:</span> <span class="s2">"bg_center[1] * 2"</span><span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="s2">&quot;twice_bg&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="p">[</span><span class="s2">"jd"</span><span class="p">,</span> <span class="s2">"twice_bg"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;twice_bg&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">]),</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"twice_bg"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">]),</span>
             <span class="p">[</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">202.0</span><span class="p">,</span> <span class="mf">204.0</span><span class="p">],</span>
         <span class="p">)</span></div>
 
@@ -539,21 +539,21 @@
 <div class="viewcode-block" id="TestSeriesValues.test_a_composed_expression_resolves_its_dependency">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestSeriesValues.test_a_composed_expression_resolves_its_dependency">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_composed_expression_resolves_its_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tier 1 orders them; this checks the values reach it to do so.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Tier 1 orders them; this checks the values reach it to do so."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;scaled&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
+                <span class="p">{</span><span class="s2">"scaled"</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">}},</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;rel_bg&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] - nanmedian(bg_center[1])&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;scaled&quot;</span><span class="p">:</span> <span class="s2">&quot;rel_bg[1] * 10&quot;</span><span class="p">,</span>
+                    <span class="s2">"rel_bg"</span><span class="p">:</span> <span class="s2">"bg_center[1] - nanmedian(bg_center[1])"</span><span class="p">,</span>
+                    <span class="s2">"scaled"</span><span class="p">:</span> <span class="s2">"rel_bg[1] * 10"</span><span class="p">,</span>
                 <span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;scaled&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">]),</span> <span class="p">[</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">]</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"scaled"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">channels</span><span class="p">]),</span> <span class="p">[</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">]</span>
         <span class="p">)</span></div>
 </div>
 
@@ -562,12 +562,12 @@
 <div class="viewcode-block" id="TestCrossChannelValues">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCrossChannelValues</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reading one diagnostic in several channels, and counting by binding.</span>
+<span class="w">    </span><span class="sd">"""Reading one diagnostic in several channels, and counting by binding.</span>
 
 <span class="sd">    Its own fixture rather than the shared one, which records a single</span>
 <span class="sd">    channel: giving that one a second would change what every series-table</span>
 <span class="sd">    test sees.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestCrossChannelValues.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.setUpClass">[docs]</a>
@@ -593,8 +593,8 @@
     <span class="c1">#: pairing of the two gives a distinct ratio: reading the wrong channel</span>
     <span class="c1">#: cannot land on the right answer by luck.</span>
     <span class="n">values_of</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">],</span>
-        <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="s2">"R"</span><span class="p">:</span> <span class="p">[</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">],</span>
+        <span class="s2">"B"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
     <span class="p">}</span>
 
     <span class="c1">#: One observing session per position of the gap in channel ``B`` --</span>
@@ -614,13 +614,13 @@
 
     <span class="c1">#: A channel this camera never recorded at all, for the case where a</span>
     <span class="c1">#: whole slot resolves to nothing.</span>
-    <span class="n">missing_channel</span> <span class="o">=</span> <span class="s2">&quot;G&quot;</span>
+    <span class="n">missing_channel</span> <span class="o">=</span> <span class="s2">"G"</span>
 
 <div class="viewcode-block" id="TestCrossChannelValues._fill_database">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues._fill_database">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fill_database</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;One session per gap position, four frames of two channels each.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""One session per gap position, four frames of two channels each."""</span>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">session_of</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -628,9 +628,9 @@
         <span class="c1"># pylint: disable=not-callable</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                <span class="n">DiagnosticType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Background&quot;</span><span class="p">)</span>
+                <span class="n">DiagnosticType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Background"</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ImageType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;objects&quot;</span><span class="p">))</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ImageType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"objects"</span><span class="p">))</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
             <span class="n">diagnostic_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -646,7 +646,7 @@
                     <span class="n">mount_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                     <span class="n">observatory_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                     <span class="n">target_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;gap_at_</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"gap_at_</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">start_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">night</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                     <span class="n">end_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">night</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                 <span class="p">)</span>
@@ -654,9 +654,9 @@
                 <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">session_of</span><span class="p">[</span><span class="n">hole</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">id</span>
 
-                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">])):</span>
+                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">])):</span>
                     <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
-                        <span class="n">raw_fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;/data/raw/gap</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">.fits&quot;</span><span class="p">,</span>
+                        <span class="n">raw_fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">"/data/raw/gap</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">.fits"</span><span class="p">,</span>
                         <span class="n">image_type_id</span><span class="o">=</span><span class="n">image_type_id</span><span class="p">,</span>
                         <span class="n">observing_session_id</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                         <span class="n">jd</span><span class="o">=</span><span class="mf">2460000.5</span> <span class="o">+</span> <span class="n">night</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">index</span><span class="p">,</span>
@@ -665,7 +665,7 @@
                     <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
                     <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">values_of</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="n">channel</span> <span class="o">==</span> <span class="s2">&quot;B&quot;</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">==</span> <span class="n">hole</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">channel</span> <span class="o">==</span> <span class="s2">"B"</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">==</span> <span class="n">hole</span><span class="p">:</span>
                             <span class="k">continue</span>
                         <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                             <span class="n">ImageDiagnostics</span><span class="p">(</span>
@@ -681,10 +681,10 @@
 <div class="viewcode-block" id="TestCrossChannelValues.expected">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.expected">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">hole</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return what *channel* reads for the session with that gap.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return what *channel* reads for the session with that gap."""</span>
 
         <span class="k">return</span> <span class="p">[</span>
-            <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">channel</span> <span class="o">==</span> <span class="s2">&quot;B&quot;</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">==</span> <span class="n">hole</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">channel</span> <span class="o">==</span> <span class="s2">"B"</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">==</span> <span class="n">hole</span> <span class="k">else</span> <span class="n">value</span>
             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="n">channel</span><span class="p">])</span>
         <span class="p">]</span></div>
 
@@ -692,11 +692,11 @@
 <div class="viewcode-block" id="TestCrossChannelValues.key">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.key">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">hole</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the series binding *channels*, of the session with *hole*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the series binding *channels*, of the session with *hole*."""</span>
 
         <span class="k">return</span> <span class="n">SeriesKey</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">session_of</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hole</span> <span class="k">if</span> <span class="n">hole</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hole</span><span class="p">],</span>
-            <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">"object"</span><span class="p">,</span>
             <span class="n">channels</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -704,12 +704,12 @@
 <div class="viewcode-block" id="TestCrossChannelValues.drawn">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.drawn">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">drawn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return one quantity&#39;s values, bound to *channels*.</span>
+<span class="w">        </span><span class="sd">"""Return one quantity's values, bound to *channels*.</span>
 
 <span class="sd">        Sugar for the usual case here: a series binding exactly what the</span>
 <span class="sd">        quantity is read in. Values come back keyed by quantity *and*</span>
 <span class="sd">        binding, since two axes may be one quantity in two channels.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span> <span class="p">{</span><span class="n">quantity</span><span class="p">:</span> <span class="p">{</span><span class="n">channels</span><span class="p">}},</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
@@ -721,27 +721,27 @@
 <div class="viewcode-block" id="TestCrossChannelValues.test_a_value_stays_with_its_own_image">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_value_stays_with_its_own_image">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_value_stays_with_its_own_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The gap moved through the column, one session per position.</span>
+<span class="w">        </span><span class="sd">"""The gap moved through the column, one session per position.</span>
 
 <span class="sd">        What is pinned is *where* the gap lands, not that dividing by NaN</span>
 <span class="sd">        gives NaN.  The values are read as a column and reshaped, so a</span>
 <span class="sd">        column out by a frame would move every value onto its neighbour --</span>
 <span class="sd">        and nothing downstream could tell, since the result is the right</span>
 <span class="sd">        length and full of plausible numbers.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">for</span> <span class="n">hole</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole_positions</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">hole</span><span class="o">=</span><span class="n">hole</span><span class="p">),</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
                 <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">),</span> <span class="n">hole</span><span class="p">),</span>
-                    <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,)}},</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span> <span class="n">hole</span><span class="p">),</span>
+                    <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,)}},</span>
                     <span class="n">db_session</span><span class="p">,</span>
                 <span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]))</span>
-                <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">):</span>
                     <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-                        <span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][(</span><span class="n">channel</span><span class="p">,)],</span>
+                        <span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="n">channel</span><span class="p">,)],</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">hole</span><span class="p">),</span>
                         <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="p">)</span></div>
@@ -750,27 +750,27 @@
 <div class="viewcode-block" id="TestCrossChannelValues.test_a_ratio_between_two_channels">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_ratio_between_two_channels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_ratio_between_two_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The quantity the whole of section 10 exists for.</span>
+<span class="w">        </span><span class="sd">"""The quantity the whole of section 10 exists for.</span>
 
 <span class="sd">        Both columns are read against the same images, so the ratio is</span>
 <span class="sd">        meaningful without anything being joined or matched up -- and is</span>
 <span class="sd">        undefined on the frame recording only one of them, rather than</span>
-<span class="sd">        silently pairing that value with another frame&#39;s.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        silently pairing that value with another frame's.</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">sky_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawn</span><span class="p">(</span>
-                <span class="s2">&quot;sky_color&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">),</span>
-                <span class="p">{</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] / bg_center[2]&quot;</span><span class="p">},</span>
+                <span class="s2">"sky_color"</span><span class="p">,</span>
+                <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="s2">"bg_center[1] / bg_center[2]"</span><span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sky_color</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sky_color</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]))</span>
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
             <span class="n">sky_color</span><span class="p">,</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">)</span>
             <span class="p">),</span>
             <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -779,25 +779,25 @@
 <div class="viewcode-block" id="TestCrossChannelValues.test_one_diagnostic_read_in_two_channels">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_one_diagnostic_read_in_two_channels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_diagnostic_read_in_two_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The plainest colour plot, with no expression in it at all.</span>
+<span class="w">        </span><span class="sd">"""The plainest colour plot, with no expression in it at all.</span>
 
 <span class="sd">        Both axes are ``bg_center``, told apart only by what the table</span>
 <span class="sd">        bound each to. Asking per quantity rather than per binding would</span>
 <span class="sd">        keep one of them and draw it on both axes -- a diagonal line where</span>
 <span class="sd">        a colour-colour plot belongs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)),</span>
-                <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,)}},</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)),</span>
+                <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,)}},</span>
                 <span class="p">{},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">):</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-                <span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][(</span><span class="n">channel</span><span class="p">,)],</span>
+                <span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="n">channel</span><span class="p">,)],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">),</span>
                 <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span></div>
@@ -806,20 +806,20 @@
 <div class="viewcode-block" id="TestCrossChannelValues.test_the_binding_decides_which_way_round">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_the_binding_decides_which_way_round">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_binding_decides_which_way_round</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The same expression, the channels swapped, is the reciprocal.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The same expression, the channels swapped, is the reciprocal."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">sky_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawn</span><span class="p">(</span>
-                <span class="s2">&quot;sky_color&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">),</span>
-                <span class="p">{</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] / bg_center[2]&quot;</span><span class="p">},</span>
+                <span class="s2">"sky_color"</span><span class="p">,</span>
+                <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="s2">"bg_center[1] / bg_center[2]"</span><span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
             <span class="n">sky_color</span><span class="p">,</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">)</span>
             <span class="p">),</span>
             <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -828,44 +828,44 @@
 <div class="viewcode-block" id="TestCrossChannelValues.test_an_aggregate_spans_one_channel">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_an_aggregate_spans_one_channel">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_an_aggregate_spans_one_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Each slot is read on its own, so a median is per channel.</span>
+<span class="w">        </span><span class="sd">"""Each slot is read on its own, so a median is per channel.</span>
 
 <span class="sd">        R reads 8, 6, 4, 9 and B reads 2, 8, 5, so the medians are 7 and 5.</span>
 <span class="sd">        Pool them and the median of all seven is 6, making this 1 rather</span>
 <span class="sd">        than 2, and nothing would say so.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">relative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawn</span><span class="p">(</span>
-                <span class="s2">&quot;relative&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">),</span>
+                <span class="s2">"relative"</span><span class="p">,</span>
+                <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">),</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;relative&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;nanmedian(bg_center[1]) - nanmedian(bg_center[2])&quot;</span>
+                    <span class="s2">"relative"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"nanmedian(bg_center[1]) - nanmedian(bg_center[2])"</span>
                     <span class="p">)</span>
                 <span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="n">relative</span><span class="p">,</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">])</span>
+            <span class="n">relative</span><span class="p">,</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">])</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestCrossChannelValues.test_a_channel_never_recorded_is_undefined">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_a_channel_never_recorded_is_undefined">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_channel_never_recorded_is_undefined</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not an error: the expression is simply NaN throughout.</span>
+<span class="w">        </span><span class="sd">"""Not an error: the expression is simply NaN throughout.</span>
 
 <span class="sd">        One library is shared by every project, so an expression naming a</span>
 <span class="sd">        channel this camera does not have is an ordinary thing to meet.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">sky_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawn</span><span class="p">(</span>
-                <span class="s2">&quot;sky_color&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_channel</span><span class="p">),</span>
-                <span class="p">{</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] / bg_center[2]&quot;</span><span class="p">},</span>
+                <span class="s2">"sky_color"</span><span class="p">,</span>
+                <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_channel</span><span class="p">),</span>
+                <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="s2">"bg_center[1] / bg_center[2]"</span><span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -875,13 +875,13 @@
 <div class="viewcode-block" id="TestCrossChannelValues.test_two_axes_of_different_kinds_resolve_in_one_query">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelValues.test_two_axes_of_different_kinds_resolve_in_one_query">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_two_axes_of_different_kinds_resolve_in_one_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A plain diagnostic against a cross-channel expression.</span>
+<span class="w">        </span><span class="sd">"""A plain diagnostic against a cross-channel expression.</span>
 
 <span class="sd">        Counting the statements as well as checking the numbers, because</span>
 <span class="sd">        one read of the union is why both axes are asked for at once: two</span>
 <span class="sd">        axes over the same diagnostic in overlapping channels must not</span>
 <span class="sd">        become two reads of it, and a figure draws many series.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">issued</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -889,28 +889,28 @@
             <span class="n">issued</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">bind</span><span class="p">,</span> <span class="s2">&quot;before_cursor_execute&quot;</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">bind</span><span class="p">,</span> <span class="s2">"before_cursor_execute"</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_quantity_values</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)),</span>
-                    <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,)},</span> <span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)}},</span>
-                    <span class="p">{</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] / bg_center[2]&quot;</span><span class="p">},</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">((</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)),</span>
+                    <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,)},</span> <span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)}},</span>
+                    <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="s2">"bg_center[1] / bg_center[2]"</span><span class="p">},</span>
                     <span class="n">db_session</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">finally</span><span class="p">:</span>
-                <span class="n">event</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">bind</span><span class="p">,</span> <span class="s2">&quot;before_cursor_execute&quot;</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_session</span><span class="o">.</span><span class="n">bind</span><span class="p">,</span> <span class="s2">"before_cursor_execute"</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][(</span><span class="s2">&quot;R&quot;</span><span class="p">,)]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,)]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">])</span>
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="n">values</span><span class="p">[</span><span class="s2">&quot;sky_color&quot;</span><span class="p">][(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)],</span>
+            <span class="n">values</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)],</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole</span><span class="p">)</span>
             <span class="p">),</span>
             <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values_of</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">issued</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;both axes should share one read: </span><span class="si">{</span><span class="n">issued</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">issued</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"both axes should share one read: </span><span class="si">{</span><span class="n">issued</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span></div>
 </div>
 
@@ -919,17 +919,17 @@
 <div class="viewcode-block" id="TestCrossChannelCounts">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCrossChannelCounts</span><span class="p">(</span><span class="n">TestCrossChannelValues</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Counting the images a *binding* draws, once the channels are chosen.</span>
+<span class="w">    </span><span class="sd">"""Counting the images a *binding* draws, once the channels are chosen.</span>
 
 <span class="sd">    Shares the fixture above because the gap is what makes the question</span>
 <span class="sd">    non-trivial: a session where every frame records both channels counts</span>
 <span class="sd">    the same whichever way you ask.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestCrossChannelCounts.counts_of">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.counts_of">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">counts_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``{session label: count}`` from what a counter returned.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return ``{session label: count}`` from what a counter returned."""</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">}</span></div>
 
@@ -937,37 +937,37 @@
 <div class="viewcode-block" id="TestCrossChannelCounts.test_a_binding_counts_the_images_having_all_of_it">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_a_binding_counts_the_images_having_all_of_it">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_binding_counts_the_images_having_all_of_it</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The intersection, not either channel&#39;s own total.</span>
+<span class="w">        </span><span class="sd">"""The intersection, not either channel's own total.</span>
 
 <span class="sd">        Each session records four frames in R and three in B, so a</span>
 <span class="sd">        quantity reading both draws three -- and a count that quietly took</span>
-<span class="sd">        one channel&#39;s would claim four.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        one channel's would claim four.</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">both</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts_of</span><span class="p">(</span>
                 <span class="n">count_images_with_channels</span><span class="p">(</span>
-                    <span class="p">{(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)},</span> <span class="n">db_session</span>
+                    <span class="p">{(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)},</span> <span class="n">db_session</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="n">red</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts_of</span><span class="p">(</span>
-                <span class="n">count_images_with_channels</span><span class="p">({(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)},</span> <span class="n">db_session</span><span class="p">)</span>
+                <span class="n">count_images_with_channels</span><span class="p">({(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)},</span> <span class="n">db_session</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">hole</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hole_positions</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">hole</span><span class="o">=</span><span class="n">hole</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">both</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;gap_at_</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">red</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;gap_at_</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">both</span><span class="p">[</span><span class="sa">f</span><span class="s2">"gap_at_</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">red</span><span class="p">[</span><span class="sa">f</span><span class="s2">"gap_at_</span><span class="si">{</span><span class="n">hole</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestCrossChannelCounts.test_a_channel_never_recorded_counts_nothing">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_a_channel_never_recorded_counts_nothing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_channel_never_recorded_counts_nothing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;And says so by absence rather than by a row reading zero.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""And says so by absence rather than by a row reading zero."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="n">count_images_with_channels</span><span class="p">(</span>
-                <span class="p">{(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_channel</span><span class="p">)},</span> <span class="n">db_session</span>
+                <span class="p">{(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_channel</span><span class="p">)},</span> <span class="n">db_session</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="p">[])</span></div>
@@ -976,21 +976,21 @@
 <div class="viewcode-block" id="TestCrossChannelCounts.test_one_channel_agrees_with_counting_within_a_channel">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_one_channel_agrees_with_counting_within_a_channel">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_channel_agrees_with_counting_within_a_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The two questions only differ where more than one is involved.</span>
+<span class="w">        </span><span class="sd">"""The two questions only differ where more than one is involved.</span>
 
 <span class="sd">        Asked about a single channel, the cross-channel count must give</span>
 <span class="sd">        what the per-channel one gives for that channel -- otherwise one</span>
 <span class="sd">        of them is wrong in a way no other test here would show.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">across</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts_of</span><span class="p">(</span>
-                <span class="n">count_images_with_channels</span><span class="p">({(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)},</span> <span class="n">db_session</span><span class="p">)</span>
+                <span class="n">count_images_with_channels</span><span class="p">({(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)},</span> <span class="n">db_session</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">within</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">count_images_with_all</span><span class="p">({</span><span class="s2">&quot;bg_center&quot;</span><span class="p">},</span> <span class="n">db_session</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;B&quot;</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">count_images_with_all</span><span class="p">({</span><span class="s2">"bg_center"</span><span class="p">},</span> <span class="n">db_session</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"B"</span>
             <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">across</span><span class="p">,</span> <span class="n">within</span><span class="p">)</span></div>
@@ -999,7 +999,7 @@
 <div class="viewcode-block" id="TestCrossChannelCounts.test_nothing_required_counts_nothing">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestCrossChannelCounts.test_nothing_required_counts_nothing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_nothing_required_counts_nothing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A plot of the time against the time constrains no image.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A plot of the time against the time constrains no image."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">count_images_with_channels</span><span class="p">(</span><span class="nb">set</span><span class="p">(),</span> <span class="n">db_session</span><span class="p">),</span> <span class="p">[])</span></div>
@@ -1010,7 +1010,7 @@
 <div class="viewcode-block" id="TestTiedJulianDates">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestTiedJulianDates</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Two images of one session sharing a ``jd``.</span>
+<span class="w">    </span><span class="sd">"""Two images of one session sharing a ``jd``.</span>
 
 <span class="sd">    Alignment is by position, so the order images come back in has to be</span>
 <span class="sd">    total.  Ordering by ``jd`` alone leaves a tie for the database to break</span>
@@ -1018,7 +1018,7 @@
 <span class="sd">    value with the wrong image -- silently, since both plots look fine.  The</span>
 <span class="sd">    fixture here is the smallest thing that would expose it: two frames at</span>
 <span class="sd">    the same instant with values that say which is which.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestTiedJulianDates.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.setUpClass">[docs]</a>
@@ -1047,15 +1047,15 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates._fill_database">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fill_database</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Four frames, two of which share a Julian date.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Four frames, two of which share a Julian date."""</span>
 
         <span class="c1"># False positive: the declarative models are callable.</span>
         <span class="c1"># pylint: disable=not-callable</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                <span class="n">DiagnosticType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Background&quot;</span><span class="p">)</span>
+                <span class="n">DiagnosticType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Background"</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ImageType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;objects&quot;</span><span class="p">))</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ImageType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"objects"</span><span class="p">))</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
             <span class="n">diagnostic_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1070,7 +1070,7 @@
                 <span class="n">mount_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">observatory_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">target_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;tied&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">"tied"</span><span class="p">,</span>
                 <span class="n">start_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                 <span class="n">end_time_utc</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
             <span class="p">)</span>
@@ -1081,7 +1081,7 @@
             <span class="n">tied_jds</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2460000.5</span><span class="p">,</span> <span class="mf">2460000.6</span><span class="p">,</span> <span class="mf">2460000.6</span><span class="p">,</span> <span class="mf">2460000.7</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">jd</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tied_jds</span><span class="p">):</span>
                 <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
-                    <span class="n">raw_fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;/data/raw/tied_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">.fits&quot;</span><span class="p">,</span>
+                    <span class="n">raw_fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">"/data/raw/tied_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">.fits"</span><span class="p">,</span>
                     <span class="n">image_type_id</span><span class="o">=</span><span class="n">image_type_id</span><span class="p">,</span>
                     <span class="n">observing_session_id</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                     <span class="n">jd</span><span class="o">=</span><span class="n">jd</span><span class="p">,</span>
@@ -1093,7 +1093,7 @@
                 <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                     <span class="n">ImageDiagnostics</span><span class="p">(</span>
                         <span class="n">image_id</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                        <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;R&quot;</span><span class="p">,</span>
+                        <span class="n">channel</span><span class="o">=</span><span class="s2">"R"</span><span class="p">,</span>
                         <span class="n">diagnostic_id</span><span class="o">=</span><span class="n">diagnostic_id</span><span class="p">,</span>
                         <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
                     <span class="p">)</span>
@@ -1105,16 +1105,16 @@
 <div class="viewcode-block" id="TestTiedJulianDates.test_values_stay_with_their_own_images">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.test_values_stay_with_their_own_images">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_values_stay_with_their_own_images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The assertion the tiebreak exists for.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The assertion the tiebreak exists for."""</span>
 
-        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,))</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,))</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,)}},</span> <span class="n">db_session</span>
+                <span class="n">key</span><span class="p">,</span> <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,)}},</span> <span class="n">db_session</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][(</span><span class="s2">&quot;R&quot;</span><span class="p">,)]),</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,)]),</span>
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">value_of</span><span class="p">[</span><span class="n">image_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">image_ids</span><span class="p">],</span>
         <span class="p">)</span></div>
 
@@ -1122,13 +1122,13 @@
 <div class="viewcode-block" id="TestTiedJulianDates.test_the_order_is_repeatable">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expression_series.html#autowisp.tests.test_expression_series.TestTiedJulianDates.test_the_order_is_repeatable">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_order_is_repeatable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Two calls must not disagree about which image comes first.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Two calls must not disagree about which image comes first."""</span>
 
-        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,))</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">SeriesKey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,))</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">first</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_canonical_images</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">second_ids</span> <span class="o">=</span> <span class="n">get_diagnostic_values</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,)}},</span> <span class="n">db_session</span>
+                <span class="n">key</span><span class="p">,</span> <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,)}},</span> <span class="n">db_session</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">first</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">second_ids</span><span class="p">))</span></div>
@@ -1136,7 +1136,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

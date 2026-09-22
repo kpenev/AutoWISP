@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.iterative_fit &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.fit_expression.iterative_fit</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define a function doing iterative re-fitting of terms from an expression.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define a function doing iterative re-fitting of terms from an expression."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exc</span>
@@ -190,7 +190,7 @@
     <span class="n">pre_reject</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">reject_scale_floor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Same as iterative_fit() but using the QR decomposition of predictors.</span>
 
 <span class="sd">    Args:</span>
@@ -201,7 +201,7 @@
 <span class="sd">        weighted_qrp(2-D array):    The QR decomposition of</span>
 <span class="sd">            `weighted_predictors` with pivoting. Should be exactly the output of</span>
 <span class="sd">            `scipy.linalg.qr(weighted_predictors, pivoting=True)`, possibly with</span>
-<span class="sd">            `mode=&#39;economic&#39;`.</span>
+<span class="sd">            `mode='economic'`.</span>
 
 <span class="sd">        weighted_target(1-D array):    The vector of values to reproduce as a</span>
 <span class="sd">            linear combination of predictors. Should also already be weighted.</span>
@@ -220,15 +220,15 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        See iterative_fit().</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">rejected_indices</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return indices of outlier sources and squared fit residual.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return indices of outlier sources and squared fit residual."""</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Weigthed difference: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Weigths: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Weigthed difference: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Weigths: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
 
         <span class="k">assert</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">weights</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -236,8 +236,8 @@
         <span class="n">fit_diff2</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span>
             <span class="n">weighted_fit_diff</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">weights</span><span class="p">),</span> <span class="mi">2</span>
         <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Square difference: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">fit_diff2</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">error_avg</span> <span class="o">==</span> <span class="s2">&quot;weightedmean&quot;</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Square difference: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">fit_diff2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">error_avg</span> <span class="o">==</span> <span class="s2">"weightedmean"</span><span class="p">:</span>
             <span class="n">res2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">res2</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -247,27 +247,27 @@
         <span class="c1"># collapse the rejection threshold to ~0 and reject points on</span>
         <span class="c1"># floating-point noise (a platform-dependent way to fail the fit).</span>
         <span class="n">max_diff2</span> <span class="o">=</span> <span class="n">rej_level</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">res2</span><span class="p">,</span> <span class="n">reject_scale_floor</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;max square difference: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">max_diff2</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"max square difference: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">max_diff2</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">res2</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="p">[</span>
                         <span class="nb">repr</span><span class="p">(</span><span class="n">fit_identifier</span><span class="p">),</span>
-                        <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Negative square residual: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">res2</span><span class="p">),</span>
+                        <span class="s2">"</span><span class="se">\t</span><span class="s2">Negative square residual: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">res2</span><span class="p">),</span>
                         <span class="p">(</span>
-                            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Weights (min, max): (&quot;</span>
+                            <span class="s2">"</span><span class="se">\t</span><span class="s2">Weights (min, max): ("</span>
                             <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
-                            <span class="o">+</span> <span class="s2">&quot;, &quot;</span>
+                            <span class="o">+</span> <span class="s2">", "</span>
                             <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
-                            <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+                            <span class="o">+</span> <span class="s2">")"</span>
                         <span class="p">),</span>
                         <span class="p">(</span>
-                            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">weighted_fit_diff (min, max): (&quot;</span>
+                            <span class="s2">"</span><span class="se">\t</span><span class="s2">weighted_fit_diff (min, max): ("</span>
                             <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">))</span>
-                            <span class="o">+</span> <span class="s2">&quot;, &quot;</span>
+                            <span class="o">+</span> <span class="s2">", "</span>
                             <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">))</span>
-                            <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+                            <span class="o">+</span> <span class="s2">")"</span>
                         <span class="p">),</span>
                     <span class="p">]</span>
                 <span class="p">),</span>
@@ -286,14 +286,14 @@
 
     <span class="n">permutation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Original QRP = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Original QRP = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">rej_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">pre_reject</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max_rej_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">weighted_target</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">,</span> <span class="n">bad_ind</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_free_coef</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
-                <span class="s2">&quot;Iteration </span><span class="si">%d</span><span class="s2"> has too few sources: </span><span class="si">%d</span><span class="s2"> to fit for </span><span class="si">%d</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;coefficients.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Iteration </span><span class="si">%d</span><span class="s2"> has too few sources: </span><span class="si">%d</span><span class="s2"> to fit for </span><span class="si">%d</span><span class="s2"> "</span>
+                <span class="s2">"coefficients.</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">rej_iter</span><span class="p">,</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">),</span>
                 <span class="n">num_free_coef</span><span class="p">,</span>
@@ -304,23 +304,23 @@
         <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">bad_ind</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Iteration </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> sources, </span><span class="si">%d</span><span class="s2"> coefficients</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Iteration </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> sources, </span><span class="si">%d</span><span class="s2"> coefficients</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">rej_iter</span><span class="p">,</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">),</span>
             <span class="n">num_free_coef</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">bad_ind</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="n">max_downdates</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Rederiving QR-Decomposition&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Rederiving QR-Decomposition"</span><span class="p">)</span>
             <span class="c1"># False positive</span>
             <span class="c1"># pylint: disable=unexpected-keyword-arg</span>
             <span class="n">weighted_qrp</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span>
-                <span class="n">weighted_predictors</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span>
+                <span class="n">weighted_predictors</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"economic"</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
             <span class="n">permutation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="c1"># pylint: enable=unexpected-keyword-arg</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Downdating QR-Decomposition&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Downdating QR-Decomposition"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">bad_ind</span><span class="p">):</span>
                 <span class="c1"># False positive</span>
                 <span class="c1"># pylint: disable=no-member</span>
@@ -330,7 +330,7 @@
                 <span class="p">)</span>
                 <span class="c1"># pylint: enable=no-member</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;After deleting row </span><span class="si">%d</span><span class="s2">, QRP = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">)</span>
+                    <span class="s2">"After deleting row </span><span class="si">%d</span><span class="s2">, QRP = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">)</span>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">rej_iter</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -346,7 +346,7 @@
                 <span class="c1"># pylint: enable=no-member</span>
             <span class="k">except</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
-                    <span class="s2">&quot;Linear least squares fit failed:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">format_exc</span><span class="p">()</span>
+                    <span class="s2">"Linear least squares fit failed:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">format_exc</span><span class="p">()</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
         <span class="n">bad_ind</span><span class="p">,</span> <span class="n">fit_res2</span> <span class="o">=</span> <span class="n">rejected_indices</span><span class="p">(</span>
@@ -354,7 +354,7 @@
             <span class="n">weights</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Fit: coef = </span><span class="si">%s</span><span class="s2">, square residual = </span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> rejected&quot;</span><span class="p">,</span>
+            <span class="s2">"Fit: coef = </span><span class="si">%s</span><span class="s2">, square residual = </span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> rejected"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">best_fit_coef</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">fit_res2</span><span class="p">),</span>
             <span class="n">bad_ind</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
@@ -385,7 +385,7 @@
     <span class="n">pre_reject</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">reject_scale_floor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find least squares coefficients reproducing target_values using predictors.</span>
 
 <span class="sd">    Args:</span>
@@ -434,19 +434,19 @@
 
 <span class="sd">        int:</span>
 <span class="sd">            The number of non-rejected points used in the last fit iteration.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">predictors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">predictors</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
         <span class="n">target_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">target_values</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Performing QR decomposition for predictors of shape: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">"Performing QR decomposition for predictors of shape: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
         <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="c1"># False positive</span>
     <span class="c1"># pylint: disable=unexpected-keyword-arg</span>
-    <span class="n">qrp</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">qrp</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"economic"</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># pylint: enable=unexpected-keyword-arg</span>
 
     <span class="k">return</span> <span class="n">iterative_fit_qr</span><span class="p">(</span>

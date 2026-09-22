@@ -1,0 +1,59 @@
+<map id="inheritance5edbc5fe63" name="inheritance5edbc5fe63">
+<area shape="rect" id="node1" title="Provides operations upon an Alembic script directory." alt="" coords="2026,5,2277,31"/>
+<area shape="rect" id="node2" title="The base class for all table classes." alt="" coords="246,1032,614,1057"/>
+<area shape="rect" id="node3" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,959,425,984"/>
+<area shape="rect" id="node4" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="450,959,842,984"/>
+<area shape="rect" id="node5" title="Base class used for declarative class definitions." alt="" coords="499,885,793,911"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="2828,5,3083,31"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="2834,79,3077,104"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.DatabaseError" target="_top" title="Failure interacting with the pipeline database." alt="" coords="2829,152,3082,177"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="4538,5,4917,31"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_database_migration.TestAdditiveMigrations" target="_top" title="The pre&#45;Alembic helper still adds missing nullable columns." alt="" coords="4043,79,4479,104"/>
+<area shape="rect" id="node12" href="#autowisp.tests.test_database_migration.TestCheckProjectSchema" target="_top" title="The read&#45;only gate every project open &#45;&#45; and every worker &#45;&#45; runs." alt="" coords="4502,79,4953,104"/>
+<area shape="rect" id="node13" href="#autowisp.tests.test_database_migration.TestConcurrentMigration" target="_top" title="Two migrators racing on one database must not corrupt or crash it." alt="" coords="4977,79,5424,104"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_database_migration.TestMigrateProject" target="_top" title="The three database states :func:`migrate_project` has to handle." alt="" coords="5449,79,5857,104"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_database_migration.TestSchemaDrift" target="_top" title="The revision chain and the ORM models describe the same schema." alt="" coords="5881,79,6275,104"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_database_migration.TestTimestampTriggers" target="_top" title="Every table carrying ``timestamp`` keeps a trigger maintaining it." alt="" coords="3101,79,3540,104"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease" target="_top" title="A database built by a *released* AutoWISP reaches today&#39;s schema." alt="" coords="3565,79,4018,104"/>
+<area shape="rect" id="node11" title="A class whose instances are single test cases." alt="" coords="5117,5,5285,31"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_database_migration.TestRevisionChain" target="_top" title="The revision chain is linear, ordered, and consistently named." alt="" coords="6767,79,7173,104"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_database_migration.TestSqliteMigrationLock" target="_top" title="The SQLite half of the migration lock really does exclude a second" alt="" coords="6299,79,6742,104"/>
+<area shape="rect" id="node20" title="represents an event target, that is, something we can listen on" alt="" coords="2301,5,2570,31"/>
+<area shape="rect" id="node31" title="Abstract base class for connection pools." alt="" coords="2597,79,2791,104"/>
+<area shape="rect" id="node38" title="Base class for elements that are the targets of :class:`.DDLEvents`" alt="" coords="2285,79,2572,104"/>
+<area shape="rect" id="node21" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DBAPIError" target="_top" title="Raised when the execution of a database operation fails." alt="" coords="7219,225,7417,251"/>
+<area shape="rect" id="node23" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.DatabaseError" target="_top" title="Wraps a DB&#45;API DatabaseError." alt="" coords="7209,299,7427,324"/>
+<area shape="rect" id="node22" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.StatementError" target="_top" title="An error occurred during execution of a SQL statement." alt="" coords="7205,152,7431,177"/>
+<area shape="rect" id="node25" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.OperationalError" target="_top" title="Wraps a DB&#45;API OperationalError." alt="" coords="7201,372,7435,397"/>
+<area shape="rect" id="node24" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.HasDescriptionCode" target="_top" title="helper which adds &#39;code&#39; as an attribute and &#39;_code_str&#39; as a method" alt="" coords="7189,5,7447,31"/>
+<area shape="rect" id="node26" href="https://docs.sqlalchemy.org/en/20/core/exceptions.html#sqlalchemy.exc.SQLAlchemyError" target="_top" title="Generic error class." alt="" coords="7198,79,7438,104"/>
+<area shape="rect" id="node27" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,885,399,911"/>
+<area shape="rect" id="node28" title="define a class as inspectable." alt="" coords="523,812,769,837"/>
+<area shape="rect" id="node66" title="Represent a table in a database." alt="" coords="1107,885,1318,911"/>
+<area shape="rect" id="node29" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="521,739,638,764"/>
+<area shape="rect" id="node30" href="https://docs.sqlalchemy.org/en/20/core/internals.html#sqlalchemy.log.Identified" target="_top" title="sqlalchemy.log.Identified" alt="" coords="2602,5,2786,31"/>
+<area shape="rect" id="node32" title="A Pool which does not pool connections." alt="" coords="2586,152,2805,177"/>
+<area shape="rect" id="node44" title="Base class for elements of a programmatically constructed SQL" alt="" coords="1419,372,1705,397"/>
+<area shape="rect" id="node36" href="https://docs.sqlalchemy.org/en/20/core/foundation.html#sqlalchemy.sql.base.DialectKWArgs" target="_top" title="Establish the ability for a class to have dialect&#45;specific arguments" alt="" coords="1308,739,1560,764"/>
+<area shape="rect" id="node64" title="A table&#45;level INDEX." alt="" coords="1725,812,1938,837"/>
+<area shape="rect" id="node37" title="mark a ClauseElement as &#39;immutable&#39; when expressions are cloned." alt="" coords="663,739,891,764"/>
+<area shape="rect" id="node67" title="Represents a minimal &quot;table&quot; construct." alt="" coords="924,812,1195,837"/>
+<area shape="rect" id="node39" title="Base class for elements that are targets of a :class:`.SchemaVisitor`." alt="" coords="2295,152,2562,177"/>
+<area shape="rect" id="node63" title="Base class for items that define a database schema." alt="" coords="2263,739,2522,764"/>
+<area shape="rect" id="node40" href="https://docs.sqlalchemy.org/en/20/core/visitors.html#sqlalchemy.sql.visitors.Visitable" target="_top" title="Base class for visitable objects." alt="" coords="2005,79,2236,104"/>
+<area shape="rect" id="node46" title="base class for SQL elements that can be compiled to produce a" alt="" coords="1971,152,2271,177"/>
+<area shape="rect" id="node41" title="Mixin for objects which can produce a cache key." alt="" coords="1383,225,1664,251"/>
+<area shape="rect" id="node43" title="A mixin class that maintains the names of memoized elements in a" alt="" coords="1688,225,1985,251"/>
+<area shape="rect" id="node47" title="represents a :class:`.ClauseElement` that compiles to a DQL or DML" alt="" coords="1391,445,1733,471"/>
+<area shape="rect" id="node71" title="The base&#45;most class for Core constructs that have some concept of" alt="" coords="1169,519,1448,544"/>
+<area shape="rect" id="node68" title="Represent an element that can be used within the ``FROM``" alt="" coords="989,665,1260,691"/>
+<area shape="rect" id="node51" title="Elements suitable for forming comma separated lists of expressions." alt="" coords="935,299,1195,324"/>
+<area shape="rect" id="node52" title="Define a &quot;role&quot; within a SQL statement structure." alt="" coords="765,225,977,251"/>
+<area shape="rect" id="node60" title="A :class:`_expression.ColumnCollection` of :class:`_schema.Column`" alt="" coords="1911,739,2239,764"/>
+<area shape="rect" id="node61" title="define a class that includes the :meth:`.HasConditionalDDL.ddl_if`" alt="" coords="1584,739,1887,764"/>
+<area shape="rect" id="node62" title="schema item that includes a top&#45;level schema name" alt="" coords="2156,812,2435,837"/>
+<area shape="rect" id="node65" title="A collection of :class:`_schema.Table`" alt="" coords="2175,885,2416,911"/>
+<area shape="rect" id="node70" title="A :class:`.FromClause` that has a name." alt="" coords="966,739,1283,764"/>
+<area shape="rect" id="node69" title="Mark a class as being selectable." alt="" coords="1178,592,1439,617"/>
+<area shape="rect" id="node72" title="base for classes that have a &quot;traverse internals&quot; element," alt="" coords="1429,79,1740,104"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="inheritanceeb409724cb" name="inheritanceeb409724cb">
+<area shape="rect" id="node1" title="Buffered I/O implementation using an in&#45;memory bytes buffer." alt="" coords="5,5,101,31"/>
+<area shape="rect" id="node2" title="Base class for the interval classes, which, when called with an" alt="" coords="140,79,436,104"/>
+<area shape="rect" id="node4" title="Interval based on IRAF&#39;s zscale." alt="" coords="134,152,442,177"/>
+<area shape="rect" id="node3" title="A transformation object." alt="" coords="125,5,451,31"/>
+</map>

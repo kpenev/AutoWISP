@@ -3,5 +3,5 @@ autowisp.tests.test\_bui\_db\_config module
 
 .. automodule:: autowisp.tests.test_bui_db_config
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

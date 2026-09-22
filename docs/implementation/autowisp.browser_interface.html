@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface package &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -224,16 +224,25 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.browser_interface.core.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.core.admin.html">autowisp.browser_interface.core.admin module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.core.apps.html">autowisp.browser_interface.core.apps module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.core.apps.html">autowisp.browser_interface.core.apps module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.apps.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.apps.html#autowisp.browser_interface.core.apps.CoreConfig"><code class="docutils literal notranslate"><span class="pre">CoreConfig</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.core.context_processors.html">autowisp.browser_interface.core.context_processors module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.context_processors.html#autowisp.browser_interface.core.context_processors._project_error_counts"><code class="docutils literal notranslate"><span class="pre">_project_error_counts()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.context_processors.html#autowisp.browser_interface.core.context_processors.global_variables"><code class="docutils literal notranslate"><span class="pre">global_variables()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.core.models.html">autowisp.browser_interface.core.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.core.models.html">autowisp.browser_interface.core.models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.models.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase"><code class="docutils literal notranslate"><span class="pre">BuiModelBase</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.core.plot_utils.html">autowisp.browser_interface.core.plot_utils module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.plot_utils.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.plot_utils.html#autowisp.browser_interface.core.plot_utils.figure_to_svg_response"><code class="docutils literal notranslate"><span class="pre">figure_to_svg_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.plot_utils.html#autowisp.browser_interface.core.plot_utils.line_styles"><code class="docutils literal notranslate"><span class="pre">line_styles</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.core.plot_utils.html#autowisp.browser_interface.core.plot_utils.setup_svg_matplotlib"><code class="docutils literal notranslate"><span class="pre">setup_svg_matplotlib()</span></code></a></li>
 </ul>
 </li>
@@ -269,7 +278,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.browser_interface.diagnostics.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.admin.html">autowisp.browser_interface.diagnostics.admin module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.admin.html">autowisp.browser_interface.diagnostics.admin module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.admin.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.admin.html#autowisp.browser_interface.diagnostics.admin.DiagnosticExpressionAdmin"><code class="docutils literal notranslate"><span class="pre">DiagnosticExpressionAdmin</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.apps.html">autowisp.browser_interface.diagnostics.apps module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.apps.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.apps.html#autowisp.browser_interface.diagnostics.apps.DiagnosticsConfig"><code class="docutils literal notranslate"><span class="pre">DiagnosticsConfig</span></code></a></li>
@@ -287,18 +300,48 @@
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.detrending_diagnostics_views.html#autowisp.browser_interface.diagnostics.detrending_diagnostics_views.update_detrending_diagnostics_plot"><code class="docutils literal notranslate"><span class="pre">update_detrending_diagnostics_plot()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_data.html">autowisp.browser_interface.diagnostics.expression_data module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html">autowisp.browser_interface.diagnostics.expression_views module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.forms.html">autowisp.browser_interface.diagnostics.forms module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_data.html">autowisp.browser_interface.diagnostics.expression_data module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_data.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_data.html#autowisp.browser_interface.diagnostics.expression_data.get_expression_descriptions"><code class="docutils literal notranslate"><span class="pre">get_expression_descriptions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_data.html#autowisp.browser_interface.diagnostics.expression_data.get_expressions"><code class="docutils literal notranslate"><span class="pre">get_expressions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html">autowisp.browser_interface.diagnostics.expression_views module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._carry_dependents_through_rename"><code class="docutils literal notranslate"><span class="pre">_carry_dependents_through_rename()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._format_key"><code class="docutils literal notranslate"><span class="pre">_format_key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._format_version"><code class="docutils literal notranslate"><span class="pre">_format_version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._reachable"><code class="docutils literal notranslate"><span class="pre">_reachable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._references"><code class="docutils literal notranslate"><span class="pre">_references()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._render_list"><code class="docutils literal notranslate"><span class="pre">_render_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._staged_expressions"><code class="docutils literal notranslate"><span class="pre">_staged_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._write_expressions"><code class="docutils literal notranslate"><span class="pre">_write_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.confirm_import_expressions"><code class="docutils literal notranslate"><span class="pre">confirm_import_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.delete_expressions"><code class="docutils literal notranslate"><span class="pre">delete_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.describe_expression"><code class="docutils literal notranslate"><span class="pre">describe_expression()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.export_expressions"><code class="docutils literal notranslate"><span class="pre">export_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.import_expressions"><code class="docutils literal notranslate"><span class="pre">import_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.list_expressions"><code class="docutils literal notranslate"><span class="pre">list_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.save_expression"><code class="docutils literal notranslate"><span class="pre">save_expression()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.forms.html">autowisp.browser_interface.diagnostics.forms module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.forms.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm"><code class="docutils literal notranslate"><span class="pre">DiagnosticExpressionForm</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html">autowisp.browser_interface.diagnostics.image_diagnostics_views module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes"><code class="docutils literal notranslate"><span class="pre">assign_y_axes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.build_section"><code class="docutils literal notranslate"><span class="pre">build_section()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data"><code class="docutils literal notranslate"><span class="pre">collect_series_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_diagnostics_figure"><code class="docutils literal notranslate"><span class="pre">create_diagnostics_figure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_figure"><code class="docutils literal notranslate"><span class="pre">create_figure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.diagnostics_section"><code class="docutils literal notranslate"><span class="pre">diagnostics_section()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics"><code class="docutils literal notranslate"><span class="pre">display_diagnostics()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_image_diagnostics"><code class="docutils literal notranslate"><span class="pre">display_image_diagnostics()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.download_plot_view"><code class="docutils literal notranslate"><span class="pre">download_plot_view()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_series_group"><code class="docutils literal notranslate"><span class="pre">draw_series_group()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_group_on_axes"><code class="docutils literal notranslate"><span class="pre">draw_group_on_axes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_merged_legend"><code class="docutils literal notranslate"><span class="pre">draw_merged_legend()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_series_data"><code class="docutils literal notranslate"><span class="pre">get_series_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap"><code class="docutils literal notranslate"><span class="pre">group_series_by_x_overlap()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_image_diagnostic_series"><code class="docutils literal notranslate"><span class="pre">plot_image_diagnostic_series()</span></code></a></li>
@@ -306,7 +349,11 @@
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.update_plot_view"><code class="docutils literal notranslate"><span class="pre">update_plot_view()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.models.html">autowisp.browser_interface.diagnostics.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.models.html">autowisp.browser_interface.diagnostics.models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.models.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression"><code class="docutils literal notranslate"><span class="pre">DiagnosticExpression</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.preview_calibrated.html">autowisp.browser_interface.diagnostics.preview_calibrated module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.preview_calibrated.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.preview_calibrated.html#autowisp.browser_interface.diagnostics.preview_calibrated._generate_quantile_overlay_png"><code class="docutils literal notranslate"><span class="pre">_generate_quantile_overlay_png()</span></code></a></li>
@@ -318,37 +365,59 @@
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.preview_calibrated.html#autowisp.browser_interface.diagnostics.preview_calibrated.preview_calibrated_image"><code class="docutils literal notranslate"><span class="pre">preview_calibrated_image()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html">autowisp.browser_interface.diagnostics.quantities module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.describe_quantity"><code class="docutils literal notranslate"><span class="pre">describe_quantity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_available_diagnostics"><code class="docutils literal notranslate"><span class="pre">get_available_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_available_expressions"><code class="docutils literal notranslate"><span class="pre">get_available_expressions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_diagnostic_descriptions"><code class="docutils literal notranslate"><span class="pre">get_diagnostic_descriptions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_quantile_names"><code class="docutils literal notranslate"><span class="pre">get_quantile_names()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_recorded_diagnostics"><code class="docutils literal notranslate"><span class="pre">get_recorded_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.next_section_marker"><code class="docutils literal notranslate"><span class="pre">next_section_marker()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.section_markers"><code class="docutils literal notranslate"><span class="pre">section_markers</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html">autowisp.browser_interface.diagnostics.series_table module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.build_group_rows"><code class="docutils literal notranslate"><span class="pre">build_group_rows()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.count_bound_images"><code class="docutils literal notranslate"><span class="pre">count_bound_images()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_available_diagnostics"><code class="docutils literal notranslate"><span class="pre">get_available_diagnostics()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_available_expressions"><code class="docutils literal notranslate"><span class="pre">get_available_expressions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_available_series"><code class="docutils literal notranslate"><span class="pre">get_available_series()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_axes_slot_needs"><code class="docutils literal notranslate"><span class="pre">get_axes_slot_needs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_axis_slots"><code class="docutils literal notranslate"><span class="pre">get_axis_slots()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_binding_response"><code class="docutils literal notranslate"><span class="pre">get_binding_response()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_quantile_names"><code class="docutils literal notranslate"><span class="pre">get_quantile_names()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_recorded_diagnostics"><code class="docutils literal notranslate"><span class="pre">get_recorded_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_pair_options"><code class="docutils literal notranslate"><span class="pre">get_pair_options()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_row_options"><code class="docutils literal notranslate"><span class="pre">get_row_options()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_series_key"><code class="docutils literal notranslate"><span class="pre">get_series_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_session_channels"><code class="docutils literal notranslate"><span class="pre">get_session_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_session_times"><code class="docutils literal notranslate"><span class="pre">get_session_times()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_slot_headings"><code class="docutils literal notranslate"><span class="pre">get_slot_headings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_slot_options"><code class="docutils literal notranslate"><span class="pre">get_slot_options()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_row_id"><code class="docutils literal notranslate"><span class="pre">make_row_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_table_response"><code class="docutils literal notranslate"><span class="pre">get_table_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_id"><code class="docutils literal notranslate"><span class="pre">make_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_row_for_pair"><code class="docutils literal notranslate"><span class="pre">make_row_for_pair()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_series"><code class="docutils literal notranslate"><span class="pre">make_series()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.plan_spare_row"><code class="docutils literal notranslate"><span class="pre">plan_spare_row()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.resolve_quantity"><code class="docutils literal notranslate"><span class="pre">resolve_quantity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_slot_cells"><code class="docutils literal notranslate"><span class="pre">make_slot_cells()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.next_row_id"><code class="docutils literal notranslate"><span class="pre">next_row_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.posted_rows"><code class="docutils literal notranslate"><span class="pre">posted_rows()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.row_id_separator"><code class="docutils literal notranslate"><span class="pre">row_id_separator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.row_ordinal"><code class="docutils literal notranslate"><span class="pre">row_ordinal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.split_pair_id"><code class="docutils literal notranslate"><span class="pre">split_pair_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.split_row_id"><code class="docutils literal notranslate"><span class="pre">split_row_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.unset_option_text"><code class="docutils literal notranslate"><span class="pre">unset_option_text</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.tests.html">autowisp.browser_interface.diagnostics.tests module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.tests.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.urls.html">autowisp.browser_interface.diagnostics.urls module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.views.html">autowisp.browser_interface.diagnostics.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.urls.html">autowisp.browser_interface.diagnostics.urls module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.urls.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.urls.html#autowisp.browser_interface.diagnostics.urls.SlugListConverter"><code class="docutils literal notranslate"><span class="pre">SlugListConverter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.diagnostics.views.html">autowisp.browser_interface.diagnostics.views module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.views.html#autowisp.browser_interface.diagnostics.views.diagnostics_section"><code class="docutils literal notranslate"><span class="pre">diagnostics_section()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.views.html#autowisp.browser_interface.diagnostics.views.display_diagnostics"><code class="docutils literal notranslate"><span class="pre">display_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.views.html#autowisp.browser_interface.diagnostics.views.download_diagnostics_plot"><code class="docutils literal notranslate"><span class="pre">download_diagnostics_plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.diagnostics.views.html#autowisp.browser_interface.diagnostics.views.update_diagnostics_plot"><code class="docutils literal notranslate"><span class="pre">update_diagnostics_plot()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -390,14 +459,40 @@
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.apps.html#autowisp.browser_interface.home.apps.HomeConfig"><code class="docutils literal notranslate"><span class="pre">HomeConfig</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.create_project_view.html">autowisp.browser_interface.home.create_project_view module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.models.html">autowisp.browser_interface.home.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.create_project_view.html">autowisp.browser_interface.home.create_project_view module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.create_project_view.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.create_project_view.html#autowisp.browser_interface.home.create_project_view.CreateProjectView"><code class="docutils literal notranslate"><span class="pre">CreateProjectView</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.create_project_view.html#autowisp.browser_interface.home.create_project_view.MasterConfigView"><code class="docutils literal notranslate"><span class="pre">MasterConfigView</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.models.html">autowisp.browser_interface.home.models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.models.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.models.html#autowisp.browser_interface.home.models.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.tests.html">autowisp.browser_interface.home.tests module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.tests.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.urls.html">autowisp.browser_interface.home.urls module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.views.html">autowisp.browser_interface.home.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.browser_interface.home.views.html">autowisp.browser_interface.home.views module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views._pattern_to_glob"><code class="docutils literal notranslate"><span class="pre">_pattern_to_glob()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views._safe_remove"><code class="docutils literal notranslate"><span class="pre">_safe_remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.confirm_delete_projects"><code class="docutils literal notranslate"><span class="pre">confirm_delete_projects()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_image_products"><code class="docutils literal notranslate"><span class="pre">delete_image_products()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_lightcurves"><code class="docutils literal notranslate"><span class="pre">delete_lightcurves()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_logs"><code class="docutils literal notranslate"><span class="pre">delete_logs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_master_files"><code class="docutils literal notranslate"><span class="pre">delete_master_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_projects"><code class="docutils literal notranslate"><span class="pre">delete_projects()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.export_master_config"><code class="docutils literal notranslate"><span class="pre">export_master_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.find_missing_databases"><code class="docutils literal notranslate"><span class="pre">find_missing_databases()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.home"><code class="docutils literal notranslate"><span class="pre">home()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.prune_empty_directories"><code class="docutils literal notranslate"><span class="pre">prune_empty_directories()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.reset_project_config"><code class="docutils literal notranslate"><span class="pre">reset_project_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.select_project"><code class="docutils literal notranslate"><span class="pre">select_project()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

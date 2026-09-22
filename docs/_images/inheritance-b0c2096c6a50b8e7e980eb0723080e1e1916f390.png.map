@@ -1,6 +1,0 @@
-<map id="inheritance161d440266" name="inheritance161d440266">
-<area shape="rect" id="node1" href="#autowisp.tests.test_templates.TestTemplateComments" target="_top" title="Comments have to be written in a form Django actually strips." alt="" coords="5,80,348,107"/>
-<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="98,5,255,32"/>
-<area shape="rect" id="node3" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="371,80,462,107"/>
-<area shape="rect" id="node4" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="358,5,475,32"/>
-</map>

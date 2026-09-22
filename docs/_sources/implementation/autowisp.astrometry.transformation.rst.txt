@@ -3,5 +3,5 @@ autowisp.astrometry.transformation module
 
 .. automodule:: autowisp.astrometry.transformation
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

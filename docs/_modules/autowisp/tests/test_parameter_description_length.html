@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_parameter_description_length &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,15 +165,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_parameter_description_length</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Check that step argument help fits the parameter description column.</span>
+<span></span><span class="sd">"""Check that step argument help fits the parameter description column.</span>
 
 <span class="sd">Project initialization stores the command line help of every processing</span>
 <span class="sd">step argument in ``parameter.description``. SQLite ignores declared</span>
 <span class="sd">``VARCHAR`` lengths, so an over-long help string is invisible locally and</span>
 <span class="sd">only breaks initialization against a centralised MySQL/MariaDB database,</span>
-<span class="sd">where it aborts the insert with &quot;Data too long for column</span>
-<span class="sd">&#39;description&#39;&quot;. This keeps the help strings within the column instead.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">where it aborts the insert with "Data too long for column</span>
+<span class="sd">'description'". This keeps the help strings within the column instead.</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
@@ -186,13 +186,13 @@
 <div class="viewcode-block" id="_iter_step_modules">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length._iter_step_modules">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_step_modules</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield ``(name, module)`` for each processing step of the pipeline.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Yield ``(name, module)`` for each processing step of the pipeline."""</span>
 
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">processing_steps</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">):</span>
             <span class="k">continue</span>
         <span class="n">module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">processing_steps</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;parse_command_line&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">"parse_command_line"</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">module</span></div>
 
 
@@ -200,31 +200,31 @@
 <div class="viewcode-block" id="TestParameterDescriptionLength">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestParameterDescriptionLength</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Everything initialization inserts must fit its column.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Everything initialization inserts must fit its column."""</span>
 
 <div class="viewcode-block" id="TestParameterDescriptionLength.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.setUpClass">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collect the descriptions initialization would store.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Collect the descriptions initialization would store."""</span>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">step_docs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">descriptions</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">_iter_step_modules</span><span class="p">():</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">step_docs</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">step_docs</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="s2">""</span>
             <span class="c1"># The parsers report their defaults on stdout.</span>
             <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stdout</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
                 <span class="n">config</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">parse_command_line</span><span class="p">([])</span>
-            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;argument_descriptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">"argument_descriptions"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                    <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="p">[</span><span class="s2">&quot;help&quot;</span><span class="p">]</span>
-                <span class="bp">cls</span><span class="o">.</span><span class="n">descriptions</span><span class="p">[(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">param</span><span class="p">)]</span> <span class="o">=</span> <span class="n">description</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span></div>
+                    <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="p">[</span><span class="s2">"help"</span><span class="p">]</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">descriptions</span><span class="p">[(</span><span class="n">step_name</span><span class="p">,</span> <span class="n">param</span><span class="p">)]</span> <span class="o">=</span> <span class="n">description</span> <span class="ow">or</span> <span class="s2">""</span></div>
 
 
 <div class="viewcode-block" id="TestParameterDescriptionLength.test_argument_help_fits_description_column">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.test_argument_help_fits_description_column">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_argument_help_fits_description_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;No argument help exceeds ``Parameter.description``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""No argument help exceeds ``Parameter.description``."""</span>
 
         <span class="n">max_length</span> <span class="o">=</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">__table__</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">length</span>
         <span class="n">too_long</span> <span class="o">=</span> <span class="p">{</span>
@@ -235,11 +235,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">too_long</span><span class="p">,</span>
             <span class="p">{},</span>
-            <span class="sa">f</span><span class="s2">&quot;Argument help longer than the </span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2"> character &quot;</span>
-            <span class="s2">&quot;parameter.description column (breaks project initialization &quot;</span>
-            <span class="s2">&quot;on MySQL/MariaDB): &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2">: --</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> chars)&quot;</span>
+            <span class="sa">f</span><span class="s2">"Argument help longer than the </span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2"> character "</span>
+            <span class="s2">"parameter.description column (breaks project initialization "</span>
+            <span class="s2">"on MySQL/MariaDB): "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2">: --</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> chars)"</span>
                 <span class="k">for</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">param</span><span class="p">),</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">too_long</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
@@ -248,7 +248,7 @@
 <div class="viewcode-block" id="TestParameterDescriptionLength.test_step_docstring_fits_description_column">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_parameter_description_length.html#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.test_step_docstring_fits_description_column">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_step_docstring_fits_description_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;No step docstring exceeds ``Step.description``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""No step docstring exceeds ``Step.description``."""</span>
 
         <span class="n">max_length</span> <span class="o">=</span> <span class="n">Step</span><span class="o">.</span><span class="n">__table__</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">length</span>
         <span class="n">too_long</span> <span class="o">=</span> <span class="p">{</span>
@@ -259,10 +259,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">too_long</span><span class="p">,</span>
             <span class="p">{},</span>
-            <span class="sa">f</span><span class="s2">&quot;Step docstring longer than the </span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2"> character &quot;</span>
-            <span class="s2">&quot;step.description column: &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> chars)&quot;</span>
+            <span class="sa">f</span><span class="s2">"Step docstring longer than the </span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2"> character "</span>
+            <span class="s2">"step.description column: "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> chars)"</span>
                 <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">too_long</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
@@ -270,7 +270,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.data_reduction.source_extracted_psf_map &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.data_reduction.source_extracted_psf_map</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define callable class representing PSF maps from source extraction.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define callable class representing PSF maps from source extraction."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
@@ -177,12 +177,12 @@
 <div class="viewcode-block" id="SourceExtractedPSFMap">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.source_extracted_psf_map.html#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SourceExtractedPSFMap</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate smoothed PSF maps based on source extraction.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Evaluate smoothed PSF maps based on source extraction."""</span>
 
 <div class="viewcode-block" id="SourceExtractedPSFMap.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.source_extracted_psf_map.html#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">psf_parameters</span><span class="p">,</span> <span class="n">terms_expression</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the map for the given parameters per the given coefficients.</span>
 
 <span class="sd">        Args:</span>
@@ -196,7 +196,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_psf_parameters</span> <span class="o">=</span> <span class="n">psf_parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_predictors</span> <span class="o">=</span> <span class="n">FitTermsInterface</span><span class="p">(</span><span class="n">terms_expression</span><span class="p">)</span>
@@ -206,7 +206,7 @@
 <div class="viewcode-block" id="SourceExtractedPSFMap.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.source_extracted_psf_map.html#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Evaluate the map for the given sources.</span>
 
 <span class="sd">        Args:</span>
@@ -219,9 +219,9 @@
 <span class="sd">            numpy structured array:</span>
 <span class="sd">                The PSF parameters predicted by the map for the input sources.</span>
 <span class="sd">                The fields will have the names of the PSF parameters.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Source data: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">source_data</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Source data: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">source_data</span><span class="p">))</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_data</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
             <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>

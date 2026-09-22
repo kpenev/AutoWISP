@@ -1,0 +1,6 @@
+<map id="inheritancefb6650414f" name="inheritancefb6650414f">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="175,5,251,31"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="57,79,368,104"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,152,420,177"/>
+<area shape="rect" id="node4" href="#autowisp.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="37,225,388,251"/>
+</map>

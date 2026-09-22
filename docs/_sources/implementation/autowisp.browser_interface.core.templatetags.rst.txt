@@ -3,8 +3,8 @@ autowisp.browser\_interface.core.templatetags package
 
 .. automodule:: autowisp.browser_interface.core.templatetags
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------

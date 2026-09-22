@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_bui_models module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,14 +172,14 @@
 <span id="autowisp-tests-test-bui-models-module"></span><h1>autowisp.tests.test_bui_models module<a class="headerlink" href="#module-autowisp.tests.test_bui_models" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-393498b98c4d6fea405ee6d104aeffb4466a0c3b.png" alt="Inheritance diagram of BuiModelBase, BuiModelTestCase, Path, Project, TestMigrationCarriesExistingRows, TestModelBase, TestModifiedIsMaintained" usemap="#inheritance774b3e0e75" class="inheritance graphviz" /></div>
-<map id="inheritance774b3e0e75" name="inheritance774b3e0e75">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="430,80,749,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" target="_top" title="Upgrading an existing database keeps its data and stamps it." alt="" coords="5,155,416,181"/>
-<area shape="rect" id="node4" href="#autowisp.tests.test_bui_models.TestModelBase" target="_top" title="Every browser&#45;interface model carries the timestamp columns." alt="" coords="440,155,739,181"/>
-<area shape="rect" id="node5" href="#autowisp.tests.test_bui_models.TestModifiedIsMaintained" target="_top" title="``modified`` advances however the row is written." alt="" coords="762,155,1120,181"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="1381,80,1472,107"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="1368,5,1485,32"/>
+<div class="graphviz"><img src="../_images/inheritance-0c8f500de5f5e8272c17e375012e35fbf841fe2f.png" alt="Inheritance diagram of BuiModelBase, BuiModelTestCase, Project, TestMigrationCarriesExistingRows, TestModelBase, TestModifiedIsMaintained" usemap="#inheritance3adcc9d071" class="inheritance graphviz" /></div>
+<map id="inheritance3adcc9d071" name="inheritance3adcc9d071">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="5,152,388,177"/>
+<area shape="rect" id="node3" href="autowisp.browser_interface.home.models.html#autowisp.browser_interface.home.models.Project" target="_top" title="Model to represent a project." alt="" coords="25,225,369,251"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="880,79,1231,104"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" target="_top" title="Upgrading an existing database keeps its data and stamps it." alt="" coords="413,152,866,177"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_bui_models.TestModelBase" target="_top" title="Every browser&#45;interface model carries the timestamp columns." alt="" coords="890,152,1221,177"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_bui_models.TestModifiedIsMaintained" target="_top" title="``modified`` advances however the row is written." alt="" coords="1245,152,1644,177"/>
 </map><p>Tests for the browser-interface model base and its timestamp triggers.</p>
 <p>Importing this module configures Django against the throwaway user data
 directory that <code class="docutils literal notranslate"><span class="pre">autowisp.tests</span></code> installs, so the developer’s real
@@ -189,11 +189,11 @@ this module runs, so nothing here needs to arrange it.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.BuiModelTestCase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">BuiModelTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#BuiModelTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.BuiModelTestCase" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">BuiModelTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#BuiModelTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.BuiModelTestCase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-6ff608b7e00e953b2425e11e8fb8fd227f0e7b7f.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.BuiModelTestCase" usemap="#inheritanceb4f4710984" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b8276297d59392331b9d12e9babd971697fb3f9b.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.BuiModelTestCase" usemap="#inheritanceb4f4710984" class="inheritance graphviz" /></div>
 <map id="inheritanceb4f4710984" name="inheritanceb4f4710984">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="5,80,325,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="5,79,356,104"/>
 </map><p>Base migrating the throwaway browser-interface database.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.BuiModelTestCase.make_project">
@@ -203,7 +203,7 @@ this module runs, so nothing here needs to arrange it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.BuiModelTestCase.setUpClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#BuiModelTestCase.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.BuiModelTestCase.setUpClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#BuiModelTestCase.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.BuiModelTestCase.setUpClass" title="Link to this definition"></a></dt>
 <dd><p>Hook method for setting up class fixture before running tests in the class.</p>
 </dd></dl>
 
@@ -217,12 +217,12 @@ this module runs, so nothing here needs to arrange it.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">TestMigrationCarriesExistingRows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#TestMigrationCarriesExistingRows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">TestMigrationCarriesExistingRows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#TestMigrationCarriesExistingRows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_bui_models.BuiModelTestCase" title="autowisp.tests.test_bui_models.BuiModelTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuiModelTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-fcf7807906bf27a103ab2a6e5ad8bc0f90587c4a.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" usemap="#inheritance26cca7775a" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b5100fd199b8200f67dfdfe61478375de981d41d.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" usemap="#inheritance26cca7775a" class="inheritance graphviz" /></div>
 <map id="inheritance26cca7775a" name="inheritance26cca7775a">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="51,80,370,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" target="_top" title="Upgrading an existing database keeps its data and stamps it." alt="" coords="5,155,416,181"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="57,79,407,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows" target="_top" title="Upgrading an existing database keeps its data and stamps it." alt="" coords="5,152,459,177"/>
 </map><p>Upgrading an existing database keeps its data and stamps it.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.TestMigrationCarriesExistingRows.test_existing_row_keeps_created_and_gains_modified">
@@ -237,12 +237,12 @@ trigger names it – hence dropping them in <code class="docutils literal notran
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.TestModelBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">TestModelBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#TestModelBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.TestModelBase" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">TestModelBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#TestModelBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.TestModelBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_bui_models.BuiModelTestCase" title="autowisp.tests.test_bui_models.BuiModelTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuiModelTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-40cd93c7849787656bd4a43e17ec0db1d266b8e5.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.TestModelBase" usemap="#inheritance9bb16b05b6" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-1651e2900b46c1f93394574ce11d040bbb7f76a1.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.TestModelBase" usemap="#inheritance9bb16b05b6" class="inheritance graphviz" /></div>
 <map id="inheritance9bb16b05b6" name="inheritance9bb16b05b6">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="5,80,325,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestModelBase" target="_top" title="Every browser&#45;interface model carries the timestamp columns." alt="" coords="15,155,315,181"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="5,79,356,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestModelBase" target="_top" title="Every browser&#45;interface model carries the timestamp columns." alt="" coords="15,152,346,177"/>
 </map><p>Every browser-interface model carries the timestamp columns.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.TestModelBase.test_contrib_models_are_left_alone">
@@ -273,12 +273,12 @@ field, would show up here.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.TestModifiedIsMaintained">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">TestModifiedIsMaintained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#TestModifiedIsMaintained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.TestModifiedIsMaintained" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">TestModifiedIsMaintained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_models.html#TestModifiedIsMaintained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_models.TestModifiedIsMaintained" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_bui_models.BuiModelTestCase" title="autowisp.tests.test_bui_models.BuiModelTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuiModelTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-2713400828663c72c7cf30a1d90b6b1a434f3fa4.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.TestModifiedIsMaintained" usemap="#inheritance58424d003b" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b4b56a3beda6fdca1535e900d462ac3f4e6dee0b.png" alt="Inheritance diagram of autowisp.tests.test_bui_models.TestModifiedIsMaintained" usemap="#inheritance58424d003b" class="inheritance graphviz" /></div>
 <map id="inheritance58424d003b" name="inheritance58424d003b">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="24,80,344,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestModifiedIsMaintained" target="_top" title="``modified`` advances however the row is written." alt="" coords="5,155,363,181"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_models.BuiModelTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="29,79,380,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_models.TestModifiedIsMaintained" target="_top" title="``modified`` advances however the row is written." alt="" coords="5,152,404,177"/>
 </map><p><code class="docutils literal notranslate"><span class="pre">modified</span></code> advances however the row is written.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models.TestModifiedIsMaintained._assert_advances">
@@ -323,7 +323,7 @@ stamp – it restores the timestamp the object was loaded with.</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_models._tick">
-<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">_tick</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></em><a class="headerlink" href="#autowisp.tests.test_bui_models._tick" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_models.</span></span><span class="sig-name descname"><span class="pre">_tick</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></span><a class="headerlink" href="#autowisp.tests.test_bui_models._tick" title="Link to this definition"></a></dt>
 <dd><p>Enough for the millisecond-resolution timestamps the trigger writes to
 differ between two updates.</p>
 </dd></dl>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_error_cli &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_error_cli</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for CLI error reporting and the entry decorator.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Unit tests for CLI error reporting and the entry decorator."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
@@ -188,7 +188,7 @@
 <div class="viewcode-block" id="TestExitCodeFor">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestExitCodeFor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestExitCodeFor</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;exit_code_for distinguishes the components.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""exit_code_for distinguishes the components."""</span>
 
 <div class="viewcode-block" id="TestExitCodeFor.test_distinct_codes">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestExitCodeFor.test_distinct_codes">[docs]</a>
@@ -203,7 +203,7 @@
 <div class="viewcode-block" id="_CliTestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli._CliTestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_CliTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base creating one throwaway project database for the class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base creating one throwaway project database for the class."""</span>
 
 <div class="viewcode-block" id="_CliTestCase.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli._CliTestCase.setUpClass">[docs]</a>
@@ -225,12 +225,12 @@
 <div class="viewcode-block" id="TestReportError">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestReportError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestReportError</span><span class="p">(</span><span class="n">_CliTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;report_error persists, renders to the stream, returns the code.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""report_error persists, renders to the stream, returns the code."""</span>
 
 <div class="viewcode-block" id="TestReportError.test_default_view_summary_and_pointer">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestReportError.test_default_view_summary_and_pointer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_default_view_summary_and_pointer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default rendering is the summary plus a pointer line.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default rendering is the summary plus a pointer line."""</span>
 
         <span class="n">stream</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
         <span class="n">code</span> <span class="o">=</span> <span class="n">report_error</span><span class="p">(</span>
@@ -239,29 +239,29 @@
 
         <span class="n">output</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># step component</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;[step:find_stars]&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;no stars found&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;wisp-crash-report&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;Traceback:&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"[step:find_stars]"</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"no stars found"</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"wisp-crash-report"</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"Traceback:"</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestReportError.test_developer_view_includes_traceback">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestReportError.test_developer_view_includes_traceback">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_developer_view_includes_traceback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;developer=True renders the full technical detail.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""developer=True renders the full technical detail."""</span>
 
         <span class="n">stream</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
         <span class="n">report_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">(),</span> <span class="n">developer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
 
         <span class="n">output</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;Exception: FindStarsError&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;Traceback:&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"Exception: FindStarsError"</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"Traceback:"</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestReportError.test_persists_a_row">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestReportError.test_persists_a_row">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_persists_a_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reporting records a queryable Error row.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Reporting records a queryable Error row."""</span>
 
         <span class="n">report_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">(),</span> <span class="n">stream</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">())</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
@@ -274,16 +274,16 @@
 <div class="viewcode-block" id="TestCliEntryPoint">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestCliEntryPoint">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCliEntryPoint</span><span class="p">(</span><span class="n">_CliTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;cli_entry_point reports and exits non-zero on an escaping error.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""cli_entry_point reports and exits non-zero on an escaping error."""</span>
 
 <div class="viewcode-block" id="TestCliEntryPoint.test_autowisp_error_exits_with_component_code">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestCliEntryPoint.test_autowisp_error_exits_with_component_code">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_autowisp_error_exits_with_component_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A raised AutoWISPError -&gt; SystemExit with the component&#39;s code.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A raised AutoWISPError -&gt; SystemExit with the component's code."""</span>
 
         <span class="nd">@cli_entry_point</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">PIPELINE</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;orchestration broke&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="s2">"orchestration broke"</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
@@ -294,11 +294,11 @@
 <div class="viewcode-block" id="TestCliEntryPoint.test_unknown_exception_is_wrapped_and_exits">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestCliEntryPoint.test_unknown_exception_is_wrapped_and_exits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_exception_is_wrapped_and_exits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bare exception is wrapped (capture_errors) then reported.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A bare exception is wrapped (capture_errors) then reported."""</span>
 
         <span class="nd">@cli_entry_point</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">PIPELINE</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"boom"</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
@@ -309,7 +309,7 @@
 <div class="viewcode-block" id="TestCliEntryPoint.test_success_passes_through">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestCliEntryPoint.test_success_passes_through">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_success_passes_through</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;No error -&gt; the wrapped return value, no exit.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""No error -&gt; the wrapped return value, no exit."""</span>
 
         <span class="nd">@cli_entry_point</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
@@ -323,17 +323,17 @@
 <div class="viewcode-block" id="TestStepEntryBoundaries">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestStepEntryBoundaries">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestStepEntryBoundaries</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every pipeline-step main() is wrapped as a CLI error boundary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Every pipeline-step main() is wrapped as a CLI error boundary."""</span>
 
 <div class="viewcode-block" id="TestStepEntryBoundaries.test_all_step_mains_are_cli_entry_points">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestStepEntryBoundaries.test_all_step_mains_are_cli_entry_points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_all_step_mains_are_cli_entry_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Each step that exposes a ``main()`` carries the CLI boundary.</span>
+<span class="w">        </span><span class="sd">"""Each step that exposes a ``main()`` carries the CLI boundary.</span>
 
 <span class="sd">        Driven by :func:`autowisp.processing_steps.get_step_names` so a</span>
 <span class="sd">        newly-added step is checked automatically; steps without a CLI</span>
 <span class="sd">        ``main()`` (library-only steps) are skipped.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_step_names</span>
@@ -341,18 +341,18 @@
         <span class="n">checked</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">get_step_names</span><span class="p">():</span>
             <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span>
-                <span class="s2">&quot;autowisp.processing_steps.&quot;</span> <span class="o">+</span> <span class="n">name</span>
+                <span class="s2">"autowisp.processing_steps."</span> <span class="o">+</span> <span class="n">name</span>
             <span class="p">)</span>
-            <span class="n">main</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">main</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">"main"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">main</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">checked</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                <span class="nb">getattr</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="s2">&quot;__cli_entry_point__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="s2">"__cli_entry_point__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                 <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.main() is not a Component.STEP CLI entry point&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.main() is not a Component.STEP CLI entry point"</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">checked</span><span class="p">,</span> <span class="s2">&quot;no step main() functions discovered&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">checked</span><span class="p">,</span> <span class="s2">"no step main() functions discovered"</span><span class="p">)</span></div>
 </div>
 
 
@@ -360,12 +360,12 @@
 <div class="viewcode-block" id="TestStepEntryEndToEnd">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestStepEntryEndToEnd">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestStepEntryEndToEnd</span><span class="p">(</span><span class="n">_CliTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A real decorated step main() surfaces an escaping error.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A real decorated step main() surfaces an escaping error."""</span>
 
 <div class="viewcode-block" id="TestStepEntryEndToEnd.test_calibrate_main_reports_and_exits">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestStepEntryEndToEnd.test_calibrate_main_reports_and_exits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_calibrate_main_reports_and_exits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An error inside ``calibrate.main`` -&gt; SystemExit with STEP code.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An error inside ``calibrate.main`` -&gt; SystemExit with STEP code."""</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibrate</span> <span class="k">as</span> <span class="n">calibrate_step</span>
@@ -373,17 +373,17 @@
         <span class="k">with</span> <span class="p">(</span>
             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
                 <span class="n">calibrate_step</span><span class="p">,</span>
-                <span class="s2">&quot;parse_command_line&quot;</span><span class="p">,</span>
-                <span class="n">return_value</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;raw_images&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;calibrate_only_if&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+                <span class="s2">"parse_command_line"</span><span class="p">,</span>
+                <span class="n">return_value</span><span class="o">=</span><span class="p">{</span><span class="s2">"raw_images"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"calibrate_only_if"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
             <span class="p">),</span>
-            <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">calibrate_step</span><span class="p">,</span> <span class="s2">&quot;setup_process&quot;</span><span class="p">),</span>
+            <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">calibrate_step</span><span class="p">,</span> <span class="s2">"setup_process"</span><span class="p">),</span>
             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
-                <span class="n">calibrate_step</span><span class="p">,</span> <span class="s2">&quot;find_fits_fnames&quot;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[]</span>
+                <span class="n">calibrate_step</span><span class="p">,</span> <span class="s2">"find_fits_fnames"</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[]</span>
             <span class="p">),</span>
             <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
                 <span class="n">calibrate_step</span><span class="p">,</span>
-                <span class="s2">&quot;calibrate&quot;</span><span class="p">,</span>
-                <span class="n">side_effect</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;calibration blew up&quot;</span><span class="p">),</span>
+                <span class="s2">"calibrate"</span><span class="p">,</span>
+                <span class="n">side_effect</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"calibration blew up"</span><span class="p">),</span>
             <span class="p">),</span>
         <span class="p">):</span>
             <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
@@ -397,14 +397,14 @@
 <div class="viewcode-block" id="TestConfigParseErrors">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestConfigParseErrors">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestConfigParseErrors</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stored-config parse errors are catchable, not an uncatchable exit.</span>
+<span class="w">    </span><span class="sd">"""Stored-config parse errors are catchable, not an uncatchable exit.</span>
 
-<span class="sd">    The pipeline builds each step&#39;s config dict by feeding stored</span>
-<span class="sd">    configuration through the step&#39;s ``ManualStepArgumentParser`` (see</span>
+<span class="sd">    The pipeline builds each step's config dict by feeding stored</span>
+<span class="sd">    configuration through the step's ``ManualStepArgumentParser`` (see</span>
 <span class="sd">    ``ProcessingManager.get_config``). A bad value there must raise a</span>
-<span class="sd">    recordable ``ConfigurationError`` rather than argparse&#39;s default</span>
+<span class="sd">    recordable ``ConfigurationError`` rather than argparse's default</span>
 <span class="sd">    ``SystemExit``, which would silently end a detached run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_parser</span><span class="p">():</span>
@@ -412,27 +412,27 @@
             <span class="n">ManualStepArgumentParser</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span><span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span><span class="n">input_type</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"t"</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--tool&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fistar&quot;</span><span class="p">,</span> <span class="s2">&quot;hatphot&quot;</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;tool&quot;</span>
+            <span class="s2">"--tool"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"fistar"</span><span class="p">,</span> <span class="s2">"hatphot"</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s2">"tool"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">parser</span>
 
 <div class="viewcode-block" id="TestConfigParseErrors.test_interactive_cli_still_exits">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestConfigParseErrors.test_interactive_cli_still_exits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_interactive_cli_still_exits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Outside config-parse mode, a bad value keeps argparse exit.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Outside config-parse mode, a bad value keeps argparse exit."""</span>
 
         <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
-                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">&quot;--tool&quot;</span><span class="p">,</span> <span class="s2">&quot;bogus&quot;</span><span class="p">])</span></div>
+                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">"--tool"</span><span class="p">,</span> <span class="s2">"bogus"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestConfigParseErrors.test_config_mode_raises_configuration_error">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestConfigParseErrors.test_config_mode_raises_configuration_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_config_mode_raises_configuration_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;In config-parse mode, a bad value raises ConfigurationError.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""In config-parse mode, a bad value raises ConfigurationError."""</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">raise_config_parse_errors</span><span class="p">,</span>
@@ -441,13 +441,13 @@
         <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">raise_config_parse_errors</span><span class="p">():</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ConfigurationError</span><span class="p">):</span>
-                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">&quot;--tool&quot;</span><span class="p">,</span> <span class="s2">&quot;bogus&quot;</span><span class="p">])</span></div>
+                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">"--tool"</span><span class="p">,</span> <span class="s2">"bogus"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestConfigParseErrors.test_mode_is_restored_after_context">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_cli.html#autowisp.tests.test_error_cli.TestConfigParseErrors.test_mode_is_restored_after_context">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_mode_is_restored_after_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Leaving the context reverts to argparse&#39;s exit behavior.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Leaving the context reverts to argparse's exit behavior."""</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">raise_config_parse_errors</span><span class="p">,</span>
@@ -456,15 +456,15 @@
         <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">raise_config_parse_errors</span><span class="p">():</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ConfigurationError</span><span class="p">):</span>
-                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">&quot;--tool&quot;</span><span class="p">,</span> <span class="s2">&quot;bogus&quot;</span><span class="p">])</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">"--tool"</span><span class="p">,</span> <span class="s2">"bogus"</span><span class="p">])</span>
         <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
-                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">&quot;--tool&quot;</span><span class="p">,</span> <span class="s2">&quot;bogus&quot;</span><span class="p">])</span></div>
+                <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">"--tool"</span><span class="p">,</span> <span class="s2">"bogus"</span><span class="p">])</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

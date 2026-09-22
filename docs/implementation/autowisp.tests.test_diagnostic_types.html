@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_diagnostic_types module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,13 +16,13 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.tests.test_diagnostics_views module" href="autowisp.tests.test_diagnostics_views.html" />
+    <link rel="next" title="autowisp.tests.test_diagnostics_rules module" href="autowisp.tests.test_diagnostics_rules.html" />
     <link rel="prev" title="autowisp.tests.test_diagnostic_expressions module" href="autowisp.tests.test_diagnostic_expressions.html" /> 
 </head>
 
@@ -172,16 +172,14 @@
 <span id="autowisp-tests-test-diagnostic-types-module"></span><h1>autowisp.tests.test_diagnostic_types module<a class="headerlink" href="#module-autowisp.tests.test_diagnostic_types" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-a6c471f0f9cac4113e8a6e24eae2c5712d7c264a.png" alt="Inheritance diagram of DiagnosticType, TestCatalogue, TestRuntimePatterns, TestSeeding, TestVocabulary" usemap="#inheritanceceecf0f50b" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-d9f560e8d754fb39301a900f2b4871fecb23fbc3.png" alt="Inheritance diagram of DiagnosticType, TestCatalogue, TestRuntimePatterns, TestSeeding, TestVocabulary" usemap="#inheritanceceecf0f50b" class="inheritance graphviz" /></div>
 <map id="inheritanceceecf0f50b" name="inheritanceceecf0f50b">
-<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="224,304,554,331"/>
-<area shape="rect" id="node5" href="autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.image_diagnostics.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="186,379,593,405"/>
-<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="407,229,760,256"/>
-<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" target="_top" title="The shape and content of the static catalogue." alt="" coords="718,80,1044,107"/>
-<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" target="_top" title="The names that are described rather than listed." alt="" coords="1068,80,1433,107"/>
-<area shape="rect" id="node9" href="#autowisp.tests.test_diagnostic_types.TestSeeding" target="_top" title="The catalogue and the rows it seeds must stay identical." alt="" coords="1456,80,1770,107"/>
-<area shape="rect" id="node10" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" target="_top" title="What an expression may reference, without opening any project." alt="" coords="1793,80,2124,107"/>
-<area shape="rect" id="node13" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="531,5,636,32"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="203,372,657,397"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" target="_top" title="The shape and content of the static catalogue." alt="" coords="793,79,1152,104"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" target="_top" title="The names that are described rather than listed." alt="" coords="1176,79,1577,104"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_diagnostic_types.TestSeeding" target="_top" title="The catalogue and the rows it seeds must stay identical." alt="" coords="1601,79,1947,104"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" target="_top" title="What an expression may reference, without opening any project." alt="" coords="1971,79,2337,104"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
 </map><p>Tests for the diagnostic vocabulary.</p>
 <p>The catalogue was moved out of <code class="docutils literal notranslate"><span class="pre">_init_diagnostic_types()</span></code> so that an
 expression can be validated without opening a project.  The risk that
@@ -191,11 +189,11 @@ that keeps them honest, and is the reason the rest of this file exists.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestCatalogue">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestCatalogue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestCatalogue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestCatalogue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestCatalogue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-21114ebcf5a40b562d9bf67f312a688bafbbe0ac.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestCatalogue" usemap="#inheritancee441b463d2" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-dfce0f27e85b3d47ab2deee75541ecbc53184ba6.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestCatalogue" usemap="#inheritancee441b463d2" class="inheritance graphviz" /></div>
 <map id="inheritancee441b463d2" name="inheritancee441b463d2">
-<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" target="_top" title="The shape and content of the static catalogue." alt="" coords="5,80,331,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" target="_top" title="The shape and content of the static catalogue." alt="" coords="5,79,364,104"/>
 </map><p>The shape and content of the static catalogue.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestCatalogue.test_descriptions_are_fully_interpolated">
@@ -230,11 +228,11 @@ rendered text catches it coming back.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestRuntimePatterns">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestRuntimePatterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestRuntimePatterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestRuntimePatterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestRuntimePatterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-e1aa67d011ed430871e28f7f0f53db129168cc70.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestRuntimePatterns" usemap="#inheritance6437834865" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-5b31adc41214ac331ae5f8353419bbf00a891144.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestRuntimePatterns" usemap="#inheritance6437834865" class="inheritance graphviz" /></div>
 <map id="inheritance6437834865" name="inheritance6437834865">
-<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" target="_top" title="The names that are described rather than listed." alt="" coords="5,80,370,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" target="_top" title="The names that are described rather than listed." alt="" coords="5,79,407,104"/>
 </map><p>The names that are described rather than listed.</p>
 <p><code class="docutils literal notranslate"><span class="pre">is_quantile_diagnostic</span></code> is the single definition of what a quantile
 is called: <code class="docutils literal notranslate"><span class="pre">_save_image_diagnostics</span></code> asks it before creating a row,
@@ -260,11 +258,11 @@ expression naming it would be told it is shadowing something.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestSeeding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestSeeding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestSeeding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestSeeding" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestSeeding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestSeeding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestSeeding" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-7402136c0fd77b6ef5acaf63c5ae9e41393a4639.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestSeeding" usemap="#inheritancebae96cb821" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-84d47c8aa4ff41c0dc66a365322b1183a977eaf2.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestSeeding" usemap="#inheritancebae96cb821" class="inheritance graphviz" /></div>
 <map id="inheritancebae96cb821" name="inheritancebae96cb821">
-<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestSeeding" target="_top" title="The catalogue and the rows it seeds must stay identical." alt="" coords="5,80,319,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestSeeding" target="_top" title="The catalogue and the rows it seeds must stay identical." alt="" coords="5,79,351,104"/>
 </map><p>The catalogue and the rows it seeds must stay identical.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestSeeding.test_seeded_rows_match_the_catalogue">
@@ -279,11 +277,11 @@ is exactly the drift that splitting the two invites.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestVocabulary">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestVocabulary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestVocabulary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">TestVocabulary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_diagnostic_types.html#TestVocabulary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-ddb6ccfe506bfdfe272effb5a54bfca8e5b76029.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestVocabulary" usemap="#inheritance5fee97f177" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-23fe1485a77bbab1ebd3e3ca66e0b72a8652286a.png" alt="Inheritance diagram of autowisp.tests.test_diagnostic_types.TestVocabulary" usemap="#inheritance5fee97f177" class="inheritance graphviz" /></div>
 <map id="inheritance5fee97f177" name="inheritance5fee97f177">
-<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" target="_top" title="What an expression may reference, without opening any project." alt="" coords="5,80,336,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" target="_top" title="What an expression may reference, without opening any project." alt="" coords="5,79,371,104"/>
 </map><p>What an expression may reference, without opening any project.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_diagnostic_types.TestVocabulary.test_catalogue_entries_are_diagnostics">
@@ -313,7 +311,7 @@ value, yet it is a variable in the same flat name space.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.tests.test_diagnostic_expressions.html" class="btn btn-neutral float-left" title="autowisp.tests.test_diagnostic_expressions module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.tests.test_diagnostics_views.html" class="btn btn-neutral float-right" title="autowisp.tests.test_diagnostics_views module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.tests.test_diagnostics_rules.html" class="btn btn-neutral float-right" title="autowisp.tests.test_diagnostics_rules module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

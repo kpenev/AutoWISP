@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_exception_hierarchy &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,11 +165,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_exception_hierarchy</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the exception hierarchy and FrozenRow.</span>
+<span></span><span class="sd">"""Unit tests for the exception hierarchy and FrozenRow.</span>
 
 <span class="sd">These tests need no pipeline fixtures or database, so they subclass</span>
 <span class="sd">``unittest.TestCase`` directly rather than ``AutoWISPTestCase``.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -208,11 +208,11 @@
 <div class="viewcode-block" id="_concrete_exception_classes">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy._concrete_exception_classes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_concrete_exception_classes</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;All AutoWISPError subclasses defined in ``autowisp.exceptions``.</span>
+<span class="w">    </span><span class="sd">"""All AutoWISPError subclasses defined in ``autowisp.exceptions``.</span>
 
 <span class="sd">    Excludes ``AutoWISPError`` itself, which deliberately does not set a</span>
 <span class="sd">    ``component`` (that is the contract every subclass must satisfy).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="p">[</span>
         <span class="n">obj</span>
@@ -225,19 +225,19 @@
 <div class="viewcode-block" id="_full_payload">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy._full_payload">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_full_payload</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A populated kwargs dict exercising every context field.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A populated kwargs dict exercising every context field."""</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;related_files&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/tmp/x.h5&quot;</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+        <span class="s2">"related_files"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/tmp/x.h5"</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">"input"</span><span class="p">)</span>
         <span class="p">],</span>
-        <span class="s2">&quot;pipeline_run&quot;</span><span class="p">:</span> <span class="n">FrozenRow</span><span class="p">(</span>
-            <span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="s2">&quot;started&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="s2">"pipeline_run"</span><span class="p">:</span> <span class="n">FrozenRow</span><span class="p">(</span>
+            <span class="s2">"pipeline_run"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">"host"</span><span class="p">:</span> <span class="s2">"node1"</span><span class="p">,</span> <span class="s2">"started"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
         <span class="p">),</span>
-        <span class="s2">&quot;crashed&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s2">&quot;subprocess_id&quot;</span><span class="p">:</span> <span class="mi">4321</span><span class="p">,</span>
-        <span class="s2">&quot;user_message&quot;</span><span class="p">:</span> <span class="s2">&quot;something went wrong&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;expected&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;actual&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/tmp/y&quot;</span><span class="p">)},</span>
+        <span class="s2">"crashed"</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">"subprocess_id"</span><span class="p">:</span> <span class="mi">4321</span><span class="p">,</span>
+        <span class="s2">"user_message"</span><span class="p">:</span> <span class="s2">"something went wrong"</span><span class="p">,</span>
+        <span class="s2">"details"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"expected"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"actual"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">"path"</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/tmp/y"</span><span class="p">)},</span>
     <span class="p">}</span></div>
 
 
@@ -245,32 +245,32 @@
 <div class="viewcode-block" id="TestExceptionHierarchy">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestExceptionHierarchy</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Contracts every concrete AutoWISP exception must satisfy.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Contracts every concrete AutoWISP exception must satisfy."""</span>
 
 <div class="viewcode-block" id="TestExceptionHierarchy.test_every_concrete_class_sets_component">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy.test_every_concrete_class_sets_component">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_every_concrete_class_sets_component</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Each concrete subclass has a ``Component`` (never ``None``).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Each concrete subclass has a ``Component`` (never ``None``)."""</span>
 
         <span class="n">classes</span> <span class="o">=</span> <span class="n">_concrete_exception_classes</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="s2">&quot;no exception classes discovered&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="s2">"no exception classes discovered"</span><span class="p">)</span>
         <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
-            <span class="n">exc</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="s2">&quot;test message&quot;</span><span class="p">)</span>
+            <span class="n">exc</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="s2">"test message"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span>
                 <span class="n">exc</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
                 <span class="n">Component</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.component is not a Component&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.component is not a Component"</span><span class="p">,</span>
             <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestExceptionHierarchy.test_minimal_construction_defaults">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy.test_minimal_construction_defaults">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_minimal_construction_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A message-only construction leaves context fields empty.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A message-only construction leaves context fields empty."""</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="s2">&quot;boom&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span> <span class="s2">&quot;boom&quot;</span><span class="p">)</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">"boom"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="s2">"boom"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span> <span class="s2">"boom"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">related_files</span><span class="p">,</span> <span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">crashed</span><span class="p">)</span>
@@ -282,44 +282,44 @@
 <div class="viewcode-block" id="TestExceptionHierarchy.test_full_payload_pickle_round_trip">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy.test_full_payload_pickle_round_trip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_full_payload_pickle_round_trip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;All context fields survive a pickle round-trip (Pool transport).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""All context fields survive a pickle round-trip (Pool transport)."""</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">_full_payload</span><span class="p">())</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">"boom"</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"solve_astrometry"</span><span class="p">,</span> <span class="o">**</span><span class="n">_full_payload</span><span class="p">())</span>
         <span class="n">restored</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">restored</span><span class="p">),</span> <span class="n">StepError</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">restored</span><span class="p">),</span> <span class="s2">&quot;boom&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">&quot;solve_astrometry&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">restored</span><span class="p">),</span> <span class="s2">"boom"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span> <span class="s2">"solve_astrometry"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span> <span class="s2">&quot;something went wrong&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span> <span class="s2">"something went wrong"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="mi">4321</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">crashed</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">crashed</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">details</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">details</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">related_files</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">related_files</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;node1&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">"node1"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestExceptionHierarchy.test_all_classes_pickle_round_trip">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy.test_all_classes_pickle_round_trip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_all_classes_pickle_round_trip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Every concrete class round-trips with a full payload.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Every concrete class round-trips with a full payload."""</span>
 
         <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">_concrete_exception_classes</span><span class="p">():</span>
-            <span class="n">exc</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="s2">&quot;msg&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">_full_payload</span><span class="p">())</span>
+            <span class="n">exc</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="s2">"msg"</span><span class="p">,</span> <span class="o">**</span><span class="n">_full_payload</span><span class="p">())</span>
             <span class="n">restored</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">restored</span><span class="p">),</span> <span class="bp">cls</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="mi">4321</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;node1&quot;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">"node1"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestExceptionHierarchy.test_stamp_subprocess_sets_and_is_idempotent">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy.test_stamp_subprocess_sets_and_is_idempotent">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_stamp_subprocess_sets_and_is_idempotent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;First stamp records this PID; a later stamp does not overwrite.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""First stamp records this PID; a later stamp does not overwrite."""</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">)</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">"boom"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">)</span>
         <span class="n">exc</span><span class="o">.</span><span class="n">stamp_subprocess</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
@@ -332,10 +332,10 @@
 <div class="viewcode-block" id="TestExceptionHierarchy.test_with_pipeline_run_attaches_and_sets_crashed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy.test_with_pipeline_run_attaches_and_sets_crashed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_with_pipeline_run_attaches_and_sets_crashed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``with_pipeline_run`` stores the row and fills ``crashed``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``with_pipeline_run`` stores the row and fills ``crashed``."""</span>
 
-        <span class="n">run</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;h&quot;</span><span class="p">})</span>
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">)</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">"pipeline_run"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">"host"</span><span class="p">:</span> <span class="s2">"h"</span><span class="p">})</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">"boom"</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">with_pipeline_run</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
@@ -346,11 +346,11 @@
 <div class="viewcode-block" id="TestExceptionHierarchy.test_with_pipeline_run_keeps_existing_crashed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestExceptionHierarchy.test_with_pipeline_run_keeps_existing_crashed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_with_pipeline_run_keeps_existing_crashed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An already-set ``crashed`` is not overwritten.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An already-set ``crashed`` is not overwritten."""</span>
 
         <span class="n">when</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">,</span> <span class="n">crashed</span><span class="o">=</span><span class="n">when</span><span class="p">)</span>
-        <span class="n">exc</span><span class="o">.</span><span class="n">with_pipeline_run</span><span class="p">(</span><span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">"boom"</span><span class="p">,</span> <span class="n">crashed</span><span class="o">=</span><span class="n">when</span><span class="p">)</span>
+        <span class="n">exc</span><span class="o">.</span><span class="n">with_pipeline_run</span><span class="p">(</span><span class="n">FrozenRow</span><span class="p">(</span><span class="s2">"pipeline_run"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">crashed</span><span class="p">,</span> <span class="n">when</span><span class="p">)</span></div>
 </div>
 
@@ -359,29 +359,29 @@
 <div class="viewcode-block" id="TestMigratedExceptions">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestMigratedExceptions">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestMigratedExceptions</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Folded legacy classes are pure AutoWISP exceptions (no stdlib mix-in).</span>
+<span class="w">    </span><span class="sd">"""Folded legacy classes are pure AutoWISP exceptions (no stdlib mix-in).</span>
 
 <span class="sd">    Phase 7 dropped the ``ValueError`` / ``RuntimeError`` / ``IndexError``</span>
 <span class="sd">    bases the legacy classes used to carry; these guard against one</span>
 <span class="sd">    creeping back.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestMigratedExceptions.test_convergence_error_is_pure_step_error">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestMigratedExceptions.test_convergence_error_is_pure_step_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_convergence_error_is_pure_step_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``ConvergenceError`` is a StepError and not a ``RuntimeError``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``ConvergenceError`` is a StepError and not a ``RuntimeError``."""</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">ConvergenceError</span><span class="p">(</span><span class="s2">&quot;did not converge&quot;</span><span class="p">)</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">ConvergenceError</span><span class="p">(</span><span class="s2">"did not converge"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">AutoWISPError</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIsInstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="s2">&quot;did not converge&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="s2">"did not converge"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestMigratedExceptions.test_no_stdlib_mixins">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestMigratedExceptions.test_no_stdlib_mixins">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_no_stdlib_mixins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;None of the folded classes subclass a stdlib exception.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""None of the folded classes subclass a stdlib exception."""</span>
 
         <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">stdlib</span> <span class="ow">in</span> <span class="p">(</span>
             <span class="p">(</span><span class="n">ConvergenceError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">),</span>
@@ -393,16 +393,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">AutoWISPError</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span>
                 <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">stdlib</span><span class="p">),</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> still subclasses </span><span class="si">{</span><span class="n">stdlib</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> still subclasses </span><span class="si">{</span><span class="n">stdlib</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestMigratedExceptions.test_hdf5_layout_error_is_pipeline">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestMigratedExceptions.test_hdf5_layout_error_is_pipeline">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_hdf5_layout_error_is_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``HDF5LayoutError`` is a pipeline-component error.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``HDF5LayoutError`` is a pipeline-component error."""</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">HDF5LayoutError</span><span class="p">(</span><span class="s2">&quot;bad layout&quot;</span><span class="p">)</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">HDF5LayoutError</span><span class="p">(</span><span class="s2">"bad layout"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">AutoWISPError</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">PIPELINE</span><span class="p">)</span></div>
 
@@ -410,7 +410,7 @@
 <div class="viewcode-block" id="TestMigratedExceptions.test_outside_image_error_specializes_calibration">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestMigratedExceptions.test_outside_image_error_specializes_calibration">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_outside_image_error_specializes_calibration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``OutsideImageError`` is a CalibrationError (calibration-only).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``OutsideImageError`` is a CalibrationError (calibration-only)."""</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalibrationError</span>
 
@@ -420,11 +420,11 @@
 <div class="viewcode-block" id="TestMigratedExceptions.test_catalog_error_is_cross_cutting_step_error">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestMigratedExceptions.test_catalog_error_is_cross_cutting_step_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_catalog_error_is_cross_cutting_step_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``CatalogError`` is a component-``step`` error, not per-stage.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``CatalogError`` is a component-``step`` error, not per-stage."""</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CatalogError</span><span class="p">,</span> <span class="n">StepError</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">CatalogError</span><span class="p">(</span><span class="s2">&quot;catalog does not cover the frame&quot;</span><span class="p">)</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">CatalogError</span><span class="p">(</span><span class="s2">"catalog does not cover the frame"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">StepError</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span></div>
 </div>
@@ -434,28 +434,28 @@
 <div class="viewcode-block" id="TestCatalogRetryExhaustion">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestCatalogRetryExhaustion">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCatalogRetryExhaustion</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Gaia query that exhausts its retries surfaces as CatalogError.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A Gaia query that exhausts its retries surfaces as CatalogError."""</span>
 
 <div class="viewcode-block" id="TestCatalogRetryExhaustion.test_get_result_raises_catalog_error_after_retries">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestCatalogRetryExhaustion.test_get_result_raises_catalog_error_after_retries">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_get_result_raises_catalog_error_after_retries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The final failed attempt raises CatalogError, chaining the cause.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The final failed attempt raises CatalogError, chaining the cause."""</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">WISPGaia</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CatalogError</span>
 
         <span class="n">gaia</span> <span class="o">=</span> <span class="n">WISPGaia</span><span class="p">()</span>
-        <span class="n">cause</span> <span class="o">=</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s2">&quot;gaia unreachable&quot;</span><span class="p">)</span>
+        <span class="n">cause</span> <span class="o">=</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s2">"gaia unreachable"</span><span class="p">)</span>
         <span class="c1"># Every attempt fails; skip the real 60s back-offs.</span>
         <span class="k">with</span> <span class="p">(</span>
-            <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">gaia</span><span class="p">,</span> <span class="s2">&quot;launch_job_async&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">cause</span><span class="p">),</span>
-            <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">&quot;autowisp.catalog.time.sleep&quot;</span><span class="p">),</span>
+            <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">gaia</span><span class="p">,</span> <span class="s2">"launch_job_async"</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">cause</span><span class="p">),</span>
+            <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">"autowisp.catalog.time.sleep"</span><span class="p">),</span>
         <span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">CatalogError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
-                <span class="n">gaia</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span><span class="s2">&quot;SELECT 1&quot;</span><span class="p">,</span> <span class="n">add_propagated</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">gaia</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span><span class="s2">"SELECT 1"</span><span class="p">,</span> <span class="n">add_propagated</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;after 10 attempts&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"after 10 attempts"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">__cause__</span><span class="p">,</span> <span class="n">cause</span><span class="p">)</span></div>
 </div>
 
@@ -464,26 +464,26 @@
 <div class="viewcode-block" id="TestFrozenRow">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestFrozenRow">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestFrozenRow</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;FrozenRow attribute access, immutability, and pickling.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""FrozenRow attribute access, immutability, and pickling."""</span>
 
 <div class="viewcode-block" id="TestFrozenRow.test_attribute_access">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestFrozenRow.test_attribute_access">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_attribute_access</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Columns are reachable as attributes and via ``columns``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Columns are reachable as attributes and via ``columns``."""</span>
 
-        <span class="n">row</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;node&quot;</span><span class="p">})</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">"pipeline_run"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"host"</span><span class="p">:</span> <span class="s2">"node"</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">],</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">table</span><span class="p">,</span> <span class="s2">&quot;pipeline_run&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">"node"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="s2">"host"</span><span class="p">],</span> <span class="s2">"node"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">table</span><span class="p">,</span> <span class="s2">"pipeline_run"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestFrozenRow.test_missing_attribute_raises">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestFrozenRow.test_missing_attribute_raises">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_attribute_raises</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An unknown column raises ``AttributeError``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An unknown column raises ``AttributeError``."""</span>
 
-        <span class="n">row</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">"pipeline_run"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
             <span class="n">_</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">does_not_exist</span></div>
 
@@ -491,13 +491,13 @@
 <div class="viewcode-block" id="TestFrozenRow.test_pickle_round_trip">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestFrozenRow.test_pickle_round_trip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_pickle_round_trip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A FrozenRow survives pickling with columns intact.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A FrozenRow survives pickling with columns intact."""</span>
 
-        <span class="n">row</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;node&quot;</span><span class="p">})</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">FrozenRow</span><span class="p">(</span><span class="s2">"pipeline_run"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"host"</span><span class="p">:</span> <span class="s2">"node"</span><span class="p">})</span>
         <span class="n">restored</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">table</span><span class="p">,</span> <span class="s2">&quot;pipeline_run&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">table</span><span class="p">,</span> <span class="s2">"pipeline_run"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">"node"</span><span class="p">)</span></div>
 </div>
 
 
@@ -508,9 +508,9 @@
 <div class="viewcode-block" id="_ToyRow">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy._ToyRow">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_ToyRow</span><span class="p">(</span><span class="n">_Base</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Throwaway ORM model for exercising ``snapshot_row``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Throwaway ORM model for exercising ``snapshot_row``."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;toy_row&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"toy_row"</span>
     <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">host</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
     <span class="n">secret</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">)</span></div>
@@ -520,42 +520,42 @@
 <div class="viewcode-block" id="TestSnapshotRow">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestSnapshotRow">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestSnapshotRow</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``snapshot_row`` freezes a live ORM instance into a FrozenRow.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""``snapshot_row`` freezes a live ORM instance into a FrozenRow."""</span>
 
 <div class="viewcode-block" id="TestSnapshotRow.test_snapshot_captures_columns">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestSnapshotRow.test_snapshot_captures_columns">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_snapshot_captures_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;All mapped columns are captured and reachable by attribute.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""All mapped columns are captured and reachable by attribute."""</span>
 
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">_ToyRow</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_ToyRow</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"node2"</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="s2">"x"</span><span class="p">)</span>
         <span class="n">snap</span> <span class="o">=</span> <span class="n">snapshot_row</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">FrozenRow</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">table</span><span class="p">,</span> <span class="s2">&quot;toy_row&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">table</span><span class="p">,</span> <span class="s2">"toy_row"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;node2&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">"node2"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"host"</span><span class="p">,</span> <span class="s2">"secret"</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="TestSnapshotRow.test_exclude_omits_columns">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestSnapshotRow.test_exclude_omits_columns">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_exclude_omits_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Excluded column keys do not appear in the snapshot.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Excluded column keys do not appear in the snapshot."""</span>
 
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">_ToyRow</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-        <span class="n">snap</span> <span class="o">=</span> <span class="n">snapshot_row</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">,))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="n">snap</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="n">snap</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span></div>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_ToyRow</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"node2"</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="s2">"x"</span><span class="p">)</span>
+        <span class="n">snap</span> <span class="o">=</span> <span class="n">snapshot_row</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s2">"secret"</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"secret"</span><span class="p">,</span> <span class="n">snap</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"host"</span><span class="p">,</span> <span class="n">snap</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSnapshotRow.test_snapshot_pickles">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestSnapshotRow.test_snapshot_pickles">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_snapshot_pickles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A snapshot of a live row pickles cleanly (no session attached).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A snapshot of a live row pickles cleanly (no session attached)."""</span>
 
-        <span class="n">snap</span> <span class="o">=</span> <span class="n">snapshot_row</span><span class="p">(</span><span class="n">_ToyRow</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">))</span>
+        <span class="n">snap</span> <span class="o">=</span> <span class="n">snapshot_row</span><span class="p">(</span><span class="n">_ToyRow</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"node2"</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="s2">"x"</span><span class="p">))</span>
         <span class="n">restored</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">snap</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;node2&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">"node2"</span><span class="p">)</span></div>
 </div>
 
 
@@ -563,113 +563,113 @@
 <div class="viewcode-block" id="TestToDetailDict">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestToDetailDict">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestToDetailDict</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``to_detail_dict`` + ``sanitize_for_json`` (the sidecar payload).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""``to_detail_dict`` + ``sanitize_for_json`` (the sidecar payload)."""</span>
 
 <div class="viewcode-block" id="TestToDetailDict.test_related_file_str_path_coerced">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestToDetailDict.test_related_file_str_path_coerced">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_related_file_str_path_coerced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A ``str`` related-file path is coerced to Path, serialized POSIX.</span>
+<span class="w">        </span><span class="sd">"""A ``str`` related-file path is coerced to Path, serialized POSIX.</span>
 
 <span class="sd">        Regression: ``to_detail_dict`` used ``related.path.as_posix()``,</span>
 <span class="sd">        which crashed when ``path`` was passed as a plain string.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">related</span> <span class="o">=</span> <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/data/raw/img.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
+        <span class="n">related</span> <span class="o">=</span> <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">"/data/raw/img.fits"</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">related</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>
         <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">()</span>
         <span class="n">exc</span><span class="o">.</span><span class="n">related_files</span> <span class="o">=</span> <span class="p">(</span><span class="n">related</span><span class="p">,)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">exc</span><span class="o">.</span><span class="n">to_detail_dict</span><span class="p">()[</span><span class="s2">&quot;related_files&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;/data/raw/img.fits&quot;</span><span class="p">,</span>
+            <span class="n">exc</span><span class="o">.</span><span class="n">to_detail_dict</span><span class="p">()[</span><span class="s2">"related_files"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"path"</span><span class="p">],</span>
+            <span class="s2">"/data/raw/img.fits"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestToDetailDict.test_detail_dict_fields">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestToDetailDict.test_detail_dict_fields">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_detail_dict_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The payload carries the non-column fields, related files in full.</span>
+<span class="w">        </span><span class="sd">"""The payload carries the non-column fields, related files in full.</span>
 
 <span class="sd">        Models a real ``find_stars`` failure: the input is a calibrated</span>
 <span class="sd">        FITS image and the (expected) output is its DR file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;inner cause&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"inner cause"</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">cause</span><span class="p">:</span>
             <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">()</span>
             <span class="n">exc</span><span class="o">.</span><span class="n">__cause__</span> <span class="o">=</span> <span class="n">cause</span>
             <span class="n">exc</span><span class="o">.</span><span class="n">__traceback__</span> <span class="o">=</span> <span class="n">cause</span><span class="o">.</span><span class="n">__traceback__</span>
 
         <span class="n">detail</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">to_detail_dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;schema_version&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span> <span class="s2">&quot;no stars found&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;brightness_quantile&quot;</span><span class="p">:</span> <span class="mf">0.999</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"schema_version"</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"message"</span><span class="p">],</span> <span class="s2">"no stars found"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"details"</span><span class="p">],</span> <span class="p">{</span><span class="s2">"brightness_quantile"</span><span class="p">:</span> <span class="mf">0.999</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;related_files&quot;</span><span class="p">],</span>
+            <span class="n">detail</span><span class="p">[</span><span class="s2">"related_files"</span><span class="p">],</span>
             <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;calibrated_image&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;/data/cal/img001.fits&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;input&quot;</span><span class="p">,</span>
+                    <span class="s2">"kind"</span><span class="p">:</span> <span class="s2">"calibrated_image"</span><span class="p">,</span>
+                    <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"/data/cal/img001.fits"</span><span class="p">,</span>
+                    <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"input"</span><span class="p">,</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;dr_file&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;/data/dr/img001.h5&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;expected_output&quot;</span><span class="p">,</span>
+                    <span class="s2">"kind"</span><span class="p">:</span> <span class="s2">"dr_file"</span><span class="p">,</span>
+                    <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"/data/dr/img001.h5"</span><span class="p">,</span>
+                    <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"expected_output"</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">],</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;ValueError: inner cause&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;traceback&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"ValueError: inner cause"</span><span class="p">,</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"traceback"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestToDetailDict.test_round_trips_through_json_with_sanitizer">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestToDetailDict.test_round_trips_through_json_with_sanitizer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_round_trips_through_json_with_sanitizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A details payload of awkward types serializes without raising.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A details payload of awkward types serializes without raising."""</span>
 
         <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span>
-            <span class="s2">&quot;boom&quot;</span><span class="p">,</span>
+            <span class="s2">"boom"</span><span class="p">,</span>
             <span class="n">details</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;np_int&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
-                <span class="s2">&quot;np_float&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="mf">1.5</span><span class="p">),</span>
-                <span class="s2">&quot;small_array&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-                <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/tmp/y&quot;</span><span class="p">),</span>
-                <span class="s2">&quot;when&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-                <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">},</span>
+                <span class="s2">"np_int"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+                <span class="s2">"np_float"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="mf">1.5</span><span class="p">),</span>
+                <span class="s2">"small_array"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+                <span class="s2">"path"</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/tmp/y"</span><span class="p">),</span>
+                <span class="s2">"when"</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="s2">"tags"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">},</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
         <span class="n">text</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">to_detail_dict</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">sanitize_for_json</span><span class="p">)</span>
-        <span class="n">restored</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)[</span><span class="s2">&quot;details&quot;</span><span class="p">]</span>
+        <span class="n">restored</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)[</span><span class="s2">"details"</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">&quot;np_int&quot;</span><span class="p">],</span> <span class="mi">7</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">&quot;np_float&quot;</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">&quot;small_array&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="s2">&quot;/tmp/y&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">&quot;when&quot;</span><span class="p">],</span> <span class="s2">&quot;2026-06-22T12:00:00&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">]),</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">"np_int"</span><span class="p">],</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">"np_float"</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">"small_array"</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">"path"</span><span class="p">],</span> <span class="s2">"/tmp/y"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">"when"</span><span class="p">],</span> <span class="s2">"2026-06-22T12:00:00"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">restored</span><span class="p">[</span><span class="s2">"tags"</span><span class="p">]),</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestToDetailDict.test_large_array_is_summarized">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_exception_hierarchy.html#autowisp.tests.test_exception_hierarchy.TestToDetailDict.test_large_array_is_summarized">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_large_array_is_summarized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A large ndarray is summarized, not dumped whole.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A large ndarray is summarized, not dumped whole."""</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;frame&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1000</span><span class="p">)})</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">StepError</span><span class="p">(</span><span class="s2">"boom"</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"frame"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1000</span><span class="p">)})</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
             <span class="n">exc</span><span class="o">.</span><span class="n">to_detail_dict</span><span class="p">(),</span>
             <span class="n">default</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">sanitize_for_json</span><span class="p">,</span> <span class="n">max_inline_array_size</span><span class="o">=</span><span class="mi">64</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">summary</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)[</span><span class="s2">&quot;details&quot;</span><span class="p">][</span><span class="s2">&quot;frame&quot;</span><span class="p">][</span><span class="s2">&quot;__ndarray__&quot;</span><span class="p">]</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)[</span><span class="s2">"details"</span><span class="p">][</span><span class="s2">"frame"</span><span class="p">][</span><span class="s2">"__ndarray__"</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">1000</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]),</span> <span class="mi">64</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">summary</span><span class="p">[</span><span class="s2">"shape"</span><span class="p">],</span> <span class="p">[</span><span class="mi">1000</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">summary</span><span class="p">[</span><span class="s2">"head"</span><span class="p">]),</span> <span class="mi">64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"int"</span><span class="p">,</span> <span class="n">summary</span><span class="p">[</span><span class="s2">"dtype"</span><span class="p">])</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

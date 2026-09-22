@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.reconstructive_correction_transit &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.light_curves.reconstructive_correction_transit</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Definet class performing reconstructive detrending on LCs with transits.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Definet class performing reconstructive detrending on LCs with transits."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.transit_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">magnitude_change</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.light_curve_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightCurveFile</span>
@@ -173,7 +173,7 @@
 <div class="viewcode-block" id="ReconstructiveCorrectionTransit">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ReconstructiveCorrectionTransit</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for corrections that protect known or suspected transit signals.</span>
 
 <span class="sd">    Attributes:</span>
@@ -182,8 +182,8 @@
 <span class="sd">        fit_amplitude:    See same name argument to __init__()</span>
 
 <span class="sd">        transit_parameters(2-tuple):     The positional and keyword arguments to</span>
-<span class="sd">            pass to the transit model&#39;s evaluate() method.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            pass to the transit model's evaluate() method.</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ReconstructiveCorrectionTransit.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit.__init__">[docs]</a>
@@ -194,7 +194,7 @@
         <span class="n">fit_amplitude</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">transit_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Configure the fitting.</span>
 
 <span class="sd">        Args:</span>
@@ -215,7 +215,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">correction</span> <span class="o">=</span> <span class="n">correction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transit_model</span> <span class="o">=</span> <span class="n">transit_model</span>
@@ -226,7 +226,7 @@
 <div class="viewcode-block" id="ReconstructiveCorrectionTransit.get_fit_data">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit.get_fit_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_fit_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">dset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;To be used as the get_fit_data argument to parent&#39;s __call__.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""To be used as the get_fit_data argument to parent's __call__."""</span>
 
         <span class="n">raw_magnitudes</span> <span class="o">=</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
 
@@ -253,7 +253,7 @@
         <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">transit_parameters_kw</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Perform reconstructive EPD on a light curve, given transit parameters.</span>
 
 <span class="sd">        Args:</span>
@@ -262,19 +262,19 @@
 <span class="sd">            save(bool):   See same name orgument to EPDCorrection.__call__().</span>
 
 <span class="sd">            transit_parameters_pos:    Positional arguments to be passed to the</span>
-<span class="sd">                transit model&#39;s evaluate() method.</span>
+<span class="sd">                transit model's evaluate() method.</span>
 
 <span class="sd">            transit_parameters_kw:    Keyword arguments to be passed to the</span>
-<span class="sd">                transit model&#39;s evaluate() method.</span>
+<span class="sd">                transit model's evaluate() method.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            See EPDCorrection.__call__()</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_amplitude</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
                 <span class="n">extra_predictors</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;transit&quot;</span><span class="p">:</span> <span class="n">magnitude_change</span><span class="p">(</span>
+                    <span class="s2">"transit"</span><span class="p">:</span> <span class="n">magnitude_change</span><span class="p">(</span>
                         <span class="n">light_curve</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">transit_model</span><span class="p">,</span>
                         <span class="o">*</span><span class="n">transit_parameters_pos</span><span class="p">,</span>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.hashable_array &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.light_curves.hashable_array</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define a Hashable wrapper for ndarray objects.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define a Hashable wrapper for ndarray objects."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">hashlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">sha1</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
@@ -173,7 +173,7 @@
 <div class="viewcode-block" id="HashableArray">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.hashable_array.html#autowisp.light_curves.hashable_array.HashableArray">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HashableArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Hashable wrapper for ndarray objects</span>
 
 <span class="sd">    Copied from:</span>
@@ -189,18 +189,18 @@
 <span class="sd">    ndarray object. This can be either a copied instance (which is safer)</span>
 <span class="sd">    or the original object (which requires the user to be careful enough</span>
 <span class="sd">    not to modify it).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="HashableArray.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.hashable_array.html#autowisp.light_curves.hashable_array.HashableArray.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Creates a new hashable object encapsulating an ndarray.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            - wrapped: The wrapped ndarray.</span>
 <span class="sd">            - tight: If True, a copy of the input ndaray is created.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">HashableArray</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tight</span> <span class="o">=</span> <span class="n">tight</span>
@@ -224,12 +224,12 @@
 <div class="viewcode-block" id="HashableArray.unwrap">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.hashable_array.html#autowisp.light_curves.hashable_array.HashableArray.unwrap">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the encapsulated ndarray.</span>
 
-<span class="sd">        If the wrapper is &quot;tight&quot;, a copy of the encapsulated ndarray is</span>
+<span class="sd">        If the wrapper is "tight", a copy of the encapsulated ndarray is</span>
 <span class="sd">        returned. Otherwise, the encapsulated ndarray itself is returned.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tight</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrapped</span><span class="p">)</span>

@@ -27,9 +27,183 @@
     z-index: 10;
 }
 
+/* One section per y quantity, each its own table under its own header,
+ * with the library's bracket down the side of the pair of them. */
+.diagnostics-section {
+    display: flex;
+    align-items: stretch;
+    /* No gap: the bracket meets the bar it encloses, as the page's own
+     * elbow meets its title bar. A gap there shows as a black slot down
+     * the side of every section. */
+    margin-bottom: 0.5rem;
+}
+
+/* The bracket takes its width and its shape from the library; what is
+ * said here is only that it runs the height of whatever the section is
+ * currently showing, rather than the 1.5rem the library gives a bracket
+ * standing on its own. That height is also what says whether a section
+ * is open, and clicking it collapses or expands one. */
+.diagnostics-section > .section-bracket {
+    height: auto;
+    align-self: stretch;
+    cursor: pointer;
+    /* Above the table beside it. `table.standard-header` is pulled 2rem
+     * left to cancel the border-spacing before its first column, so its
+     * box overhangs the bracket -- with empty space, which shows
+     * nothing but takes every click along the table's height. Raising
+     * the bracket changes nothing visible and gives it back its clicks. */
+    position: relative;
+    z-index: 1;
+}
+
+.diagnostics-section > .section-content {
+    /* Takes the rest of the row, and may shrink below the table's width
+     * rather than pushing the bracket off the side. */
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* The whole header collapses and expands the section, so it says so by
+ * the cursor as well as by the caret. The colours and the rounded end
+ * come from the library, as the page's own title bar takes them. */
+.section-header {
+    display: flex;
+    align-items: stretch;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* The library gives a bar full width and leaves its contents to flow;
+ * this one carries a row of controls, so it lays them out and yields the
+ * 2rem the rounded end needs. */
+.section-header .section-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    padding-right: 0.5rem;
+}
+
+/* The library indents a title by the width of the elbow that precedes it
+ * on the page's own bar; here the bracket plays that part, and is beside
+ * the header rather than in it. */
+.section-header .lcars-title {
+    margin-left: 0.5rem;
+}
+
+
+/* The expression, in monospace as the expression page shows it, so that
+ * what a section draws can be read rather than guessed from its name.
+ * Black on the golden bar, as everything else on it is. */
+.section-header .section-expression {
+    font-family: monospace;
+    color: #000;
+}
+
+/* The marker glyph is drawn white, which suits the black menu a row
+ * chooses it from and disappears on the golden bar. A CSS fill outranks
+ * the fill attribute the template writes, so only the copy shown here
+ * turns black. */
+.section-header .section-marker .plot-marker,
+.section-header .section-marker .plot-marker * {
+    fill: #000;
+    stroke: #000;
+}
+
+/* Takes the room left over, so the controls stay at the two ends however
+ * long the description is. */
+.section-header .section-description {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* How many of this section's rows reach the plot. Readable while the
+ * section is collapsed, which is when it is the only thing it says about
+ * what is drawn. */
+.section-header .section-drawn::before {
+    content: "drawn: ";
+}
+
+/* Which y axis this section is drawn against. Kept from growing with its
+ * longest option, which names a quantity, so that the description beside
+ * it keeps the room instead. */
+.section-header .section-axis {
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.section-header .axis-select {
+    max-width: 8rem;
+    margin-left: 0.25rem;
+}
+
+.section-header button {
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 0.3rem;
+    border: none;
+    cursor: pointer;
+    background-color: #000;
+    color: #fff;
+}
+
+.section-header button:hover:enabled {
+    background-color: #99f;
+    color: #000;
+}
+
+/* The page needs a section to name in its URL, so the last one cannot be
+ * removed. Faded rather than hidden, as the row buttons are. */
+.section-header button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+/* Collapsed hides the rows and nothing else: the header goes on saying
+ * what the section draws and how much of the plot came from it. */
+.diagnostics-section.collapsed .section-body {
+    display: none;
+}
+
 #diagnostics-table-parent tbody tr {
     cursor: pointer;
     opacity: 0.5;
+}
+
+/* The add and remove columns, kept to the width of the character on the
+ * button: they sit before every column that carries information, and any
+ * width beyond the glyph is width taken from those. */
+#diagnostics-table-parent .row-button {
+    width: 1px;
+    padding: 0 0.15rem;
+}
+
+#diagnostics-table-parent .row-button button {
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 0.25rem;
+    border: none;
+    cursor: pointer;
+    background-color: #000;
+    color: #fff;
+}
+
+#diagnostics-table-parent .row-button button:hover:enabled {
+    background-color: #99f;
+    color: #000;
+}
+
+/* Faded rather than hidden, so the column keeps its width and the button
+ * stays where it will be once there is a second row. */
+#diagnostics-table-parent .row-button button:disabled {
+    opacity: 0.3;
+    cursor: default;
 }
 
 #diagnostics-table-parent tbody tr.active {
@@ -130,7 +304,10 @@
     background-color: #555
 }
 
-.dropdown:hover .dropdown-content {
+/* Open while the class is set, which handleDropdownClick does on a click
+ * and undoes on the next one anywhere: the menu stays put while the
+ * pointer travels down it. */
+.dropdown.open .dropdown-content {
     display: block;
     position: absolute;
 }

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_source_finder module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,16 +172,16 @@
 <span id="autowisp-tests-test-source-finder-module"></span><h1>autowisp.tests.test_source_finder module<a class="headerlink" href="#module-autowisp.tests.test_source_finder" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-84c47a190fb596355dbd2daecc725ccdf2b9768f.png" alt="Inheritance diagram of NoSourcesFoundError, SourceFinder, TemporaryDirectory, TestExtremeSourceCounts, TestQuantileBrightnessThreshold" usemap="#inheritanced1bd66d47f" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-57675667817aeb5685e5dcf48832cc18b619635b.png" alt="Inheritance diagram of NoSourcesFoundError, SourceFinder, TemporaryDirectory, TestExtremeSourceCounts, TestQuantileBrightnessThreshold" usemap="#inheritanced1bd66d47f" class="inheritance graphviz" /></div>
 <map id="inheritanced1bd66d47f" name="inheritanced1bd66d47f">
-<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="25,5,259,32"/>
-<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="42,80,242,107"/>
-<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="28,155,256,181"/>
-<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.NoSourcesFoundError" target="_top" title="Source extraction completed but found no sources in a frame." alt="" coords="5,229,279,256"/>
-<area shape="rect" id="node5" href="autowisp.source_finder.html#autowisp.source_finder.SourceFinder" target="_top" title="Find sources in an image of the night sky and report properties." alt="" coords="410,5,647,32"/>
-<area shape="rect" id="node6" href="#autowisp.tests.test_source_finder.TestExtremeSourceCounts" target="_top" title="Frames with one source or none must not crash the extractor." alt="" coords="444,80,822,107"/>
-<area shape="rect" id="node8" href="#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" target="_top" title="The image&#45;quantile threshold must drive a successful fistar run." alt="" coords="846,80,1259,107"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="913,5,1099,32"/>
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="27,5,282,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="45,79,265,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="29,152,280,177"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.NoSourcesFoundError" target="_top" title="Source extraction completed but found no sources in a frame." alt="" coords="5,225,304,251"/>
+<area shape="rect" id="node5" href="autowisp.source_finder.html#autowisp.source_finder.SourceFinder" target="_top" title="Find sources in an image of the night sky and report properties." alt="" coords="448,5,707,31"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_source_finder.TestExtremeSourceCounts" target="_top" title="Frames with one source or none must not crash the extractor." alt="" coords="484,79,897,104"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" target="_top" title="The image&#45;quantile threshold must drive a successful fistar run." alt="" coords="922,79,1379,104"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="994,5,1203,31"/>
 </map><p>Exercise the quantile-based brightness-threshold path in <code class="docutils literal notranslate"><span class="pre">SourceFinder</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">brightness_threshold</span></code> is left unset, <code class="docutils literal notranslate"><span class="pre">SourceFinder</span></code> derives it from an
 image quantile (<code class="docutils literal notranslate"><span class="pre">brightness_quantile_scale</span> <span class="pre">*</span> <span class="pre">numpy.quantile(...)</span></code>), producing
@@ -196,11 +196,11 @@ extraction actually succeeds.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_source_finder.TestExtremeSourceCounts">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_source_finder.</span></span><span class="sig-name descname"><span class="pre">TestExtremeSourceCounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_source_finder.html#TestExtremeSourceCounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_source_finder.TestExtremeSourceCounts" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_source_finder.</span></span><span class="sig-name descname"><span class="pre">TestExtremeSourceCounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_source_finder.html#TestExtremeSourceCounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_source_finder.TestExtremeSourceCounts" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-588afa3ac0966a71bc6b410a7acc287e3e8e1162.png" alt="Inheritance diagram of autowisp.tests.test_source_finder.TestExtremeSourceCounts" usemap="#inheritance2621072bcd" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-c17ce705ef9879a89f30388f716f05dbffeae81c.png" alt="Inheritance diagram of autowisp.tests.test_source_finder.TestExtremeSourceCounts" usemap="#inheritance2621072bcd" class="inheritance graphviz" /></div>
 <map id="inheritance2621072bcd" name="inheritance2621072bcd">
-<area shape="rect" id="node1" href="#autowisp.tests.test_source_finder.TestExtremeSourceCounts" target="_top" title="Frames with one source or none must not crash the extractor." alt="" coords="5,80,384,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_source_finder.TestExtremeSourceCounts" target="_top" title="Frames with one source or none must not crash the extractor." alt="" coords="5,79,419,104"/>
 </map><p>Frames with one source or none must not crash the extractor.</p>
 <p><code class="docutils literal notranslate"><span class="pre">numpy.genfromtxt</span></code> is what makes these two special: a single
 extracted source comes back as a <strong>0-d</strong> array (indexing it with the
@@ -225,11 +225,11 @@ image so fistar reliably extracts nothing.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_source_finder.</span></span><span class="sig-name descname"><span class="pre">TestQuantileBrightnessThreshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_source_finder.html#TestQuantileBrightnessThreshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_source_finder.</span></span><span class="sig-name descname"><span class="pre">TestQuantileBrightnessThreshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_source_finder.html#TestQuantileBrightnessThreshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-a25ea7d43feadb8eb44f0052c0a374b92b35a83a.png" alt="Inheritance diagram of autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" usemap="#inheritance63413a54b0" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-91245c58a709410264aa2cf5c43d2f4fe1d03648.png" alt="Inheritance diagram of autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" usemap="#inheritance63413a54b0" class="inheritance graphviz" /></div>
 <map id="inheritance63413a54b0" name="inheritance63413a54b0">
-<area shape="rect" id="node1" href="#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" target="_top" title="The image&#45;quantile threshold must drive a successful fistar run." alt="" coords="5,80,419,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold" target="_top" title="The image&#45;quantile threshold must drive a successful fistar run." alt="" coords="5,79,463,104"/>
 </map><p>The image-quantile threshold must drive a successful fistar run.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold.test_quantile_threshold_extraction_succeeds">

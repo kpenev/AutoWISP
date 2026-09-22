@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.diagnostics.expressions module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,13 +172,13 @@
 <span id="autowisp-diagnostics-expressions-module"></span><h1>autowisp.diagnostics.expressions module<a class="headerlink" href="#module-autowisp.diagnostics.expressions" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-62c24b908b71bcf689d1c6826ed2f8b7bab6ef72.png" alt="Inheritance diagram of Evaluator, EvaluatorBase, PipelineError, QuantityLookUp" usemap="#inheritance7666e463bf" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-be5e4013e47ba531d883e2fe542063bb99055380.png" alt="Inheritance diagram of Evaluator, EvaluatorBase, PipelineError, QuantityLookUp" usemap="#inheritance7666e463bf" class="inheritance graphviz" /></div>
 <map id="inheritance7666e463bf" name="inheritance7666e463bf">
-<area shape="rect" id="node4" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="5,80,225,107"/>
-<area shape="rect" id="node2" href="#autowisp.diagnostics.expressions.QuantityLookUp" target="_top" title="One name an expression may read, resolved when it is asked for." alt="" coords="225,5,541,32"/>
-<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="20,155,210,181"/>
-<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="564,5,799,32"/>
-<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="572,80,791,107"/>
+<area shape="rect" id="node4" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="5,79,249,104"/>
+<area shape="rect" id="node2" href="#autowisp.diagnostics.expressions.QuantityLookUp" target="_top" title="One name an expression may read, resolved when it is asked for." alt="" coords="249,5,600,31"/>
+<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="21,152,233,177"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="624,5,879,31"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="630,79,873,104"/>
 </map><p>Named expressions over per-image diagnostics, evaluated in dependency order.</p>
 <p>This is the whole of what an expression <em>means</em>: which names it references,
 what order a library of them has to be evaluated in, and what is wrong with
@@ -195,11 +195,11 @@ them – belongs to the layer above.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">QuantityLookUp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.expressions.</span></span><span class="sig-name descname"><span class="pre">QuantityLookUp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-233b2a2059cd749d459c0cc076f852d1c321f251.png" alt="Inheritance diagram of autowisp.diagnostics.expressions.QuantityLookUp" usemap="#inheritance8ce0d9a912" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-65c998940913c79a552205ee1d898b1b397d66e6.png" alt="Inheritance diagram of autowisp.diagnostics.expressions.QuantityLookUp" usemap="#inheritance8ce0d9a912" class="inheritance graphviz" /></div>
 <map id="inheritance8ce0d9a912" name="inheritance8ce0d9a912">
-<area shape="rect" id="node1" href="#autowisp.diagnostics.expressions.QuantityLookUp" target="_top" title="One name an expression may read, resolved when it is asked for." alt="" coords="5,5,321,32"/>
+<area shape="rect" id="node1" href="#autowisp.diagnostics.expressions.QuantityLookUp" target="_top" title="One name an expression may read, resolved when it is asked for." alt="" coords="5,5,356,31"/>
 </map><p>One name an expression may read, resolved when it is asked for.</p>
 <p>Everything a quantity needs is held here: a diagnostic owns the values
 fetched for it, an expression owns its text and the instantiations it
@@ -224,7 +224,7 @@ finishes in here before the outer body’s next operand is touched.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.__init__" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -275,7 +275,7 @@ a finite parameter set and introduces no new symbols.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.diagnostics.expressions.QuantityLookUp.library">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.library"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.library" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/expressions.html#QuantityLookUp.library"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.expressions.QuantityLookUp.library" title="Link to this definition"></a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">lookup}</span></code> for one evaluation, ready to be asked.</p>
 <p>The binding stack and the evaluator are created here and captured
 by the lookups, so neither is named outside this class. The stack

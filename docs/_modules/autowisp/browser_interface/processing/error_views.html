@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.processing.error_views &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.processing.error_views</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Views for browsing recorded pipeline/step/BUI errors.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Views for browsing recorded pipeline/step/BUI errors."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -187,16 +187,16 @@
 <div class="viewcode-block" id="error_list">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.error_views.html#autowisp.browser_interface.processing.error_views.error_list">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">error_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Show every recorded error for the project, newest first.</span>
+<span class="w">    </span><span class="sd">"""Show every recorded error for the project, newest first.</span>
 
 <span class="sd">    Backed by the queryable columns only -- no detail sidecar is opened --</span>
 <span class="sd">    so the list stays cheap. An optional ``run`` query parameter restricts</span>
 <span class="sd">    to a single pipeline run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">run</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">)</span>
+    <span class="n">run</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"run"</span><span class="p">)</span>
     <span class="n">pipeline_run_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">run</span><span class="p">)</span> <span class="k">if</span> <span class="n">run</span> <span class="ow">and</span> <span class="n">run</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="n">step_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span>
+    <span class="n">step_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"step"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">error_list_rows</span><span class="p">(</span>
             <span class="n">db_session</span><span class="p">,</span>
@@ -205,11 +205,11 @@
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
-        <span class="s2">&quot;processing/error_list.html&quot;</span><span class="p">,</span>
+        <span class="s2">"processing/error_list.html"</span><span class="p">,</span>
         <span class="p">{</span>
-            <span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
-            <span class="s2">&quot;filtered_run&quot;</span><span class="p">:</span> <span class="n">pipeline_run_id</span><span class="p">,</span>
-            <span class="s2">&quot;filtered_step&quot;</span><span class="p">:</span> <span class="n">step_name</span><span class="p">,</span>
+            <span class="s2">"errors"</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
+            <span class="s2">"filtered_run"</span><span class="p">:</span> <span class="n">pipeline_run_id</span><span class="p">,</span>
+            <span class="s2">"filtered_step"</span><span class="p">:</span> <span class="n">step_name</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span></div>
 
@@ -218,31 +218,31 @@
 <div class="viewcode-block" id="error_detail_view">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.error_views.html#autowisp.browser_interface.processing.error_views.error_detail_view">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">error_detail_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">error_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Show one error in full.</span>
+<span class="w">    </span><span class="sd">"""Show one error in full.</span>
 
 <span class="sd">    Defaults to the user-facing view; ``?developer=1`` reveals the</span>
 <span class="sd">    technical fields (message, traceback, details, worker/host info)</span>
 <span class="sd">    loaded from the detail sidecar.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">developer</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;developer&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">developer</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"developer"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No recorded error with id </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No recorded error with id </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="n">detail</span> <span class="o">=</span> <span class="n">error_detail</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">developer</span><span class="o">=</span><span class="n">developer</span><span class="p">)</span>
         <span class="n">resolved</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">resolved</span>
         <span class="n">progress</span> <span class="o">=</span> <span class="n">find_error_progress</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
         <span class="n">log_progress_id</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
-        <span class="s2">&quot;processing/error_detail.html&quot;</span><span class="p">,</span>
+        <span class="s2">"processing/error_detail.html"</span><span class="p">,</span>
         <span class="p">{</span>
-            <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="n">detail</span><span class="p">,</span>
-            <span class="s2">&quot;developer&quot;</span><span class="p">:</span> <span class="n">developer</span><span class="p">,</span>
-            <span class="s2">&quot;error_id&quot;</span><span class="p">:</span> <span class="n">error_id</span><span class="p">,</span>
-            <span class="s2">&quot;resolved&quot;</span><span class="p">:</span> <span class="n">resolved</span><span class="p">,</span>
-            <span class="s2">&quot;log_progress_id&quot;</span><span class="p">:</span> <span class="n">log_progress_id</span><span class="p">,</span>
+            <span class="s2">"detail"</span><span class="p">:</span> <span class="n">detail</span><span class="p">,</span>
+            <span class="s2">"developer"</span><span class="p">:</span> <span class="n">developer</span><span class="p">,</span>
+            <span class="s2">"error_id"</span><span class="p">:</span> <span class="n">error_id</span><span class="p">,</span>
+            <span class="s2">"resolved"</span><span class="p">:</span> <span class="n">resolved</span><span class="p">,</span>
+            <span class="s2">"log_progress_id"</span><span class="p">:</span> <span class="n">log_progress_id</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span></div>
 
@@ -251,20 +251,20 @@
 <div class="viewcode-block" id="download_crash_report">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.error_views.html#autowisp.browser_interface.processing.error_views.download_crash_report">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download_crash_report</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">error_id</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build and stream a credential-scrubbed crash-report zip for an error.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build and stream a credential-scrubbed crash-report zip for an error."""</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No recorded error with id </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No recorded error with id </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
-    <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;crash_report_error_</span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"crash_report_error_</span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">.zip"</span>
     <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">work_dir</span><span class="p">:</span>
         <span class="n">report_path</span> <span class="o">=</span> <span class="n">build_crash_report</span><span class="p">(</span>
             <span class="n">error_id</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">report_path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;application/zip&quot;</span><span class="p">)</span>
-    <span class="n">response</span><span class="p">[</span><span class="s2">&quot;Content-Disposition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;attachment; filename=&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">"application/zip"</span><span class="p">)</span>
+    <span class="n">response</span><span class="p">[</span><span class="s2">"Content-Disposition"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'attachment; filename="</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">"'</span>
     <span class="k">return</span> <span class="n">response</span></div>
 
 
@@ -272,39 +272,39 @@
 <div class="viewcode-block" id="toggle_error_resolved">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.error_views.html#autowisp.browser_interface.processing.error_views.toggle_error_resolved">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">toggle_error_resolved</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">error_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mark an error resolved, or reopen it, then return to the list.</span>
+<span class="w">    </span><span class="sd">"""Mark an error resolved, or reopen it, then return to the list.</span>
 
 <span class="sd">    Resolving sets the ``resolved`` timestamp (the error drops out of the</span>
 <span class="sd">    badge, the progress-grid markers, and the start-processing gate, but</span>
 <span class="sd">    stays in the list as history); reopening clears it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s2">&quot;Use POST to change an error&#39;s resolved state.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="s2">"POST"</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s2">"Use POST to change an error's resolved state."</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="n">error_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No recorded error with id </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No recorded error with id </span><span class="si">{</span><span class="n">error_id</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="n">row</span><span class="o">.</span><span class="n">resolved</span> <span class="o">=</span> <span class="p">(</span>
             <span class="kc">None</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">resolved</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;processing:error_list&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"next"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"processing:error_list"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="delete_error_view">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.error_views.html#autowisp.browser_interface.processing.error_views.delete_error_view">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">delete_error_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">error_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete an error record (row + sidecar), then return to the list.</span>
+<span class="w">    </span><span class="sd">"""Delete an error record (row + sidecar), then return to the list.</span>
 
 <span class="sd">    Always returns to the list -- the detail page it may have come from no</span>
 <span class="sd">    longer exists.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s2">&quot;Use POST to delete an error.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="s2">"POST"</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s2">"Use POST to delete an error."</span><span class="p">)</span>
     <span class="n">delete_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;processing:error_list&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"processing:error_list"</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.magnitude_fitting.linear &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.magnitude_fitting.linear</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Implement magnitude fitting using linear regression.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Implement magnitude fitting using linear regression."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
@@ -178,19 +178,19 @@
 <div class="viewcode-block" id="LinearMagnitudeFit">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LinearMagnitudeFit</span><span class="p">(</span><span class="n">MagnitudeFit</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Differential photometry correction using linear regression.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Differential photometry correction using linear regression."""</span>
 
 <div class="viewcode-block" id="LinearMagnitudeFit._compute_mag_offset">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit._compute_mag_offset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_compute_mag_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phot_fit_results</span><span class="p">,</span> <span class="n">fit_base</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the magfit correction at the image centre for a median star.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the magfit correction at the image centre for a median star.</span>
 
 <span class="sd">        Builds a synthetic source whose per-field values are the median of</span>
 <span class="sd">        ``fit_base``, then overrides ``x`` and ``y`` with the image centre</span>
 <span class="sd">        (``NAXIS1/2``, ``NAXIS2/2``).  The correction is evaluated by dotting</span>
 <span class="sd">        the fit coefficients with the resulting predictors, and the median</span>
 <span class="sd">        across fit groups is returned.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">center_star</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">fit_base</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
@@ -201,14 +201,14 @@
                     <span class="p">)</span>
                 <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
                     <span class="n">center_star</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_base</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">center_star</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
-            <span class="n">center_star</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
+            <span class="n">center_star</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS1"</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
+            <span class="n">center_star</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS2"</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
             <span class="n">center_predictors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms</span><span class="p">(</span><span class="n">center_star</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
             <span class="n">corrections</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">gr</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">],</span> <span class="n">center_predictors</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">gr</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">],</span> <span class="n">center_predictors</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">phot_fit_results</span>
-                <span class="k">if</span> <span class="n">gr</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">gr</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="p">]</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">corrections</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="n">corrections</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
@@ -218,10 +218,10 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">):</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_no_fit_indices</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Lists the indices in fit_data to exclude from the fit.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Lists the indices in fit_data to exclude from the fit."""</span>
 
             <span class="n">finite</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;bg&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_err&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"bg"</span><span class="p">,</span> <span class="s2">"bg_err"</span><span class="p">]:</span>
                 <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
                     <span class="n">finite</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fit_data</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
                 <span class="p">)</span>
@@ -229,33 +229,33 @@
             <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">phot_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">):</span>
                 <span class="n">finite_phot</span> <span class="o">=</span> <span class="n">finite</span>
-                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;mag_err&quot;</span><span class="p">,</span> <span class="s2">&quot;ref_mag&quot;</span><span class="p">,</span> <span class="s2">&quot;ref_mag_err&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mag"</span><span class="p">,</span> <span class="s2">"mag_err"</span><span class="p">,</span> <span class="s2">"ref_mag"</span><span class="p">,</span> <span class="s2">"ref_mag_err"</span><span class="p">]:</span>
                     <span class="n">finite_phot</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
                         <span class="n">finite_phot</span><span class="p">,</span>
                         <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fit_data</span><span class="p">[</span><span class="n">var</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]),</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="s2">&quot;Up to </span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> non-finite sources&quot;</span><span class="p">,</span>
+                        <span class="s2">"Up to </span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> non-finite sources"</span><span class="p">,</span>
                         <span class="n">var</span><span class="p">,</span>
                         <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">finite_phot</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                     <span class="p">)</span>
 
                 <span class="n">exclude</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">finite_phot</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Excluding </span><span class="si">%d</span><span class="s2"> non-finite sources: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Excluding </span><span class="si">%d</span><span class="s2"> non-finite sources: </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
                     <span class="n">exclude</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">exclude</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span>
                 <span class="p">)</span>
                 <span class="n">exclude</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
                     <span class="n">exclude</span><span class="p">,</span>
                     <span class="p">(</span>
-                        <span class="n">fit_data</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span>
+                        <span class="n">fit_data</span><span class="p">[</span><span class="s2">"mag_err"</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span>
                         <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_mag_err</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exclude</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;With too large error bar, </span><span class="si">%d</span><span class="s2"> sources excluded: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"With too large error bar, </span><span class="si">%d</span><span class="s2"> sources excluded: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">exclude</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
                 <span class="p">)</span>
@@ -265,20 +265,20 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">calculate_photometry_result</span><span class="p">(</span>
             <span class="n">phot_ind</span><span class="p">,</span> <span class="n">phot_predictors</span><span class="p">,</span> <span class="n">no_fit_indices</span><span class="p">,</span> <span class="n">fit_group</span><span class="p">,</span> <span class="n">fit_group_ids</span>
         <span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate and return result entry for a single photometry.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Calculate and return result entry for a single photometry."""</span>
 
             <span class="n">weights</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span>
-                <span class="n">fit_data</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">noise_offset</span>
+                <span class="n">fit_data</span><span class="p">[</span><span class="s2">"mag_err"</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">noise_offset</span>
             <span class="p">)</span>
             <span class="n">mag_difference</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">fit_data</span><span class="p">[</span><span class="s2">&quot;ref_mag&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span>
-                <span class="o">-</span> <span class="n">fit_data</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span>
+                <span class="n">fit_data</span><span class="p">[</span><span class="s2">"ref_mag"</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span>
+                <span class="o">-</span> <span class="n">fit_data</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span>
             <span class="p">)</span>
 
             <span class="n">phot_skip_indices</span> <span class="o">=</span> <span class="n">no_fit_indices</span><span class="p">[</span><span class="n">phot_ind</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">phot_skip_indices</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Skipping </span><span class="si">%d</span><span class="s2"> sources from fitting.&quot;</span><span class="p">,</span> <span class="n">phot_skip_indices</span><span class="o">.</span><span class="n">size</span>
+                    <span class="s2">"Skipping </span><span class="si">%d</span><span class="s2"> sources from fitting."</span><span class="p">,</span> <span class="n">phot_skip_indices</span><span class="o">.</span><span class="n">size</span>
                 <span class="p">)</span>
                 <span class="n">phot_predictors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
                     <span class="n">phot_predictors</span><span class="p">,</span> <span class="n">phot_skip_indices</span><span class="p">,</span> <span class="mi">1</span>
@@ -291,17 +291,17 @@
                 <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="n">fit_group_ids</span><span class="p">:</span>
                     <span class="n">group_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="p">{</span>
-                            <span class="s2">&quot;coefficients&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                            <span class="s2">&quot;residual&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                            <span class="s2">&quot;initial_src_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                            <span class="s2">&quot;final_src_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                            <span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span>
+                            <span class="s2">"coefficients"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s2">"residual"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s2">"initial_src_count"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                            <span class="s2">"final_src_count"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                            <span class="s2">"group_id"</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span>
                         <span class="p">}</span>
                     <span class="p">)</span>
                 <span class="k">return</span> <span class="n">group_results</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Smallest weight for photometry </span><span class="si">%d</span><span class="s2">: </span><span class="si">%g</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">weights</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="s2">"Smallest weight for photometry </span><span class="si">%d</span><span class="s2">: </span><span class="si">%g</span><span class="s2">"</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">weights</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
             <span class="p">)</span>
 
             <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">phot_predictors</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -314,7 +314,7 @@
                     <span class="k">if</span> <span class="n">phot_skip_indices</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
                         <span class="n">in_group</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">in_group</span><span class="p">,</span> <span class="n">phot_skip_indices</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fitting group </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">group_id</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Fitting group </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">group_id</span><span class="p">))</span>
                 <span class="n">coefficients</span><span class="p">,</span> <span class="n">fit_res2</span><span class="p">,</span> <span class="n">final_src_count</span> <span class="o">=</span> <span class="n">iterative_fit</span><span class="p">(</span>
                     <span class="p">(</span>
                         <span class="n">phot_predictors</span>
@@ -335,14 +335,14 @@
                     <span class="n">rej_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">rej_level</span><span class="p">,</span>
                     <span class="n">max_rej_iter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_rej_iter</span><span class="p">,</span>
                     <span class="n">fit_identifier</span><span class="o">=</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dr_fname</span><span class="si">}</span><span class="s2">, photometry #</span><span class="si">{</span><span class="n">phot_ind</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dr_fname</span><span class="si">}</span><span class="s2">, photometry #</span><span class="si">{</span><span class="n">phot_ind</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">coefficients</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="s2">&quot;Rejection resulted in fewer sources than &quot;</span>
-                        <span class="s2">&quot;parameters when fitting group </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Rejection resulted in fewer sources than "</span>
+                        <span class="s2">"parameters when fitting group </span><span class="si">%d</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">group_id</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
                     <span class="p">)</span>
 
@@ -352,28 +352,28 @@
 
                 <span class="n">group_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;coefficients&quot;</span><span class="p">:</span> <span class="n">coefficients</span><span class="p">,</span>
-                        <span class="s2">&quot;residual&quot;</span><span class="p">:</span> <span class="n">fit_residual</span><span class="p">,</span>
-                        <span class="s2">&quot;initial_src_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictors</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                        <span class="s2">&quot;final_src_count&quot;</span><span class="p">:</span> <span class="n">final_src_count</span><span class="p">,</span>
-                        <span class="s2">&quot;group_id&quot;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span>
+                        <span class="s2">"coefficients"</span><span class="p">:</span> <span class="n">coefficients</span><span class="p">,</span>
+                        <span class="s2">"residual"</span><span class="p">:</span> <span class="n">fit_residual</span><span class="p">,</span>
+                        <span class="s2">"initial_src_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictors</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                        <span class="s2">"final_src_count"</span><span class="p">:</span> <span class="n">final_src_count</span><span class="p">,</span>
+                        <span class="s2">"group_id"</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
             <span class="k">return</span> <span class="n">group_results</span>
 
-        <span class="k">assert</span> <span class="n">fit_data</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="n">num_photometries</span> <span class="o">=</span> <span class="n">fit_data</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">fit_data</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">num_photometries</span> <span class="o">=</span> <span class="n">fit_data</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="n">no_fit_indices</span> <span class="o">=</span> <span class="n">get_no_fit_indices</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">fit_group</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">fit_data</span><span class="p">[</span><span class="s2">&quot;fit_group&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="s2">&quot;fit_group&quot;</span> <span class="ow">in</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
+            <span class="n">fit_data</span><span class="p">[</span><span class="s2">"fit_group"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"fit_group"</span> <span class="ow">in</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
             <span class="k">else</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">fit_group_ids</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">fit_group</span><span class="p">)</span>
         <span class="n">predictors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms</span><span class="p">(</span><span class="n">fit_data</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predictors shape: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Predictors shape: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">phot_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">):</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">calculate_photometry_result</span><span class="p">(</span>
@@ -388,27 +388,27 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_apply_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phot</span><span class="p">,</span> <span class="n">fit_results</span><span class="p">):</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit_results</span><span class="p">)</span> <span class="o">==</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit_results</span><span class="p">)</span> <span class="o">==</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="n">fitted</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+            <span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
         <span class="p">)</span>
         <span class="n">predictors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms</span><span class="p">(</span><span class="n">phot</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">phot_fit_results</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fit_results</span><span class="p">):</span>
 
             <span class="k">for</span> <span class="n">group_fit_results</span> <span class="ow">in</span> <span class="n">phot_fit_results</span><span class="p">:</span>
-                <span class="n">fit_coef</span> <span class="o">=</span> <span class="n">group_fit_results</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">]</span>
+                <span class="n">fit_coef</span> <span class="o">=</span> <span class="n">group_fit_results</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">fit_coef</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">continue</span>
 
-                <span class="k">if</span> <span class="n">group_fit_results</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">fitted</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">][</span>
+                <span class="k">if</span> <span class="n">group_fit_results</span><span class="p">[</span><span class="s2">"group_id"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">fitted</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">][</span>
                         <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span>
                     <span class="p">]</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fit_coef</span><span class="p">,</span> <span class="n">predictors</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">in_group</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;fit_group&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">group_fit_results</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">]</span>
+                        <span class="n">phot</span><span class="p">[</span><span class="s2">"fit_group"</span><span class="p">]</span> <span class="o">==</span> <span class="n">group_fit_results</span><span class="p">[</span><span class="s2">"group_id"</span><span class="p">]</span>
                     <span class="p">)</span>
-                    <span class="n">fitted</span><span class="p">[</span><span class="n">in_group</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">][</span>
+                    <span class="n">fitted</span><span class="p">[</span><span class="n">in_group</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">][</span>
                         <span class="n">in_group</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">phot_ind</span>
                     <span class="p">]</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fit_coef</span><span class="p">,</span> <span class="n">predictors</span><span class="p">[:,</span> <span class="n">in_group</span><span class="p">])</span>
 
@@ -417,7 +417,7 @@
 <div class="viewcode-block" id="LinearMagnitudeFit.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize a magnitude fitting object using linear least squares.</span>
 
 <span class="sd">        Args:</span>
@@ -446,7 +446,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -455,7 +455,7 @@
 <div class="viewcode-block" id="LinearMagnitudeFit.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delay creating of fit terms to avoid pickling.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Delay creating of fit terms to avoid pickling."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms</span> <span class="o">=</span> <span class="n">FitTermsInterface</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">correction_parametrization</span>

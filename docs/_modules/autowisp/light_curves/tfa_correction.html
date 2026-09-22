@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.tfa_correction &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.light_curves.tfa_correction</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define aclass for applying TFA corrections to lightcurves.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define aclass for applying TFA corrections to lightcurves."""</span>
 
 <span class="c1"># pylint: disable=too-many-lines</span>
 
@@ -189,7 +189,7 @@
 <div class="viewcode-block" id="TFACorrection">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TFACorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for performing TFA corrections to a set of lightcurves.</span>
 
 <span class="sd">    Attributes:</span>
@@ -199,26 +199,26 @@
 <span class="sd">        _template_qr([]):    The QR decomposition of the template lightcurves.</span>
 <span class="sd">            Each entry is the value returned by scipy.linalg.qr for one of the</span>
 <span class="sd">            fit datasets.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TFACorrection._get_io_configurations">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_io_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return properly formatted configuration to pass to :func:`_save_result`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">default_format</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Encode strings as ascii, leave everything else unchanged.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Encode strings as ascii, leave everything else unchanged."""</span>
 
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;variables&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"variables"</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="sa">b</span><span class="s2">&quot;None&quot;</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">config</span>
+                <span class="k">return</span> <span class="sa">b</span><span class="s2">"None"</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">config</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">fit_target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_datasets</span><span class="p">:</span>
@@ -229,8 +229,8 @@
                         <span class="p">(</span>
                             <span class="n">pipeline_key_prefix</span>
                             <span class="o">+</span> <span class="p">(</span>
-                                <span class="s2">&quot;num_templates&quot;</span>
-                                <span class="k">if</span> <span class="n">cfg_key</span> <span class="o">==</span> <span class="s2">&quot;sqrt_num_templates&quot;</span>
+                                <span class="s2">"num_templates"</span>
+                                <span class="k">if</span> <span class="n">cfg_key</span> <span class="o">==</span> <span class="s2">"sqrt_num_templates"</span>
                                 <span class="k">else</span> <span class="n">cfg_key</span>
                             <span class="p">)</span>
                         <span class="p">),</span>
@@ -239,17 +239,17 @@
                         <span class="p">),</span>
                     <span class="p">)</span>
                     <span class="k">for</span> <span class="n">cfg_key</span> <span class="ow">in</span> <span class="p">[</span>
-                        <span class="s2">&quot;saturation_magnitude&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;mag_rms_dependence_order&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;mag_rms_outlier_threshold&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;mag_rms_max_rej_iter&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;max_rms&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;faint_mag_limit&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;min_observations_quantile&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;min_observations_fraction&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;sqrt_num_templates&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;variables&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;fit_points_filter_expression&quot;</span><span class="p">,</span>
+                        <span class="s2">"saturation_magnitude"</span><span class="p">,</span>
+                        <span class="s2">"mag_rms_dependence_order"</span><span class="p">,</span>
+                        <span class="s2">"mag_rms_outlier_threshold"</span><span class="p">,</span>
+                        <span class="s2">"mag_rms_max_rej_iter"</span><span class="p">,</span>
+                        <span class="s2">"max_rms"</span><span class="p">,</span>
+                        <span class="s2">"faint_mag_limit"</span><span class="p">,</span>
+                        <span class="s2">"min_observations_quantile"</span><span class="p">,</span>
+                        <span class="s2">"min_observations_fraction"</span><span class="p">,</span>
+                        <span class="s2">"sqrt_num_templates"</span><span class="p">,</span>
+                        <span class="s2">"variables"</span><span class="p">,</span>
+                        <span class="s2">"fit_points_filter_expression"</span><span class="p">,</span>
                     <span class="p">]</span>
                 <span class="p">]</span>
                 <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_io_iterative_fit_config</span><span class="p">(</span><span class="n">pipeline_key_prefix</span><span class="p">)</span>
@@ -261,13 +261,13 @@
 <div class="viewcode-block" id="TFACorrection.get_xi_eta_grid">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection.get_xi_eta_grid">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_xi_eta_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd_statistics</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a grid of (xi, eta) values to select closest templates to.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a grid of (xi, eta) values to select closest templates to."""</span>
 
-        <span class="n">min_xi</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">max_xi</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">min_eta</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">max_eta</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">grid_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;sqrt_num_templates&quot;</span><span class="p">]</span>
+        <span class="n">min_xi</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">max_xi</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">min_eta</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">max_eta</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">grid_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"sqrt_num_templates"</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
                 <span class="n">min_xi</span> <span class="p">:</span> <span class="n">max_xi</span> <span class="p">:</span> <span class="n">grid_res</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span>
@@ -287,7 +287,7 @@
         <span class="n">allowed_stars</span><span class="p">,</span>
         <span class="n">plot_fname_pattern</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create plots showing the stars selected as template (1 plot/phot).</span>
 
 <span class="sd">        Args:</span>
@@ -298,16 +298,16 @@
 <span class="sd">            plot_fname_pattern(str):    A %(phot_index)??d and %(plot_id)??s</span>
 <span class="sd">                substitutions expanding to a unique filename to save the</span>
 <span class="sd">                collection of plots for each given photometry index. The plot_id</span>
-<span class="sd">                substitution will be one of: `&#39;xi_eta&#39;`, `&#39;mag_rms&#39;`, and</span>
-<span class="sd">                `&#39;mag_nobs&#39;` each containing a plot of the associated</span>
+<span class="sd">                substitution will be one of: `'xi_eta'`, `'mag_rms'`, and</span>
+<span class="sd">                `'mag_nobs'` each containing a plot of the associated</span>
 <span class="sd">                quantities as x and y coordinates respectively.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">split_epd_statistics</span><span class="p">(</span><span class="n">phot_template_indices</span><span class="p">,</span> <span class="n">phot_index</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Split the EPD statistics into selected/allowed/rejected.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Split the EPD statistics into selected/allowed/rejected."""</span>
 
             <span class="n">selected</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="n">phot_template_indices</span><span class="p">]</span>
 
@@ -321,11 +321,11 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">create_xi_eta_plot</span><span class="p">(</span>
             <span class="n">selected</span><span class="p">,</span> <span class="n">allowed</span><span class="p">,</span> <span class="n">rejected</span><span class="p">,</span> <span class="n">phot_index</span><span class="p">,</span> <span class="o">**</span><span class="n">fname_substitutions</span>
         <span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create a plot of projected catalogue positions.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create a plot of projected catalogue positions."""</span>
 
-            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;plot_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;xi_eta&quot;</span>
+            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">"plot_id"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"xi_eta"</span>
             <span class="n">plot_fname</span> <span class="o">=</span> <span class="n">plot_fname_pattern</span> <span class="o">%</span> <span class="p">{</span>
-                <span class="s2">&quot;phot_index&quot;</span><span class="p">:</span> <span class="n">phot_index</span><span class="p">,</span>
+                <span class="s2">"phot_index"</span><span class="p">:</span> <span class="n">phot_index</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">fname_substitutions</span><span class="p">,</span>
             <span class="p">}</span>
 
@@ -335,27 +335,27 @@
 
             <span class="k">for</span> <span class="p">(</span><span class="n">grid_xi</span><span class="p">,</span> <span class="n">grid_eta</span><span class="p">),</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">selected</span><span class="p">):</span>
                 <span class="n">radius</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="p">(</span><span class="n">grid_xi</span> <span class="o">-</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
-                    <span class="o">+</span> <span class="p">(</span><span class="n">grid_eta</span> <span class="o">-</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="p">(</span><span class="n">grid_xi</span> <span class="o">-</span> <span class="n">source</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="n">grid_eta</span> <span class="o">-</span> <span class="n">source</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
                 <span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
                 <span class="n">axis</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span>
                     <span class="n">pyplot</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span>
                         <span class="p">(</span><span class="n">grid_xi</span><span class="p">,</span> <span class="n">grid_eta</span><span class="p">),</span>
                         <span class="n">radius</span><span class="p">,</span>
-                        <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span>
-                        <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                        <span class="n">facecolor</span><span class="o">=</span><span class="s2">"grey"</span><span class="p">,</span>
+                        <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">grid</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;ok&quot;</span><span class="p">)</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rejected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">],</span> <span class="n">rejected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">],</span> <span class="s2">&quot;rx&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">grid</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"ok"</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rejected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">],</span> <span class="n">rejected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">],</span> <span class="s2">"rx"</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
-            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">allowed</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">],</span> <span class="n">allowed</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">],</span> <span class="s2">&quot;b.&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">allowed</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">],</span> <span class="n">allowed</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">],</span> <span class="s2">"b."</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
             <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">],</span>
-                <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;g+&quot;</span><span class="p">,</span>
+                <span class="n">selected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">],</span>
+                <span class="n">selected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">],</span>
+                <span class="s2">"g+"</span><span class="p">,</span>
                 <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                 <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
             <span class="p">)</span>
@@ -365,19 +365,19 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">create_mag_rms_plot</span><span class="p">(</span>
             <span class="n">selected</span><span class="p">,</span> <span class="n">allowed</span><span class="p">,</span> <span class="n">rejected</span><span class="p">,</span> <span class="n">phot_index</span><span class="p">,</span> <span class="o">**</span><span class="n">fname_substitutions</span>
         <span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create a plot of RMS vs magnitude showing template selection.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create a plot of RMS vs magnitude showing template selection."""</span>
 
-            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;plot_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mag_rms&quot;</span>
+            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">"plot_id"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"mag_rms"</span>
             <span class="n">plot_fname</span> <span class="o">=</span> <span class="n">plot_fname_pattern</span> <span class="o">%</span> <span class="p">{</span>
-                <span class="s2">&quot;phot_index&quot;</span><span class="p">:</span> <span class="n">phot_index</span><span class="p">,</span>
+                <span class="s2">"phot_index"</span><span class="p">:</span> <span class="n">phot_index</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">fname_substitutions</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span>
-                <span class="n">rejected</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span> <span class="n">rejected</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">&quot;rx&quot;</span>
+                <span class="n">rejected</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span> <span class="n">rejected</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">"rx"</span>
             <span class="p">)</span>
-            <span class="n">pyplot</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">allowed</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span> <span class="n">allowed</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">&quot;b.&quot;</span><span class="p">)</span>
+            <span class="n">pyplot</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">allowed</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span> <span class="n">allowed</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">"b."</span><span class="p">)</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span>
-                <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span> <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">&quot;g+&quot;</span>
+                <span class="n">selected</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span> <span class="n">selected</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">"g+"</span>
             <span class="p">)</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">plot_fname</span><span class="p">)</span>
@@ -386,21 +386,21 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">create_mag_nobs_plot</span><span class="p">(</span>
             <span class="n">selected</span><span class="p">,</span> <span class="n">allowed</span><span class="p">,</span> <span class="n">rejected</span><span class="p">,</span> <span class="n">phot_index</span><span class="p">,</span> <span class="o">**</span><span class="n">fname_substitutions</span>
         <span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create a plot of number of observations vs magnitude.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create a plot of number of observations vs magnitude."""</span>
 
-            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;plot_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mag_nobs&quot;</span>
+            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">"plot_id"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"mag_nobs"</span>
             <span class="n">plot_fname</span> <span class="o">=</span> <span class="n">plot_fname_pattern</span> <span class="o">%</span> <span class="p">{</span>
-                <span class="s2">&quot;phot_index&quot;</span><span class="p">:</span> <span class="n">phot_index</span><span class="p">,</span>
+                <span class="s2">"phot_index"</span><span class="p">:</span> <span class="n">phot_index</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">fname_substitutions</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">rejected</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span> <span class="n">rejected</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">&quot;rx&quot;</span>
+                <span class="n">rejected</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span> <span class="n">rejected</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">"rx"</span>
             <span class="p">)</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">allowed</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span> <span class="n">allowed</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">&quot;b.&quot;</span>
+                <span class="n">allowed</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span> <span class="n">allowed</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">"b."</span>
             <span class="p">)</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span> <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">&quot;g+&quot;</span>
+                <span class="n">selected</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span> <span class="n">selected</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">],</span> <span class="s2">"g+"</span>
             <span class="p">)</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">plot_fname</span><span class="p">)</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
@@ -417,7 +417,7 @@
 <div class="viewcode-block" id="TFACorrection._select_template_stars">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._select_template_stars">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_select_template_stars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd_statistics</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Select the stars tha will be used as TFA templates.</span>
 
 <span class="sd">        The algorithm is as follows:</span>
@@ -453,19 +453,19 @@
 <span class="sd">                A list of sorted 1-D arrays of indices within epd_statistics</span>
 <span class="sd">                identifying stars selected to serve as templates for each</span>
 <span class="sd">                photometry method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">select_typical_rms_stars</span><span class="p">(</span><span class="n">valid_templates</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Select valid_template stars with &quot;typical&quot; rms for their mag.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Select valid_template stars with "typical" rms for their mag."""</span>
 
-            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">phot_index</span><span class="p">,</span> <span class="n">valid_phot_templates</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
                 <span class="n">valid_templates</span><span class="o">.</span><span class="n">T</span>
             <span class="p">):</span>
                 <span class="n">predictors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;mag_rms_dependence_order&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"mag_rms_dependence_order"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                         <span class="n">valid_phot_templates</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                     <span class="p">),</span>
                     <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
@@ -474,24 +474,24 @@
                 <span class="k">for</span> <span class="n">mag_order</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                     <span class="n">predictors</span><span class="p">[</span><span class="n">mag_order</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">predictors</span><span class="p">[</span><span class="n">mag_order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
-                        <span class="o">*</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">][</span><span class="n">valid_phot_templates</span><span class="p">]</span>
+                        <span class="o">*</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">][</span><span class="n">valid_phot_templates</span><span class="p">]</span>
                     <span class="p">)</span>
 
-                <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">])</span>
+                <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">])</span>
                 <span class="n">in_fit</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">valid_phot_templates</span><span class="p">,</span> <span class="n">finite</span><span class="p">)</span>
                 <span class="n">phot_predictors</span> <span class="o">=</span> <span class="n">predictors</span><span class="p">[:,</span> <span class="n">finite</span><span class="p">[</span><span class="n">valid_phot_templates</span><span class="p">]]</span>
                 <span class="n">fit_lg_rms</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
-                    <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="n">in_fit</span><span class="p">,</span> <span class="n">phot_index</span><span class="p">]</span>
+                    <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][</span><span class="n">in_fit</span><span class="p">,</span> <span class="n">phot_index</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Fitting for typical RMS: &quot;</span>
-                    <span class="s2">&quot;predictors shape </span><span class="si">%s</span><span class="s2">, &quot;</span>
-                    <span class="s2">&quot;fit data shape </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Fitting for typical RMS: "</span>
+                    <span class="s2">"predictors shape </span><span class="si">%s</span><span class="s2">, "</span>
+                    <span class="s2">"fit data shape </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
                     <span class="n">phot_predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
                     <span class="n">fit_lg_rms</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Predictors:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Fit data:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Predictors:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Fit data:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">phot_predictors</span><span class="p">),</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">fit_lg_rms</span><span class="p">),</span>
                 <span class="p">)</span>
@@ -499,13 +499,13 @@
                 <span class="n">coefficients</span><span class="p">,</span> <span class="n">max_excess_lg_rms</span> <span class="o">=</span> <span class="n">iterative_fit</span><span class="p">(</span>
                     <span class="n">phot_predictors</span><span class="p">,</span>
                     <span class="n">fit_lg_rms</span><span class="p">,</span>
-                    <span class="n">error_avg</span><span class="o">=</span><span class="s2">&quot;nanmedian&quot;</span><span class="p">,</span>
-                    <span class="n">rej_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;mag_rms_outlier_threshold&quot;</span><span class="p">],</span>
-                    <span class="n">max_rej_iter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;mag_rms_max_rej_iter&quot;</span><span class="p">],</span>
-                    <span class="n">fit_identifier</span><span class="o">=</span><span class="s2">&quot;EPD RMS vs mag&quot;</span><span class="p">,</span>
+                    <span class="n">error_avg</span><span class="o">=</span><span class="s2">"nanmedian"</span><span class="p">,</span>
+                    <span class="n">rej_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"mag_rms_outlier_threshold"</span><span class="p">],</span>
+                    <span class="n">max_rej_iter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"mag_rms_max_rej_iter"</span><span class="p">],</span>
+                    <span class="n">fit_identifier</span><span class="o">=</span><span class="s2">"EPD RMS vs mag"</span><span class="p">,</span>
                 <span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
                 <span class="n">max_excess_lg_rms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span>
-                    <span class="s2">&quot;mag_rms_outlier_threshold&quot;</span>
+                    <span class="s2">"mag_rms_outlier_threshold"</span>
                 <span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">max_excess_lg_rms</span><span class="p">)</span>
                 <span class="n">excess_lg_rms</span> <span class="o">=</span> <span class="n">fit_lg_rms</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
                     <span class="n">coefficients</span><span class="p">,</span> <span class="n">phot_predictors</span>
@@ -515,18 +515,18 @@
             <span class="k">return</span> <span class="n">result</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">select_template_stars</span><span class="p">(</span><span class="n">allowed_stars</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Select TFA template stars from the set of allowed ones.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Select TFA template stars from the set of allowed ones."""</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;RMS fit left </span><span class="si">%d</span><span class="s2"> allowed stars.&quot;</span><span class="p">,</span> <span class="n">allowed_stars</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="s2">"RMS fit left </span><span class="si">%d</span><span class="s2"> allowed stars."</span><span class="p">,</span> <span class="n">allowed_stars</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="p">)</span>
             <span class="c1"># False positive</span>
             <span class="c1"># pylint: disable=not-callable</span>
             <span class="n">tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">][</span><span class="n">allowed_stars</span><span class="p">],</span>
-                        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">][</span><span class="n">allowed_stars</span><span class="p">],</span>
+                        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">][</span><span class="n">allowed_stars</span><span class="p">],</span>
+                        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">][</span><span class="n">allowed_stars</span><span class="p">],</span>
                     <span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
             <span class="p">)</span>
@@ -536,29 +536,29 @@
                     <span class="mi">1</span>
                 <span class="p">]</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Template indices: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">template_indices</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Template indices: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">template_indices</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">allowed_stars</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">template_indices</span><span class="p">]</span>
 
         <span class="c1"># TODO: simplify the logic below (too many things appear redundant)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Selecting templates from: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">))</span>
-        <span class="n">num_stars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Selecting templates from: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">))</span>
+        <span class="n">num_stars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">])</span>
         <span class="n">saturated</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;saturation_magnitude&quot;</span><span class="p">]</span>
+            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"saturation_magnitude"</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">bright_enough</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;faint_mag_limit&quot;</span><span class="p">]</span>
+            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"faint_mag_limit"</span><span class="p">]</span>
         <span class="p">)</span>
 
         <span class="n">obs_quantile</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span>
-            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;min_observations_quantile&quot;</span><span class="p">],</span>
+            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"min_observations_quantile"</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">obs_fraction</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;min_observations_fraction&quot;</span><span class="p">]</span>
-            <span class="o">*</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"min_observations_fraction"</span><span class="p">]</span>
+            <span class="o">*</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="n">min_observations</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">obs_quantile</span><span class="p">,</span> <span class="n">obs_fraction</span><span class="p">)</span>
-        <span class="n">enough_observations</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_observations</span>
+        <span class="n">enough_observations</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_observations</span>
 
         <span class="n">bright_and_long_lc</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
             <span class="n">bright_enough</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">enough_observations</span>
@@ -572,13 +572,13 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;allow_saturated_templates&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"allow_saturated_templates"</span><span class="p">]:</span>
             <span class="n">acceptable_rms</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">saturated</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">typical_rms</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">acceptable_rms</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">saturated</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">typical_rms</span>
             <span class="p">)</span>
-        <span class="n">low_rms</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;max_rms&quot;</span><span class="p">]</span>
+        <span class="n">low_rms</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"max_rms"</span><span class="p">]</span>
         <span class="n">acceptable_rms</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">low_rms</span><span class="p">,</span> <span class="n">acceptable_rms</span><span class="p">)</span>
 
         <span class="n">allowed_stars</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">bright_and_long_lc</span><span class="p">,</span> <span class="n">acceptable_rms</span><span class="p">)</span>
@@ -590,23 +590,23 @@
         <span class="c1"># Stages 1-4 of the selection funnel (per-star cuts, shared by all</span>
         <span class="c1"># channels) -- see the per-channel stages logged in the loop below.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Template selection funnel: </span><span class="si">%d</span><span class="s2"> stars total; </span><span class="si">%d</span><span class="s2"> unsaturated &quot;</span>
-            <span class="s2">&quot;(mag &gt;= </span><span class="si">%s</span><span class="s2">); </span><span class="si">%d</span><span class="s2"> bright enough (mag &lt; </span><span class="si">%s</span><span class="s2">); min_observations = </span><span class="si">%s</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot;(min of quantile[</span><span class="si">%s</span><span class="s2">] = </span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2"> * max = </span><span class="si">%s</span><span class="s2">).&quot;</span><span class="p">,</span>
+            <span class="s2">"Template selection funnel: </span><span class="si">%d</span><span class="s2"> stars total; </span><span class="si">%d</span><span class="s2"> unsaturated "</span>
+            <span class="s2">"(mag &gt;= </span><span class="si">%s</span><span class="s2">); </span><span class="si">%d</span><span class="s2"> bright enough (mag &lt; </span><span class="si">%s</span><span class="s2">); min_observations = </span><span class="si">%s</span><span class="s2"> "</span>
+            <span class="s2">"(min of quantile[</span><span class="si">%s</span><span class="s2">] = </span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2"> * max = </span><span class="si">%s</span><span class="s2">)."</span><span class="p">,</span>
             <span class="n">num_stars</span><span class="p">,</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">saturated</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;saturation_magnitude&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"saturation_magnitude"</span><span class="p">],</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">bright_enough</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;faint_mag_limit&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"faint_mag_limit"</span><span class="p">],</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">min_observations</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;min_observations_quantile&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"min_observations_quantile"</span><span class="p">],</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">obs_quantile</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;min_observations_fraction&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"min_observations_fraction"</span><span class="p">],</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">obs_fraction</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="n">num_photometries</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
-        <span class="n">grid_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;sqrt_num_templates&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">num_photometries</span> <span class="o">=</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">grid_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"sqrt_num_templates"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">photometry_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">):</span>
@@ -617,67 +617,67 @@
 
             <span class="c1"># Stages 5-7 (remaining per-channel cuts) at debug.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Channel </span><span class="si">%d</span><span class="s2"> funnel: </span><span class="si">%d</span><span class="s2"> with enough observations; </span><span class="si">%d</span><span class="s2"> bright &amp; &quot;</span>
-                <span class="s2">&quot;long-LC; </span><span class="si">%d</span><span class="s2"> typical RMS for mag; </span><span class="si">%d</span><span class="s2"> also RMS &lt; </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="s2">"Channel </span><span class="si">%d</span><span class="s2"> funnel: </span><span class="si">%d</span><span class="s2"> with enough observations; </span><span class="si">%d</span><span class="s2"> bright &amp; "</span>
+                <span class="s2">"long-LC; </span><span class="si">%d</span><span class="s2"> typical RMS for mag; </span><span class="si">%d</span><span class="s2"> also RMS &lt; </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
                 <span class="n">photometry_index</span><span class="p">,</span>
                 <span class="nb">int</span><span class="p">(</span><span class="n">enough_observations</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
                 <span class="nb">int</span><span class="p">(</span><span class="n">bright_and_long_lc</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
                 <span class="nb">int</span><span class="p">(</span><span class="n">typical_rms</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
                 <span class="nb">int</span><span class="p">(</span><span class="n">acceptable_rms</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;max_rms&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"max_rms"</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="c1"># Stages 8-9 (candidates + grid collapse) at info.</span>
             <span class="n">candidates</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">allowed_stars</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Channel </span><span class="si">%d</span><span class="s2">: </span><span class="si">%d</span><span class="s2"> candidate template stars</span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%d</span><span class="s2"> selected &quot;</span>
-                <span class="s2">&quot;(grid of </span><span class="si">%d</span><span class="s2"> points).&quot;</span><span class="p">,</span>
+                <span class="s2">"Channel </span><span class="si">%d</span><span class="s2">: </span><span class="si">%d</span><span class="s2"> candidate template stars</span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%d</span><span class="s2"> selected "</span>
+                <span class="s2">"(grid of </span><span class="si">%d</span><span class="s2"> points)."</span><span class="p">,</span>
                 <span class="n">photometry_index</span><span class="p">,</span>
                 <span class="n">candidates</span><span class="p">,</span>
                 <span class="p">(</span>
-                    <span class="s2">&quot; [fallback: no star passed every cut, using the &quot;</span>
-                    <span class="s2">&quot;bright &amp; long-LC set]&quot;</span>
+                    <span class="s2">" [fallback: no star passed every cut, using the "</span>
+                    <span class="s2">"bright &amp; long-LC set]"</span>
                     <span class="k">if</span> <span class="n">used_fallback</span><span class="p">[</span><span class="n">photometry_index</span><span class="p">]</span>
-                    <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                    <span class="k">else</span> <span class="s2">""</span>
                 <span class="p">),</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">),</span>
                 <span class="n">grid_size</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">grid_size</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;TFA selected only </span><span class="si">%d</span><span class="s2"> of the expected </span><span class="si">%d</span><span class="s2"> templates for &quot;</span>
-                    <span class="s2">&quot;channel </span><span class="si">%d</span><span class="s2">. Funnel: </span><span class="si">%d</span><span class="s2"> stars total -&gt; </span><span class="si">%d</span><span class="s2"> unsaturated -&gt; &quot;</span>
-                    <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> bright (mag &lt; </span><span class="si">%s</span><span class="s2">) -&gt; </span><span class="si">%d</span><span class="s2"> with &gt;= </span><span class="si">%s</span><span class="s2"> observations -&gt; &quot;</span>
-                    <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> typical RMS for mag -&gt; </span><span class="si">%d</span><span class="s2"> also RMS &lt; </span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%d</span><span class="s2"> allowed&quot;</span>
-                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%d</span><span class="s2"> after collapsing </span><span class="si">%d</span><span class="s2"> grid points to distinct &quot;</span>
-                    <span class="s2">&quot;nearest stars.&quot;</span><span class="p">,</span>
+                    <span class="s2">"TFA selected only </span><span class="si">%d</span><span class="s2"> of the expected </span><span class="si">%d</span><span class="s2"> templates for "</span>
+                    <span class="s2">"channel </span><span class="si">%d</span><span class="s2">. Funnel: </span><span class="si">%d</span><span class="s2"> stars total -&gt; </span><span class="si">%d</span><span class="s2"> unsaturated -&gt; "</span>
+                    <span class="s2">"</span><span class="si">%d</span><span class="s2"> bright (mag &lt; </span><span class="si">%s</span><span class="s2">) -&gt; </span><span class="si">%d</span><span class="s2"> with &gt;= </span><span class="si">%s</span><span class="s2"> observations -&gt; "</span>
+                    <span class="s2">"</span><span class="si">%d</span><span class="s2"> typical RMS for mag -&gt; </span><span class="si">%d</span><span class="s2"> also RMS &lt; </span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%d</span><span class="s2"> allowed"</span>
+                    <span class="s2">"</span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%d</span><span class="s2"> after collapsing </span><span class="si">%d</span><span class="s2"> grid points to distinct "</span>
+                    <span class="s2">"nearest stars."</span><span class="p">,</span>
                     <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">),</span>
                     <span class="n">grid_size</span><span class="p">,</span>
                     <span class="n">photometry_index</span><span class="p">,</span>
                     <span class="n">num_stars</span><span class="p">,</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">saturated</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">bright_enough</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;faint_mag_limit&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"faint_mag_limit"</span><span class="p">],</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">enough_observations</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">min_observations</span><span class="p">),</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">typical_rms</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">acceptable_rms</span><span class="p">[:,</span> <span class="n">photometry_index</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;max_rms&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"max_rms"</span><span class="p">],</span>
                     <span class="n">candidates</span><span class="p">,</span>
                     <span class="p">(</span>
-                        <span class="s2">&quot; (fallback to bright &amp; long-LC)&quot;</span>
+                        <span class="s2">" (fallback to bright &amp; long-LC)"</span>
                         <span class="k">if</span> <span class="n">used_fallback</span><span class="p">[</span><span class="n">photometry_index</span><span class="p">]</span>
-                        <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                        <span class="k">else</span> <span class="s2">""</span>
                     <span class="p">),</span>
                     <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">),</span>
                     <span class="n">grid_size</span><span class="p">,</span>
                 <span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">,</span> <span class="s2">&quot;selected_plots&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">,</span> <span class="s2">"selected_plots"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plot_template_selection</span><span class="p">(</span>
                 <span class="n">epd_statistics</span><span class="p">,</span>
                 <span class="n">result</span><span class="p">,</span>
                 <span class="n">allowed_stars</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;selected_plots&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"selected_plots"</span><span class="p">],</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
@@ -686,13 +686,13 @@
 <div class="viewcode-block" id="TFACorrection._get_observation_ids">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._get_observation_ids">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_observation_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the observation IDs from the given light curve.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the observation IDs from the given light curve."""</span>
 
         <span class="k">return</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">read_data_array</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="p">(</span><span class="n">dset_key</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;observation_id&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"observation_id"</span><span class="p">]</span>
                 <span class="p">)</span>
             <span class="p">}</span>
         <span class="p">)</span></div>
@@ -701,7 +701,7 @@
 <div class="viewcode-block" id="TFACorrection.read_template_data">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection.read_template_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_template_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">phot_dset_key</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the data for a single photometry method in a template LC.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Read the data for a single photometry method in a template LC."""</span>
 
         <span class="n">phot_data</span> <span class="o">=</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">phot_dset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
         <span class="n">phot_observation_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observation_ids</span><span class="p">(</span>
@@ -711,12 +711,12 @@
 
         <span class="n">selected_points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">phot_data</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;fit_points_filter_expression&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"fit_points_filter_expression"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">selected_points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
                 <span class="n">selected_points</span><span class="p">,</span>
                 <span class="n">light_curve</span><span class="o">.</span><span class="n">evaluate_expression</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;variables&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;fit_points_filter_expression&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"variables"</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"fit_points_filter_expression"</span><span class="p">],</span>
                 <span class="p">),</span>
             <span class="p">)</span>
 
@@ -731,15 +731,15 @@
 <div class="viewcode-block" id="TFACorrection.get_lc_fname">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection.get_lc_fname">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_lc_fname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_id</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the file name of the lightcurve for the given source ID.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the file name of the lightcurve for the given source ID."""</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;lc_fname&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="o">*</span><span class="n">source_id</span><span class="p">,</span> <span class="n">PROJHOME</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s1">&#39;project_home&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"lc_fname"</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="o">*</span><span class="n">source_id</span><span class="p">,</span> <span class="n">PROJHOME</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s1">'project_home'</span><span class="p">]</span>
                 <span class="p">)</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;lc_fname&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">source_id</span><span class="p">,</span> <span class="n">PROJHOME</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s1">&#39;project_home&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"lc_fname"</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">source_id</span><span class="p">,</span> <span class="n">PROJHOME</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s1">'project_home'</span><span class="p">]</span>
                 <span class="p">)</span></div>
 
 
@@ -748,7 +748,7 @@
 <div class="viewcode-block" id="TFACorrection._prepare_template_data">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._prepare_template_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_template_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd_statistics</span><span class="p">,</span> <span class="n">max_padding_factor</span><span class="o">=</span><span class="mf">1.1</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Organize the template star data into predictors and observation IDs.</span>
 
 <span class="sd">        Args:</span>
@@ -777,10 +777,10 @@
 <span class="sd">            [numpy.array]:</span>
 <span class="sd">                The sorted observation IDs for which at least one template has a</span>
 <span class="sd">                measurement for each photometry method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">initialize_result</span><span class="p">(</span><span class="n">phot_data</span><span class="p">,</span> <span class="n">phot_observation_ids</span><span class="p">,</span> <span class="n">num_templates</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create the result arrays for the first time.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create the result arrays for the first time."""</span>
 
             <span class="n">template_measurements</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
                 <span class="n">shape</span><span class="o">=</span><span class="p">(</span>
@@ -808,7 +808,7 @@
             <span class="n">template_measurements</span><span class="p">,</span>
             <span class="n">template_observation_ids</span><span class="p">,</span>
         <span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add a single template/photometry combination to result arrays.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Add a single template/photometry combination to result arrays."""</span>
 
             <span class="n">phot_destination_ind</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
                 <span class="n">template_observation_ids</span><span class="p">,</span> <span class="n">phot_observation_ids</span>
@@ -842,8 +842,8 @@
 
             <span class="k">assert</span> <span class="n">template_observation_ids</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">combined_observation_ids</span><span class="o">.</span><span class="n">size</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;Resizing template data from shape &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">template_measurements</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> to shape &quot;</span>
+                <span class="s2">"Resizing template data from shape "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_measurements</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> to shape "</span>
                 <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
                     <span class="p">(</span><span class="n">combined_observation_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,)</span>
                     <span class="o">+</span> <span class="n">template_measurements</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -858,17 +858,17 @@
             <span class="p">)</span>
 
             <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;Template observation IDs size: &quot;</span>
+                <span class="s2">"Template observation IDs size: "</span>
                 <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">template_observation_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;Min and max old indices: &quot;</span>
+                <span class="s2">"Min and max old indices: "</span>
                 <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span>
                     <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
                         <span class="n">combined_observation_ids</span><span class="p">,</span> <span class="n">template_observation_ids</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
                 <span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;, &quot;</span>
+                <span class="o">+</span> <span class="s2">", "</span>
                 <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span>
                     <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
                         <span class="n">combined_observation_ids</span><span class="p">,</span> <span class="n">template_observation_ids</span>
@@ -876,7 +876,7 @@
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;Destinations: &quot;</span>
+                <span class="s2">"Destinations: "</span>
                 <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span>
                     <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
                         <span class="n">combined_observation_ids</span><span class="p">,</span> <span class="n">template_observation_ids</span>
@@ -884,7 +884,7 @@
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;Values to set: &quot;</span>
+                <span class="s2">"Values to set: "</span>
                 <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span>
                     <span class="n">template_measurements</span><span class="p">[:</span> <span class="n">template_observation_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="p">)</span>
@@ -905,7 +905,7 @@
             <span class="k">return</span> <span class="n">new_template_measurements</span><span class="p">,</span> <span class="n">combined_observation_ids</span>
 
         <span class="n">template_stars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">][</span><span class="n">phot_source_indices</span><span class="p">]</span>
+            <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"ID"</span><span class="p">][</span><span class="n">phot_source_indices</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">phot_source_indices</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_template_stars</span><span class="p">(</span>
                 <span class="n">epd_statistics</span>
             <span class="p">)</span>
@@ -915,13 +915,13 @@
         <span class="n">template_observation_ids</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">phot_template_stars</span><span class="p">,</span> <span class="n">fit_dataset</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="n">template_stars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">]</span>
+            <span class="n">template_stars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">]</span>
         <span class="p">):</span>
             <span class="n">phot_template_measurements</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">num_templates</span> <span class="o">=</span> <span class="n">phot_template_stars</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">source_index</span><span class="p">,</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">phot_template_stars</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_lc_fname</span><span class="p">(</span><span class="n">source_id</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_lc_fname</span><span class="p">(</span><span class="n">source_id</span><span class="p">),</span> <span class="s2">"r"</span>
                 <span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
                     <span class="n">phot_data</span><span class="p">,</span> <span class="n">phot_observation_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_template_data</span><span class="p">(</span>
                         <span class="n">light_curve</span><span class="p">,</span> <span class="o">*</span><span class="n">fit_dataset</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
@@ -962,7 +962,7 @@
 <div class="viewcode-block" id="TFACorrection._verify_template_data">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._verify_template_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_verify_template_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assert that template data is correctly organized.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Assert that template data is correctly organized."""</span>
 
         <span class="k">for</span> <span class="p">(</span>
             <span class="n">phot_source_ids</span><span class="p">,</span>
@@ -973,21 +973,21 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_template_source_ids</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template_measurements</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_template_observation_ids</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">],</span>
         <span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selected sources: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot_source_ids</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Selected sources: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot_source_ids</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">template_data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
                 <span class="n">phot_source_ids</span><span class="p">,</span> <span class="n">phot_template_data</span><span class="o">.</span><span class="n">T</span>
             <span class="p">):</span>
                 <span class="n">template_selection</span> <span class="o">=</span> <span class="n">template_data</span> <span class="o">!=</span> <span class="mf">0.0</span>
                 <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_lc_fname</span><span class="p">(</span><span class="n">source_id</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_lc_fname</span><span class="p">(</span><span class="n">source_id</span><span class="p">),</span> <span class="s2">"r"</span>
                 <span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking against LC: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">light_curve</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Checking against LC: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">light_curve</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
                     <span class="n">lc_data</span><span class="p">,</span> <span class="n">lc_observation_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_template_data</span><span class="p">(</span>
                         <span class="n">light_curve</span><span class="p">,</span> <span class="o">*</span><span class="n">fit_dataset</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Observation IDs: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_observation_ids</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Observation IDs: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_observation_ids</span><span class="p">))</span>
                     <span class="n">lc_selection</span> <span class="o">=</span> <span class="n">lc_data</span> <span class="o">!=</span> <span class="mf">0.0</span>
 
                     <span class="n">matched_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
@@ -998,20 +998,20 @@
 
                     <span class="c1">#                    max_length = max(len(template_data[template_selection]),</span>
                     <span class="c1">#                                     len(lc_data[lc_selection]))</span>
-                    <span class="c1">#                    print(&#39;{:5s}: {:32s} {:32s}&#39;.format(&#39;Index&#39;,</span>
-                    <span class="c1">#                                                        &#39;Template&#39;,</span>
-                    <span class="c1">#                                                        &#39;LC&#39;))</span>
+                    <span class="c1">#                    print('{:5s}: {:32s} {:32s}'.format('Index',</span>
+                    <span class="c1">#                                                        'Template',</span>
+                    <span class="c1">#                                                        'LC'))</span>
                     <span class="c1">#                    for i in range(max_length):</span>
                     <span class="c1">#                        print(</span>
                     <span class="c1">#                            (</span>
-                    <span class="c1">#                                &#39;{:1.1s} {:5d}: ({:5d}){:25.16e} &#39;</span>
-                    <span class="c1">#                                &#39;({:5d}){:25.16e}&#39;</span>
+                    <span class="c1">#                                '{:1.1s} {:5d}: ({:5d}){:25.16e} '</span>
+                    <span class="c1">#                                '({:5d}){:25.16e}'</span>
                     <span class="c1">#                            ).format(</span>
-                    <span class="c1">#                                &#39; &#39; if (</span>
+                    <span class="c1">#                                ' ' if (</span>
                     <span class="c1">#                                    template_data[template_selection][i]</span>
                     <span class="c1">#                                    ==</span>
                     <span class="c1">#                                    lc_data[lc_selection][i]</span>
-                    <span class="c1">#                                ) else &#39;*&#39;,</span>
+                    <span class="c1">#                                ) else '*',</span>
                     <span class="c1">#                                i,</span>
                     <span class="c1">#                                numpy.arange(</span>
                     <span class="c1">#                                    len(template_selection)</span>
@@ -1024,12 +1024,12 @@
                     <span class="c1">#                            )</span>
                     <span class="c1">#                        )</span>
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="s2">&quot;Template data: &quot;</span>
+                        <span class="s2">"Template data: "</span>
                         <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span>
                             <span class="n">template_data</span><span class="p">[</span><span class="n">template_selection</span><span class="p">][</span><span class="n">matched_indices</span><span class="p">]</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LC data: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_data</span><span class="p">[</span><span class="n">lc_selection</span><span class="p">]))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"LC data: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_data</span><span class="p">[</span><span class="n">lc_selection</span><span class="p">]))</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="n">template_data</span><span class="p">[</span><span class="n">template_selection</span><span class="p">][</span><span class="n">matched_indices</span><span class="p">]</span>
                         <span class="o">==</span> <span class="n">lc_data</span><span class="p">[</span><span class="n">lc_selection</span><span class="p">]</span>
@@ -1051,7 +1051,7 @@
         <span class="n">verify_template_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get ready to apply TFA corrections.</span>
 
 <span class="sd">        Args:</span>
@@ -1132,9 +1132,9 @@
 <span class="sd">                    curves. For example, the following works for HAT::</span>
 
 <span class="sd">                        (</span>
-<span class="sd">                            &#39;fitseader.cfg.stid&#39;,</span>
-<span class="sd">                            &#39;fitsheader.cfg.cmpos&#39;,</span>
-<span class="sd">                            &#39;fitsheader.fnum&#39;</span>
+<span class="sd">                            'fitseader.cfg.stid',</span>
+<span class="sd">                            'fitsheader.cfg.cmpos',</span>
+<span class="sd">                            'fitsheader.fnum'</span>
 <span class="sd">                        )</span>
 
 <span class="sd">                lc_fname</span>
@@ -1166,31 +1166,31 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">],</span> <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span> <span class="o">=</span> <span class="n">configuration</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_io_configurations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_io_configurations</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;EPD statistics (dtype: </span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"EPD statistics (dtype: </span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">epd_statistics</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">epd_statistics</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Fit datasets (</span><span class="si">%d</span><span class="s2">):</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span> <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">]),</span>
+            <span class="s2">"Fit datasets (</span><span class="si">%d</span><span class="s2">):</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">]),</span>
+            <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span> <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">]),</span>
         <span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
-            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">]</span>
         <span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
-            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">]</span>
         <span class="p">)</span>
 
         <span class="p">(</span>
@@ -1206,7 +1206,7 @@
         <span class="c1"># pylint: disable=unexpected-keyword-arg</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_template_qrp</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span>
-                <span class="n">template_measurements</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span>
+                <span class="n">template_measurements</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"economic"</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">template_measurements</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_measurements</span>
         <span class="p">]</span></div>
@@ -1222,12 +1222,12 @@
         <span class="n">extra_predictors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Apply TFA to the given LC, optionally protecting an expected signal.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">correct_one_dataset</span><span class="p">(</span><span class="n">light_curve</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">,</span> <span class="n">fit_index</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Calculate and apply TFA correction to a single dataset.</span>
 
 <span class="sd">            Args:</span>
@@ -1245,7 +1245,7 @@
 
 <span class="sd">            Returns:</span>
 <span class="sd">                None</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
             <span class="n">lc_observation_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observation_ids</span><span class="p">(</span>
                 <span class="n">light_curve</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -1267,10 +1267,10 @@
                     <span class="p">]</span>
                 <span class="p">),</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;fit_points_filter_expression&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"fit_points_filter_expression"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">filter_match</span> <span class="o">=</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">evaluate_expression</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;variables&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">&quot;fit_points_filter_expression&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"variables"</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_configuration</span><span class="p">[</span><span class="s2">"fit_points_filter_expression"</span><span class="p">],</span>
                 <span class="p">)</span>
                 <span class="n">num_filter_matching_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filter_match</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
                 <span class="n">fit_points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">fit_points</span><span class="p">,</span> <span class="n">filter_match</span><span class="p">)</span>
@@ -1278,8 +1278,8 @@
                 <span class="n">num_filter_matching_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lc_observation_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;TFA fit for </span><span class="si">%r</span><span class="s2"> fit_index=</span><span class="si">%d</span><span class="s2">: filter matched </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2"> points; &quot;</span>
-                <span class="s2">&quot;fitting </span><span class="si">%d</span><span class="s2"> points with observation IDs </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"TFA fit for </span><span class="si">%r</span><span class="s2"> fit_index=</span><span class="si">%d</span><span class="s2">: filter matched </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2"> points; "</span>
+                <span class="s2">"fitting </span><span class="si">%d</span><span class="s2"> points with observation IDs </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">light_curve</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
                 <span class="n">fit_index</span><span class="p">,</span>
                 <span class="n">num_filter_matching_points</span><span class="p">,</span>
@@ -1305,12 +1305,12 @@
             <span class="n">matched_fit_data</span> <span class="o">-=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">matched_fit_data</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Checking if LC with identifiers </span><span class="si">%s</span><span class="s2"> is among the &quot;</span>
-                <span class="s2">&quot;templates:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="nb">repr</span><span class="p">(</span><span class="n">light_curve</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">][:]),</span>
+                <span class="s2">"Checking if LC with identifiers </span><span class="si">%s</span><span class="s2"> is among the "</span>
+                <span class="s2">"templates:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">light_curve</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">][:]),</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_template_source_ids</span><span class="p">[</span><span class="n">fit_index</span><span class="p">]),</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="n">light_curve</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="n">light_curve</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">exclude_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template_source_ids</span><span class="p">[</span>
                         <span class="n">fit_index</span>
@@ -1321,7 +1321,7 @@
                     <span class="k">continue</span>
                 <span class="k">if</span> <span class="n">exclude_template</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                     <span class="k">break</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Exclude template: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exclude_template</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Exclude template: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exclude_template</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">exclude_template</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                 <span class="n">exclude_template_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
                     <span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">exclude_template</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -1330,8 +1330,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_template_qrp</span><span class="p">[</span><span class="n">fit_index</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">exclude_template_index</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Excluding template with index </span><span class="si">%d</span><span class="s2"> (permuted index </span><span class="si">%s</span><span class="s2">) from &quot;</span>
-                    <span class="s2">&quot;QRP: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Excluding template with index </span><span class="si">%d</span><span class="s2"> (permuted index </span><span class="si">%s</span><span class="s2">) from "</span>
+                    <span class="s2">"QRP: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">exclude_template_index</span><span class="p">,</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">permutted_index</span><span class="p">),</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_template_qrp</span><span class="p">[</span><span class="n">fit_index</span><span class="p">]),</span>
@@ -1342,9 +1342,9 @@
                     <span class="c1"># [0] first: NumPy 2.4 errors on int() of a 1-element</span>
                     <span class="c1"># (non-0-d) array, which numpy.where(...)[0] returns.</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">permutted_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">,</span>
+                    <span class="n">which</span><span class="o">=</span><span class="s2">"col"</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Downdated QRP: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">downdated_qrp</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Downdated QRP: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">downdated_qrp</span><span class="p">))</span>
                 <span class="n">apply_qrp</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">downdated_qrp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">downdated_qrp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
@@ -1363,7 +1363,7 @@
                 <span class="n">fit_templates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_measurements</span><span class="p">[</span><span class="n">fit_index</span><span class="p">]</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Fitting using QRP: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Fitting using QRP: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">apply_qrp</span><span class="p">),</span>
             <span class="p">)</span>
 
@@ -1386,12 +1386,12 @@
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
                 <span class="n">config_key_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_key_prefix</span><span class="p">(</span><span class="n">fit_target</span><span class="p">)</span>
-                <span class="n">property_key_prefix</span> <span class="o">=</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">property_key_prefix</span> <span class="o">=</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">extended_configuration</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_io_configurations</span><span class="p">[</span><span class="n">fit_index</span><span class="p">]</span>
                 <span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
                     <span class="p">(</span>
-                        <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;template_source_ids&quot;</span><span class="p">,</span>
+                        <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">"template_source_ids"</span><span class="p">,</span>
                         <span class="n">HashableArray</span><span class="p">(</span>
                             <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_template_source_ids</span><span class="p">[</span><span class="n">fit_index</span><span class="p">],</span>
@@ -1400,7 +1400,7 @@
                         <span class="p">),</span>
                     <span class="p">),</span>
                     <span class="p">(</span>
-                        <span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.num_filter_matching_points&quot;</span><span class="p">,</span>
+                        <span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">".num_filter_matching_points"</span><span class="p">,</span>
                         <span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">(</span><span class="n">num_filter_matching_points</span><span class="p">),</span>
                     <span class="p">),</span>
                 <span class="p">]</span>
@@ -1414,15 +1414,15 @@
 
         <span class="k">if</span> <span class="n">extra_predictors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;Adding extra templates is not implemented yet.&quot;</span>
+                <span class="s2">"Adding extra templates is not implemented yet."</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Applying TFA to light curve </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%d</span><span class="s2"> datasets.&quot;</span><span class="p">,</span>
+            <span class="s2">"Applying TFA to light curve </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%d</span><span class="s2"> datasets."</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">),</span>
             <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_datasets</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">"r+"</span><span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
                 <span class="mi">1</span><span class="p">,</span>
                 <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_result_dtype</span><span class="p">(</span>
@@ -1432,7 +1432,7 @@
 
             <span class="k">for</span> <span class="n">fit_index</span><span class="p">,</span> <span class="n">fit_target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_datasets</span><span class="p">):</span>
                 <span class="n">correct_one_dataset</span><span class="p">(</span><span class="n">light_curve</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">,</span> <span class="n">fit_index</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mark_progress</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">light_curve</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mark_progress</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">light_curve</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
 </div>

@@ -1,0 +1,7 @@
+autowisp.tests.test\_diagnostics\_rules module
+==============================================
+
+.. automodule:: autowisp.tests.test_diagnostics_rules
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,21 +1,38 @@
 """Tests for binding a channel to each column of the series table.
 
-Its own module because these need a project holding *two* channels, and a
-session per kind of camera: a colour one with a choice to offer and a
+Its own module because these need a project recording *two* channels, and
+a session per kind of camera: a colour one with a choice to offer and a
 monochrome one without.  The fixture in ``test_diagnostics_views`` records
 a single channel, and giving it a second would change what every
 series-table test there sees.
+
+Django is configured here, unlike in the other series-table tests, because
+what a rebinding answers includes the row's channel cells as rendered
+HTML, and rendering them needs the template engine.
 """
 
+import os
 import tempfile
 import unittest
 from datetime import datetime
 
+import django
 import matplotlib
 
 # The backend has to be selected before anything imports pyplot, which the
 # view module under test does at import time.
 matplotlib.use("Agg")
+
+# Against the throwaway user data directory that ``autowisp.tests``
+# installs, as ``test_bui_models`` does it, so that the developer's real
+# browser-interface database is never touched. Nothing here reads that
+# database -- rendering a template does not -- but configuring Django at
+# all would otherwise point at it.
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "autowisp.browser_interface.django_project.settings",
+)
+django.setup()
 
 # pylint: disable=wrong-import-position
 from sqlalchemy import select
@@ -43,11 +60,9 @@ from autowisp.browser_interface.diagnostics.image_diagnostics_views import (
 )
 from autowisp.browser_interface.diagnostics.series_table import (
     get_available_series,
-    get_axes_slot_needs,
-    get_slot_options,
-    make_row_id,
-    plan_spare_row,
-    split_row_id,
+    get_table_response,
+    make_id,
+    split_pair_id,
 )
 
 # pylint: enable=wrong-import-position
@@ -60,14 +75,14 @@ _first_jd = 2460000.5
 _night_separation = 1.0
 
 
-class TestTwoChannelRow(unittest.TestCase):
-    """A row binding a channel per axis, which is what the columns are for.
+class TwoChannelProject(unittest.TestCase):
+    """The fixture the classes below share, holding no tests of its own.
 
-    Its own fixture rather than the shared one, which records a single
+    Its own project rather than the shared one, which records a single
     channel: giving that one a second would change what every other
     series-table test sees.  Two sessions, one per kind of camera -- a
-    colour one with a choice to offer and a monochrome one without -- since
-    the table treats them differently and a project may hold both.
+    colour one with a choice to offer and a monochrome one without --
+    since the table treats them differently and a project may hold both.
     """
 
     #: ``bg_center`` per channel, distinct so that reading the wrong one
@@ -230,117 +245,348 @@ class TestTwoChannelRow(unittest.TestCase):
                         )
         # pylint: enable=not-callable
 
-    def rows_for(self, x_diagnostic, y_diagnostic):
-        """Return ``{session_id: row}`` for an axis pair, one type here."""
+    def table_for(self, x_quantity, y_quantity):
+        """Return what one section's table offers for an axis pair."""
 
         with start_db_session() as db_session:
-            context = get_available_series(
-                x_diagnostic, y_diagnostic, {}, db_session
+            return get_available_series(
+                x_quantity, y_quantity, {}, db_session, marker="o"
             )
 
+    def first_row(self, x_quantity, y_quantity):
+        """Return the row the table starts with, on the colour session.
+
+        Both sessions begin at the same moment in this fixture, so the
+        pairs are ordered by their text and ``colour_night`` comes first.
+        """
+
+        return self.table_for(x_quantity, y_quantity)["diagnostics_list"][0]
+
+    def moved_to(self, row, session_id, *channels):
+        """Return *row* as the client posts it after moving it to a session."""
+
         return {
-            split_row_id(row["id"])[0]: row
-            for row in context["diagnostics_list"]
+            **row,
+            "pair": make_id(session_id, "object"),
+            "channels": list(channels),
         }
+
+
+class TestChannelColumns(TwoChannelProject):
+    """What each column of a row offers, given what the project records."""
 
     def test_a_colour_session_offers_a_choice(self):
         """Both channels, with the images each would draw."""
 
-        row = self.rows_for("jd", "bg_center")[self.session_id]
+        row = self.first_row("jd", "bg_center")
 
+        self.assertEqual(split_pair_id(row["pair"])[0], self.session_id)
         self.assertEqual(len(row["slots"]), 1)
         self.assertFalse(row["slots"][0]["fixed"])
         self.assertEqual(
-            row["slots"][0]["options"],
             [
-                (channel, len(values))
+                (option["value"], option["text"])
+                for option in row["slots"][0]["options"]
+                if option["value"]
+            ],
+            [
+                (channel, f"{channel} ({len(values)})")
                 for channel, values in sorted(self.values_of.items())
             ],
         )
         self.assertEqual(row["count"], "-")
 
-    def test_a_monochrome_session_arrives_bound(self):
-        """One channel to the camera's name is no choice at all.
-
-        Demanding a click with one possible outcome before anything can be
-        drawn is ceremony, so the row is bound and counted at render --
-        which is exactly the table this page had before a series could bind
-        more than one channel.
-        """
-
-        row = self.rows_for("jd", "bg_center")[self.mono_session_id]
-
-        self.assertTrue(row["slots"][0]["fixed"])
-        self.assertEqual(row["slots"][0]["value"], "R")
-        self.assertEqual(row["channels"], ["R"])
-        self.assertEqual(row["count"], len(self.mono_values))
-
     def test_a_column_per_axis_that_binds_one(self):
         """Two axes over a diagnostic ask for two channels, not one."""
 
-        row = self.rows_for("bg_center", "bg_center")[self.session_id]
+        self.assertEqual(
+            len(self.first_row("bg_center", "bg_center")["slots"]), 2
+        )
 
-        self.assertEqual(len(row["slots"]), 2)
 
-    def row(self, ordinal):
-        """Return the id of one row of the colour session's group."""
+class TestRebinding(TwoChannelProject):
+    """What the server answers when a row's binding changes.
 
-        return make_row_id(self.session_id, "object", None, ordinal)
+    Its own class rather than more of the one above: what a column offers
+    is a question about the project, where this is a question about one
+    edit and what the figure is drawn from afterwards. They share only the
+    fixture.
+    """
 
-    def plan_spare(self, bound_id, datasets):
-        """Return the spare row planned when *bound_id* is completed."""
+    def rebinding(self, row, *channels, session_id=None, automatic=True):
+        """Return ``(rows to draw, fields)`` for *row* moved and rebound.
+
+        The monochrome session unless told otherwise, that being the move
+        which changes what the columns may offer. *automatic* says what
+        the client reports about the row's colour and label, which is what
+        decides whether the server replaces them.
+        """
+
+        posted = {
+            **self.moved_to(
+                row,
+                self.mono_session_id if session_id is None else session_id,
+                *channels,
+            ),
+            "automatic_color": automatic,
+            "automatic_label": automatic,
+        }
+        with start_db_session() as db_session:
+            return get_table_response(
+                {"bind": posted["id"], "datasets": {posted["id"]: posted}},
+                x_quantity="jd",
+                expressions={},
+                db_session=db_session,
+            )
+
+    def rebind(self, row, *channels, session_id=None):
+        """Return only what a rebinding answers, discarding the rows."""
+
+        return self.rebinding(row, *channels, session_id=session_id)[1]
+
+    def test_a_pair_change_is_answered_with_the_channels_unset(self):
+        """Which channels a column may offer depends on the pair, so the
+        cells are re-rendered before anything is bound in them."""
+
+        response = self.rebind(
+            self.first_row("jd", "bg_center"), "", session_id=self.session_id
+        )
+
+        self.assertEqual(response["count"], "-")
+        self.assertIn("B (3)", response["slot_cells"])
+        self.assertIn("R (3)", response["slot_cells"])
+
+    def test_a_session_recording_one_channel_settles_on_it(self):
+        """One channel to choose from is no choice at all, so the cell
+        states what it binds and the row is counted at once."""
+
+        response = self.rebind(self.first_row("jd", "bg_center"), "")
+
+        self.assertIn('data-channel="R"', response["slot_cells"])
+        self.assertEqual(response["count"], len(self.mono_values))
+
+    def test_a_rebinding_carries_the_session_times(self):
+        """Read-only cells that the client cannot work out for itself."""
+
+        response = self.rebind(self.first_row("jd", "bg_center"), "R")
+
+        self.assertEqual(response["start"], "2023-03-01 20:00")
+        self.assertEqual(response["end"], "2023-03-01 23:00")
+
+    def test_a_channel_the_new_pair_offers_is_kept(self):
+        """The user chose it, and the new session records it too."""
+
+        response = self.rebind(self.first_row("jd", "bg_center"), "R")
+
+        self.assertEqual(response["count"], len(self.mono_values))
+        self.assertEqual(response["label"], "bg_center mono_night object R")
+
+    def test_a_label_names_its_quantity_first(self):
+        """So that a legend entry says which section a series belongs to.
+
+        With one section that is redundant, but prefixing always keeps the
+        rule simple -- and the label is the user's to rewrite either way.
+        """
+
+        label = self.first_row("jd", "bg_center")["label"]
+
+        self.assertTrue(
+            label.startswith("bg_center "),
+            f"expected the quantity first, got {label!r}",
+        )
+
+    def test_a_channel_the_new_pair_lacks_is_dropped(self):
+        """``B`` is recorded for the colour session alone.
+
+        Carrying it over would leave the row naming data that is not
+        there; the column takes the one channel it does offer instead.
+        """
+
+        response = self.rebind(self.first_row("jd", "bg_center"), "B")
+
+        self.assertNotIn("B", response["slot_cells"])
+        self.assertIn('data-channel="R"', response["slot_cells"])
+
+    def test_nothing_is_answered_without_a_rebound_row(self):
+        """Which is every other redraw: a colour, a marker, a row toggled.
+
+        The rows still come back, those being what the figure is drawn
+        from whether or not anything was rebound.
+        """
 
         with start_db_session() as db_session:
-            slot_needs = get_axes_slot_needs("jd", "bg_center", {}, None)
-            options, labels = get_slot_options(slot_needs, db_session)
-
-        return plan_spare_row(bound_id, slot_needs, options, labels, datasets)
-
-    def test_a_completed_row_summons_a_spare(self):
-        """So that a second binding of the same series can be built."""
-
-        spare = self.plan_spare(self.row(0), {self.row(0): {"channels": ["R"]}})
-
-        self.assertEqual(spare["id"], self.row(1))
-        self.assertEqual(spare["channels"], [])
-        self.assertEqual(spare["count"], "-")
-
-    def test_no_spare_once_every_binding_is_present(self):
-        """Two channels, two rows: a third could only repeat one."""
-
-        self.assertIsNone(
-            self.plan_spare(
-                self.row(1),
-                {
-                    self.row(0): {"channels": ["R"]},
-                    self.row(1): {"channels": ["B"]},
-                },
+            self.assertEqual(
+                get_table_response(
+                    {"datasets": {}},
+                    x_quantity="jd",
+                    expressions={},
+                    db_session=db_session,
+                ),
+                ([], {}),
             )
+
+    def test_an_automatic_colour_is_corrected_before_drawing(self):
+        """The whole point of answering before the figure is made.
+
+        A row rebound onto another channel is drawn in that channel's
+        colour, with a legend naming it, in the same round trip that
+        writes them into the table -- rather than drawn in the colour of
+        the binding it just left while the table shows the new one.
+        """
+
+        row = self.first_row("jd", "bg_center")
+        drawn, fields = self.rebinding(row, "R")
+
+        self.assertEqual(len(drawn), 1)
+        self.assertEqual(drawn[0]["color"], fields["color"])
+        self.assertEqual(drawn[0]["label"], fields["label"])
+        self.assertNotEqual(drawn[0]["color"], row["color"])
+
+    def test_a_colour_the_user_chose_survives_the_rebinding(self):
+        """Theirs, in the figure as well as in the table.
+
+        Colouring by quantity rather than by channel is a thing a user may
+        want, and a rebinding must not quietly undo it.
+        """
+
+        row = {**self.first_row("jd", "bg_center"), "color": "#123456"}
+        drawn, fields = self.rebinding(row, "R", automatic=False)
+
+        self.assertEqual(drawn[0]["color"], "#123456")
+        # What the binding *would* make default is still reported, for the
+        # client to apply or ignore by the same test the server just made.
+        self.assertNotEqual(fields["color"], "#123456")
+
+    def test_no_row_but_the_rebound_one_is_touched(self):
+        """A rebinding answers for the row that was rebound, and no other."""
+
+        row = self.first_row("jd", "bg_center")
+        other = {
+            **self.moved_to(row, self.session_id, "B"),
+            "id": make_id("bg_center", 1),
+            "color": "#ffffff",
+            "label": "left alone",
+            "automatic_color": True,
+            "automatic_label": True,
+        }
+        bound = {
+            **self.moved_to(row, self.mono_session_id, "R"),
+            "automatic_color": True,
+            "automatic_label": True,
+        }
+
+        with start_db_session() as db_session:
+            drawn, _ = get_table_response(
+                {
+                    "bind": bound["id"],
+                    "datasets": {bound["id"]: bound, other["id"]: other},
+                },
+                x_quantity="jd",
+                expressions={},
+                db_session=db_session,
+            )
+
+        untouched = next(r for r in drawn if r["id"] == other["id"])
+        self.assertEqual(untouched["color"], "#ffffff")
+        self.assertEqual(untouched["label"], "left alone")
+
+
+class TestAddedRow(TwoChannelProject):
+    """What a press of ``+`` earns: a copy of the row it was pressed in."""
+
+    def add_below(self, row, *others):
+        """Return ``(rows to draw, fields)`` for ``+`` pressed in *row*."""
+
+        datasets = {
+            entry["id"]: entry for entry in (row,) + others if entry is not None
+        }
+        with start_db_session() as db_session:
+            return get_table_response(
+                {"add": row["id"], "datasets": datasets},
+                x_quantity="jd",
+                expressions={},
+                db_session=db_session,
+            )
+
+    def test_the_copy_carries_the_pair_and_channels(self):
+        """The next series usually differs in one thing, so copying
+        leaves only that thing to change."""
+
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
+        )
+        drawn, fields = self.add_below(row)
+
+        self.assertEqual(fields["after"], row["id"])
+        self.assertEqual(len(drawn), 2)
+        self.assertEqual(drawn[1]["pair"], row["pair"])
+        self.assertEqual(drawn[1]["channels"], ["B"])
+
+    def test_the_copy_is_drawn_with_the_figure_that_carries_it(self):
+        """Rather than the table gaining a row the plot catches up with."""
+
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
+        )
+        drawn, _ = self.add_below(row)
+
+        self.assertEqual(drawn[1]["count"], len(self.values_of["B"]))
+
+    def test_the_copy_takes_the_next_ordinal(self):
+        """And one past the highest, so a gap left by a removal is not
+        reused while the row that had it may still be on the page."""
+
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
+        )
+        third = {**row, "id": make_id("bg_center", 2)}
+
+        _, fields = self.add_below(row, third)
+
+        self.assertIn(
+            'id="' + make_id("bg_center", 3) + '"', fields["added_row"]
         )
 
-    def test_rebinding_an_earlier_row_summons_nothing(self):
-        """A spare is already waiting below it, and one is enough."""
+    def test_the_copy_is_rendered_as_a_row(self):
+        """Through the one row template, so it arrives able to do
+        everything a row rendered with the page can."""
 
-        self.assertIsNone(
-            self.plan_spare(
-                self.row(0),
-                {
-                    self.row(0): {"channels": ["B"]},
-                    self.row(1): {"channels": []},
-                },
-            )
+        row = self.moved_to(
+            self.first_row("jd", "bg_center"), self.session_id, "B"
         )
+        _, fields = self.add_below(row)
+
+        for expected in (
+            'class="diagnostic-row active"',
+            'class="add-row"',
+            'class="remove-row"',
+            'class="pair-select"',
+            'class="slot-cell"',
+            'class="series-count"',
+        ):
+            self.assertIn(expected, fields["added_row"])
+
+
+class TestTwoChannelSeriesValues(TwoChannelProject):
+    """Which of the posted rows are drawn, and what each one reads.
+
+    Named for its fixture rather than for its subject, ``test_expression_series``
+    having a ``TestSeriesValues`` of its own: the suite gathers every test class
+    into one module namespace, where two of a name means one silently replacing
+    the other.
+    """
 
     def test_which_rows_are_drawn(self):
-        """Every row is posted, so four of them have to be skipped here.
+        """Every row is posted, so five of them have to be skipped here.
 
-        Two are the user saying not to draw it, and two name no data: a
-        row still to be bound, and one from a page whose script predates
-        the channel columns, which posts no channels at all. That last is
-        skipped rather than refused -- a stale page should draw nothing,
-        not turn the response into an error page. Defaulting ``selected``
-        to true keeps a payload stored before the table posted every row
-        still plotting.
+        Two are the user saying not to draw it, and three name no data: a
+        row still to be bound, one from a page whose script predates the
+        channel columns and posts no channels at all, and one from before
+        the session and type were chosen in the row, which names no
+        population to read. The stale two are skipped rather than refused
+        -- such a page should draw nothing, not turn the response into an
+        error page. Defaulting ``selected`` to true keeps a payload stored
+        before the table posted every row still plotting.
         """
 
         rows = {
@@ -349,11 +595,16 @@ class TestTwoChannelRow(unittest.TestCase):
             "no marker": {"channels": ["R"], "marker": " "},
             "not yet bound": {"channels": [""], "selected": True},
             "from a page with no channel columns": {"channels": []},
+            "from a page with no pair dropdown": {
+                "channels": ["R"],
+                "pair": None,
+            },
             "from an older payload": {"channels": ["B"]},
         }
         series_list = [
             {
-                "id": self.row(ordinal),
+                "id": make_id("bg_center", ordinal),
+                "pair": make_id(self.session_id, "object"),
                 "marker": "o",
                 "color": "#ffffff",
                 "label": description,
@@ -363,9 +614,7 @@ class TestTwoChannelRow(unittest.TestCase):
         ]
 
         with start_db_session() as db_session:
-            drawn = collect_series_data(
-                series_list, "jd", "bg_center", {}, db_session
-            )
+            drawn = collect_series_data(series_list, "jd", {}, db_session)
 
         self.assertEqual(
             [series["label"] for series, *_ in drawn],
@@ -383,10 +632,10 @@ class TestTwoChannelRow(unittest.TestCase):
         with start_db_session() as db_session:
             x_values, y_values, image_ids = get_series_data(
                 {
-                    "id": make_row_id(self.session_id, "object", None, 0),
+                    "id": make_id("bg_center", 0),
+                    "pair": make_id(self.session_id, "object"),
                     "channels": ["R", "B"],
                 },
-                "bg_center",
                 "bg_center",
                 {},
                 db_session,
@@ -407,11 +656,11 @@ class TestTwoChannelRow(unittest.TestCase):
         with start_db_session() as db_session:
             x_values, y_values, _ = get_series_data(
                 {
-                    "id": make_row_id(self.session_id, "object", None, 0),
+                    "id": make_id("bg_center", 0),
+                    "pair": make_id(self.session_id, "object"),
                     "channels": ["B"],
                 },
                 "jd",
-                "bg_center",
                 {},
                 db_session,
             )

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.migrate &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.migrate</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Apply and check Alembic migrations for a project database.</span>
+<span></span><span class="sd">"""Apply and check Alembic migrations for a project database.</span>
 
 <span class="sd">Alembic supplies the revision graph, the ``alembic_version`` table, stamping</span>
 <span class="sd">and SQLite batch mode. What it does not supply, and what this module is</span>
@@ -186,9 +186,7 @@
 <span class="sd">``get_current_head`` rather than their plural counterparts. Both raise if a</span>
 <span class="sd">fork ever reaches them, which is the behaviour wanted -- a fork is a mistake</span>
 <span class="sd">to surface, not a state to support.</span>
-
-<span class="sd">See ``project_db_migrations_plan.md`` for the reasoning.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
@@ -207,17 +205,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseError</span>
 
-<span class="n">BASELINE_REVISION</span> <span class="o">=</span> <span class="s2">&quot;0001_baseline&quot;</span>  <span class="c1"># pylint: disable=invalid-name</span>
-<span class="sd">&quot;&quot;&quot;Revision marking the schema :func:`_apply_additive_migrations` produces.&quot;&quot;&quot;</span>
+<span class="n">BASELINE_REVISION</span> <span class="o">=</span> <span class="s2">"0001_baseline"</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="sd">"""Revision marking the schema :func:`_apply_additive_migrations` produces."""</span>
 
-<span class="n">_LOCK_NAME</span> <span class="o">=</span> <span class="s2">&quot;autowisp_migrate&quot;</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="n">_LOCK_NAME</span> <span class="o">=</span> <span class="s2">"autowisp_migrate"</span>  <span class="c1"># pylint: disable=invalid-name</span>
 <span class="n">_LOCK_TIMEOUT</span> <span class="o">=</span> <span class="mi">600</span>  <span class="c1"># pylint: disable=invalid-name</span>
 
 
 <div class="viewcode-block" id="_apply_additive_migrations">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._apply_additive_migrations">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_apply_additive_migrations</span><span class="p">(</span><span class="n">connection</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bring a project database that predates Alembic up to the 1.8.1 schema.</span>
+<span class="w">    </span><span class="sd">"""Bring a project database that predates Alembic up to the 1.8.1 schema.</span>
 
 <span class="sd">    .. note::</span>
 
@@ -233,14 +231,14 @@
 <span class="sd">    any point since a project was initialised, and the history of when each</span>
 <span class="sd">    table appeared is not recorded anywhere. Expressing it as revisions would</span>
 <span class="sd">    mean either reconstructing that history by git archaeology, or calling</span>
-<span class="sd">    ``create_all`` from inside a revision -- which would create *today&#39;s*</span>
+<span class="sd">    ``create_all`` from inside a revision -- which would create *today's*</span>
 <span class="sd">    tables rather than the ones contemporary with the revision, and so would</span>
 <span class="sd">    silently change meaning every time a model is added.</span>
 
 <span class="sd">    Idempotent, so running it against an already-current database does</span>
 <span class="sd">    nothing.</span>
 
-<span class="sd">    Takes a connection rather than an engine so it runs inside the caller&#39;s</span>
+<span class="sd">    Takes a connection rather than an engine so it runs inside the caller's</span>
 <span class="sd">    migration lock. Opening a second connection here would block against</span>
 <span class="sd">    that lock instead of cooperating with it.</span>
 
@@ -250,7 +248,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Create any tables added since the project was initialized (idempotent;</span>
     <span class="c1"># existing tables and data are left as-is).</span>
@@ -258,21 +256,21 @@
 
     <span class="c1"># Add any nullable columns added to tables that already existed.</span>
     <span class="n">additive_columns</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="s2">&quot;code_version&quot;</span><span class="p">,</span> <span class="s2">&quot;VARCHAR(1000)&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMESTAMP&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"pipeline_run"</span><span class="p">,</span> <span class="s2">"code_version"</span><span class="p">,</span> <span class="s2">"VARCHAR(1000)"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="s2">"resolved"</span><span class="p">,</span> <span class="s2">"TIMESTAMP"</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">inspector</span> <span class="o">=</span> <span class="n">sa_inspect</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
     <span class="n">present_tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspector</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">sql_type</span> <span class="ow">in</span> <span class="n">additive_columns</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">table</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">present_tables</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="n">table</span><span class="p">)}</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="n">table</span><span class="p">)}</span>
         <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="c1"># table/column/type come from the trusted list above, not from user</span>
         <span class="c1"># input, so the f-string is safe here.</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="n">text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALTER TABLE </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> ADD COLUMN </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sql_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">text</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ALTER TABLE </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> ADD COLUMN </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sql_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -280,9 +278,9 @@
 <div class="viewcode-block" id="_alembic_config">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._alembic_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_alembic_config</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the shipped Alembic configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the shipped Alembic configuration."""</span>
 
-    <span class="k">return</span> <span class="n">Config</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;alembic.ini&quot;</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">Config</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"alembic.ini"</span><span class="p">))</span></div>
 
 
 
@@ -290,13 +288,13 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate.get_head_revision">[docs]</a>
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_head_revision</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the newest revision shipped with the installed code.</span>
+<span class="w">    </span><span class="sd">"""Return the newest revision shipped with the installed code.</span>
 
 <span class="sd">    Cached: this is a property of the code, not of any database, and</span>
 <span class="sd">    :func:`check_project_schema` runs in every worker process on every</span>
 <span class="sd">    project open. Without the cache each of those would re-walk and re-import</span>
 <span class="sd">    ``versions/``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="n">ScriptDirectory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">_alembic_config</span><span class="p">())</span><span class="o">.</span><span class="n">get_current_head</span><span class="p">()</span></div>
 
@@ -305,11 +303,11 @@
 <div class="viewcode-block" id="get_project_revision">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate.get_project_revision">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the revision a project database is stamped at, or None.</span>
+<span class="w">    </span><span class="sd">"""Return the revision a project database is stamped at, or None.</span>
 
 <span class="sd">    None means the database has no ``alembic_version`` table -- it predates</span>
 <span class="sd">    Alembic and needs baselining.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">MigrationContext</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span><span class="o">.</span><span class="n">get_current_revision</span><span class="p">()</span></div>
@@ -319,7 +317,7 @@
 <div class="viewcode-block" id="get_schema_drift">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate.get_schema_drift">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_schema_drift</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return how *engine*&#39;s schema differs from the ORM models.</span>
+<span class="w">    </span><span class="sd">"""Return how *engine*'s schema differs from the ORM models.</span>
 
 <span class="sd">    Empty means they agree. This is the guard behind a duplication the</span>
 <span class="sd">    design accepts deliberately: a revision may not import the models -- it</span>
@@ -332,14 +330,14 @@
 <span class="sd">        engine:    The SQLAlchemy engine for the database to compare.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list:    Alembic&#39;s autogenerate diff entries, e.g.</span>
-<span class="sd">            ``(&quot;add_index&quot;, Index(...))`` for something the models declare</span>
+<span class="sd">        list:    Alembic's autogenerate diff entries, e.g.</span>
+<span class="sd">            ``("add_index", Index(...))`` for something the models declare</span>
 <span class="sd">            and the database lacks.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">MigrationContext</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
-            <span class="n">connection</span><span class="p">,</span> <span class="n">opts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;compare_type&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="n">connection</span><span class="p">,</span> <span class="n">opts</span><span class="o">=</span><span class="p">{</span><span class="s2">"compare_type"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">compare_metadata</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span></div>
 
@@ -348,12 +346,12 @@
 <div class="viewcode-block" id="_is_known_revision">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._is_known_revision">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_known_revision</span><span class="p">(</span><span class="n">revision</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether *revision* is one the installed code ships.</span>
+<span class="w">    </span><span class="sd">"""Whether *revision* is one the installed code ships.</span>
 
 <span class="sd">    False means the database was migrated by a newer AutoWISP than this one,</span>
 <span class="sd">    which needs different advice: upgrading the code, not running a</span>
 <span class="sd">    migration this install does not have.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">ScriptDirectory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">_alembic_config</span><span class="p">())</span><span class="o">.</span><span class="n">get_revision</span><span class="p">(</span><span class="n">revision</span><span class="p">)</span>
@@ -366,7 +364,7 @@
 <div class="viewcode-block" id="check_project_schema">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate.check_project_schema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise unless the project database is at the current head revision.</span>
+<span class="w">    </span><span class="sd">"""Raise unless the project database is at the current head revision.</span>
 
 <span class="sd">    Read-only by design -- see the module docstring. This is what</span>
 <span class="sd">    :func:`autowisp.database.interface.set_project_home` calls, so it runs in</span>
@@ -378,7 +376,7 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        DatabaseError:    If the database is behind, ahead of, or otherwise</span>
 <span class="sd">            disagrees with the installed migration scripts.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">current</span> <span class="o">=</span> <span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
     <span class="n">head</span> <span class="o">=</span> <span class="n">get_head_revision</span><span class="p">()</span>
@@ -387,21 +385,21 @@
 
     <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_known_revision</span><span class="p">(</span><span class="n">current</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">DatabaseError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The project database is at revision </span><span class="si">{</span><span class="n">current</span><span class="si">}</span><span class="s2">, which this &quot;</span>
-            <span class="s2">&quot;version of AutoWISP does not know about: it was migrated by a &quot;</span>
-            <span class="s2">&quot;newer version. Upgrade AutoWISP -- migrating will not help, and &quot;</span>
-            <span class="s2">&quot;this install cannot safely write to that schema.&quot;</span>
+            <span class="sa">f</span><span class="s2">"The project database is at revision </span><span class="si">{</span><span class="n">current</span><span class="si">}</span><span class="s2">, which this "</span>
+            <span class="s2">"version of AutoWISP does not know about: it was migrated by a "</span>
+            <span class="s2">"newer version. Upgrade AutoWISP -- migrating will not help, and "</span>
+            <span class="s2">"this install cannot safely write to that schema."</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;it predates the migration system and has not been baselined&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="s2">"it predates the migration system and has not been baselined"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;it is at </span><span class="si">{</span><span class="n">current</span><span class="si">}</span><span class="s2">, but this version expects </span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"it is at </span><span class="si">{</span><span class="n">current</span><span class="si">}</span><span class="s2">, but this version expects </span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">raise</span> <span class="n">DatabaseError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;The project database needs migrating: </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">. Run &quot;</span>
-        <span class="s2">&quot;&#39;wisp-migrate &lt;project_home&gt;&#39;, or open the project in the browser &quot;</span>
-        <span class="s2">&quot;interface, which migrates on selection.&quot;</span>
+        <span class="sa">f</span><span class="s2">"The project database needs migrating: </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">. Run "</span>
+        <span class="s2">"'wisp-migrate &lt;project_home&gt;', or open the project in the browser "</span>
+        <span class="s2">"interface, which migrates on selection."</span>
     <span class="p">)</span></div>
 
 
@@ -410,31 +408,31 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._sqlite_immediate">[docs]</a>
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_sqlite_immediate</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make this engine&#39;s transactions take SQLite&#39;s write lock up front.</span>
+<span class="w">    </span><span class="sd">"""Make this engine's transactions take SQLite's write lock up front.</span>
 
 <span class="sd">    pysqlite defers ``BEGIN`` until a DML statement, which would let two</span>
 <span class="sd">    migrators both read the current revision before either writes. ``BEGIN</span>
 <span class="sd">    IMMEDIATE`` takes the write lock when the transaction opens instead, so</span>
-<span class="sd">    the second blocks (on the engine&#39;s busy timeout) rather than re-running a</span>
+<span class="sd">    the second blocks (on the engine's busy timeout) rather than re-running a</span>
 <span class="sd">    migration that is already being applied.</span>
 
-<span class="sd">    Turning off the driver&#39;s implicit transaction handling is the documented</span>
-<span class="sd">    SQLAlchemy recipe for controlling SQLite&#39;s ``BEGIN``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Turning off the driver's implicit transaction handling is the documented</span>
+<span class="sd">    SQLAlchemy recipe for controlling SQLite's ``BEGIN``.</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">disable_implicit_begin</span><span class="p">(</span><span class="n">dbapi_connection</span><span class="p">,</span> <span class="n">_record</span><span class="p">):</span>
         <span class="n">dbapi_connection</span><span class="o">.</span><span class="n">isolation_level</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">begin_immediate</span><span class="p">(</span><span class="n">connection</span><span class="p">):</span>
-        <span class="n">connection</span><span class="o">.</span><span class="n">exec_driver_sql</span><span class="p">(</span><span class="s2">&quot;BEGIN IMMEDIATE&quot;</span><span class="p">)</span>
+        <span class="n">connection</span><span class="o">.</span><span class="n">exec_driver_sql</span><span class="p">(</span><span class="s2">"BEGIN IMMEDIATE"</span><span class="p">)</span>
 
-    <span class="n">event</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;connect&quot;</span><span class="p">,</span> <span class="n">disable_implicit_begin</span><span class="p">)</span>
-    <span class="n">event</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;begin&quot;</span><span class="p">,</span> <span class="n">begin_immediate</span><span class="p">)</span>
+    <span class="n">event</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"connect"</span><span class="p">,</span> <span class="n">disable_implicit_begin</span><span class="p">)</span>
+    <span class="n">event</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"begin"</span><span class="p">,</span> <span class="n">begin_immediate</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">yield</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="n">event</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;begin&quot;</span><span class="p">,</span> <span class="n">begin_immediate</span><span class="p">)</span>
-        <span class="n">event</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;connect&quot;</span><span class="p">,</span> <span class="n">disable_implicit_begin</span><span class="p">)</span></div>
+        <span class="n">event</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"begin"</span><span class="p">,</span> <span class="n">begin_immediate</span><span class="p">)</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"connect"</span><span class="p">,</span> <span class="n">disable_implicit_begin</span><span class="p">)</span></div>
 
 
 
@@ -442,16 +440,16 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._locked_connection">[docs]</a>
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_locked_connection</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield a connection in a transaction, with the migration lock held.</span>
+<span class="w">    </span><span class="sd">"""Yield a connection in a transaction, with the migration lock held.</span>
 
 <span class="sd">    Alembic has no locking of its own -- two concurrent ``upgrade`` calls</span>
 <span class="sd">    both read the same revision and both run it -- and concurrency is</span>
 <span class="sd">    reachable here: a centralised MySQL project database serves several users</span>
 <span class="sd">    at once, and starting a pipeline run while the browser interface is open</span>
 <span class="sd">    is ordinary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"sqlite"</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">_sqlite_immediate</span><span class="p">(</span><span class="n">engine</span><span class="p">),</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">connection</span>
         <span class="k">return</span>
@@ -461,39 +459,39 @@
     <span class="c1"># a transaction-scoped lock partway through the first revision.</span>
     <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
         <span class="n">acquired</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">exec_driver_sql</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;SELECT GET_LOCK(&#39;</span><span class="si">{</span><span class="n">_LOCK_NAME</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="n">_LOCK_TIMEOUT</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">"SELECT GET_LOCK('</span><span class="si">{</span><span class="n">_LOCK_NAME</span><span class="si">}</span><span class="s2">', </span><span class="si">{</span><span class="n">_LOCK_TIMEOUT</span><span class="si">}</span><span class="s2">)"</span>
         <span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">acquired</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DatabaseError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Timed out after </span><span class="si">{</span><span class="n">_LOCK_TIMEOUT</span><span class="si">}</span><span class="s2">s waiting for another &quot;</span>
-                <span class="s2">&quot;process to finish migrating this database.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Timed out after </span><span class="si">{</span><span class="n">_LOCK_TIMEOUT</span><span class="si">}</span><span class="s2">s waiting for another "</span>
+                <span class="s2">"process to finish migrating this database."</span>
             <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">connection</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="n">connection</span><span class="o">.</span><span class="n">exec_driver_sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT RELEASE_LOCK(&#39;</span><span class="si">{</span><span class="n">_LOCK_NAME</span><span class="si">}</span><span class="s2">&#39;)&quot;</span><span class="p">)</span></div>
+            <span class="n">connection</span><span class="o">.</span><span class="n">exec_driver_sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SELECT RELEASE_LOCK('</span><span class="si">{</span><span class="n">_LOCK_NAME</span><span class="si">}</span><span class="s2">')"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="_backup_sqlite">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._backup_sqlite">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_backup_sqlite</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">current</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy an SQLite project database aside before migrating it.</span>
+<span class="w">    </span><span class="sd">"""Copy an SQLite project database aside before migrating it.</span>
 
 <span class="sd">    The copy is named for the revision it is a snapshot *of*, so</span>
 <span class="sd">    ``autowisp.db.pre-0001_baseline`` is the database as it stood at</span>
 <span class="sd">    ``0001_baseline``.</span>
 
 <span class="sd">    Returns the backup path, or None for a non-SQLite database, where backups</span>
-<span class="sd">    are the administrator&#39;s job (see :func:`migrate_project`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    are the administrator's job (see :func:`migrate_project`).</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"sqlite"</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">db_path</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">database</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">db_path</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">db_path</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">backup_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">.pre-</span><span class="si">{</span><span class="n">current</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;baseline&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">backup_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">.pre-</span><span class="si">{</span><span class="n">current</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'baseline'</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">backup_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">backup_path</span></div>
 
@@ -502,10 +500,10 @@
 <div class="viewcode-block" id="_stamp">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._stamp">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_stamp</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">revision</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Record *revision* as applied, on the caller&#39;s connection.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Record *revision* as applied, on the caller's connection."""</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">_alembic_config</span><span class="p">()</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;connection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">connection</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">"connection"</span><span class="p">]</span> <span class="o">=</span> <span class="n">connection</span>
     <span class="n">alembic</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">stamp</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">revision</span><span class="p">)</span></div>
 
 
@@ -513,9 +511,9 @@
 <div class="viewcode-block" id="create_project_schema">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate.create_project_schema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_project_schema</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the current schema and record it as being at head.</span>
+<span class="w">    </span><span class="sd">"""Build the current schema and record it as being at head.</span>
 
-<span class="sd">    The two halves belong together: ``create_all`` produces today&#39;s tables</span>
+<span class="sd">    The two halves belong together: ``create_all`` produces today's tables</span>
 <span class="sd">    directly, so the revisions describing how to get there must be marked</span>
 <span class="sd">    applied rather than run. Creating the schema without stamping would</span>
 <span class="sd">    leave the database looking like an un-baselined legacy project, and</span>
@@ -524,18 +522,18 @@
 
 <span class="sd">    Pairing them in one function is what stops those two steps drifting</span>
 <span class="sd">    apart across the several places a project database gets created.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
-        <span class="n">_stamp</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">)</span></div>
+        <span class="n">_stamp</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s2">"head"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="_missing_timestamp_triggers">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate._missing_timestamp_triggers">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_missing_timestamp_triggers</span><span class="p">(</span><span class="n">connection</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``{table: key_columns}`` for tables with no timestamp trigger.</span>
+<span class="w">    </span><span class="sd">"""Return ``{table: key_columns}`` for tables with no timestamp trigger.</span>
 
 <span class="sd">    Read-only, so the healthy case -- which is every case where no revision</span>
 <span class="sd">    rebuilt a table -- costs two catalogue queries and no DDL.</span>
@@ -543,14 +541,14 @@
 <span class="sd">    Both backends are checked. Only SQLite loses triggers to a rebuild, but</span>
 <span class="sd">    a database created before the triggers were attached off the shared</span>
 <span class="sd">    metadata is missing the provenance ones whichever backend it is on.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">connection</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
-        <span class="n">trigger_query</span> <span class="o">=</span> <span class="s2">&quot;SELECT name FROM sqlite_master WHERE type = &#39;trigger&#39;&quot;</span>
-    <span class="k">elif</span> <span class="n">connection</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;mysql&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">connection</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"sqlite"</span><span class="p">:</span>
+        <span class="n">trigger_query</span> <span class="o">=</span> <span class="s2">"SELECT name FROM sqlite_master WHERE type = 'trigger'"</span>
+    <span class="k">elif</span> <span class="n">connection</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"mysql"</span><span class="p">:</span>
         <span class="n">trigger_query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;SELECT trigger_name FROM information_schema.triggers &quot;</span>
-            <span class="s2">&quot;WHERE trigger_schema = DATABASE()&quot;</span>
+            <span class="s2">"SELECT trigger_name FROM information_schema.triggers "</span>
+            <span class="s2">"WHERE trigger_schema = DATABASE()"</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># No trigger template for it, so nothing to compare against.</span>
@@ -560,12 +558,12 @@
     <span class="n">inspector</span> <span class="o">=</span> <span class="n">sa_inspect</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
     <span class="n">missing</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">():</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="n">table</span><span class="p">)}</span>
-        <span class="k">if</span> <span class="s2">&quot;timestamp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="n">table</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="s2">"timestamp"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;update_</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">_timestamp&quot;</span> <span class="ow">in</span> <span class="n">present</span><span class="p">:</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">"update_</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">_timestamp"</span> <span class="ow">in</span> <span class="n">present</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">key_columns</span> <span class="o">=</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_pk_constraint</span><span class="p">(</span><span class="n">table</span><span class="p">)[</span><span class="s2">&quot;constrained_columns&quot;</span><span class="p">]</span>
+        <span class="n">key_columns</span> <span class="o">=</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_pk_constraint</span><span class="p">(</span><span class="n">table</span><span class="p">)[</span><span class="s2">"constrained_columns"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">key_columns</span><span class="p">:</span>
             <span class="n">missing</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">key_columns</span>
 
@@ -576,7 +574,7 @@
 <div class="viewcode-block" id="restore_timestamp_triggers">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate.restore_timestamp_triggers">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">restore_timestamp_triggers</span><span class="p">(</span><span class="n">connection</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Install any update-timestamp trigger the database is missing.</span>
 
 <span class="sd">    Brings an existing database in line with what the models would create,</span>
@@ -587,7 +585,7 @@
 <span class="sd">    the original takes its triggers with it, and the copy is created by the</span>
 <span class="sd">    revision rather than from the models, so the ``after_create`` listeners</span>
 <span class="sd">    that install them never fire. Every revision that genuinely rebuilds a</span>
-<span class="sd">    table has therefore been removing that table&#39;s trigger -- upgrading a</span>
+<span class="sd">    table has therefore been removing that table's trigger -- upgrading a</span>
 <span class="sd">    1.8.1 database loses seven of them.</span>
 
 <span class="sd">    The twelve provenance tables, separately, never had one to lose: the</span>
@@ -609,12 +607,12 @@
 <span class="sd">    computes a different answer as a result.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        connection:    An open connection, inside the caller&#39;s migration</span>
+<span class="sd">        connection:    An open connection, inside the caller's migration</span>
 <span class="sd">            lock where one is held.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list:    Names of the tables whose trigger was reinstated.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">restored</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">key_columns</span> <span class="ow">in</span> <span class="n">_missing_timestamp_triggers</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -632,7 +630,7 @@
 <div class="viewcode-block" id="migrate_project">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.migrate.html#autowisp.database.migrate.migrate_project">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">migrate_project</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">assume_backed_up</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bring a project database up to the current head revision.</span>
+<span class="w">    </span><span class="sd">"""Bring a project database up to the current head revision.</span>
 
 <span class="sd">    The only function here that mutates. Handles three cases:</span>
 
@@ -651,18 +649,18 @@
 <span class="sd">            proceeding without a backup has to be a deliberate choice.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    ``{&quot;from&quot;: ..., &quot;to&quot;: ..., &quot;backup&quot;: ...}``. ``from`` equals</span>
+<span class="sd">        dict:    ``{"from": ..., "to": ..., "backup": ...}``. ``from`` equals</span>
 <span class="sd">        ``to`` if the database was already current. Which revisions ran in</span>
-<span class="sd">        between is Alembic&#39;s business, not something worth recomputing here.</span>
+<span class="sd">        between is Alembic's business, not something worth recomputing here.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        DatabaseError:    If a server database is migrated without</span>
 <span class="sd">            ``assume_backed_up``, or the migration lock cannot be taken.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">current</span> <span class="o">=</span> <span class="n">get_project_revision</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
     <span class="n">head</span> <span class="o">=</span> <span class="n">get_head_revision</span><span class="p">()</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">current</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">head</span><span class="p">,</span> <span class="s2">&quot;backup&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"from"</span><span class="p">:</span> <span class="n">current</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">:</span> <span class="n">head</span><span class="p">,</span> <span class="s2">"backup"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">head</span><span class="p">:</span>
         <span class="c1"># Already current, but possibly damaged by rebuilds an earlier</span>
         <span class="c1"># release performed, so it would otherwise never be repaired: the</span>
@@ -675,15 +673,15 @@
                 <span class="n">restore_timestamp_triggers</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;sqlite&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">assume_backed_up</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"sqlite"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">assume_backed_up</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">DatabaseError</span><span class="p">(</span>
-            <span class="s2">&quot;Refusing to migrate a centralised database without confirmation &quot;</span>
-            <span class="s2">&quot;that it has been backed up: it cannot be copied aside &quot;</span>
-            <span class="s2">&quot;automatically, and MySQL commits DDL implicitly, so a failed &quot;</span>
-            <span class="s2">&quot;migration cannot be rolled back. Migrating a shared database is &quot;</span>
-            <span class="s2">&quot;also not something to do as a side effect of another command. &quot;</span>
-            <span class="s2">&quot;Back it up, then run &quot;</span>
-            <span class="s2">&quot;&#39;wisp-migrate &lt;project_home&gt; --assume-backed-up&#39;.&quot;</span>
+            <span class="s2">"Refusing to migrate a centralised database without confirmation "</span>
+            <span class="s2">"that it has been backed up: it cannot be copied aside "</span>
+            <span class="s2">"automatically, and MySQL commits DDL implicitly, so a failed "</span>
+            <span class="s2">"migration cannot be rolled back. Migrating a shared database is "</span>
+            <span class="s2">"also not something to do as a side effect of another command. "</span>
+            <span class="s2">"Back it up, then run "</span>
+            <span class="s2">"'wisp-migrate &lt;project_home&gt; --assume-backed-up'."</span>
         <span class="p">)</span>
 
     <span class="n">tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sa_inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
@@ -699,12 +697,12 @@
         <span class="c1"># waited -- without this it would redo work already done, and stamp</span>
         <span class="c1"># the baseline over a newer revision on the way.</span>
         <span class="n">current</span> <span class="o">=</span> <span class="n">MigrationContext</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span><span class="o">.</span><span class="n">get_current_revision</span><span class="p">()</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"from"</span><span class="p">]</span> <span class="o">=</span> <span class="n">current</span>
         <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">head</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">result</span>
 
         <span class="c1"># Inside the lock, so the copy cannot catch a half-applied migration.</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;backup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_backup_sqlite</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"backup"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_backup_sqlite</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Predates Alembic: reach a known schema, then record that it is</span>
@@ -712,10 +710,10 @@
             <span class="c1"># opening another would block against the lock we are holding.</span>
             <span class="n">_apply_additive_migrations</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
             <span class="n">_stamp</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">BASELINE_REVISION</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">BASELINE_REVISION</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"from"</span><span class="p">]</span> <span class="o">=</span> <span class="n">BASELINE_REVISION</span>
 
-        <span class="n">config</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;connection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">connection</span>
-        <span class="n">alembic</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">"connection"</span><span class="p">]</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="n">alembic</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"head"</span><span class="p">)</span>
 
         <span class="c1"># Whatever the revisions just did, leave the triggers correct. A</span>
         <span class="c1"># rebuild drops them silently, so this cannot be left to each</span>

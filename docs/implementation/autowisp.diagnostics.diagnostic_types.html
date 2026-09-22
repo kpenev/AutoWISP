@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.diagnostics.diagnostic_types module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,7 +172,7 @@
 <span id="autowisp-diagnostics-diagnostic-types-module"></span><h1>autowisp.diagnostics.diagnostic_types module<a class="headerlink" href="#module-autowisp.diagnostics.diagnostic_types" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-78c0bf6eb04b42a37c06b69d1e26a6a0b811b200.png" alt="Inheritance diagram of MappingProxyType" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-63b8a7ef714ed1e08a16cb9b778aa9dfe974a175.png" alt="Inheritance diagram of MappingProxyType" class="inheritance graphviz" /></div>
 <p>The catalogue of per-image diagnostics AutoWISP defines.</p>
 <p>The vocabulary of diagnostic names, kept apart from the database that
 stores values against them.  Two quite different things want it:</p>
@@ -201,7 +201,7 @@ mutate the catalogue out from under every other caller in the process.</p>
 </section>
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types._quantile_pattern">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">_quantile_pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('pixel_q\\d+\\Z')</span></em><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types._quantile_pattern" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">_quantile_pattern</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('pixel_q\\d+\\Z')</span></span><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types._quantile_pattern" title="Link to this definition"></a></dt>
 <dd><p>The one diagnostic family created at run time rather than seeded.
 <code class="docutils literal notranslate"><span class="pre">calibrate</span></code> records one per configured quantile, so which exist
 depends on how a project was configured and cannot be listed ahead of
@@ -275,40 +275,6 @@ against them ask here, so the two cannot drift into disagreeing.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.is_reserved_name">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">is_reserved_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#is_reserved_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.is_reserved_name" title="Link to this definition"></a></dt>
-<dd><p>Whether something already answers to <em>name</em>, so an expression may not.</p>
-<p>Wider than <a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.is_known_quantity" title="autowisp.diagnostics.diagnostic_types.is_known_quantity"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_known_quantity()</span></code></a> by exactly one entry, and the
-asymmetry is the point: <a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.quantiles_quantity" title="autowisp.diagnostics.diagnostic_types.quantiles_quantity"><code class="xref py py-data docutils literal notranslate"><span class="pre">quantiles_quantity</span></code></a> cannot be <em>read</em> by
-an expression, since it stands for a family rather than for values, but
-neither may it be shadowed by one. Expressions, diagnostics and the
-family name share one flat name space – it is what lets a selector and
-a URL treat them alike – so a name meaning one thing to the selector
-and another inside an expression would be ambiguous in both.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The proposed expression name.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Whether the name is taken.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.quantiles_quantity">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">quantiles_quantity</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pixel_quantiles'</span></em><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.quantiles_quantity" title="Link to this definition"></a></dt>
-<dd><p>The pseudo-quantity offered in place of the individual quantiles, which
-expands to one plotted series per <code class="docutils literal notranslate"><span class="pre">pixel_q*</span></code> rather than standing for
-values of its own. Deliberately spelled without digits, so that it does
-not match <a class="reference internal" href="#autowisp.diagnostics.diagnostic_types.is_quantile_diagnostic" title="autowisp.diagnostics.diagnostic_types.is_quantile_diagnostic"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_quantile_diagnostic()</span></code></a> – it names the family, and is
-never one of its members.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.standard_diagnostic_names">
 <span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">standard_diagnostic_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/diagnostics/diagnostic_types.html#standard_diagnostic_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.standard_diagnostic_names" title="Link to this definition"></a></dt>
 <dd><p>Return just the names, which is all validating an expression needs.</p>
@@ -345,7 +311,7 @@ duplicates that only fail later, at insert time.</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.diagnostics.diagnostic_types.time_quantity">
-<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">time_quantity</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'jd'</span></em><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.time_quantity" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.diagnostics.diagnostic_types.</span></span><span class="sig-name descname"><span class="pre">time_quantity</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'jd'</span></span><a class="headerlink" href="#autowisp.diagnostics.diagnostic_types.time_quantity" title="Link to this definition"></a></dt>
 <dd><p>The name <code class="docutils literal notranslate"><span class="pre">Image.jd</span></code> is plotted and referenced under. Not a diagnostic
 – it is a column of the image row rather than an <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code>
 value – but it is a variable in the same flat name space, and the only

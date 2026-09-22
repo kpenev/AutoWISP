@@ -1,0 +1,11 @@
+<map id="inheritance2ab3baa08f" name="inheritance2ab3baa08f">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="52,152,435,177"/>
+<area shape="rect" id="node3" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,225,481,251"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase" target="_top" title="Base migrating the throwaway browser&#45;interface database." alt="" coords="862,79,1369,104"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess" target="_top" title="``get_expressions`` &#45;&#45; the whole of tier 3." alt="" coords="459,152,884,177"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_diagnostic_expressions.TestNameSpace" target="_top" title="Names have to behave like the diagnostic names they sit beside." alt="" coords="909,152,1322,177"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_expressions.TestStoredFields" target="_top" title="What the model keeps, and what it deliberately does not check." alt="" coords="1347,152,1761,177"/>
+<area shape="rect" id="node5" title="A class whose instances are single test cases." alt="" coords="1031,5,1199,31"/>
+<area shape="rect" id="node9" title="An error while validating data." alt="" coords="1371,5,1644,31"/>
+<area shape="rect" id="node10" title="Make subclasses preserve the alters_data attribute on overridden methods." alt="" coords="122,5,365,31"/>
+</map>

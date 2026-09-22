@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processing_steps.epd &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -166,7 +166,7 @@
   <h1>Source code for autowisp.processing_steps.epd</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;Apply EPD correction to lightcurves.&quot;&quot;&quot;</span>
+<span class="sd">"""Apply EPD correction to lightcurves."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli_entry_point</span>
@@ -186,10 +186,10 @@
 <div class="viewcode-block" id="parse_command_line">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.epd.html#autowisp.processing_steps.epd.parse_command_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the commandline optinos to a dictionary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse the commandline optinos to a dictionary."""</span>
 
     <span class="k">return</span> <span class="n">LCDetrendingArgumentParser</span><span class="p">(</span>
-        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;EPD&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="s2">&quot;lc&quot;</span><span class="p">)</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">"EPD"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="s2">"lc"</span><span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
@@ -202,34 +202,34 @@
 <div class="viewcode-block" id="epd">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.epd.html#autowisp.processing_steps.epd.epd">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">epd</span><span class="p">(</span><span class="n">lc_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_progress</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform EPD on (a subset of the points in) the given lightucurves.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Perform EPD on (a subset of the points in) the given lightucurves."""</span>
     <span class="c1"># ``start_status`` is part of the signature the manager calls</span>
     <span class="c1"># with; the values this step accepts are declared in</span>
     <span class="c1"># ``allowed_start_status_values`` and checked there.</span>
     <span class="c1"># pylint: disable=unused-argument</span>
 
     <span class="n">lc_collection</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lc_collection</span><span class="p">)</span>
-    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolve_fit_datasets</span><span class="p">(</span>
-        <span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="n">lc_collection</span>
+    <span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolve_fit_datasets</span><span class="p">(</span>
+        <span class="n">configuration</span><span class="p">,</span> <span class="s2">"epd"</span><span class="p">,</span> <span class="n">lc_collection</span>
     <span class="p">)</span>
 
     <span class="n">detrend_light_curves</span><span class="p">(</span>
         <span class="n">lc_collection</span><span class="p">,</span>
         <span class="n">configuration</span><span class="p">,</span>
         <span class="n">EPDCorrection</span><span class="p">(</span>
-            <span class="n">fit_identifier</span><span class="o">=</span><span class="s2">&quot;EPD&quot;</span><span class="p">,</span>
-            <span class="n">used_variables</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;variables&quot;</span><span class="p">]),</span>
+            <span class="n">fit_identifier</span><span class="o">=</span><span class="s2">"EPD"</span><span class="p">,</span>
+            <span class="n">used_variables</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"variables"</span><span class="p">]),</span>
             <span class="n">fit_points_filter_expression</span><span class="o">=</span><span class="p">(</span>
-                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_points_filter_expression&quot;</span><span class="p">]</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">"lc_points_filter_expression"</span><span class="p">]</span>
             <span class="p">),</span>
-            <span class="n">fit_terms_expression</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;epd_terms_expression&quot;</span><span class="p">],</span>
-            <span class="n">fit_datasets</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_datasets&quot;</span><span class="p">],</span>
-            <span class="n">fit_weights</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fit_weights&quot;</span><span class="p">],</span>
-            <span class="n">error_avg</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;detrend_error_avg&quot;</span><span class="p">],</span>
-            <span class="n">rej_level</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;detrend_rej_level&quot;</span><span class="p">],</span>
-            <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;detrend_max_rej_iter&quot;</span><span class="p">],</span>
-            <span class="n">reject_scale_floor</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;detrend_reject_scale_floor&quot;</span><span class="p">],</span>
-            <span class="n">pre_reject</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;pre_reject_outliers&quot;</span><span class="p">],</span>
+            <span class="n">fit_terms_expression</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"epd_terms_expression"</span><span class="p">],</span>
+            <span class="n">fit_datasets</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_datasets"</span><span class="p">],</span>
+            <span class="n">fit_weights</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"fit_weights"</span><span class="p">],</span>
+            <span class="n">error_avg</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"detrend_error_avg"</span><span class="p">],</span>
+            <span class="n">rej_level</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"detrend_rej_level"</span><span class="p">],</span>
+            <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"detrend_max_rej_iter"</span><span class="p">],</span>
+            <span class="n">reject_scale_floor</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"detrend_reject_scale_floor"</span><span class="p">],</span>
+            <span class="n">pre_reject</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"pre_reject_outliers"</span><span class="p">],</span>
             <span class="n">mark_progress</span><span class="o">=</span><span class="n">mark_progress</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -240,12 +240,12 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.epd.html#autowisp.processing_steps.epd.main">[docs]</a>
 <span class="nd">@cli_entry_point</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from the command line.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run the step from the command line."""</span>
 
     <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
-    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
     <span class="n">epd</span><span class="p">(</span>
-        <span class="n">find_lc_fnames</span><span class="p">(</span><span class="n">cmdline_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;lc_files&quot;</span><span class="p">)),</span>
+        <span class="n">find_lc_fnames</span><span class="p">(</span><span class="n">cmdline_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"lc_files"</span><span class="p">)),</span>
         <span class="mi">0</span><span class="p">,</span>
         <span class="n">cmdline_config</span><span class="p">,</span>
         <span class="n">ignore_progress</span><span class="p">,</span>
@@ -253,7 +253,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

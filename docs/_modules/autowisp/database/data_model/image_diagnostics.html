@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.image_diagnostics &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.image_diagnostics</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define the image diagnostics tables for the pipeline.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define the image diagnostics tables for the pipeline."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Column</span><span class="p">,</span>
@@ -178,114 +178,114 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DiagnosticType&quot;</span><span class="p">,</span> <span class="s2">&quot;ImageDiagnostics&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotometryDiagnostics&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"DiagnosticType"</span><span class="p">,</span> <span class="s2">"ImageDiagnostics"</span><span class="p">,</span> <span class="s2">"PhotometryDiagnostics"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="DiagnosticType">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.DiagnosticType">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DiagnosticType</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The table listing available diagnostic quantities.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The table listing available diagnostic quantities."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;diagnostic_type&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"diagnostic_type"</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The name of the diagnostic.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The name of the diagnostic."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;A description of the diagnostic.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"A description of the diagnostic."</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ImageDiagnosticBase</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all per-image diagnostics.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base class for all per-image diagnostics."""</span>
 
     <span class="n">__abstract__</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="n">image_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;image.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"image.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The image these diagnostics belong to.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The image these diagnostics belong to."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">channel</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The color channel this diagnostic value corresponds to.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The color channel this diagnostic value corresponds to."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">diagnostic_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="n">ForeignKey</span><span class="p">(</span>
-            <span class="s2">&quot;diagnostic_type.id&quot;</span><span class="p">,</span>
-            <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span>
-            <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span>
+            <span class="s2">"diagnostic_type.id"</span><span class="p">,</span>
+            <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span>
+            <span class="n">ondelete</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The diagnostic this value corresponds to.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The diagnostic this value corresponds to."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Double</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The value of the diagnostic for this image and channel.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The value of the diagnostic for this image and channel."</span><span class="p">,</span>
     <span class="p">)</span>
 
 
 <div class="viewcode-block" id="ImageDiagnostics">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.ImageDiagnostics">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ImageDiagnostics</span><span class="p">(</span><span class="n">ImageDiagnosticBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Floating point diagnostics associated with a calibrated image.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Floating point diagnostics associated with a calibrated image."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;image_diagnostics&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"image_diagnostics"</span>
 
-    <span class="n">image</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;diagnostics&quot;</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"Image"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"diagnostics"</span><span class="p">)</span>
 
-    <span class="n">type_</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;DiagnosticType&quot;</span><span class="p">)</span>
+    <span class="n">type_</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DiagnosticType"</span><span class="p">)</span>
 
     <span class="n">__table_args__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">Index</span><span class="p">(</span>
-            <span class="s2">&quot;image_channel_diagnostic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;image_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;channel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diagnostic_id&quot;</span><span class="p">,</span>
+            <span class="s2">"image_channel_diagnostic"</span><span class="p">,</span>
+            <span class="s2">"image_id"</span><span class="p">,</span>
+            <span class="s2">"channel"</span><span class="p">,</span>
+            <span class="s2">"diagnostic_id"</span><span class="p">,</span>
             <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="n">Index</span><span class="p">(</span><span class="s2">&quot;daignostic_value&quot;</span><span class="p">,</span> <span class="s2">&quot;diagnostic_id&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+        <span class="n">Index</span><span class="p">(</span><span class="s2">"daignostic_value"</span><span class="p">,</span> <span class="s2">"diagnostic_id"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">),</span>
     <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="PhotometryDiagnostics">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.PhotometryDiagnostics">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PhotometryDiagnostics</span><span class="p">(</span><span class="n">ImageDiagnosticBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Floating point diagnostics for each photometry in each image.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Floating point diagnostics for each photometry in each image."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;photometry_diagnostics&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"photometry_diagnostics"</span>
 
     <span class="n">photometry_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The photometry these diagnostics belong to.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The photometry these diagnostics belong to."</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">image</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;photometry_diagnostics&quot;</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"Image"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"photometry_diagnostics"</span><span class="p">)</span>
 
-    <span class="n">type_</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;DiagnosticType&quot;</span><span class="p">)</span>
+    <span class="n">type_</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DiagnosticType"</span><span class="p">)</span>
 
     <span class="n">__table_args__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">Index</span><span class="p">(</span>
-            <span class="s2">&quot;img_chnl_phot_diagnostic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;image_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;channel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;photometry_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diagnostic_id&quot;</span><span class="p">,</span>
+            <span class="s2">"img_chnl_phot_diagnostic"</span><span class="p">,</span>
+            <span class="s2">"image_id"</span><span class="p">,</span>
+            <span class="s2">"channel"</span><span class="p">,</span>
+            <span class="s2">"photometry_id"</span><span class="p">,</span>
+            <span class="s2">"diagnostic_id"</span><span class="p">,</span>
             <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="n">Index</span><span class="p">(</span><span class="s2">&quot;diagnostic_value&quot;</span><span class="p">,</span> <span class="s2">&quot;diagnostic_id&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+        <span class="n">Index</span><span class="p">(</span><span class="s2">"diagnostic_value"</span><span class="p">,</span> <span class="s2">"diagnostic_id"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">),</span>
     <span class="p">)</span></div>
 
 </pre></div>

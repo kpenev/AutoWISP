@@ -3,5 +3,5 @@ autowisp.tests.test\_diagnostics\_views module
 
 .. automodule:: autowisp.tests.test_diagnostics_views
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

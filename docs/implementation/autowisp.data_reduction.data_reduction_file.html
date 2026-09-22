@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.data_reduction.data_reduction_file module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,77 +172,53 @@
 <span id="autowisp-data-reduction-data-reduction-file-module"></span><h1>autowisp.data_reduction.data_reduction_file module<a class="headerlink" href="#module-autowisp.data_reduction.data_reduction_file" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-14585745cf0e563e399313cdd62c6ce699fb2635.png" alt="Inheritance diagram of DataReductionFile, FileKind, HDF5FileDatabaseStructure, partial" usemap="#inheritancec11f9ce227" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-2ac5482f576193a09f6070e7890ae76c8ac06e78.png" alt="Inheritance diagram of DataReductionFile, FileKind, HDF5FileDatabaseStructure, partial" usemap="#inheritancec11f9ce227" class="inheritance graphviz" /></div>
 <map id="inheritancec11f9ce227" name="inheritancec11f9ce227">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
-<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
-<area shape="rect" id="node2" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
-<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="746,80,937,107"/>
-<area shape="rect" id="node6" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="796,5,887,32"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
-<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
-<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,445,207,471"/>
+<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="131,519,335,544"/>
+<area shape="rect" id="node2" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="16,665,449,691"/>
+<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,592,460,617"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="817,79,1029,104"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="873,5,973,31"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="457,79,645,104"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="462,152,641,177"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="281,5,440,31"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="465,5,638,31"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="662,5,849,31"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="314,225,546,251"/>
 </map><p>Define a class for working with data reduction files.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.data_reduction.data_reduction_file.</span></span><span class="sig-name descname"><span class="pre">DataReductionFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.data_reduction.data_reduction_file.</span></span><span class="sig-name descname"><span class="pre">DataReductionFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" title="autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">HDF5FileDatabaseStructure</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-94a1397e7b57991192c27722b18fc175d427ea6d.png" alt="Inheritance diagram of autowisp.data_reduction.data_reduction_file.DataReductionFile" usemap="#inheritancecf1f0cb9dd" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-08ff29861ba52618b57a40099aac842e9c851bd5.png" alt="Inheritance diagram of autowisp.data_reduction.data_reduction_file.DataReductionFile" usemap="#inheritancecf1f0cb9dd" class="inheritance graphviz" /></div>
 <map id="inheritancecf1f0cb9dd" name="inheritancecf1f0cb9dd">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
-<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
-<area shape="rect" id="node2" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
-<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node6" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,445,207,471"/>
+<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="131,519,335,544"/>
+<area shape="rect" id="node2" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="16,665,449,691"/>
+<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,592,460,617"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="457,79,645,104"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="462,152,641,177"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="281,5,440,31"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="465,5,638,31"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="662,5,849,31"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="314,225,546,251"/>
 </map><p>Interface for working with the pipeline data reduction (DR) files.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile._product">
-<span class="sig-name descname"><span class="pre">_product</span></span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile._product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile._product" title="Link to this definition"></a></dt>
-<dd><p>The pipeline key of the HDF5 product. In this case:
-<cite>‘data_reduction’</cite></p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile._key_io_tree_to_dr">
-<span class="sig-name descname"><span class="pre">_key_io_tree_to_dr</span></span><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile._key_io_tree_to_dr" title="Link to this definition"></a></dt>
-<dd><p>A dictionary specifying the correspondence
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_product</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The pipeline key of the HDF5 product. In this case:
+<cite>‘data_reduction’</cite></p></li>
+<li><p><strong>_key_io_tree_to_dr</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A dictionary specifying the correspondence
 between the keys used in astrowisp.IOTree to store quantities and
-the element key in the DR file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile._dtype_dr_to_io_tree">
-<span class="sig-name descname"><span class="pre">_dtype_dr_to_io_tree</span></span><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile._dtype_dr_to_io_tree" title="Link to this definition"></a></dt>
-<dd><p>A dictionary specifying the
+the element key in the DR file.</p></li>
+<li><p><strong>_dtype_dr_to_io_tree</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A dictionary specifying the
 correspondence between data types for entries in DR files and data
-types in astrowisp.IOTree.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+types in astrowisp.IOTree.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.__init__" title="Link to this definition"></a></dt>
@@ -263,7 +239,7 @@ types in astrowisp.IOTree.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile._get_root_tag_name">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_root_tag_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile._get_root_tag_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile._get_root_tag_name" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_root_tag_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile._get_root_tag_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile._get_root_tag_name" title="Link to this definition"></a></dt>
 <dd><p>The name of the root tag in the layout configuration.</p>
 </dd></dl>
 
@@ -293,7 +269,7 @@ types in astrowisp.IOTree.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.add_magnitude_fitting">
-<span class="sig-name descname"><span class="pre">add_magnitude_fitting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitted_magnitudes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_indices</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.add_magnitude_fitting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_magnitude_fitting" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_magnitude_fitting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitted_magnitudes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_indices</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.add_magnitude_fitting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_magnitude_fitting" title="Link to this definition"></a></dt>
 <dd><p>Add a magnitude fitting iteration to the DR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -332,7 +308,7 @@ whose DR file this is.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.add_sources">
-<span class="sig-name descname"><span class="pre">add_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_substitution_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascii_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.add_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_sources" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_substitution_name</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascii_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.add_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_sources" title="Link to this definition"></a></dt>
 <dd><p>Creates datasets out of the fields in an array of sources.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -362,7 +338,7 @@ strings before saving.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.fname_template">
-<span class="sig-name descname"><span class="pre">fname_template</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.fname_template" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fname_template</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.fname_template" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -379,7 +355,7 @@ strings before saving.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.get_fname_from_header">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_fname_from_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.get_fname_from_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_fname_from_header" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_fname_from_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.get_fname_from_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_fname_from_header" title="Link to this definition"></a></dt>
 <dd><p>Return the filename of the DR file for the given header.</p>
 </dd></dl>
 
@@ -442,7 +418,7 @@ given substitutions.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_data">
-<span class="sig-name descname"><span class="pre">get_source_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apphot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">string_source_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_numeric_source_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.get_source_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_source_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apphot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">string_source_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_numeric_source_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.get_source_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_data" title="Link to this definition"></a></dt>
 <dd><p>Extract available photometry from the data reduction file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -562,7 +538,7 @@ are 1-D numpy arrays containing the data.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.initialize">
-<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observing_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.initialize" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">observing_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.initialize" title="Link to this definition"></a></dt>
 <dd><p>Write the FITS header and (optionally) provenance to the DR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -587,12 +563,12 @@ is left untouched.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.related_file_kind">
-<span class="sig-name descname"><span class="pre">related_file_kind</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dr_file'</span></em><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.related_file_kind" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">related_file_kind</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dr_file'</span></span><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.related_file_kind" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.data_reduction_file.DataReductionFile.save_source_extracted_psf_map">
-<span class="sig-name descname"><span class="pre">save_source_extracted_psf_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_configuration</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.save_source_extracted_psf_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.save_source_extracted_psf_map" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save_source_extracted_psf_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_configuration</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/data_reduction_file.html#DataReductionFile.save_source_extracted_psf_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.data_reduction_file.DataReductionFile.save_source_extracted_psf_map" title="Link to this definition"></a></dt>
 <dd><p>Create the datasets and attributes holding the fit results.</p>
 </dd></dl>
 

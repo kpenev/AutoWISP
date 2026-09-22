@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_timestamp_triggers module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,13 +16,13 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.tests.update_hdf5_contents module" href="autowisp.tests.update_hdf5_contents.html" />
+    <link rel="next" title="autowisp.bui_util module" href="autowisp.bui_util.html" />
     <link rel="prev" title="autowisp.tests.test_tfa_num_templates module" href="autowisp.tests.test_tfa_num_templates.html" /> 
 </head>
 
@@ -172,12 +172,10 @@
 <span id="autowisp-tests-test-timestamp-triggers-module"></span><h1>autowisp.tests.test_timestamp_triggers module<a class="headerlink" href="#module-autowisp.tests.test_timestamp_triggers" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-86a871f86ade09345edf727ef888fb13cad290bb.png" alt="Inheritance diagram of DataModelBase, TestTriggerQuoting" usemap="#inheritancecf041aca59" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-85bb656a733b4239064c5e6af9b92b486cb4d086.png" alt="Inheritance diagram of DataModelBase, TestTriggerQuoting" usemap="#inheritancecf041aca59" class="inheritance graphviz" /></div>
 <map id="inheritancecf041aca59" name="inheritancecf041aca59">
-<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="224,304,554,331"/>
-<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="407,229,760,256"/>
-<area shape="rect" id="node5" href="#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" target="_top" title="Every identifier a trigger names is quoted." alt="" coords="718,80,1082,107"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="531,5,636,32"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" target="_top" title="Every identifier a trigger names is quoted." alt="" coords="793,79,1200,104"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
 </map><p>Tests for the DDL that installs the update-timestamp triggers.</p>
 <p>Its own module rather than part of <code class="docutils literal notranslate"><span class="pre">test_database_migration</span></code>: the
 migration code <em>reinstates</em> these triggers, but what they say is decided
@@ -185,11 +183,11 @@ in <a class="reference internal" href="autowisp.database.data_model.html#module-
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_timestamp_triggers.TestTriggerQuoting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_timestamp_triggers.</span></span><span class="sig-name descname"><span class="pre">TestTriggerQuoting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_timestamp_triggers.html#TestTriggerQuoting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_timestamp_triggers.</span></span><span class="sig-name descname"><span class="pre">TestTriggerQuoting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_timestamp_triggers.html#TestTriggerQuoting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-56bdde13fd38f2fcd0403ebb4cd9261dd8e54fe7.png" alt="Inheritance diagram of autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" usemap="#inheritance61ca78d8b0" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-8817642f453e9d96bb2e394a0cf059420062841c.png" alt="Inheritance diagram of autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" usemap="#inheritance61ca78d8b0" class="inheritance graphviz" /></div>
 <map id="inheritance61ca78d8b0" name="inheritance61ca78d8b0">
-<area shape="rect" id="node1" href="#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" target="_top" title="Every identifier a trigger names is quoted." alt="" coords="5,80,370,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting" target="_top" title="Every identifier a trigger names is quoted." alt="" coords="5,79,412,104"/>
 </map><p>Every identifier a trigger names is quoted.</p>
 <p><code class="docutils literal notranslate"><span class="pre">condition</span></code> is a table here and a reserved word in MariaDB, so an
 unquoted <code class="docutils literal notranslate"><span class="pre">ON</span> <span class="pre">condition</span></code> is a syntax error. Over the metadata rather
@@ -223,7 +221,7 @@ SQLite – which reserves a different set and forgave it.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.tests.test_tfa_num_templates.html" class="btn btn-neutral float-left" title="autowisp.tests.test_tfa_num_templates module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.tests.update_hdf5_contents.html" class="btn btn-neutral float-right" title="autowisp.tests.update_hdf5_contents module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.bui_util.html" class="btn btn-neutral float-right" title="autowisp.bui_util module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

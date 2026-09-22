@@ -1,7 +1,0 @@
-autowisp.database.data\_model.observing\_session module
-=======================================================
-
-.. automodule:: autowisp.database.data_model.observing_session
-   :members:
-   :undoc-members:
-   :show-inheritance:

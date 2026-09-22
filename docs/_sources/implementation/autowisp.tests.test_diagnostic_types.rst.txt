@@ -3,5 +3,5 @@ autowisp.tests.test\_diagnostic\_types module
 
 .. automodule:: autowisp.tests.test_diagnostic_types
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

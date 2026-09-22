@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_evaluator &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,13 +165,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_evaluator</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tests for the symbol table every AutoWISP expression is evaluated in.</span>
+<span></span><span class="sd">"""Tests for the symbol table every AutoWISP expression is evaluated in.</span>
 
 <span class="sd">``Evaluator`` and ``LightCurveEvaluator`` are siblings deriving from</span>
 <span class="sd">``EvaluatorBase``, and roughly two dozen modules build one. What they offer</span>
 <span class="sd">is therefore worth pinning in one place: the names AutoWISP adds, the names</span>
 <span class="sd">it takes away, and what happens to a bad expression.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
@@ -188,29 +188,29 @@
 <div class="viewcode-block" id="_lightcurve_evaluator">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator._lightcurve_evaluator">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_lightcurve_evaluator</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a ``LightCurveEvaluator`` over a lightcurve with no datasets.</span>
+<span class="w">    </span><span class="sd">"""Return a ``LightCurveEvaluator`` over a lightcurve with no datasets.</span>
 
-<span class="sd">    Only ``elements[&quot;dataset&quot;]`` is consulted during construction, so a</span>
+<span class="sd">    Only ``elements["dataset"]`` is consulted during construction, so a</span>
 <span class="sd">    stand-in avoids needing a lightcurve file to check the symbol table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">return</span> <span class="n">LightCurveEvaluator</span><span class="p">(</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">elements</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="p">[]}))</span></div>
+    <span class="k">return</span> <span class="n">LightCurveEvaluator</span><span class="p">(</span><span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">elements</span><span class="o">=</span><span class="p">{</span><span class="s2">"dataset"</span><span class="p">:</span> <span class="p">[]}))</span></div>
 
 
 
 <div class="viewcode-block" id="TestNanAggregates">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestNanAggregates</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The NaN-ignoring aggregates are available and are numpy&#39;s.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The NaN-ignoring aggregates are available and are numpy's."""</span>
 
 <div class="viewcode-block" id="TestNanAggregates.test_present_in_both_evaluators">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_present_in_both_evaluators">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_present_in_both_evaluators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checked in both, since they used to differ.</span>
+<span class="w">        </span><span class="sd">"""Checked in both, since they used to differ.</span>
 
 <span class="sd">        ``LightCurveEvaluator`` defined two of these and ``Evaluator`` none,</span>
 <span class="sd">        so which aggregates worked depended on which one you were in.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">for</span> <span class="n">evaluator</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Evaluator</span><span class="p">(),</span> <span class="n">_lightcurve_evaluator</span><span class="p">()):</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">EvaluatorBase</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">:</span>
@@ -223,7 +223,7 @@
 <div class="viewcode-block" id="TestNanAggregates.test_bound_to_the_numpy_functions">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_bound_to_the_numpy_functions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_bound_to_the_numpy_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A name resolving to something else would be worse than absent.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A name resolving to something else would be worse than absent."""</span>
 
         <span class="n">symtable</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">()</span><span class="o">.</span><span class="n">symtable</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">EvaluatorBase</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">:</span>
@@ -234,7 +234,7 @@
 <div class="viewcode-block" id="TestNanAggregates.test_a_missing_numpy_name_would_fail_loudly">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_a_missing_numpy_name_would_fail_loudly">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_missing_numpy_name_would_fail_loudly</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The list is explicit so that numpy dropping one is an error.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The list is explicit so that numpy dropping one is an error."""</span>
 
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">EvaluatorBase</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
@@ -244,13 +244,13 @@
 <div class="viewcode-block" id="TestNanAggregates.test_data_shadows_an_aggregate_of_the_same_name">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestNanAggregates.test_data_shadows_an_aggregate_of_the_same_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_data_shadows_an_aggregate_of_the_same_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The data is what the user is asking about.</span>
+<span class="w">        </span><span class="sd">"""The data is what the user is asking about.</span>
 
 <span class="sd">        Binding happens before the data is loaded precisely so that this</span>
 <span class="sd">        works; the reverse order would make a diagnostic unreachable.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">({</span><span class="s2">&quot;nanmedian&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;nanmedian&quot;</span><span class="p">],</span> <span class="mi">42</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">({</span><span class="s2">"nanmedian"</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"nanmedian"</span><span class="p">],</span> <span class="mi">42</span><span class="p">)</span></div>
 </div>
 
 
@@ -258,12 +258,12 @@
 <div class="viewcode-block" id="TestRemovedNames">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestRemovedNames</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Names asteval offers that AutoWISP takes away.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Names asteval offers that AutoWISP takes away."""</span>
 
 <div class="viewcode-block" id="TestRemovedNames.test_absent_from_both_evaluators">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_absent_from_both_evaluators">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_absent_from_both_evaluators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removed on the shared base, so neither can reach them.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Removed on the shared base, so neither can reach them."""</span>
 
         <span class="k">for</span> <span class="n">evaluator</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Evaluator</span><span class="p">(),</span> <span class="n">_lightcurve_evaluator</span><span class="p">()):</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">EvaluatorBase</span><span class="o">.</span><span class="n">removed_names</span><span class="p">:</span>
@@ -276,35 +276,218 @@
 <div class="viewcode-block" id="TestRemovedNames.test_filesystem_access_raises">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_filesystem_access_raises">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_filesystem_access_raises</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asteval permits reading files; AutoWISP does not.</span>
+<span class="w">        </span><span class="sd">"""Asteval permits reading files; AutoWISP does not.</span>
 
 <span class="sd">        Its ``open`` already refuses every mode but reading, so this is</span>
 <span class="sd">        about reading: expressions travel between installations in export</span>
 <span class="sd">        files, and a shared one must not be able to read arbitrary files.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NameError</span><span class="p">):</span>
-            <span class="n">Evaluator</span><span class="p">()(</span><span class="s2">&quot;open(&#39;/etc/passwd&#39;).read()&quot;</span><span class="p">)</span></div>
+            <span class="n">Evaluator</span><span class="p">()(</span><span class="s2">"open('/etc/passwd').read()"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestRemovedNames.test_printing_raises">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_printing_raises">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_printing_raises</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A side effect rather than a value.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A side effect rather than a value."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NameError</span><span class="p">):</span>
-            <span class="n">Evaluator</span><span class="p">()(</span><span class="s2">&quot;print(1)&quot;</span><span class="p">)</span></div>
+            <span class="n">Evaluator</span><span class="p">()(</span><span class="s2">"print(1)"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestRemovedNames.test_the_mathematical_names_survive">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestRemovedNames.test_the_mathematical_names_survive">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_mathematical_names_survive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The removals must not cost anything anyone would write.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The removals must not cost anything anyone would write."""</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="n">Evaluator</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">])})(</span><span class="s2">&quot;sqrt(x) + abs(-x)&quot;</span><span class="p">),</span>
+            <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">])})(</span><span class="s2">"sqrt(x) + abs(-x)"</span><span class="p">),</span>
             <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
         <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TestIterativeRejection">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestIterativeRejection</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The iterative-rejection fits cope with NaN-padded input.</span>
+
+<span class="sd">    Diagnostics are NaN-padded onto the full image list, so a missing value</span>
+<span class="sd">    is the usual case rather than an exception. A NaN in the dependent</span>
+<span class="sd">    variable is left out of the fit but still gets a prediction; a NaN in</span>
+<span class="sd">    the independent one has nothing to predict at.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="TestIterativeRejection.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A straight line with one outlier and some missing values."""</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">20.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expected</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mf">100.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">missing_y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">missing_y</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">missing_x</span> <span class="o">=</span> <span class="mi">15</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">missing_x</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">missing_x</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection.test_average_ignores_nan_and_rejects_outlier">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.test_average_ignores_nan_and_rejects_outlier">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_average_ignores_nan_and_rejects_outlier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""With ``nanmean``, only rejection keeps the outlier out."""</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">100.0</span>
+        <span class="n">y</span><span class="p">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">11</span><span class="p">]]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"y"</span><span class="p">:</span> <span class="n">y</span><span class="p">})(</span>
+                <span class="s2">"iterative_rejection_average(y, 3, average_func=nanmean)"</span>
+            <span class="p">),</span>
+            <span class="mf">10.0</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection.test_polynomial_fit">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.test_polynomial_fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_polynomial_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Predicted where only y is missing, NaN where x is."""</span>
+
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+            <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">})(</span>
+                <span class="s2">"iterative_rej_polynomial_fit(x, y, 1, 3)"</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection.test_threshold_pair">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.test_threshold_pair">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_threshold_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A signed pair rejects above and below separately, in any order.</span>
+
+<span class="sd">        The outlier above the line (at 4) is rejected; the one below it (at</span>
+<span class="sd">        9) is well within the negative threshold, so it stays and pulls the</span>
+<span class="sd">        fit. Two thresholds of the same sign are refused rather than</span>
+<span class="sd">        guessed at.</span>
+<span class="sd">        """</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">y</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">60.0</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">keep</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">y</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"(3, -10)"</span><span class="p">,</span> <span class="s2">"(-10, 3)"</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">):</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                    <span class="n">evaluator</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"iterative_rej_polynomial_fit(x, y, 1, </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">)"</span>
+                    <span class="p">),</span>
+                    <span class="n">expected</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">evaluator</span><span class="p">(</span><span class="s2">"iterative_rej_polynomial_fit(x, y, 1, (3, 10))"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection.test_polynomial_fit_with_too_few_points_is_nan">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.test_polynomial_fit_with_too_few_points_is_nan">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_polynomial_fit_with_too_few_points_is_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Fewer finite points than coefficients gives no fit at all.</span>
+
+<span class="sd">        Rather than the minimum-norm solution ``lstsq`` would return, which</span>
+<span class="sd">        would plot as a line through nothing.</span>
+<span class="sd">        """</span>
+
+        <span class="k">for</span> <span class="n">num_finite</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">num_finite</span><span class="o">=</span><span class="n">num_finite</span><span class="p">):</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">y</span><span class="p">[:</span><span class="n">num_finite</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span>
+                        <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">y</span><span class="p">})(</span>
+                            <span class="s2">"iterative_rej_polynomial_fit(x, y, 1, 3)"</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection.test_smoothing_spline">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_smoothing_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Predicted where only y is missing, NaN where x is."""</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">y</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">missing_y</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+            <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">y</span><span class="p">})(</span>
+                <span class="s2">"iterative_rej_smoothing_spline(x, y, 5, s=1e-6)"</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">,</span>
+            <span class="n">atol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection._noisy_sine">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection._noisy_sine">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_noisy_sine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return x, y, and the truth: noisy with outliers and NaNs.</span>
+
+<span class="sd">        The noise (0.05) comes from ``RandomState`` because its stream is</span>
+<span class="sd">        frozen, while a ``Generator``'s may change between numpy versions.</span>
+<span class="sd">        The outliers are 200 times the noise so that failing to reject them</span>
+<span class="sd">        is unmistakable.</span>
+<span class="sd">        """</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+        <span class="n">truth</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">truth</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">[[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">]]</span> <span class="o">+=</span> <span class="mf">10.0</span>
+        <span class="n">y</span><span class="p">[[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">70</span><span class="p">]]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">truth</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection.test_smoothing_spline_rejects_outliers">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline_rejects_outliers">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_smoothing_spline_rejects_outliers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The result does not depend on how loose the initial ``s`` is.</span>
+
+<span class="sd">        It only has to be loose enough for the spline not to bend to the</span>
+<span class="sd">        outliers. Over 200 noise seeds, the largest error is at most 0.12,</span>
+<span class="sd">        against at least 1.0 without rejection (see the next test).</span>
+<span class="sd">        """</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">truth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noisy_sine</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">initial_smoothing</span> <span class="ow">in</span> <span class="p">(</span><span class="mf">300.0</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">initial_smoothing</span><span class="o">=</span><span class="n">initial_smoothing</span><span class="p">):</span>
+                <span class="n">smoothed</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">y</span><span class="p">})(</span>
+                    <span class="s2">"iterative_rej_smoothing_spline(x, y, 5, "</span>
+                    <span class="sa">f</span><span class="s2">"s=</span><span class="si">{</span><span class="n">initial_smoothing</span><span class="si">}</span><span class="s2">)"</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">smoothed</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mf">0.15</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestIterativeRejection.test_smoothing_spline_without_iterations">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline_without_iterations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_smoothing_spline_without_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``max_iterations=0`` is a single fit, rejecting nothing.</span>
+
+<span class="sd">        Smoothing enough to leave the outliers alone flattens the sine.</span>
+<span class="sd">        """</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">truth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noisy_sine</span><span class="p">()</span>
+        <span class="n">smoothed</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">({</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">y</span><span class="p">})(</span>
+            <span class="s2">"iterative_rej_smoothing_spline(x, y, 5, max_iterations=0, "</span>
+            <span class="s2">"s=300.0)"</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">smoothed</span> <span class="o">-</span> <span class="n">truth</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mf">0.5</span><span class="p">)</span></div>
 </div>
 
 
@@ -312,34 +495,34 @@
 <div class="viewcode-block" id="TestErrorHandling">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestErrorHandling">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestErrorHandling</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A bad expression raises rather than evaluating to ``None``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A bad expression raises rather than evaluating to ``None``."""</span>
 
 <div class="viewcode-block" id="TestErrorHandling.test_raises_by_default_in_both_evaluators">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestErrorHandling.test_raises_by_default_in_both_evaluators">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_raises_by_default_in_both_evaluators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asteval&#39;s default returns ``None``, relocating the failure.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Asteval's default returns ``None``, relocating the failure."""</span>
 
         <span class="k">for</span> <span class="n">evaluator</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Evaluator</span><span class="p">(),</span> <span class="n">_lightcurve_evaluator</span><span class="p">()):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">evaluator</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">):</span>
                 <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NameError</span><span class="p">):</span>
-                    <span class="n">evaluator</span><span class="p">(</span><span class="s2">&quot;no_such_name + 1&quot;</span><span class="p">)</span></div>
+                    <span class="n">evaluator</span><span class="p">(</span><span class="s2">"no_such_name + 1"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorHandling.test_permissive_behaviour_remains_available">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_evaluator.html#autowisp.tests.test_evaluator.TestErrorHandling.test_permissive_behaviour_remains_available">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_permissive_behaviour_remains_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Callers that want the old behaviour can still ask for it.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Callers that want the old behaviour can still ask for it."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span>
             <span class="n">Evaluator</span><span class="p">()(</span>
-                <span class="s2">&quot;no_such_name + 1&quot;</span><span class="p">,</span> <span class="n">raise_errors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_errors</span><span class="o">=</span><span class="kc">False</span>
+                <span class="s2">"no_such_name + 1"</span><span class="p">,</span> <span class="n">raise_errors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_errors</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

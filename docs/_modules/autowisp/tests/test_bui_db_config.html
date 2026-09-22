@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_bui_db_config &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,34 +165,26 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_bui_db_config</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tests for resolving which database the browser interface uses.</span>
+<span></span><span class="sd">"""Tests for resolving which database the browser interface uses.</span>
 
 <span class="sd">These exercise ``django_project.db_config`` directly rather than through</span>
 <span class="sd">``settings``, because the setting is read once at import time and cannot be</span>
 <span class="sd">re-resolved afterwards.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">environ</span><span class="p">,</span> <span class="n">path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
 
-<span class="n">_browser_interface</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;browser_interface&quot;</span>
-<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">_browser_interface</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_browser_interface</span><span class="p">))</span>
-
-<span class="c1"># pylint: disable=wrong-import-position</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django_project</span><span class="w"> </span><span class="kn">import</span> <span class="n">db_config</span>
-
-<span class="c1"># pylint: enable=wrong-import-position</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.django_project</span><span class="w"> </span><span class="kn">import</span> <span class="n">db_config</span>
 
 
 <div class="viewcode-block" id="DbConfigTestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbConfigTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base giving each test an empty data directory and no environment.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base giving each test an empty data directory and no environment."""</span>
 
 <div class="viewcode-block" id="DbConfigTestCase.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase.setUp">[docs]</a>
@@ -211,7 +203,7 @@
 <div class="viewcode-block" id="DbConfigTestCase._restore_env">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase._restore_env">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_restore_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Put back whatever the environment held before the test.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Put back whatever the environment held before the test."""</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_saved</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">db_config</span><span class="o">.</span><span class="n">url_env_var</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -222,12 +214,12 @@
 <div class="viewcode-block" id="DbConfigTestCase.write_url_file">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.DbConfigTestCase.write_url_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_url_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write *url* to the data directory&#39;s URL file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Write *url* to the data directory's URL file."""</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
             <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">db_config</span><span class="o">.</span><span class="n">url_fname</span><span class="p">),</span>
-            <span class="s2">&quot;w&quot;</span><span class="p">,</span>
-            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+            <span class="s2">"w"</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">url_file</span><span class="p">:</span>
             <span class="n">url_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></div>
 </div>
@@ -237,12 +229,12 @@
 <div class="viewcode-block" id="TestDiscovery">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestDiscovery</span><span class="p">(</span><span class="n">DbConfigTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Where the URL is looked for, and in what order.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Where the URL is looked for, and in what order."""</span>
 
 <div class="viewcode-block" id="TestDiscovery.test_nothing_configured">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_nothing_configured">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_nothing_configured</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;No environment and no file means no URL.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""No environment and no file means no URL."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">db_config</span><span class="o">.</span><span class="n">get_database_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">))</span></div>
 
@@ -250,35 +242,35 @@
 <div class="viewcode-block" id="TestDiscovery.test_url_file">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_url_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_url_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A URL file is read, and surrounding whitespace ignored.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A URL file is read, and surrounding whitespace ignored."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">&quot;  sqlite:////tmp/from-file.sqlite3</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">"  sqlite:////tmp/from-file.sqlite3</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">db_config</span><span class="o">.</span><span class="n">get_database_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">),</span>
-            <span class="s2">&quot;sqlite:////tmp/from-file.sqlite3&quot;</span><span class="p">,</span>
+            <span class="s2">"sqlite:////tmp/from-file.sqlite3"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDiscovery.test_environment_wins">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_environment_wins">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_environment_wins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The environment takes precedence over the file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The environment takes precedence over the file."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">&quot;sqlite:////tmp/from-file.sqlite3&quot;</span><span class="p">)</span>
-        <span class="n">environ</span><span class="p">[</span><span class="n">db_config</span><span class="o">.</span><span class="n">url_env_var</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sqlite:////tmp/from-env.sqlite3&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">"sqlite:////tmp/from-file.sqlite3"</span><span class="p">)</span>
+        <span class="n">environ</span><span class="p">[</span><span class="n">db_config</span><span class="o">.</span><span class="n">url_env_var</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"sqlite:////tmp/from-env.sqlite3"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">db_config</span><span class="o">.</span><span class="n">get_database_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">),</span>
-            <span class="s2">&quot;sqlite:////tmp/from-env.sqlite3&quot;</span><span class="p">,</span>
+            <span class="s2">"sqlite:////tmp/from-env.sqlite3"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDiscovery.test_empty_values_are_ignored">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDiscovery.test_empty_values_are_ignored">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_values_are_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An empty variable or file falls through to the default.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An empty variable or file falls through to the default."""</span>
 
-        <span class="n">environ</span><span class="p">[</span><span class="n">db_config</span><span class="o">.</span><span class="n">url_env_var</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;   &quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">environ</span><span class="p">[</span><span class="n">db_config</span><span class="o">.</span><span class="n">url_env_var</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"   "</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">db_config</span><span class="o">.</span><span class="n">get_database_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">))</span></div>
 </div>
 
@@ -287,19 +279,19 @@
 <div class="viewcode-block" id="TestDefaultDatabase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDefaultDatabase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestDefaultDatabase</span><span class="p">(</span><span class="n">DbConfigTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An unconfigured installation keeps working untouched.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""An unconfigured installation keeps working untouched."""</span>
 
 <div class="viewcode-block" id="TestDefaultDatabase.test_defaults_to_sqlite_in_the_data_directory">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestDefaultDatabase.test_defaults_to_sqlite_in_the_data_directory">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_defaults_to_sqlite_in_the_data_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;This is what every existing installation already has.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""This is what every existing installation already has."""</span>
 
         <span class="n">databases</span> <span class="o">=</span> <span class="n">db_config</span><span class="o">.</span><span class="n">get_databases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">databases</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;ENGINE&quot;</span><span class="p">],</span> <span class="s2">&quot;django.db.backends.sqlite3&quot;</span>
+            <span class="n">databases</span><span class="p">[</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"ENGINE"</span><span class="p">],</span> <span class="s2">"django.db.backends.sqlite3"</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">databases</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;NAME&quot;</span><span class="p">],</span>
+            <span class="n">databases</span><span class="p">[</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"NAME"</span><span class="p">],</span>
             <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">db_config</span><span class="o">.</span><span class="n">sqlite_fname</span><span class="p">),</span>
         <span class="p">)</span></div>
 </div>
@@ -309,80 +301,80 @@
 <div class="viewcode-block" id="TestUrlTranslation">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestUrlTranslation</span><span class="p">(</span><span class="n">DbConfigTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A URL becomes Django&#39;s DATABASES dictionary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A URL becomes Django's DATABASES dictionary."""</span>
 
 <div class="viewcode-block" id="TestUrlTranslation.translate">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.translate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ``default`` entry *url* maps to, driver aside.</span>
+<span class="w">        </span><span class="sd">"""Return the ``default`` entry *url* maps to, driver aside.</span>
 
-<span class="sd">        Whether a driver can be loaded is :class:`TestMysqlDriver`&#39;s</span>
+<span class="sd">        Whether a driver can be loaded is :class:`TestMysqlDriver`'s</span>
 <span class="sd">        question, and it is stubbed out here so that this one -- pure</span>
 <span class="sd">        string handling -- is answered everywhere rather than only where a</span>
 <span class="sd">        driver happens to be installed. Which is one cell of the test</span>
 <span class="sd">        grid: ``pip install .`` brings neither ``mysqlclient`` nor</span>
 <span class="sd">        ``pymysql``, a MySQL browser-interface database being an option</span>
 <span class="sd">        rather than the default.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">environ</span><span class="p">[</span><span class="n">db_config</span><span class="o">.</span><span class="n">url_env_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">url</span>
-        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">db_config</span><span class="p">,</span> <span class="s2">&quot;_ensure_mysql_driver&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">db_config</span><span class="o">.</span><span class="n">get_databases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span></div>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">db_config</span><span class="p">,</span> <span class="s2">"_ensure_mysql_driver"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">db_config</span><span class="o">.</span><span class="n">get_databases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)[</span><span class="s2">"default"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="TestUrlTranslation.test_sqlite_url_supplies_the_path">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_sqlite_url_supplies_the_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_sqlite_url_supplies_the_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An explicit SQLite file may live outside the data directory.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An explicit SQLite file may live outside the data directory."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">&quot;sqlite:////elsewhere/bui.sqlite3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">"sqlite:////elsewhere/bui.sqlite3"</span><span class="p">)</span>
         <span class="n">databases</span> <span class="o">=</span> <span class="n">db_config</span><span class="o">.</span><span class="n">get_databases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">databases</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;ENGINE&quot;</span><span class="p">],</span> <span class="s2">&quot;django.db.backends.sqlite3&quot;</span>
+            <span class="n">databases</span><span class="p">[</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"ENGINE"</span><span class="p">],</span> <span class="s2">"django.db.backends.sqlite3"</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;NAME&quot;</span><span class="p">],</span> <span class="s2">&quot;/elsewhere/bui.sqlite3&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"NAME"</span><span class="p">],</span> <span class="s2">"/elsewhere/bui.sqlite3"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestUrlTranslation.test_mysql_url_is_mapped_field_by_field">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_mysql_url_is_mapped_field_by_field">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_mysql_url_is_mapped_field_by_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The spelling matches the project database&#39;s own URLs.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The spelling matches the project database's own URLs."""</span>
 
         <span class="n">databases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span>
-            <span class="s2">&quot;mysql+pymysql://someone:secret@db.example.org:3307/autowisp_bui&quot;</span>
+            <span class="s2">"mysql+pymysql://someone:secret@db.example.org:3307/autowisp_bui"</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;ENGINE&quot;</span><span class="p">],</span> <span class="s2">&quot;django.db.backends.mysql&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;NAME&quot;</span><span class="p">],</span> <span class="s2">&quot;autowisp_bui&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;USER&quot;</span><span class="p">],</span> <span class="s2">&quot;someone&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;PASSWORD&quot;</span><span class="p">],</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;HOST&quot;</span><span class="p">],</span> <span class="s2">&quot;db.example.org&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;PORT&quot;</span><span class="p">],</span> <span class="s2">&quot;3307&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"ENGINE"</span><span class="p">],</span> <span class="s2">"django.db.backends.mysql"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"NAME"</span><span class="p">],</span> <span class="s2">"autowisp_bui"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"USER"</span><span class="p">],</span> <span class="s2">"someone"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"PASSWORD"</span><span class="p">],</span> <span class="s2">"secret"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"HOST"</span><span class="p">],</span> <span class="s2">"db.example.org"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"PORT"</span><span class="p">],</span> <span class="s2">"3307"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestUrlTranslation.test_mariadb_uses_the_same_backend">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_mariadb_uses_the_same_backend">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_mariadb_uses_the_same_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;MariaDB is MySQL as far as Django is concerned.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""MariaDB is MySQL as far as Django is concerned."""</span>
 
-        <span class="n">databases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="s2">&quot;mariadb+pymysql://u:p@host/autowisp_bui&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;ENGINE&quot;</span><span class="p">],</span> <span class="s2">&quot;django.db.backends.mysql&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">&quot;PORT&quot;</span><span class="p">],</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+        <span class="n">databases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="s2">"mariadb+pymysql://u:p@host/autowisp_bui"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"ENGINE"</span><span class="p">],</span> <span class="s2">"django.db.backends.mysql"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">databases</span><span class="p">[</span><span class="s2">"PORT"</span><span class="p">],</span> <span class="s2">""</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestUrlTranslation.test_unsupported_backend_is_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestUrlTranslation.test_unsupported_backend_is_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unsupported_backend_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Refused rather than half-supported.</span>
+<span class="w">        </span><span class="sd">"""Refused rather than half-supported.</span>
 
 <span class="sd">        ``core.timestamp_triggers`` implements ``modified`` triggers for</span>
 <span class="sd">        SQLite and MySQL only, so accepting another backend would leave the</span>
 <span class="sd">        column silently unmaintained.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">&quot;postgresql://u:p@host/autowisp_bui&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_url_file</span><span class="p">(</span><span class="s2">"postgresql://u:p@host/autowisp_bui"</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
             <span class="n">db_config</span><span class="o">.</span><span class="n">get_databases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;postgresql&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"postgresql"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
 </div>
 
 
@@ -390,30 +382,30 @@
 <div class="viewcode-block" id="TestMysqlDriver">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestMysqlDriver">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestMysqlDriver</span><span class="p">(</span><span class="n">DbConfigTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Django&#39;s MySQL backend is made to work with the driver present.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Django's MySQL backend is made to work with the driver present."""</span>
 
 <div class="viewcode-block" id="TestMysqlDriver.test_pymysql_is_accepted">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_bui_db_config.html#autowisp.tests.test_bui_db_config.TestMysqlDriver.test_pymysql_is_accepted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_pymysql_is_accepted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;AutoWISP documents ``mysql+pymysql`` but depends on no driver.</span>
+<span class="w">        </span><span class="sd">"""AutoWISP documents ``mysql+pymysql`` but depends on no driver.</span>
 
-<span class="sd">        Django&#39;s backend imports ``MySQLdb``, so ``pymysql`` has to be</span>
+<span class="sd">        Django's backend imports ``MySQLdb``, so ``pymysql`` has to be</span>
 <span class="sd">        installed under that name; skipped where neither is present.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">pymysql</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">&quot;no MySQL driver installed&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">"no MySQL driver installed"</span><span class="p">)</span>
 
         <span class="c1"># pylint: disable=protected-access</span>
         <span class="n">db_config</span><span class="o">.</span><span class="n">_ensure_mysql_driver</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;MySQLdb&quot;</span><span class="p">],</span> <span class="n">pymysql</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">"MySQLdb"</span><span class="p">],</span> <span class="n">pymysql</span><span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

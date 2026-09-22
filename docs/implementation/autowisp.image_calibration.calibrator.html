@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.image_calibration.calibrator module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,33 +172,33 @@
 <span id="autowisp-image-calibration-calibrator-module"></span><h1>autowisp.image_calibration.calibrator module<a class="headerlink" href="#module-autowisp.image_calibration.calibrator" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-f8d9a18cd0dac423de8989b0f95278b945c101be.png" alt="Inheritance diagram of CalibrationError, Calibrator, ImageMismatchError, OutsideImageError, Processor" usemap="#inheritance0ae92913b1" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-0346fcba0c533decd099cd4e0e257b99eccbf3f2.png" alt="Inheritance diagram of CalibrationError, Calibrator, ImageMismatchError, OutsideImageError, Processor" usemap="#inheritance0ae92913b1" class="inheritance graphviz" /></div>
 <map id="inheritance0ae92913b1" name="inheritance0ae92913b1">
-<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="151,5,385,32"/>
-<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="168,80,368,107"/>
-<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.CalibrationError" target="_top" title="Failure in the calibrate step." alt="" coords="15,155,249,181"/>
-<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="5,229,259,256"/>
-<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="273,155,538,181"/>
-<area shape="rect" id="node6" href="#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="392,80,688,107"/>
-<area shape="rect" id="node7" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="441,5,639,32"/>
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="171,5,426,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="189,79,409,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.CalibrationError" target="_top" title="Failure in the calibrate step." alt="" coords="15,152,278,177"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="5,225,288,251"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="303,152,599,177"/>
+<area shape="rect" id="node6" href="#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="433,79,767,104"/>
+<area shape="rect" id="node7" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="493,5,707,31"/>
 </map><p>Define a class (Calibrator) for low-level image calibration.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.calibrator.</span></span><span class="sig-name descname"><span class="pre">Calibrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saturation_threshold</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.calibrator.</span></span><span class="sig-name descname"><span class="pre">Calibrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">saturation_threshold</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.processor.html#autowisp.processor.Processor" title="autowisp.processor.Processor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Processor</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-3514fcd39b76a61894857987ab8822587f4ddb92.png" alt="Inheritance diagram of autowisp.image_calibration.calibrator.Calibrator" usemap="#inheritancebe5c281165" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-2e566e35572d32cd7ef7009a78316ccde1c4adc3.png" alt="Inheritance diagram of autowisp.image_calibration.calibrator.Calibrator" usemap="#inheritancebe5c281165" class="inheritance graphviz" /></div>
 <map id="inheritancebe5c281165" name="inheritancebe5c281165">
-<area shape="rect" id="node1" href="#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="5,80,301,107"/>
-<area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="54,5,252,32"/>
+<area shape="rect" id="node1" href="#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="5,79,340,104"/>
+<area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="65,5,280,31"/>
 </map><p>Provide basic calibration operations (bias/dark/flat) fully tracking noise.</p>
 <p>Public attributes, set through <a class="reference internal" href="#autowisp.image_calibration.calibrator.Calibrator.__init__" title="autowisp.image_calibration.calibrator.Calibrator.__init__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__init__()</span></code></a>, provide defaults for
 calibration parameters that can be overwritten on a one-time basis for
 each frame being calibrated by passing arguments to <a class="reference internal" href="#autowisp.image_calibration.calibrator.Calibrator.__call__" title="autowisp.image_calibration.calibrator.Calibrator.__call__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__call__()</span></code></a>.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.configuration">
-<span class="sig-name descname"><span class="pre">configuration</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.configuration" title="Link to this definition"></a></dt>
-<dd><p>Defines the following calibration parameters:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configuration</strong> – <p>Defines the following calibration parameters:</p>
 <dl class="simple">
 <dt>raw_hdu:    Which hdu of the raw frame contains the image to</dt><dd><p>calibrate. If a single number, the channels are assumed
 staggeder in that image. Otherwise, should be be a dictionary
@@ -253,14 +253,10 @@ file name of the input FITS file with all directories and
 replaced by the frame number (see above).</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.master_bias">
-<span class="sig-name descname"><span class="pre">master_bias</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.master_bias" title="Link to this definition"></a></dt>
-<dd><p>A dictionary indexed by channel with each entry being
+</p></li>
+<li><p><strong>master_bias</strong> – <p>A dictionary indexed by channel with each entry being
 further dictionary containing:</p>
-<ul class="simple">
+<ul>
 <li><p>filenames: Dictionary indexed by color channel of the filename of
 the master bias frame to use in subsequent calibrations (if not
 overwritten).</p></li>
@@ -272,40 +268,23 @@ entry.</p></li>
 flags raised for each pixel. The individual flages are defined
 by <code class="xref py py-data docutils literal notranslate"><span class="pre">mask_utilities.mask_flags</span></code>.</p></li>
 </ul>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.master_dark">
-<span class="sig-name descname"><span class="pre">master_dark</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.master_dark" title="Link to this definition"></a></dt>
-<dd><p>Analogous to <a class="reference internal" href="#autowisp.image_calibration.calibrator.Calibrator.master_bias" title="autowisp.image_calibration.calibrator.Calibrator.master_bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_bias</span></code></a> but contaning the
-information about the default master dark.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.master_flat">
-<span class="sig-name descname"><span class="pre">master_flat</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.master_flat" title="Link to this definition"></a></dt>
-<dd><p>Analogous to <a class="reference internal" href="#autowisp.image_calibration.calibrator.Calibrator.master_bias" title="autowisp.image_calibration.calibrator.Calibrator.master_bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_bias</span></code></a> but contaning the
-information about the default master flat.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.masks">
-<span class="sig-name descname"><span class="pre">masks</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.masks" title="Link to this definition"></a></dt>
-<dd><p>A dictionary containing:</p>
-<ul class="simple">
+</p></li>
+<li><p><strong>master_dark</strong> – Analogous to <code class="xref py py-attr docutils literal notranslate"><span class="pre">master_bias</span></code> but contaning the
+information about the default master dark.</p></li>
+<li><p><strong>master_flat</strong> – Analogous to <code class="xref py py-attr docutils literal notranslate"><span class="pre">master_bias</span></code> but contaning the
+information about the default master flat.</p></li>
+<li><p><strong>masks</strong> – <p>A dictionary containing:</p>
+<ul>
 <li><p>filenames: Dictionary indexed by channel containing a list of the
 files from which this mask was constructed.</p></li>
 <li><p>image: The combined mask image (bitwise OR) of all masks in
 <code class="docutils literal notranslate"><span class="pre">filenames</span></code>.</p></li>
 </ul>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.extra_header">
-<span class="sig-name descname"><span class="pre">extra_header</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.extra_header" title="Link to this definition"></a></dt>
-<dd><p>Additional keywords to add to the header.</p>
-</dd></dl>
-
+</p></li>
+<li><p><strong>extra_header</strong> – Additional keywords to add to the header.</p></li>
+</ul>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibrator</span><span class="p">,</span>\
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">overscan_methods</span>
@@ -319,7 +298,7 @@ files from which this mask was constructed.</p></li>
 <span class="gp">&gt;&gt;&gt; </span>                   <span class="n">method</span><span class="o">=</span><span class="n">overscan_methods</span><span class="o">.</span><span class="n">Median</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#The master bias frame to use.</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">master_bias</span><span class="o">=</span><span class="s1">&#39;masters/master_bias1.fits&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">master_bias</span><span class="o">=</span><span class="s1">'masters/master_bias1.fits'</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#The gain (electrons/ADU) to assume for the input images.</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">gain</span><span class="o">=</span><span class="mf">16.0</span><span class="p">,</span>
@@ -329,18 +308,18 @@ files from which this mask was constructed.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#Specify a master dark after construction.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="o">.</span><span class="n">set_masters</span><span class="p">(</span><span class="n">dark</span><span class="o">=</span><span class="s1">&#39;masters/master_dark3.fits&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="o">.</span><span class="n">set_masters</span><span class="p">(</span><span class="n">dark</span><span class="o">=</span><span class="s1">'masters/master_dark3.fits'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Calibrate an image called &#39;raw1.fits&#39;, producing (or overwriting a</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#calibrated file called &#39;calib1.fits&#39; using the previously specified</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Calibrate an image called 'raw1.fits', producing (or overwriting a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#calibrated file called 'calib1.fits' using the previously specified</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#calibration parameters. Note that no flat correction is going to be</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#applied, since a master flat was never specified.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">&#39;raw1.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span><span class="o">=</span><span class="s1">&#39;calib1.fits&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">'raw1.fits'</span><span class="p">,</span> <span class="n">calibrated</span><span class="o">=</span><span class="s1">'calib1.fits'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#Calibrate an image, changing the gain assumed for this image only</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#and disabling overscan correction for this image only.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">&#39;raw2.fits&#39;</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>          <span class="n">calibrated</span><span class="o">=</span><span class="s1">&#39;calib2.fits&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">'raw2.fits'</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">calibrated</span><span class="o">=</span><span class="s1">'calib2.fits'</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>          <span class="n">gain</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>          <span class="n">overscans</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
@@ -365,7 +344,7 @@ calibration parameters to be switched for this calibration only.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saturation_threshold</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">saturation_threshold</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a calibrator and define some default calibration parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -383,7 +362,7 @@ calibration parameters to be switched for this calibration only.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator._calib_mask_from_master">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_calib_mask_from_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator._calib_mask_from_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator._calib_mask_from_master" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_calib_mask_from_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator._calib_mask_from_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator._calib_mask_from_master" title="Link to this definition"></a></dt>
 <dd><p>Overwrite a master mask with what should be used for a calibrated frame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -399,7 +378,7 @@ to account for imperfections in the master.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator._document_in_header">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_document_in_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calibration_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator._document_in_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator._document_in_header" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_document_in_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calibration_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator._document_in_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator._document_in_header" title="Link to this definition"></a></dt>
 <dd><p>Return header(s) documenting how the calibration was done.</p>
 <p>The following keywords are added or overwritten:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MBIASFNM</span><span class="p">:</span> <span class="n">Filename</span> <span class="n">of</span> <span class="n">the</span> <span class="n">master</span> <span class="n">bias</span> <span class="n">used</span>
@@ -421,7 +400,7 @@ to account for imperfections in the master.</p>
     <span class="n">sibustition</span> <span class="n">dictionary</span> <span class="n">given</span> <span class="n">directly</span> <span class="n">by</span> <span class="n">the</span> <span class="n">corresponding</span>
     <span class="n">overscan</span> <span class="n">area</span><span class="o">.</span>
 
-<span class="n">IMAGAREA</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(xmin)d</span><span class="s1"> &lt; x &lt; </span><span class="si">%(xmax)d</span><span class="s1">, </span><span class="si">%(ymin)d</span><span class="s1"> &lt; y &lt; </span><span class="si">%(ymax)d</span><span class="s1">&#39;</span>
+<span class="n">IMAGAREA</span><span class="p">:</span> <span class="s1">'</span><span class="si">%(xmin)d</span><span class="s1"> &lt; x &lt; </span><span class="si">%(xmax)d</span><span class="s1">, </span><span class="si">%(ymin)d</span><span class="s1"> &lt; y &lt; </span><span class="si">%(ymax)d</span><span class="s1">'</span>
     <span class="n">subsituted</span> <span class="k">with</span> <span class="n">the</span> <span class="n">image</span> <span class="n">are</span> <span class="k">as</span> <span class="n">specified</span> <span class="n">during</span>
     <span class="n">calibration</span><span class="o">.</span>
 
@@ -462,7 +441,7 @@ Must already have the <code class="docutils literal notranslate"><span class="pr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.check_calib_params">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_calib_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calib_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.check_calib_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.check_calib_params" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">check_calib_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calib_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.check_calib_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.check_calib_params" title="Link to this definition"></a></dt>
 <dd><p>Check if calibration parameters are consistent mutually and with image.</p>
 <p>Raises an exception if some problem is detected.</p>
 <dl class="field-list simple">
@@ -493,17 +472,17 @@ xmin &gt; xmax</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.default_configuration">
-<span class="sig-name descname"><span class="pre">default_configuration</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'allow_overwrite':</span> <span class="pre">False,</span> <span class="pre">'bias_level_adu':</span> <span class="pre">0.0,</span> <span class="pre">'compress_calibrated':</span> <span class="pre">16,</span> <span class="pre">'gain':</span> <span class="pre">1.0,</span> <span class="pre">'image_area':</span> <span class="pre">None,</span> <span class="pre">'leak_directions':</span> <span class="pre">[],</span> <span class="pre">'overscans':</span> <span class="pre">{'areas':</span> <span class="pre">None,</span> <span class="pre">'method':</span> <span class="pre">None},</span> <span class="pre">'split_channels':</span> <span class="pre">False}</span></em><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.default_configuration" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">default_configuration</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'allow_overwrite':</span> <span class="pre">False,</span> <span class="pre">'bias_level_adu':</span> <span class="pre">0.0,</span> <span class="pre">'compress_calibrated':</span> <span class="pre">16,</span> <span class="pre">'gain':</span> <span class="pre">1.0,</span> <span class="pre">'image_area':</span> <span class="pre">None,</span> <span class="pre">'leak_directions':</span> <span class="pre">[],</span> <span class="pre">'overscans':</span> <span class="pre">{'areas':</span> <span class="pre">None,</span> <span class="pre">'method':</span> <span class="pre">None},</span> <span class="pre">'split_channels':</span> <span class="pre">False}</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.default_configuration" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.extra_header_expressions">
-<span class="sig-name descname"><span class="pre">extra_header_expressions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.extra_header_expressions" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">extra_header_expressions</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.extra_header_expressions" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.module_git_ids">
-<span class="sig-name descname"><span class="pre">module_git_ids</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'calibrator':</span> <span class="pre">'$Id:</span> <span class="pre">c72fee21827def4d0ca6ba20358bdcaed8037661</span> <span class="pre">$',</span> <span class="pre">'mask_utilities':</span> <span class="pre">'$Id:</span> <span class="pre">4cc58b1db64c89bcc834a236b0ee4f9b198391a6</span> <span class="pre">$',</span> <span class="pre">'overscan_methods':</span> <span class="pre">'$Id:</span> <span class="pre">408cdc3660b17322f0660456416f944719a1d8c3</span> <span class="pre">$'}</span></em><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.module_git_ids" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">module_git_ids</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'calibrator':</span> <span class="pre">'$Id:</span> <span class="pre">c72fee21827def4d0ca6ba20358bdcaed8037661</span> <span class="pre">$',</span> <span class="pre">'mask_utilities':</span> <span class="pre">'$Id:</span> <span class="pre">4cc58b1db64c89bcc834a236b0ee4f9b198391a6</span> <span class="pre">$',</span> <span class="pre">'overscan_methods':</span> <span class="pre">'$Id:</span> <span class="pre">408cdc3660b17322f0660456416f944719a1d8c3</span> <span class="pre">$'}</span></span><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.module_git_ids" title="Link to this definition"></a></dt>
 <dd><p>A collection of Git Id values (sha1 checksums of the git blobs) for each
 module used by the calibration. Those get added to the header to ensure
 reprobducability.</p>
@@ -511,7 +490,7 @@ reprobducability.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.calibrator.Calibrator.set_masters">
-<span class="sig-name descname"><span class="pre">set_masters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.set_masters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.set_masters" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_masters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.set_masters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.calibrator.Calibrator.set_masters" title="Link to this definition"></a></dt>
 <dd><p>Define the default masterts to use for calibrations.</p>
 <p>The cannels and image area must be correctly set by __init__.</p>
 <dl class="field-list simple">

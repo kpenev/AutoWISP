@@ -110,7 +110,7 @@ def set_substitutions(
             }
         )
     if configuration["find_best"]:
-        (minimize_value, best_model) = optimize_substitutions(
+        minimize_value, best_model = optimize_substitutions(
             lc_eval,
             find_best=configuration["find_best"],
             minimize=configuration["minimize"],

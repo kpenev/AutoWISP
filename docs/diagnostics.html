@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Diagnostics &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -205,7 +205,7 @@ night). So if you see that the ratio of the median of the red channel to
 the blue channel is increasing, that can also indicate clouds. The graph
 below is an example of a night where clouds were present most of the time,
 but it cleared up near the end.</p>
-<a class="reference internal image-reference" href="_images/cloudy_sky_median.svg"><img alt="_images/cloudy_sky_median.svg" src="_images/cloudy_sky_median.svg" style="width: 600px;" />
+<a class="reference internal image-reference" href="_images/cloudy_sky_median.svg"><img alt="_images/cloudy_sky_median.svg" src="_images/cloudy_sky_median.svg" width="600" />
 </a>
 <p>One thing to keep in mind though is that the brightness and color of the sky
 is not uniform. The horizon is brighter and could also be less blue than
@@ -216,7 +216,7 @@ also lead to changes in the brightness and color of the sky that can be
 similar to what clouds do. However, those changes are slow and smooth,
 unlike clouds. The graph of the median below is an example of observations
 that happened during a clear night, where dawn is approaching at the end.</p>
-<a class="reference internal image-reference" href="_images/clear_sky_median.svg"><img alt="_images/clear_sky_median.svg" src="_images/clear_sky_median.svg" style="width: 600px;" />
+<a class="reference internal image-reference" href="_images/clear_sky_median.svg"><img alt="_images/clear_sky_median.svg" src="_images/clear_sky_median.svg" width="600" />
 </a>
 </dd>
 </dl>
@@ -524,37 +524,98 @@ heavy for your mount.</p>
 than the images, showing the scatter left after magnitude fitting, EPD
 and TFA. That is where you see whether the detrending stages actually
 improved anything, and by how much, rather than assuming they did.</p>
+<p>On either of the per-image plots the horizontal axis is one quantity, but
+the vertical is as many as you ask for. Background and star size against
+time on the same figure is how you see that the night the sky brightened
+is also the night the images went soft – a thing neither plot shows on
+its own, and one that is easy to miss when the two are in different tabs.</p>
 </section>
 <section id="choosing-what-to-draw">
 <h3>Choosing what to draw<a class="headerlink" href="#choosing-what-to-draw" title="Link to this heading"></a></h3>
-<p>Whichever plot you are on, the table above it lists what can be drawn:
-one row per observing session and image type – and per quantile, where
-the quantiles are being plotted. Clicking a row adds its series to the
-figure, and the first four columns of that row are yours to set: the
-colour, the marker, a scale factor and the label the legend will use.</p>
-<p><strong>The channel is chosen in the row.</strong> Between them the two axes need one
-channel per quantity they draw, and each gets its own column: plotting
-<code class="docutils literal notranslate"><span class="pre">bg_center</span></code> against time asks for one channel, plotting it against
-itself asks for two – which is how a diagnostic is compared between
-channels. A column offers only the channels that session recorded the
-diagnostic in, with the number of images each would draw, so a night
-with nothing in it says so before you click.</p>
-<p>A row draws nothing until every one of its columns is set. Completing
-them fills in the count and adds a fresh row below, still unbound, so
-the same session can be drawn again in other channels without
-disturbing what you already have. Once every combination is on the
-table no further row appears, there being nothing left to choose. And a
-camera with a single channel offers no choice at all: those rows arrive
-bound and counted, with the channel written as plain text.</p>
+<p>This and the next section are about the per-image plots; the detrending
+plots are configured from a table too, but a simpler one, with nothing to
+bind and one row per set of light curves to compare.</p>
+<p>Each quantity on the vertical axis gets a <strong>section</strong> of the page: a
+header saying what it draws, and under it a table of the series drawn
+from it. A row of that table is one series – one observing session, one
+image type, one channel per column – and every section starts with one
+already there, on the earliest session, so that the page draws something
+before anything is chosen.</p>
+<p>The first four columns of a row are yours to set: the colour, the marker,
+a scale factor and the label the legend will use. The marker menu offers
+line styles as well as point markers, so a series meant as a reference –
+a fit, a level, a night to compare the others against – can be drawn as
+a line.</p>
+<p><strong>The session and image type are chosen in the row</strong>, as the channels
+are, in a single dropdown: the pair is the unit everything here is
+counted by, so they travel together. Beside it, read-only, are when that
+session began and ended in UTC, which is what puts the rows in
+chronological order when the session labels are in no order at all.</p>
+<p><strong>The channel is chosen in the row too.</strong> Between them the two axes need
+one channel per quantity they draw, and each gets its own column:
+plotting <code class="docutils literal notranslate"><span class="pre">bg_center</span></code> against time asks for one channel, plotting it
+against itself asks for two – which is how a diagnostic is compared
+between channels. A column offers only the channels that session recorded
+the diagnostic in, with the number of images each would draw, so a night
+with nothing in it says so before you click. A camera with a single
+channel offers no choice at all: the cell states what it binds rather
+than asking.</p>
+<p>A row draws nothing until every one of its columns is set; completing
+them fills in the count and the row appears on the plot. Clicking a row
+toggles it without taking it apart, which is how a plot built from
+several rows is cycled through – this channel against that one, this
+night against the next.</p>
+<p><strong>Rows are added by copying.</strong> The <code class="docutils literal notranslate"><span class="pre">+</span></code> at the start of a row copies it
+below itself, and <code class="docutils literal notranslate"><span class="pre">−</span></code> removes it. Copying is what makes a second series
+quick to build, the next one usually differing from the last in a single
+thing. Removing needs no confirming, since <code class="docutils literal notranslate"><span class="pre">+</span></code> and the dropdowns build
+the row again, and a section goes with its last row. The page does need
+one row to draw anything at all, so the last one left on it greys out
+rather than refusing the click, which is visible before it is tried.</p>
+<p><strong>A row’s colour and label follow what it is bound to</strong> until you set
+them by hand. Rebinding a row rewrites both, so the legend and the
+channel colours stay honest while you are still choosing; type in either
+field and that one is yours from then on, and rebinding leaves it alone.</p>
 <p>The rows arrive ordered by session and then type. Clicking any column heading
-re-orders them, ascending on the first click and reversed on the next –
-excepting the channel columns, where a dropdown sorts by nothing anyone wants.
-Successive clicks compose, so sorting on the type and then on the session gives
-you the types grouped with the sessions still in order inside each. Sorting only
-moves the rows: what you have selected stays selected, the channels you have
-chosen stay chosen, and the colours and labels you have typed stay with their
-rows. Choosing a channel, or toggling a row plotting on/off, does not disturb
-the order.</p>
+re-orders them, ascending on the first click and reversed on the next. A
+dropdown column sorts by what it shows – the session or the channel chosen in
+it – rather than by the run-together text of the dropdown. Successive clicks
+compose, so sorting on the type and then on the session gives you the types
+grouped with the sessions still in order inside each. Sorting only moves the
+rows: what you have selected stays selected, the channels you have chosen stay
+chosen, and the colours and labels you have typed stay with their rows.
+Choosing a channel, or toggling a row plotting on/off, does not disturb the
+order. Each section sorts on its own.</p>
+</section>
+<section id="sections">
+<h3>Sections<a class="headerlink" href="#sections" title="Link to this heading"></a></h3>
+<p>The “Add or go to…” selector at the top of the page is one control for
+two things, because a user picking a quantity wants to look at it and
+does not much care whether it is already there: picking one the page does
+not have adds its section at the bottom, and picking one it has scrolls
+to that section and opens it. The <code class="docutils literal notranslate"><span class="pre">×</span></code> on a header removes a section,
+and greys out on the last one: the page needs a quantity to name in its
+URL.</p>
+<p>Clicking anywhere on a header – or on the bracket down the side of the
+section – collapses it and expands it again. Collapsed, a section still
+shows its header, so what it draws and how many of its rows reach the
+plot stay readable while the rows themselves are out of the way.</p>
+<p><strong>Each section draws with its own marker</strong>, shown on its header, so that
+the quantities on a plot are told apart by shape as the channels are told
+apart by colour. That is only where its rows start: the marker column
+still belongs to the row.</p>
+<p><strong>Sections share the vertical axis unless you separate them.</strong> The
+<code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">axis</span></code> selector on each header offers one axis per section, and
+sharing is the default, because two quantities wrongly sharing one show
+it at once – one of them is flattened – where two wrongly separated are
+each rescaled to fill the height and look comparable when they are not.
+Each option names the first quantity already on that axis, a bare number
+being an axis nothing has taken yet, so the choice reads as “beside the
+background” rather than as a number. Further axes are drawn to the right
+of the plot, their spines stepped outward, and the legend gathers every
+axis into one.</p>
+<p>The page’s URL names the x quantity and every section, so the figure you
+built is what a bookmark or a reload brings back.</p>
 </section>
 <section id="quantities-of-your-own">
 <h3>Quantities of your own<a class="headerlink" href="#quantities-of-your-own" title="Link to this heading"></a></h3>
@@ -631,6 +692,47 @@ you want – but you will get a warning at the time.</p>
 <p><code class="docutils literal notranslate"><span class="pre">jd</span></code> is the one exception, since every image on the plot has one:
 <code class="docutils literal notranslate"><span class="pre">jd</span> <span class="pre">-</span> <span class="pre">min(jd)</span></code> is safe.</p>
 </div>
+<p><strong>Some aggregates discard outliers.</strong> A single bad frame – a satellite
+trail, a passing cloud – can drag a median only a little but a mean or a
+fit a long way, so three functions reject outliers iteratively: fit,
+discard every image deviating from the fit by more than a threshold times
+the root-mean-square deviation, and fit again, until nothing more is
+discarded. Like the aggregates, they work over the whole series, and like
+the <code class="docutils literal notranslate"><span class="pre">nan</span></code> forms they ignore images lacking a value:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bg_level</span>   <span class="o">=</span> <span class="n">iterative_rejection_average</span><span class="p">(</span><span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">bg_drift</span>   <span class="o">=</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">iterative_rej_polynomial_fit</span><span class="p">(</span><span class="n">jd</span><span class="p">,</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">bg_wiggles</span> <span class="o">=</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">iterative_rej_smoothing_spline</span><span class="p">(</span>
+    <span class="n">jd</span><span class="p">,</span> <span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">nansum</span><span class="p">(</span><span class="n">isfinite</span><span class="p">(</span><span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">*</span> <span class="n">nanvar</span><span class="p">(</span><span class="n">bg_center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">iterative_rejection_average(values,</span> <span class="pre">threshold)</span></code> gives a single number,
+the median of what survives. Pass <code class="docutils literal notranslate"><span class="pre">average_func=nanmean</span></code> for the mean
+instead.</p>
+<p><code class="docutils literal notranslate"><span class="pre">iterative_rej_polynomial_fit(x,</span> <span class="pre">y,</span> <span class="pre">order,</span> <span class="pre">threshold)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">iterative_rej_smoothing_spline(x,</span> <span class="pre">y,</span> <span class="pre">threshold,</span> <span class="pre">s=...)</span></code> give the fitted
+curve at every image. That includes the images whose <code class="docutils literal notranslate"><span class="pre">y</span></code> was never
+recorded: they take no part in the fit, but the curve still has a value
+there. Only an image without an <code class="docutils literal notranslate"><span class="pre">x</span></code> gets <code class="docutils literal notranslate"><span class="pre">NaN</span></code>, as does every image
+when there are fewer recorded values than the polynomial has
+coefficients.</p>
+<p>The threshold can also be a pair, for outliers that only go one way: one
+positive, applying above, and one negative, applying below, in either
+order. So <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">-10)</span></code> discards images above the average or the curve
+more readily than below it.</p>
+<p>The spline needs <code class="docutils literal notranslate"><span class="pre">s</span></code>, its smoothing: without it, it passes through
+every point, so nothing ever deviates and nothing is discarded. <code class="docutils literal notranslate"><span class="pre">s</span></code> is
+only where the spline <em>starts</em>; after each round it is re-estimated from
+how noisy the surviving images are. So it has to start loose enough to
+leave the outliers alone – too tight, and the first fit bends through
+them, leaving nothing to discard. But not so loose that the first fit
+cannot follow the real features of the data either: a peak or a dip the
+first fit smooths away deviates from it like an outlier, and once
+discarded stays discarded, however well the later fits could have
+followed it. The example starts from the total squared deviation from
+the mean, which is the loosest sensible choice – its first fit is a
+single cubic – so where the data has sharp features, start tighter or
+raise the threshold.</p>
 <p>An expression is offered only where the project has recorded everything
 it needs, transitively. One built on <code class="docutils literal notranslate"><span class="pre">astrom_residual</span></code> will not appear
 until plate solving has run, and neither will anything built on <em>it</em>.
@@ -644,12 +746,6 @@ whatever it is built from, so the file always stands on its own. A file
 naming an expression you already have is the one thing importing cannot
 decide for you: everything else in it is imported, and it then shows you
 both versions side by side and asks.</p>
-<p>One thing to know about <code class="docutils literal notranslate"><span class="pre">pixel_quantiles</span></code>: it names the whole family
-and expands to one row per quantile, so selecting it for <em>both</em> axes
-draws each quantile against itself – a diagonal line, unless you give
-the two columns different channels, which draws one quantile between
-channels instead. To compare two <em>quantiles</em>, write the expression:
-<code class="docutils literal notranslate"><span class="pre">pixel_q999[0]</span> <span class="pre">/</span> <span class="pre">pixel_q99[0]</span></code>.</p>
 </section>
 <section id="every-point-is-a-link">
 <h3>Every point is a link<a class="headerlink" href="#every-point-is-a-link" title="Link to this heading"></a></h3>

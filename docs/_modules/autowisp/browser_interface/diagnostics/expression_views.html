@@ -1,0 +1,838 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.browser_interface.diagnostics.expression_views &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.browser_interface.diagnostics.expression_views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.browser_interface.diagnostics.expression_views</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Views for defining, listing and moving diagnostic expressions.</span>
+
+<span class="sd">The library is global -- one set of expressions shared by every project --</span>
+<span class="sd">because an expression is a way of *looking* at data rather than data</span>
+<span class="sd">itself.  That is also why this page works with no project open: validity</span>
+<span class="sd">does not depend on one (see</span>
+<span class="sd">:mod:`autowisp.diagnostics.diagnostic_types`), and the only thing that</span>
+<span class="sd">does -- whether the diagnostics an expression needs are recorded here --</span>
+<span class="sd">is reported as availability rather than as brokenness.  Today's single</span>
+<span class="sd">status conflates "meaningless" with "nothing recorded yet"; these are not</span>
+<span class="sd">the same complaint and do not read as one here.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_or_404</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">render</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_quantity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_expression</span><span class="p">,</span>
+    <span class="n">get_expression_dependents</span><span class="p">,</span>
+    <span class="n">get_expression_names</span><span class="p">,</span>
+    <span class="n">order_expressions</span><span class="p">,</span>
+    <span class="n">rename_references</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.expression_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_expressions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpressionForm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quantities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_recorded_diagnostics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpression</span>
+
+<span class="c1">#: Marks an export file as ours and says which shape it is in.  A file</span>
+<span class="c1">#: without the key, or carrying a version this code does not know, is</span>
+<span class="c1">#: refused rather than guessed at.</span>
+<span class="n">_format_key</span> <span class="o">=</span> <span class="s2">"autowisp_diagnostic_expressions"</span>
+
+<span class="c1">#: The only export shape there has been so far.  It is meant to become the</span>
+<span class="c1">#: configuration format a command-line run is pointed at, which is why it</span>
+<span class="c1">#: is versioned and why a subset export pulls in what it depends on.</span>
+<span class="n">_format_version</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="_references">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._references">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_references</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the library entries one expression names directly.</span>
+
+<span class="sd">    Tolerates an unparseable expression by reporting no references: what is</span>
+<span class="sd">    wrong with it is :func:`check_expression`'s to say, and a page listing</span>
+<span class="sd">    expressions must not fail to render because one of them is broken.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name(str):    The expression to look at.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        set:    The names of the expressions it references.  Diagnostics</span>
+<span class="sd">            and functions are left out; they are not links to follow.</span>
+<span class="sd">    """</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">referenced</span> <span class="o">=</span> <span class="n">get_expression_names</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">SyntaxError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">other</span> <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">referenced</span> <span class="k">if</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">}</span> <span class="o">-</span> <span class="p">{</span><span class="n">name</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="_reachable">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._reachable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_reachable</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return *names* and every expression they reach, transitively.</span>
+
+<span class="sd">    Deliberately not :func:`order_expressions`, which refuses a library</span>
+<span class="sd">    with a cycle or an unresolvable name in it: exporting is one way a user</span>
+<span class="sd">    moves expressions somewhere they can be repaired, so it has to work on</span>
+<span class="sd">    a library that does not validate.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        names(iterable):    The selected expression names.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The closure, alphabetically.</span>
+<span class="sd">    """</span>
+
+    <span class="n">reached</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">pending</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">pending</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">pending</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">reached</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">reached</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">pending</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_references</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">reached</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="describe_expression">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.describe_expression">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">describe_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">recorded</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return one row of the management table.</span>
+
+<span class="sd">    The two columns that can complain say different things, and the</span>
+<span class="sd">    distinction is the point of the page.  *Problems* is whether the</span>
+<span class="sd">    expression means anything, which is the same answer in every project,</span>
+<span class="sd">    while *missing* is whether this one has recorded what it needs, which</span>
+<span class="sd">    is not.  An expression naming a diagnostic this project never produced</span>
+<span class="sd">    is unavailable here and perfectly sound; only a typo is broken.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name(str):    The expression to describe.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">        recorded(set):    The diagnostic names in use in the open project,</span>
+<span class="sd">            or ``None`` if no project is open.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    The fields ``diagnostic_expressions.html`` renders.</span>
+<span class="sd">    """</span>
+
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">expressions</span><span class="p">)</span>
+
+    <span class="n">missing</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">problems</span> <span class="ow">and</span> <span class="n">recorded</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="n">name</span><span class="p">],</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="c1"># jd is known for every image of the canonical list, so it never</span>
+        <span class="c1"># counts against availability.</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">needed</span> <span class="o">-</span> <span class="p">{</span><span class="n">time_quantity</span><span class="p">}</span> <span class="o">-</span> <span class="n">recorded</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="s2">"expression"</span><span class="p">:</span> <span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+        <span class="s2">"depends_on"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_references</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)),</span>
+        <span class="s2">"problems"</span><span class="p">:</span> <span class="n">problems</span><span class="p">,</span>
+        <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="_render_list">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._render_list">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_render_list</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">edit_name</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Render the management page around *form*, bound or blank.</span>
+
+<span class="sd">    The library comes from the form rather than being fetched again: the</span>
+<span class="sd">    form was built with the library this request is about, and on a failed</span>
+<span class="sd">    save the table must show what is stored rather than what was typed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        request:    The Django request.</span>
+
+<span class="sd">        form(DiagnosticExpressionForm):    The form to render above the</span>
+<span class="sd">            table, blank when adding and filled when editing.</span>
+
+<span class="sd">        edit_name(str):    The name of the row being replaced, which the</span>
+<span class="sd">            template posts back so a rename stays an edit.  Empty when</span>
+<span class="sd">            adding.</span>
+<span class="sd">    """</span>
+
+    <span class="n">expressions</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">expressions</span>
+
+    <span class="c1"># Availability is the one thing here that needs a project; validity is</span>
+    <span class="c1"># not, so with none open the page still lists and still validates, and</span>
+    <span class="c1"># simply says nothing about what has been recorded.</span>
+    <span class="n">recorded</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"project_home"</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">recorded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span>
+
+    <span class="c1"># The description is the one stored column no rule is derived from, so</span>
+    <span class="c1"># it is merged in here rather than threaded through the library, which</span>
+    <span class="c1"># is a name-to-expression mapping everywhere else in the feature.</span>
+    <span class="c1"># pylint: disable=no-member</span>
+    <span class="n">descriptions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># pylint: enable=no-member</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span>
+        <span class="s2">"diagnostics/diagnostic_expressions.html"</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">"form"</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+            <span class="s2">"edit_name"</span><span class="p">:</span> <span class="n">edit_name</span><span class="p">,</span>
+            <span class="s2">"have_project"</span><span class="p">:</span> <span class="n">recorded</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"expression_rows"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">describe_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">recorded</span><span class="p">),</span>
+                    <span class="n">description</span><span class="o">=</span><span class="n">descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">expressions</span><span class="p">)</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="list_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.list_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_expressions</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Show the library, with a form for adding to it or editing one row.</span>
+
+<span class="sd">    Editing is a URL rather than a click that fills the form in place, so</span>
+<span class="sd">    that it needs no JavaScript, survives a refresh, and can be linked to.</span>
+<span class="sd">    ``Http404`` for a name that is not there is the right answer to a stale</span>
+<span class="sd">    link, and Django's own -- the error middleware deliberately leaves it</span>
+<span class="sd">    alone.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        request:    The Django request.</span>
+
+<span class="sd">        name(str):    The expression to open for editing, or ``None`` to</span>
+<span class="sd">            show the blank form.</span>
+<span class="sd">    """</span>
+
+    <span class="n">instance</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">DiagnosticExpression</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_render_list</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span>
+        <span class="n">DiagnosticExpressionForm</span><span class="p">(</span>
+            <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="n">get_expressions</span><span class="p">()</span>
+        <span class="p">),</span>
+        <span class="n">edit_name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_carry_dependents_through_rename">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._carry_dependents_through_rename">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_carry_dependents_through_rename</span><span class="p">(</span><span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Rewrite everything referencing *old_name* to reference *new_name*.</span>
+
+<span class="sd">    A rename would otherwise orphan its dependents -- the delete guard's</span>
+<span class="sd">    hazard reached from the other side -- and refusing it, as deletion is</span>
+<span class="sd">    refused, is not a workable answer: unlike a delete there is no gesture</span>
+<span class="sd">    that makes it legal, because pointing a dependent at the new name will</span>
+<span class="sd">    not validate while that name does not yet exist.  So the rename carries</span>
+<span class="sd">    them with it, and the caller says which ones moved.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        old_name(str):    The name as it was.</span>
+
+<span class="sd">        new_name(str):    The name as it now is.</span>
+
+<span class="sd">        expressions(dict):    The library as it was *before* the rename,</span>
+<span class="sd">            which is what the dependents are read from.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The names updated, alphabetically; empty if nothing</span>
+<span class="sd">            referenced *old_name*.</span>
+<span class="sd">    """</span>
+
+    <span class="n">updated</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dependent</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_expression_dependents</span><span class="p">(</span><span class="n">old_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)):</span>
+        <span class="c1"># QuerySet.update rather than save(): `modified` is maintained by a</span>
+        <span class="c1"># database trigger precisely so that it survives this, see</span>
+        <span class="c1"># core.models.BuiModelBase.</span>
+        <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">dependent</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">expression</span><span class="o">=</span><span class="n">rename_references</span><span class="p">(</span>
+                <span class="n">expressions</span><span class="p">[</span><span class="n">dependent</span><span class="p">],</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># pylint: enable=no-member</span>
+        <span class="n">updated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dependent</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">updated</span></div>
+
+
+
+<div class="viewcode-block" id="save_expression">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.save_expression">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_expression</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Create or update one expression.</span>
+
+<span class="sd">    Editing is keyed by ``edit_name`` rather than by primary key, so that</span>
+<span class="sd">    the page is driven entirely by the names it displays and a rename is an</span>
+<span class="sd">    edit rather than a delete followed by a create.</span>
+<span class="sd">    """</span>
+
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"POST"</span>
+
+    <span class="n">expressions</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">()</span>
+    <span class="n">edit_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"edit_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="c1"># pylint: disable=no-member</span>
+    <span class="n">instance</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">edit_name</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="c1"># pylint: enable=no-member</span>
+
+    <span class="n">form</span> <span class="o">=</span> <span class="n">DiagnosticExpressionForm</span><span class="p">(</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+        <span class="c1"># Re-rendered rather than redirected, so the complaints stay</span>
+        <span class="c1"># attached to the fields that caused them -- and still in edit</span>
+        <span class="c1"># mode, so correcting one does not silently create a second row.</span>
+        <span class="k">return</span> <span class="n">_render_list</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">edit_name</span><span class="o">=</span><span class="n">edit_name</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">transaction</span><span class="o">.</span><span class="n">atomic</span><span class="p">():</span>
+        <span class="n">expression</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_carry_dependents_through_rename</span><span class="p">(</span>
+                <span class="n">edit_name</span><span class="p">,</span> <span class="n">expression</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">edit_name</span> <span class="ow">and</span> <span class="n">edit_name</span> <span class="o">!=</span> <span class="n">expression</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">updated</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Renamed </span><span class="si">{</span><span class="n">edit_name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">expression</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, and updated "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">" to match."</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">aggregate</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">bare_aggregates</span><span class="p">):</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">expression</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> calls </span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">(), which goes NaN as soon "</span>
+            <span class="sa">f</span><span class="s2">"as one image of a series lacks a diagnostic. Did you mean "</span>
+            <span class="sa">f</span><span class="s2">"nan</span><span class="si">{</span><span class="n">aggregate</span><span class="si">}</span><span class="s2">()?"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.delete_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_expressions</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Delete the checked expressions, unless something still needs them.</span>
+
+<span class="sd">    Dependents are judged against what will *remain*, so a whole chain may</span>
+<span class="sd">    be deleted together while the bottom of it may not be deleted alone.</span>
+<span class="sd">    """</span>
+
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"POST"</span>
+
+    <span class="n">selected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"expression_names"</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">selected</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"Nothing was ticked, so nothing was deleted."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span>
+
+    <span class="n">expressions</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">()</span>
+
+    <span class="n">blocked</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">:</span>
+        <span class="n">dependents</span> <span class="o">=</span> <span class="n">get_expression_dependents</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span> <span class="o">-</span> <span class="n">selected</span>
+        <span class="k">if</span> <span class="n">dependents</span><span class="p">:</span>
+            <span class="n">blocked</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dependents</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">blocked</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="s2">"Nothing was deleted: "</span>
+            <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is used by </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dependents</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dependents</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">blocked</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="s2">"."</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__in</span><span class="o">=</span><span class="n">selected</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="c1"># pylint: enable=no-member</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="export_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.export_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export_expressions</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Download the library, or a selection of it, as JSON.</span>
+
+<span class="sd">    A selection is extended with everything it depends on, since a file</span>
+<span class="sd">    naming an expression it does not carry cannot be imported anywhere</span>
+<span class="sd">    else -- nor read by a command-line run, which is what this format is</span>
+<span class="sd">    ultimately for.</span>
+
+<span class="sd">    A POST rather than a link, because the selection is the same set of</span>
+<span class="sd">    checkboxes the delete button reads: one form serves both, with</span>
+<span class="sd">    ``formaction`` sending each button here or there.  Nothing is lost by</span>
+<span class="sd">    it -- the URL of a download whose content depends on what is ticked is</span>
+<span class="sd">    not worth bookmarking.</span>
+<span class="sd">    """</span>
+
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"POST"</span>
+
+    <span class="n">expressions</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">()</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"expression_names"</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_reachable</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span> <span class="k">if</span> <span class="n">selected</span> <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">expressions</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># pylint: disable=no-member</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__in</span><span class="o">=</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">(</span>
+        <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"expression"</span><span class="p">,</span> <span class="s2">"description"</span>
+    <span class="p">)</span>
+    <span class="c1"># pylint: enable=no-member</span>
+
+    <span class="k">with</span> <span class="n">StringIO</span><span class="p">()</span> <span class="k">as</span> <span class="n">export_stream</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">_format_key</span><span class="p">:</span> <span class="n">_format_version</span><span class="p">,</span>
+                <span class="s2">"expressions"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]),</span>
+            <span class="p">},</span>
+            <span class="n">export_stream</span><span class="p">,</span>
+            <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
+            <span class="n">export_stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">),</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span>
+                <span class="s2">"Content-Disposition"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s1">'attachment; filename="diagnostic_expressions.json"'</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_staged_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._staged_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_staged_expressions</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return ``{name: fields}`` for the entries of an import file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        entries:    Whatever the file's ``expressions`` key held, which is</span>
+<span class="sd">            not to be trusted to be a list of anything in particular.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    ``{name: {"expression": …, "description": …}}``, ready to</span>
+<span class="sd">            be laid over the stored library.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError:    If the entries are not objects carrying a name and</span>
+<span class="sd">            an expression.</span>
+<span class="sd">    """</span>
+
+    <span class="n">staged</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"expression"</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">entry</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"every entry must be an object with a name and an expression"</span>
+            <span class="p">)</span>
+        <span class="n">staged</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"expression"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">]),</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
+        <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">staged</span></div>
+
+
+
+<div class="viewcode-block" id="_write_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views._write_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_expressions</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Store *entries*, returning how many were new and how many replaced."""</span>
+
+    <span class="n">added</span><span class="p">,</span> <span class="n">updated</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">update_or_create</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="n">entry</span>
+        <span class="p">)</span>
+        <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+            <span class="n">added</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">updated</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">added</span><span class="p">,</span> <span class="n">updated</span></div>
+
+
+
+<div class="viewcode-block" id="import_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.import_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">import_expressions</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add expressions from a JSON file written by :func:`export_expressions`.</span>
+
+<span class="sd">    The whole file is staged over the stored library before anything is</span>
+<span class="sd">    checked, so that expressions referencing each other validate whatever</span>
+<span class="sd">    order they appear in.  Entries are then written one at a time, and one</span>
+<span class="sd">    that does not validate is reported rather than aborting the rest.</span>
+
+<span class="sd">    A file naming an expression that already exists is the one thing this</span>
+<span class="sd">    cannot decide alone, so it asks: everything uncontested is written,</span>
+<span class="sd">    and the clashes go to :func:`confirm_import_expressions` with both</span>
+<span class="sd">    versions shown.  Asking only when it happens is why there is no</span>
+<span class="sd">    setting to get wrong beforehand -- one that is read once in a hundred</span>
+<span class="sd">    imports would be forgotten in the other ninety-nine.</span>
+<span class="sd">    """</span>
+
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"POST"</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">document</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">[</span><span class="s2">"expressions-import"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">document</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_format_key</span><span class="p">)</span> <span class="o">!=</span> <span class="n">_format_version</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"expected </span><span class="si">{</span><span class="n">_format_key</span><span class="si">!r}</span><span class="s2"> to be </span><span class="si">{</span><span class="n">_format_version</span><span class="si">}</span><span class="s2">, which is "</span>
+                <span class="s2">"what this version of AutoWISP writes"</span>
+            <span class="p">)</span>
+        <span class="n">staged</span> <span class="o">=</span> <span class="n">_staged_expressions</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"expressions"</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Not a diagnostic expression file: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span>
+
+    <span class="n">stored</span> <span class="o">=</span> <span class="n">get_expressions</span><span class="p">()</span>
+    <span class="c1"># What each entry is checked against: the file laid over the library,</span>
+    <span class="c1"># so an intra-file reference resolves whether or not its target has</span>
+    <span class="c1"># been written yet.</span>
+    <span class="n">library</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">stored</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">staged</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+    <span class="p">)</span>
+
+    <span class="n">fresh</span><span class="p">,</span> <span class="n">clashing</span><span class="p">,</span> <span class="n">refused</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">staged</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">],</span> <span class="n">library</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+            <span class="n">refused</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">problems</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">stored</span><span class="p">:</span>
+            <span class="n">clashing</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fresh</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+
+    <span class="n">added</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_write_expressions</span><span class="p">(</span><span class="n">fresh</span><span class="p">)</span>
+
+    <span class="c1"># Only what actually happened: "imported 0" beside a question about</span>
+    <span class="c1"># what to do with the rest says the same thing twice, the second time</span>
+    <span class="c1"># wrongly.</span>
+    <span class="k">if</span> <span class="n">added</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Imported </span><span class="si">{</span><span class="n">added</span><span class="si">}</span><span class="s2"> expression(s)."</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">staged</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"That file listed no expressions."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">refused</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"Refused "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">refused</span><span class="p">))</span> <span class="o">+</span> <span class="s2">"."</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">clashing</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span>
+        <span class="s2">"diagnostics/confirm_import.html"</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">"clashes"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                    <span class="s2">"stored"</span><span class="p">:</span> <span class="n">stored</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                    <span class="s2">"incoming"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">],</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"description"</span><span class="p">],</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">clashing</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="p">],</span>
+            <span class="c1"># Carried through the answer rather than kept server-side: the</span>
+            <span class="c1"># page is the whole of the pending state, so an abandoned</span>
+            <span class="c1"># import leaves nothing behind to expire or collide with a</span>
+            <span class="c1"># second tab's.</span>
+            <span class="s2">"clashes_json"</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">clashing</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="confirm_import_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.expression_views.html#autowisp.browser_interface.diagnostics.expression_views.confirm_import_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">confirm_import_expressions</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Replace the stored expressions an import was asked about.</span>
+
+<span class="sd">    Reached only from :func:`import_expressions`' question, and only by</span>
+<span class="sd">    the answer that changes something -- keeping the stored versions is a</span>
+<span class="sd">    link back to the list, there being nothing to do.</span>
+<span class="sd">    """</span>
+
+    <span class="k">assert</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"POST"</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">clashing</span> <span class="o">=</span> <span class="n">_staged_expressions</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">entry</span><span class="p">}</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+                    <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clashes"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Could not read what to replace: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span>
+
+    <span class="c1"># Checked again rather than trusted: what comes back is a form field,</span>
+    <span class="c1"># and the library may have moved on while the question was open.</span>
+    <span class="n">library</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">get_expressions</span><span class="p">(),</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">clashing</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+    <span class="p">)</span>
+    <span class="n">writable</span><span class="p">,</span> <span class="n">refused</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">clashing</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"expression"</span><span class="p">],</span> <span class="n">library</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+            <span class="n">refused</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">problems</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">writable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">updated</span> <span class="o">=</span> <span class="n">_write_expressions</span><span class="p">(</span><span class="n">writable</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">updated</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Replaced </span><span class="si">{</span><span class="n">updated</span><span class="si">}</span><span class="s2"> expression(s)."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">refused</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"Refused "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">refused</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"."</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"diagnostics:list_expressions"</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.bui_util &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.bui_util</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;View for displaying FITS images.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""View for displaying FITS images."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">base64</span><span class="w"> </span><span class="kn">import</span> <span class="n">b64encode</span>
@@ -181,7 +181,7 @@
 <div class="viewcode-block" id="_log_transform">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util._log_transform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_log_transform</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">,</span> <span class="n">parameter</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform the same log-transform as DS9.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Perform the same log-transform as DS9."""</span>
 
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">parameter</span> <span class="o">*</span> <span class="n">pixel_values</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span></div>
 
@@ -190,7 +190,7 @@
 <div class="viewcode-block" id="_pow_transform">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util._pow_transform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_pow_transform</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">,</span> <span class="n">parameter</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform the same pow transfom as DS9.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Perform the same pow transfom as DS9."""</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">pixel_values</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">parameter</span></div>
 
@@ -199,7 +199,7 @@
 <div class="viewcode-block" id="_sqrt_transform">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util._sqrt_transform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_sqrt_transform</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use square root of the pixel values as intensity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Use square root of the pixel values as intensity."""</span>
 
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">)</span></div>
 
@@ -208,7 +208,7 @@
 <div class="viewcode-block" id="_square_transform">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util._square_transform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_square_transform</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use the square of the pixel values as intensity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Use the square of the pixel values as intensity."""</span>
 
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">)</span></div>
 
@@ -217,7 +217,7 @@
 <div class="viewcode-block" id="_asinh_transform">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util._asinh_transform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_asinh_transform</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The asinh transform of DS9.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The asinh transform of DS9."""</span>
 
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arcsinh</span><span class="p">(</span><span class="mf">10.0</span> <span class="o">*</span> <span class="n">pixel_values</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span></div>
 
@@ -226,7 +226,7 @@
 <div class="viewcode-block" id="_sinh_transform">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util._sinh_transform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_sinh_transform</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The sinh transform of DS9.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The sinh transform of DS9."""</span>
 
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">pixel_values</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.0</span></div>
 
@@ -235,29 +235,29 @@
 <div class="viewcode-block" id="encode_fits">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util.encode_fits">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">encode_fits</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">values_range</span><span class="p">,</span> <span class="n">values_transform</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Display transformed &amp; scaled FITS image to user.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Display transformed &amp; scaled FITS image to user."""</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Requested FITS file (</span><span class="si">{</span><span class="n">fits_fname</span><span class="si">}</span><span class="s2">) does not exist!&quot;</span>
+            <span class="sa">f</span><span class="s2">"Requested FITS file (</span><span class="si">{</span><span class="n">fits_fname</span><span class="si">}</span><span class="s2">) does not exist!"</span>
         <span class="p">)</span>
     <span class="n">png_stream</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
     <span class="n">frame_data</span> <span class="o">=</span> <span class="n">read_image_components</span><span class="p">(</span>
         <span class="n">fits_fname</span><span class="p">,</span> <span class="n">read_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_header</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">values_range</span> <span class="o">==</span> <span class="s2">&quot;zscale&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">values_range</span> <span class="o">==</span> <span class="s2">"zscale"</span><span class="p">:</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="n">ZScaleInterval</span><span class="p">()</span><span class="o">.</span><span class="n">get_limits</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">values_range</span> <span class="o">==</span> <span class="s2">&quot;minmax&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">values_range</span> <span class="o">==</span> <span class="s2">"minmax"</span><span class="p">:</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="n">frame_data</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">frame_data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">lim</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">values_range</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">lim</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">values_range</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">))</span>
     <span class="n">pixel_values</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="o">*</span><span class="n">limits</span><span class="p">,</span> <span class="kc">True</span><span class="p">)(</span><span class="n">frame_data</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">values_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">values_transform</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
-        <span class="n">transform_args</span> <span class="o">=</span> <span class="n">values_transform</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
-        <span class="n">transform</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">transform_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_transform&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">values_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">values_transform</span> <span class="o">!=</span> <span class="s2">"None"</span><span class="p">:</span>
+        <span class="n">transform_args</span> <span class="o">=</span> <span class="n">values_transform</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">"_"</span> <span class="o">+</span> <span class="n">transform_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"_transform"</span><span class="p">]</span>
         <span class="n">transform_args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">transform_args</span><span class="p">]</span>
         <span class="n">pixel_values</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">,</span> <span class="o">*</span><span class="n">transform_args</span><span class="p">)</span>
-    <span class="n">scaled_pixels</span> <span class="o">=</span> <span class="p">(</span><span class="n">pixel_values</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+    <span class="n">scaled_pixels</span> <span class="o">=</span> <span class="p">(</span><span class="n">pixel_values</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"uint8"</span><span class="p">)</span>
     <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">scaled_pixels</span><span class="p">)</span>
     <span class="c1"># apply_zoom = AffineTransform((1.0/zoom, 0, 0, 0, 1.0/zoom, 0.0))</span>
     <span class="c1"># image.transform(</span>
@@ -265,16 +265,16 @@
     <span class="c1">#    method=apply_zoom</span>
     <span class="c1"># ).save(</span>
     <span class="c1">#    png_stream,</span>
-    <span class="c1">#    &#39;png&#39;</span>
+    <span class="c1">#    'png'</span>
     <span class="c1"># )</span>
-    <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">png_stream</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">)</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">png_stream</span><span class="p">,</span> <span class="s2">"png"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">png_stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;transform_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="s2">"image"</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">png_stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">),</span>
+        <span class="s2">"transform_list"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span> <span class="ow">and</span> <span class="n">entry</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_transform&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"_"</span> <span class="ow">and</span> <span class="n">entry</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_transform"</span><span class="p">))</span>
         <span class="p">],</span>
     <span class="p">}</span></div>
 
@@ -283,10 +283,10 @@
 <div class="viewcode-block" id="hex_color">
 <a class="viewcode-back" href="../../implementation/autowisp.bui_util.html#autowisp.bui_util.hex_color">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">hex_color</span><span class="p">(</span><span class="n">color_tuple</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return string of hex color give tuple of 0-1 float values.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return string of hex color give tuple of 0-1 float values."""</span>
 
-    <span class="k">return</span> <span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">color_tuple</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="s2">"#"</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">color_tuple</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
     <span class="p">)</span></div>
 
 </pre></div>

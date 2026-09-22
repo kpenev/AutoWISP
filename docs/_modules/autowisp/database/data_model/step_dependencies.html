@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.step_dependencies &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.step_dependencies</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define class to specify dependencies between steps.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define class to specify dependencies between steps."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">,</span> <span class="n">Index</span><span class="p">,</span> <span class="n">Boolean</span>
 
@@ -172,81 +172,81 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;StepDependencies&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"StepDependencies"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="StepDependencies">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.StepDependencies">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StepDependencies</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The table describing the prerequisites for a step to run&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The table describing the prerequisites for a step to run"""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;step_dependencies&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"step_dependencies"</span>
 
     <span class="n">blocked_step_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;step.id&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The step for which this prerequisite applies.&quot;</span><span class="p">,</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"step.id"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The step for which this prerequisite applies."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">blocked_image_type_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;image_type.id&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The image type for which this prerequisite applies.&quot;</span><span class="p">,</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"image_type.id"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The image type for which this prerequisite applies."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">blocking_step_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;step.id&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The step which must be completed before the blocked step can &quot;</span>
-        <span class="s2">&quot;begin.&quot;</span><span class="p">,</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"step.id"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The step which must be completed before the blocked step can "</span>
+        <span class="s2">"begin."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">blocking_image_type_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;image_type.id&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The image type for which the prerequisite step must be completed.&quot;</span><span class="p">,</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"image_type.id"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The image type for which the prerequisite step must be completed."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">allow_pending</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Boolean</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;If True and blocked_image_type and blocking_image_type are the &quot;</span>
-        <span class="s2">&quot;same the blocked step can proceed for any images for which the &quot;</span>
-        <span class="s2">&quot;blocking step is complete. Otherwise the presence of any images of &quot;</span>
-        <span class="s2">&quot;the blocking type for which the blocking step is not complete prevents&quot;</span>
-        <span class="s2">&quot; the blocked step from proceeding for the blocked image type.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"If True and blocked_image_type and blocking_image_type are the "</span>
+        <span class="s2">"same the blocked step can proceed for any images for which the "</span>
+        <span class="s2">"blocking step is complete. Otherwise the presence of any images of "</span>
+        <span class="s2">"the blocking type for which the blocking step is not complete prevents"</span>
+        <span class="s2">" the blocked step from proceeding for the blocked image type."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">__table_args__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">Index</span><span class="p">(</span>
-            <span class="s2">&quot;dependency_key2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blocked_step_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blocked_image_type_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blocking_step_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blocking_image_type_id&quot;</span><span class="p">,</span>
+            <span class="s2">"dependency_key2"</span><span class="p">,</span>
+            <span class="s2">"blocked_step_id"</span><span class="p">,</span>
+            <span class="s2">"blocked_image_type_id"</span><span class="p">,</span>
+            <span class="s2">"blocking_step_id"</span><span class="p">,</span>
+            <span class="s2">"blocking_image_type_id"</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span>
 
     <span class="n">blocked_step</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;Step&quot;</span><span class="p">,</span> <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;StepDependencies.blocked_step_id == Step.id&quot;</span>
+        <span class="s2">"Step"</span><span class="p">,</span> <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">"StepDependencies.blocked_step_id == Step.id"</span>
     <span class="p">)</span>
     <span class="n">blocked_imtype</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;ImageType&quot;</span><span class="p">,</span>
-        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;StepDependencies.blocked_image_type_id == ImageType.id&quot;</span><span class="p">,</span>
+        <span class="s2">"ImageType"</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">"StepDependencies.blocked_image_type_id == ImageType.id"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">blocking_step</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;Step&quot;</span><span class="p">,</span> <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;StepDependencies.blocking_step_id == Step.id&quot;</span>
+        <span class="s2">"Step"</span><span class="p">,</span> <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">"StepDependencies.blocking_step_id == Step.id"</span>
     <span class="p">)</span>
     <span class="n">blocking_imtype</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;ImageType&quot;</span><span class="p">,</span>
-        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;StepDependencies.blocking_image_type_id == ImageType.id&quot;</span><span class="p">,</span>
+        <span class="s2">"ImageType"</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">"StepDependencies.blocking_image_type_id == ImageType.id"</span><span class="p">,</span>
     <span class="p">)</span>
 
 <div class="viewcode-block" id="StepDependencies.__str__">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.StepDependencies.__str__">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.__str__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Describe the dependency.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Describe the dependency."""</span>
 
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Applying </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocked_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocked_imtype</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot; images requires completing&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocking_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocking_imtype</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> images&quot;</span>
+            <span class="sa">f</span><span class="s2">"Applying </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocked_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocked_imtype</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="s2">" images requires completing"</span>
+            <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocking_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blocking_imtype</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> images"</span>
         <span class="p">)</span></div>
 </div>
 

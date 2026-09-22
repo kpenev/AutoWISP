@@ -3,8 +3,8 @@ autowisp.browser\_interface.processing package
 
 .. automodule:: autowisp.browser_interface.processing
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------

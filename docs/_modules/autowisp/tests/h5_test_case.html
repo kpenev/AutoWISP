@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.h5_test_case &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.h5_test_case</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define class to compare groups in DR files.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define class to compare groups in DR files."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
@@ -184,26 +184,26 @@
 <div class="viewcode-block" id="H5TestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">H5TestCase</span><span class="p">(</span><span class="n">AutoWISPTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add assert for comparing groups in HDF5 files.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add assert for comparing groups in HDF5 files."""</span>
 
     <span class="c1"># Datasets (keyed by leaf name) whose stored value has a large, arbitrary</span>
     <span class="c1"># zero-point, so a relative tolerance is meaningless: rtol=1e-8 on a</span>
     <span class="c1"># ~2.4e6 BJD is a ~2000 s absolute slop, which silently hides real timing</span>
-    <span class="c1"># errors. Compare these with a purely absolute tolerance (in the dataset&#39;s</span>
+    <span class="c1"># errors. Compare these with a purely absolute tolerance (in the dataset's</span>
     <span class="c1"># own units) instead. BJD is in days, so 1e-6 day (~0.086 s) catches real</span>
     <span class="c1"># timing errors while tolerating cross-platform numerical noise.</span>
-    <span class="n">_absolute_tolerance_datasets</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;BJD&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">}</span>
+    <span class="n">_absolute_tolerance_datasets</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"BJD"</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">}</span>
 
 <div class="viewcode-block" id="H5TestCase._project_relative">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase._project_relative">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_project_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``value`` as a path relative to whichever project_home</span>
+<span class="w">        </span><span class="sd">"""Return ``value`` as a path relative to whichever project_home</span>
 <span class="sd">        ``dr_fname`` lives in (``test_directory`` or ``processing_directory``).</span>
 
 <span class="sd">        ``value`` may be ``bytes`` (h5py string attrs) or ``str``; the</span>
 <span class="sd">        result is returned as ``str``. If ``dr_fname`` does not lie</span>
 <span class="sd">        under either project_home the value is returned unchanged.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
@@ -224,17 +224,17 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">assert_groups_match</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments, too-many-positional-arguments</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname1</span><span class="p">,</span> <span class="n">dr_fname2</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">ignore</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if two DR files have the same groups.</span>
+<span class="w">        </span><span class="sd">"""Check if two DR files have the same groups.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reorder(numpy.ndarray or None):    Optional integer permutation</span>
 <span class="sd">                applied to dr_fname2 datasets along axis 0 before comparison.</span>
 <span class="sd">                Only applied to datasets whose leading dimension equals</span>
 <span class="sd">                ``len(reorder)``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">reordered</span><span class="p">(</span><span class="n">dset2</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return dset2 data with ``reorder`` applied along axis 0.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return dset2 data with ``reorder`` applied along axis 0."""</span>
 
             <span class="n">data</span> <span class="o">=</span> <span class="n">dset2</span><span class="p">[:]</span>
             <span class="k">if</span> <span class="p">(</span>
@@ -246,18 +246,18 @@
             <span class="k">return</span> <span class="n">data</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">assert_dset_match</span><span class="p">(</span><span class="n">dset1</span><span class="p">,</span> <span class="n">dset2</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Assert that the two datasets contain the same data.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Assert that the two datasets contain the same data."""</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
                 <span class="n">dset1</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
                 <span class="n">dset2</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;Datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> have different shapes.&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"Datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> have different shapes."</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">data1</span> <span class="o">=</span> <span class="n">dset1</span><span class="p">[:]</span>
             <span class="n">data2</span> <span class="o">=</span> <span class="n">reordered</span><span class="p">(</span><span class="n">dset2</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span>
-                <span class="s2">&quot;/MagnitudeFitting/Configuration/SinglePhotometricReference&quot;</span>
+                <span class="s2">"/MagnitudeFitting/Configuration/SinglePhotometricReference"</span>
             <span class="p">):</span>
                 <span class="n">data1</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                     <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_relative</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data1</span><span class="p">]</span>
@@ -265,9 +265,9 @@
                 <span class="n">data2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                     <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_relative</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data2</span><span class="p">]</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">dset1</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dset1</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"f"</span><span class="p">:</span>
                 <span class="n">abs_atol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute_tolerance_datasets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                    <span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">abs_atol</span><span class="p">)</span> <span class="k">if</span> <span class="n">abs_atol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="mf">1e-8</span><span class="p">,</span> <span class="mf">1e-8</span><span class="p">)</span>
@@ -279,23 +279,23 @@
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">differ</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Data in datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match (different &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;elements: </span><span class="si">{</span><span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">differ</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
-                        <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">Max abs difference: &quot;</span>
+                        <span class="sa">f</span><span class="s2">"Data in datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and "</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match (different "</span>
+                        <span class="sa">f</span><span class="s2">"elements: </span><span class="si">{</span><span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">differ</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+                        <span class="s2">"</span><span class="se">\n\t</span><span class="s2">Max abs difference: "</span>
                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data1</span> <span class="o">-</span> <span class="n">data2</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-                        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">Max rel difference: &quot;</span>
+                        <span class="o">+</span> <span class="s2">"</span><span class="se">\n\t</span><span class="s2">Max rel difference: "</span>
                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
                             <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
                                 <span class="p">(</span><span class="n">data1</span> <span class="o">-</span> <span class="n">data2</span><span class="p">)</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span>
                             <span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
                         <span class="p">)</span>
-                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">&quot;</span>
-                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data1</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data2</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">diff: </span><span class="si">{</span><span class="n">data1</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">data2</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="se">\n\t</span><span class="s2">&quot;</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data1</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data2</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="s2">diff: </span><span class="si">{</span><span class="n">data1</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">data2</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="se">\n\t</span><span class="s2">"</span>
                     <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">dset1</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">dset1</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"O"</span><span class="p">:</span>
                 <span class="c1"># Variable-length (ragged) rows -- each entry is itself an</span>
                 <span class="c1"># array (e.g. TFA TemplateStarIDs). Compare row by row.</span>
                 <span class="n">mismatched</span> <span class="o">=</span> <span class="p">[</span>
@@ -305,39 +305,39 @@
                 <span class="p">]</span>
                 <span class="k">if</span> <span class="n">mismatched</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Data in datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;(different rows: </span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">).&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="si">{</span><span class="p">[</span><span class="n">data1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mismatched</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="si">{</span><span class="p">[</span><span class="n">data2</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mismatched</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Data in datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and "</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match "</span>
+                        <span class="sa">f</span><span class="s2">"(different rows: </span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">)."</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="si">{</span><span class="p">[</span><span class="n">data1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mismatched</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="si">{</span><span class="p">[</span><span class="n">data2</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mismatched</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">differ</span> <span class="o">=</span> <span class="n">data1</span> <span class="o">!=</span> <span class="n">data2</span>
                 <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">differ</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Data in datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;(different elements: </span><span class="si">{</span><span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">differ</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data1</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data2</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Data in datasets </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and "</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match "</span>
+                        <span class="sa">f</span><span class="s2">"(different elements: </span><span class="si">{</span><span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">differ</span><span class="p">)</span><span class="si">}</span><span class="s2">)."</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">dset1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data1</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="si">{</span><span class="n">data2</span><span class="p">[</span><span class="n">differ</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr1</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr2</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr1</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr2</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dr1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
                     <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dr2</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;Group </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2"> not found in </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Group </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2"> not found in </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">return</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
                 <span class="n">group_name</span> <span class="ow">in</span> <span class="n">dr2</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;Group </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2"> not found in </span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"Group </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2"> not found in </span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">assert_obj_match</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">obj1</span><span class="p">):</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;Assert the two datasets or groups contain the same data.&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">"""Assert the two datasets or groups contain the same data."""</span>
 
                 <span class="k">if</span> <span class="n">ignore</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ignore</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
                     <span class="k">return</span>
@@ -345,20 +345,20 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
                     <span class="nb">set</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
                     <span class="nb">set</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-                    <span class="sa">f</span><span class="s2">&quot;Attributes in </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match.&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Attributes in </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> and "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> do not match."</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj1</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">other</span> <span class="o">=</span> <span class="n">obj2</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;SinglePhotometricReference&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"SinglePhotometricReference"</span><span class="p">:</span>
                         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_relative</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
                         <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_relative</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
                     <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> does &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;not match </span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">other</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Attribute </span><span class="si">{</span><span class="n">dr_fname1</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> does "</span>
+                        <span class="sa">f</span><span class="s2">"not match </span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: "</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">other</span><span class="si">!r}</span><span class="s2">."</span>
                     <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"f"</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
                             <span class="n">numpy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
                                 <span class="n">other</span><span class="p">,</span>
@@ -377,12 +377,12 @@
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj1</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
                         <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj2</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">),</span>
-                        <span class="sa">f</span><span class="s2">&quot;Object </span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not a dataset!&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"Object </span><span class="si">{</span><span class="n">dr_fname2</span><span class="si">!r}</span><span class="s2">/</span><span class="si">{</span><span class="n">obj2</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not a dataset!"</span><span class="p">,</span>
                     <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">obj1</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;/FITSHeader&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">obj1</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"/FITSHeader"</span><span class="p">:</span>
                         <span class="k">with</span> <span class="p">(</span>
-                            <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr1_file</span><span class="p">,</span>
-                            <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr2_file</span><span class="p">,</span>
+                            <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr1_file</span><span class="p">,</span>
+                            <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr2_file</span><span class="p">,</span>
                         <span class="p">):</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">_compare_headers</span><span class="p">(</span>
                                 <span class="n">dr_fname1</span><span class="p">,</span>
@@ -390,7 +390,7 @@
                                 <span class="n">dr1_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">(),</span>
                                 <span class="n">dr2_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">(),</span>
                             <span class="p">)</span>
-                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/MaxSources&quot;</span><span class="p">):</span>
+                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">obj1</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"/MaxSources"</span><span class="p">):</span>
                         <span class="n">assert_dset_match</span><span class="p">(</span><span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dr1</span><span class="p">[</span><span class="n">group_name</span><span class="p">],</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
@@ -403,9 +403,9 @@
 <div class="viewcode-block" id="H5TestCase.run_step_test">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase.run_step_test">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run_step_test</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">compare</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;DR&quot;</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">compare</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">"DR"</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run a test of a single step that updates the DR files.</span>
 
 <span class="sd">        Args:</span>
@@ -424,38 +424,38 @@
 
 <span class="sd">            tput_type(str):    The type of output files produced by the step</span>
 <span class="sd">                (i.e. whic files should be compared),</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">inputs</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="n">output_type</span><span class="p">,</span> <span class="s2">&quot;*.h5&quot;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="n">output_type</span><span class="p">,</span> <span class="s2">"*.h5"</span><span class="p">)</span>
         <span class="p">):</span>
-            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5_file</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">compare</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">h5_file</span><span class="p">:</span>
                         <span class="k">del</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">group</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_step</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;wisp-</span><span class="si">{</span><span class="n">step_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;test.cfg&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"wisp-</span><span class="si">{</span><span class="n">step_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'_'</span><span class="p">,</span><span class="w"> </span><span class="s1">'-'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"-c"</span><span class="p">,</span>
+                <span class="s2">"test.cfg"</span><span class="p">,</span>
                 <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
             <span class="p">]</span>
         <span class="p">)</span>
 
         <span class="n">generated</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="n">output_type</span><span class="p">,</span> <span class="s2">&quot;*.h5&quot;</span><span class="p">))</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span> <span class="n">output_type</span><span class="p">,</span> <span class="s2">"*.h5"</span><span class="p">))</span>
         <span class="p">)</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="n">output_type</span><span class="p">,</span> <span class="s2">&quot;*.h5&quot;</span><span class="p">))</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span> <span class="n">output_type</span><span class="p">,</span> <span class="s2">"*.h5"</span><span class="p">))</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
             <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">generated</span><span class="p">]</span>
             <span class="o">==</span> <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">],</span>
-            <span class="s2">&quot;Generated files do not match expected files!&quot;</span><span class="p">,</span>
+            <span class="s2">"Generated files do not match expected files!"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">gen_fname</span><span class="p">,</span> <span class="n">exp_fname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">generated</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">compare</span><span class="p">:</span>
@@ -470,14 +470,14 @@
 <div class="viewcode-block" id="DRTestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DRTestCase</span><span class="p">(</span><span class="n">H5TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;H5TestCase aware of row-order ambiguity in SourceExtraction groups.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""H5TestCase aware of row-order ambiguity in SourceExtraction groups."""</span>
 
-    <span class="n">_srcext_match_columns</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">)</span>
+    <span class="n">_srcext_match_columns</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"flux"</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DRTestCase._find_sources_group">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase._find_sources_group">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_find_sources_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">group_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return path of subgroup of ``group_name`` holding source columns.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return path of subgroup of ``group_name`` holding source columns."""</span>
 
         <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srcext_match_columns</span>
         <span class="n">sources_path</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
@@ -499,9 +499,9 @@
 <div class="viewcode-block" id="DRTestCase._build_srcextract_reorder">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase._build_srcextract_reorder">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_build_srcextract_reorder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname1</span><span class="p">,</span> <span class="n">dr_fname2</span><span class="p">,</span> <span class="n">group_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return permutation aligning dr_fname2 sources with dr_fname1.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return permutation aligning dr_fname2 sources with dr_fname1."""</span>
 
-        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr1</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr2</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname1</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr1</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">dr_fname2</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr2</span><span class="p">:</span>
             <span class="n">sources_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_sources_group</span><span class="p">(</span><span class="n">dr1</span><span class="p">,</span> <span class="n">group_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">sources_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sources_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dr2</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
@@ -533,9 +533,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">assert_groups_match</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments, too-many-positional-arguments</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname1</span><span class="p">,</span> <span class="n">dr_fname2</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">ignore</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute SourceExtraction reorder, then delegate to H5TestCase.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute SourceExtraction reorder, then delegate to H5TestCase."""</span>
 
-        <span class="c1"># is_srcextract = group_name.strip(&quot;/&quot;).startswith(&quot;SourceExtraction&quot;)</span>
+        <span class="c1"># is_srcextract = group_name.strip("/").startswith("SourceExtraction")</span>
         <span class="c1"># if reorder is None and is_srcextract:</span>
         <span class="c1">#    reorder = self._build_srcextract_reorder(</span>
         <span class="c1">#        dr_fname1, dr_fname2, group_name</span>
@@ -545,7 +545,7 @@
         <span class="c1">#    user_ignore = ignore</span>
 
         <span class="c1">#    def ignore(name):</span>
-        <span class="c1">#        if name.rsplit(&quot;/&quot;, 1)[-1] == &quot;id&quot;:</span>
+        <span class="c1">#        if name.rsplit("/", 1)[-1] == "id":</span>
         <span class="c1">#            return True</span>
         <span class="c1">#        return user_ignore is not None and user_ignore(name)</span>
 

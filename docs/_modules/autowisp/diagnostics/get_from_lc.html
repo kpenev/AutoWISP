@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.diagnostics.get_from_lc &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
              
   <h1>Source code for autowisp.diagnostics.get_from_lc</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="sd">&quot;&quot;&quot;Utilities for plotting individual lightcurves.&quot;&quot;&quot;</span>
+<span class="sd">"""Utilities for plotting individual lightcurves."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span><span class="p">,</span> <span class="n">count</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -185,17 +185,17 @@
 <div class="viewcode-block" id="evaluate_model">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.evaluate_model">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lc_eval</span><span class="p">,</span> <span class="n">expression_params</span><span class="p">,</span> <span class="n">shift_to</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the model evaluated for the given lightcurve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the model evaluated for the given lightcurve."""</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">lc_eval</span><span class="p">(</span><span class="n">expression</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">expression_params</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;args&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"args"</span><span class="p">,</span> <span class="p">[])</span>
     <span class="p">]</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">arg_name</span><span class="p">:</span> <span class="n">lc_eval</span><span class="p">(</span><span class="n">expression</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">expression_params</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"kwargs"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
-    <span class="n">model_values</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_model&quot;</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">model_values</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">model</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"_model"</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">shift_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">shift_to</span> <span class="o">=</span> <span class="n">lc_eval</span><span class="p">(</span><span class="n">shift_to</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">expression_params</span><span class="p">))</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">shift_to</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_values</span><span class="p">)</span>
@@ -210,7 +210,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">optimize_substitutions</span><span class="p">(</span>
     <span class="n">lc_eval</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">find_best</span><span class="p">,</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">y_expression</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">expression_params</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find the values of LC substitution params that minimize an expression.</span>
 
 <span class="sd">    Updates ``lc_evals.lc_substitutions`` with the best values found.</span>
@@ -231,7 +231,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        the smallest value of the ``minimize`` expression found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">key_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">find_best</span><span class="p">]</span>
     <span class="n">best_combination</span> <span class="o">=</span> <span class="kc">None</span>
@@ -241,7 +241,7 @@
         <span class="n">lc_eval</span><span class="o">.</span><span class="n">update_substitutions</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">key_order</span><span class="p">,</span> <span class="n">combination</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">model_values</span> <span class="o">=</span> <span class="n">evaluate_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lc_eval</span><span class="p">,</span> <span class="n">expression_params</span><span class="p">)</span>
-            <span class="n">lc_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;model_diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">lc_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"model_diff"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">lc_eval</span><span class="p">(</span><span class="n">y_expression</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">expression_params</span><span class="p">))</span>
                 <span class="o">-</span> <span class="n">model_values</span>
             <span class="p">)</span>
@@ -252,8 +252,8 @@
             <span class="n">best_combination</span> <span class="o">=</span> <span class="n">combination</span>
             <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">best_model</span> <span class="o">=</span> <span class="n">model_values</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best substitutions: </span><span class="si">{</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">key_order</span><span class="p">,</span><span class="w"> </span><span class="n">best_combination</span><span class="p">))</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best value: </span><span class="si">{</span><span class="n">best_found</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Best substitutions: </span><span class="si">{</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">key_order</span><span class="p">,</span><span class="w"> </span><span class="n">best_combination</span><span class="p">))</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Best value: </span><span class="si">{</span><span class="n">best_found</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">lc_eval</span><span class="o">.</span><span class="n">update_substitutions</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">key_order</span><span class="p">,</span> <span class="n">best_combination</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">best_found</span><span class="p">,</span> <span class="n">best_model</span></div>
 
@@ -267,13 +267,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">set_substitutions</span><span class="p">(</span>
     <span class="n">lc_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">lightcurve</span><span class="p">,</span> <span class="n">photometry_mode</span><span class="p">,</span> <span class="o">**</span><span class="n">optimize_kwargs</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the LC path substitutions ``lc_eval`` should use.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set the LC path substitutions ``lc_eval`` should use."""</span>
 
-    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_substitutions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"lc_substitutions"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"magfit_iteration"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">lc_eval</span><span class="o">.</span><span class="n">update_substitutions</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;magfit_iteration&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_substitutions&quot;</span><span class="p">][</span>
-                    <span class="s2">&quot;magfit_iteration&quot;</span>
+                <span class="s2">"magfit_iteration"</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"lc_substitutions"</span><span class="p">][</span>
+                    <span class="s2">"magfit_iteration"</span>
                 <span class="p">]</span>
                 <span class="o">+</span> <span class="n">lightcurve</span><span class="o">.</span><span class="n">get_num_magfit_iterations</span><span class="p">(</span>
                     <span class="n">photometry_mode</span><span class="p">,</span>
@@ -283,14 +283,14 @@
                 <span class="p">)</span>
             <span class="p">}</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;find_best&quot;</span><span class="p">]:</span>
-        <span class="p">(</span><span class="n">minimize_value</span><span class="p">,</span> <span class="n">best_model</span><span class="p">)</span> <span class="o">=</span> <span class="n">optimize_substitutions</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"find_best"</span><span class="p">]:</span>
+        <span class="n">minimize_value</span><span class="p">,</span> <span class="n">best_model</span> <span class="o">=</span> <span class="n">optimize_substitutions</span><span class="p">(</span>
             <span class="n">lc_eval</span><span class="p">,</span>
-            <span class="n">find_best</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;find_best&quot;</span><span class="p">],</span>
-            <span class="n">minimize</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;minimize&quot;</span><span class="p">],</span>
+            <span class="n">find_best</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"find_best"</span><span class="p">],</span>
+            <span class="n">minimize</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"minimize"</span><span class="p">],</span>
             <span class="o">**</span><span class="n">optimize_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">lc_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;best_model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">best_model</span>
+        <span class="n">lc_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"best_model"</span><span class="p">]</span> <span class="o">=</span> <span class="n">best_model</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">minimize_value</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -301,20 +301,20 @@
 <div class="viewcode-block" id="evaluate_expressions">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.evaluate_expressions">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_expressions</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">lc_eval</span><span class="p">,</span> <span class="n">photometry_mode</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate the required expressions for the current lightcurve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Evaluate the required expressions for the current lightcurve."""</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">aperture_indices</span> <span class="o">=</span> <span class="n">lc_eval</span><span class="o">.</span><span class="n">lc_substitutions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Aperture indices: &quot;</span><span class="p">,</span> <span class="n">aperture_indices</span><span class="p">)</span>
+    <span class="n">aperture_indices</span> <span class="o">=</span> <span class="n">lc_eval</span><span class="o">.</span><span class="n">lc_substitutions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"aperture_index"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Aperture indices: "</span><span class="p">,</span> <span class="n">aperture_indices</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">aperture_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">aperture_indices</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">aperture_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">aperture_indices</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">ap_ind</span> <span class="ow">in</span> <span class="n">aperture_indices</span><span class="p">:</span>
-        <span class="n">lc_eval</span><span class="o">.</span><span class="n">update_substitutions</span><span class="p">({</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">:</span> <span class="n">ap_ind</span><span class="p">})</span>
+        <span class="n">lc_eval</span><span class="o">.</span><span class="n">update_substitutions</span><span class="p">({</span><span class="s2">"aperture_index"</span><span class="p">:</span> <span class="n">ap_ind</span><span class="p">})</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">var_expr</span> <span class="ow">in</span> <span class="n">expressions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating </span><span class="si">{</span><span class="n">var_expr</span><span class="si">!r}</span><span class="s2"> for aperture </span><span class="si">{</span><span class="n">ap_ind</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Evaluating </span><span class="si">{</span><span class="n">var_expr</span><span class="si">!r}</span><span class="s2"> for aperture </span><span class="si">{</span><span class="n">ap_ind</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">var_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">aperture_index</span><span class="o">=</span><span class="n">ap_ind</span><span class="p">)]</span> <span class="o">=</span> <span class="n">lc_eval</span><span class="p">(</span>
                     <span class="n">var_expr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">photometry_mode</span><span class="p">)</span>
                 <span class="p">)</span>
@@ -339,24 +339,24 @@
     <span class="n">model</span><span class="p">,</span>
     <span class="n">lc_eval</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the plot data for a single photometric reference.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get the plot data for a single photometric reference."""</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Single photref: </span><span class="si">{</span><span class="n">single_photref_fname</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Single photref: </span><span class="si">{</span><span class="n">single_photref_fname</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">best_minimize</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">sphotref_result</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">photometry_mode</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;photometry_modes&quot;</span><span class="p">]:</span>
-        <span class="n">sphotref_dset_key</span> <span class="o">=</span> <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">&quot;.magfit.cfg.single_photref&quot;</span>
+    <span class="k">for</span> <span class="n">photometry_mode</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"photometry_modes"</span><span class="p">]:</span>
+        <span class="n">sphotref_dset_key</span> <span class="o">=</span> <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">".magfit.cfg.single_photref"</span>
 
         <span class="n">lc_eval</span><span class="o">.</span><span class="n">lc_points_selection</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="n">lc_eval</span><span class="o">.</span><span class="n">update_substitutions</span><span class="p">({</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+        <span class="n">lc_eval</span><span class="o">.</span><span class="n">update_substitutions</span><span class="p">({</span><span class="s2">"aperture_index"</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
         <span class="n">lc_points_selection</span> <span class="o">=</span> <span class="n">lc_eval</span><span class="p">(</span>
-            <span class="n">sphotref_dset_key</span> <span class="o">+</span> <span class="s2">&quot; == &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">single_photref_fname</span><span class="p">)</span>
+            <span class="n">sphotref_dset_key</span> <span class="o">+</span> <span class="s2">" == "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">single_photref_fname</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">del</span> <span class="n">lc_eval</span><span class="o">.</span><span class="n">lc_substitutions</span><span class="p">[</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;selection&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">lc_eval</span><span class="o">.</span><span class="n">lc_substitutions</span><span class="p">[</span><span class="s2">"aperture_index"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"selection"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">lc_points_selection</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-                <span class="n">lc_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;selection&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;True&quot;</span><span class="p">),</span>
+                <span class="n">lc_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"selection"</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">"True"</span><span class="p">),</span>
                 <span class="n">lc_points_selection</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -367,13 +367,13 @@
             <span class="n">lightcurve</span><span class="p">,</span>
             <span class="n">photometry_mode</span><span class="p">,</span>
             <span class="n">y_expression</span><span class="o">=</span><span class="p">(</span>
-                <span class="kc">None</span> <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">expressions</span><span class="p">[</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;quantity&quot;</span><span class="p">]]</span>
+                <span class="kc">None</span> <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">expressions</span><span class="p">[</span><span class="n">model</span><span class="p">[</span><span class="s2">"quantity"</span><span class="p">]]</span>
             <span class="p">),</span>
             <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
-            <span class="n">expression_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="n">photometry_mode</span><span class="p">},</span>
+            <span class="n">expression_params</span><span class="o">=</span><span class="p">{</span><span class="s2">"mode"</span><span class="p">:</span> <span class="n">photometry_mode</span><span class="p">},</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">minimize_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">sphotref_result</span><span class="p">[</span><span class="s2">&quot;best_model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lc_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;best_model&quot;</span><span class="p">]</span>
+            <span class="n">sphotref_result</span><span class="p">[</span><span class="s2">"best_model"</span><span class="p">]</span> <span class="o">=</span> <span class="n">lc_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"best_model"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">best_minimize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">minimize_value</span> <span class="o">&lt;</span> <span class="n">best_minimize</span><span class="p">:</span>
             <span class="n">best_minimize</span> <span class="o">=</span> <span class="n">minimize_value</span>
             <span class="n">sphotref_result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
@@ -390,20 +390,20 @@
 <div class="viewcode-block" id="get_plot_data">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.get_plot_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_plot_data</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read relevant data from the lightcurve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Read relevant data from the lightcurve."""</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">model</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shift_to&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">model</span><span class="p">[</span><span class="s2">&quot;shift_to&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">expressions</span><span class="p">[</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;quantity&quot;</span><span class="p">]]</span>
-    <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lightcurve</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shift_to"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">model</span><span class="p">[</span><span class="s2">"shift_to"</span><span class="p">]</span> <span class="o">=</span> <span class="n">expressions</span><span class="p">[</span><span class="n">model</span><span class="p">[</span><span class="s2">"quantity"</span><span class="p">]]</span>
+    <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">lightcurve</span><span class="p">:</span>
         <span class="n">lc_eval</span> <span class="o">=</span> <span class="n">LightCurveEvaluator</span><span class="p">(</span>
-            <span class="n">lightcurve</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_substitutions&quot;</span><span class="p">]</span>
+            <span class="n">lightcurve</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"lc_substitutions"</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">all_sphotref_fnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">photometry_mode</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;photometry_modes&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">photometry_mode</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"photometry_modes"</span><span class="p">]:</span>
             <span class="n">all_sphotref_fnames</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span>
                 <span class="n">lightcurve</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
-                    <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">&quot;.magfit.cfg.single_photref&quot;</span><span class="p">,</span>
+                    <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">".magfit.cfg.single_photref"</span><span class="p">,</span>
                     <span class="n">aperture_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
@@ -425,7 +425,7 @@
 <div class="viewcode-block" id="calculate_combined">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.calculate_combined">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calculate_combined</span><span class="p">(</span><span class="n">plot_data</span><span class="p">,</span> <span class="n">match_id_key</span><span class="p">,</span> <span class="n">aggregation_function</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a specified plot of the given lightcurve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create a specified plot of the given lightcurve."""</span>
 
     <span class="n">fixed_order_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">plot_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">combined_data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -459,13 +459,13 @@
 <div class="viewcode-block" id="transit_model">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.transit_model">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">transit_model</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the magnitude change of exoplanet with given parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate the magnitude change of exoplanet with given parameters."""</span>
 
-    <span class="n">model</span> <span class="o">=</span> <span class="n">RoadRunnerModel</span><span class="p">(</span><span class="s2">&quot;quadratic&quot;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">RoadRunnerModel</span><span class="p">(</span><span class="s2">"quadratic"</span><span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Evaluating transit model for parameters: </span><span class="si">{</span><span class="n">params</span><span class="si">!r}</span><span class="s2"> &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;for times: </span><span class="si">{</span><span class="n">times</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Evaluating transit model for parameters: </span><span class="si">{</span><span class="n">params</span><span class="si">!r}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"for times: </span><span class="si">{</span><span class="n">times</span><span class="si">!r}</span><span class="s2">."</span>
     <span class="p">)</span>
     <span class="n">mag_change</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">mag_change</span></div>
@@ -475,146 +475,146 @@
 <div class="viewcode-block" id="format_lc_quantities">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.format_lc_quantities">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_lc_quantities</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dict of available lightcurve quantities with discriptions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a dict of available lightcurve quantities with discriptions."""</span>
 
     <span class="n">lc_structure</span> <span class="o">=</span> <span class="n">LightCurveFile</span><span class="o">.</span><span class="n">get_file_structure</span><span class="p">()</span>
     <span class="n">dummy_parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">lc_key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lc_structure</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;dataset&quot;</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">lc_key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lc_structure</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"dataset"</span><span class="p">]):</span>
         <span class="n">dummy_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="n">lc_key</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="n">lc_structure</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">lc_key</span><span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%%</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="n">lc_structure</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">lc_key</span><span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"%"</span><span class="p">,</span> <span class="s2">"</span><span class="si">%%</span><span class="s2">"</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="n">dummy_help</span> <span class="o">=</span> <span class="n">dummy_parser</span><span class="o">.</span><span class="n">format_help</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">dummy_help</span><span class="p">[</span>
-        <span class="n">dummy_help</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;positional arguments:&quot;</span><span class="p">)</span>
-        <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="s2">&quot;positional arguments:&quot;</span><span class="p">)</span> <span class="p">:</span> <span class="n">dummy_help</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;options:&quot;</span><span class="p">)</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">dummy_help</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"positional arguments:"</span><span class="p">)</span>
+        <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="s2">"positional arguments:"</span><span class="p">)</span> <span class="p">:</span> <span class="n">dummy_help</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"options:"</span><span class="p">)</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="parse_command_line">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.parse_command_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the command line configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the command line configuration."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_range</span><span class="p">(</span><span class="n">range_str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse optimize option value.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Parse optimize option value."""</span>
 
-        <span class="n">key</span><span class="p">,</span> <span class="n">range_str</span> <span class="o">=</span> <span class="n">range_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-        <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">range_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">))</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">range_str</span> <span class="o">=</span> <span class="n">range_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">range_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">".."</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">key</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_format</span><span class="p">(</span><span class="n">format_str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the format string for output.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Parse the format string for output."""</span>
 
-        <span class="n">formatter</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="si">{</span><span class="n">format_str</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Formatter: &quot;</span><span class="p">,</span> <span class="n">formatter</span><span class="p">)</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">{{</span><span class="si">{</span><span class="n">format_str</span><span class="si">}</span><span class="se">}}</span><span class="s2">"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Formatter: "</span><span class="p">,</span> <span class="n">formatter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">formatter</span><span class="o">.</span><span class="n">format</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Extract information from a lightcurve for plotting or &quot;</span>
-        <span class="s2">&quot;other analysis.&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Extract information from a lightcurve for plotting or "</span>
+        <span class="s2">"other analysis."</span><span class="p">,</span>
         <span class="n">default_config_files</span><span class="o">=</span><span class="p">[],</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
         <span class="n">ignore_unknown_config_file_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;lc_fname&quot;</span><span class="p">,</span>
+        <span class="s2">"lc_fname"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the lightcurve file to plot.&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"?"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to the lightcurve file to plot."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+        <span class="s2">"--config-file"</span><span class="p">,</span>
+        <span class="s2">"--config"</span><span class="p">,</span>
+        <span class="s2">"-c"</span><span class="p">,</span>
         <span class="n">is_config_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to configuration file.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to configuration file."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--list-lc-quantities&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List all available lightcurve quantities and exit.&quot;</span><span class="p">,</span>
+        <span class="s2">"--list-lc-quantities"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List all available lightcurve quantities and exit."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--expression&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-e&quot;</span><span class="p">,</span>
+        <span class="s2">"--expression"</span><span class="p">,</span>
+        <span class="s2">"-e"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add another expression of lightcurve quantities to save. Use &quot;</span>
-        <span class="s2">&quot;``--list-lc-quantities`` to see available quantities and brief &quot;</span>
-        <span class="s2">&quot;descriptions. Should be formatted as &lt;expression_name&gt;=&lt;expression&gt;. &quot;</span>
-        <span class="s2">&quot;If the quantity is aperture dependent, and ``--find-best`` is &quot;</span>
-        <span class="s2">&quot;not specified, the expression name should contain </span><span class="si">{aperture_index}</span><span class="s2"> &quot;</span>
-        <span class="s2">&quot;substitution to allow the value for all apertures to be saved. &quot;</span>
-        <span class="s2">&quot;Otherwise, only one of the apertures will be saved.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Add another expression of lightcurve quantities to save. Use "</span>
+        <span class="s2">"``--list-lc-quantities`` to see available quantities and brief "</span>
+        <span class="s2">"descriptions. Should be formatted as &lt;expression_name&gt;=&lt;expression&gt;. "</span>
+        <span class="s2">"If the quantity is aperture dependent, and ``--find-best`` is "</span>
+        <span class="s2">"not specified, the expression name should contain </span><span class="si">{aperture_index}</span><span class="s2"> "</span>
+        <span class="s2">"substitution to allow the value for all apertures to be saved. "</span>
+        <span class="s2">"Otherwise, only one of the apertures will be saved."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--photometry-modes&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The photometry modes to search for best lightcurve.&quot;</span><span class="p">,</span>
+        <span class="s2">"--photometry-modes"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">"apphot"</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The photometry modes to search for best lightcurve."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--find-best&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">))],</span>
+        <span class="s2">"--find-best"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[(</span><span class="s2">"aperture_index"</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">))],</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">parse_range</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Lightcurve substitutions to optimize to find the smallest value &quot;</span>
-        <span class="s2">&quot;of the expression specified in ``--minimize-expression``. The format &quot;</span>
-        <span class="s2">&quot;is ``substitution_key:&lt;min&gt;..&lt;max&gt;``. If multiple keys are given all &quot;</span>
-        <span class="s2">&quot;possible combinations are tested.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Lightcurve substitutions to optimize to find the smallest value "</span>
+        <span class="s2">"of the expression specified in ``--minimize-expression``. The format "</span>
+        <span class="s2">"is ``substitution_key:&lt;min&gt;..&lt;max&gt;``. If multiple keys are given all "</span>
+        <span class="s2">"possible combinations are tested."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--minimize&quot;</span><span class="p">,</span>
+        <span class="s2">"--minimize"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;nanmedian(abs(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude - &quot;</span>
-            <span class="s2">&quot;nanmedian(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude)))&quot;</span>
+            <span class="s2">"nanmedian(abs(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude - "</span>
+            <span class="s2">"nanmedian(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude)))"</span>
         <span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The expression to minimize by iterating over all possibilities &quot;</span>
-        <span class="s2">&quot;specified by ``--optimize``.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The expression to minimize by iterating over all possibilities "</span>
+        <span class="s2">"specified by ``--optimize``."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bin&quot;</span><span class="p">,</span>
+        <span class="s2">"--bin"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Binning to apply. Should be an expression of lightcurve &quot;</span>
-        <span class="s2">&quot;quantities followed by a binning function. Some examples include:</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">* ``fitsheader.rawfname`` ``nanmedian`` to plot the color &quot;</span>
-        <span class="s2">&quot;median of the measurements in different channels of an each image.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">* ``(skypos.BJD * 24 * 12).astype(int)`` ``nanmedian`` to bin in 5 &quot;</span>
-        <span class="s2">&quot;min increments. By default no binning is applied.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Binning to apply. Should be an expression of lightcurve "</span>
+        <span class="s2">"quantities followed by a binning function. Some examples include:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"</span><span class="se">\t</span><span class="s2">* ``fitsheader.rawfname`` ``nanmedian`` to plot the color "</span>
+        <span class="s2">"median of the measurements in different channels of an each image.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"</span><span class="se">\t</span><span class="s2">* ``(skypos.BJD * 24 * 12).astype(int)`` ``nanmedian`` to bin in 5 "</span>
+        <span class="s2">"min increments. By default no binning is applied."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">"--output"</span><span class="p">,</span>
+        <span class="s2">"-o"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The filename under which to save the extracted light curve data.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The filename under which to save the extracted light curve data."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--na-rep&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The string to use for representing NaN values in the output.&quot;</span><span class="p">,</span>
+        <span class="s2">"--na-rep"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The string to use for representing NaN values in the output."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--sep&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The separator to use in the output file.&quot;</span><span class="p">,</span>
+        <span class="s2">"--sep"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">","</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The separator to use in the output file."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--float-format&quot;</span><span class="p">,</span>
+        <span class="s2">"--float-format"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">parse_format</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The format to use for floating point numbers in the output.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The format to use for floating point numbers in the output."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">list_lc_quantities</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">format_lc_quantities</span><span class="p">())</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;lc_fname&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No lightcurve file specified.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"lc_fname"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"No lightcurve file specified."</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">print_usage</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span></div>
@@ -624,38 +624,38 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.get_from_lc.html#autowisp.diagnostics.get_from_lc.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid polluting global scope.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Avoid polluting global scope."""</span>
 
     <span class="n">configuration</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>
-    <span class="n">set_project_home</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;project_home&quot;</span><span class="p">))</span>
-    <span class="n">out_fname</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">)</span>
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"project_home"</span><span class="p">))</span>
+    <span class="n">out_fname</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"output"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">out_fname</span><span class="p">:</span>
-        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_substitutions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;selection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">"lc_substitutions"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">"selection"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">expressions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">expression</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;expression&quot;</span><span class="p">)</span>
+            <span class="n">expression</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"expression"</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">data_by_sphotref</span> <span class="o">=</span> <span class="n">get_plot_data</span><span class="p">(</span>
-            <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;lc_fname&quot;</span><span class="p">),</span>
+            <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"lc_fname"</span><span class="p">),</span>
             <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span>
             <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
             <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">data_by_sphotref</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">data_by_sphotref</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-        <span class="n">data_by_sphotref</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;best_model&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">data_by_sphotref</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"best_model"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">data_by_sphotref</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_by_sphotref</span><span class="p">)</span>
         <span class="n">data_by_sphotref</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
             <span class="n">out_fname</span><span class="p">,</span>
-            <span class="n">na_rep</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;na_rep&quot;</span><span class="p">],</span>
-            <span class="n">sep</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;sep&quot;</span><span class="p">],</span>
-            <span class="n">float_format</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;float_format&quot;</span><span class="p">],</span>
+            <span class="n">na_rep</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"na_rep"</span><span class="p">],</span>
+            <span class="n">sep</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"sep"</span><span class="p">],</span>
+            <span class="n">float_format</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"float_format"</span><span class="p">],</span>
             <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

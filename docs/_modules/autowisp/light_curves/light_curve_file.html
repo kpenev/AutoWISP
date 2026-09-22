@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.light_curve_file &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.light_curves.light_curve_file</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define a class for working with light curve files.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define a class for working with light curve files."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
@@ -177,12 +177,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.hashable_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">HashableArray</span>
 
 <span class="n">_config_dset_key_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="sa">r</span><span class="s2">&quot;_cfg_version$&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;.software_versions$&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;\.cfg\.(?!(epoch|fov|orientation))&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;^srcextract\.psf_map\.cfg\.&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">"_cfg_version$"</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">".software_versions$"</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">"\.cfg\.(?!(epoch|fov|orientation))"</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">"^srcextract\.psf_map\.cfg\."</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">)</span>
 <span class="p">)</span>
@@ -193,13 +193,13 @@
 <div class="viewcode-block" id="LightCurveFile">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LightCurveFile</span><span class="p">(</span><span class="n">HDF5FileDatabaseStructure</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Interface for working with the pipeline generated light curve files.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        _config_indices(dict):    A dictionary of the already read-in</span>
 <span class="sd">            configuration indices (re-used if requested again).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1">#: Config datasets whose per-configuration value is itself an array of</span>
     <span class="c1">#: varying length, so they must be stored as ragged (variable-length)</span>
@@ -210,8 +210,8 @@
     <span class="c1">#: needed and existing databases work unchanged.</span>
     <span class="n">_ragged_config_keys</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;shapefit.tfa.cfg.template_source_ids&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;apphot.tfa.cfg.template_source_ids&quot;</span><span class="p">,</span>
+            <span class="s2">"shapefit.tfa.cfg.template_source_ids"</span><span class="p">,</span>
+            <span class="s2">"apphot.tfa.cfg.template_source_ids"</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
@@ -219,27 +219,27 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_product</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;light_curve&quot;</span>
+        <span class="k">return</span> <span class="s2">"light_curve"</span>
 
 <div class="viewcode-block" id="LightCurveFile._get_root_tag_name">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile._get_root_tag_name">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_root_tag_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The name of the root tag in the layout configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The name of the root tag in the layout configuration."""</span>
 
-        <span class="k">return</span> <span class="s2">&quot;LightCurve&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"LightCurve"</span></div>
 
 
 <div class="viewcode-block" id="LightCurveFile.get_dtype">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.get_dtype">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_key</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store the ragged config datasets as variable-length arrays.</span>
+<span class="w">        </span><span class="sd">"""Store the ragged config datasets as variable-length arrays.</span>
 
 <span class="sd">        See :attr:`_ragged_config_keys`: these hold one array per configuration</span>
 <span class="sd">        whose length varies, so a fixed-width dataset cannot represent them. The</span>
 <span class="sd">        element type is the database-declared one, wrapped as vlen; all other</span>
 <span class="sd">        keys defer to the database dtype unchanged.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">element_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ragged_config_keys</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">h5py</span><span class="o">.</span><span class="n">vlen_dtype</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="n">element_key</span><span class="p">))</span>
@@ -249,7 +249,7 @@
 <div class="viewcode-block" id="LightCurveFile._get_hashable_dataset">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile._get_hashable_dataset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_hashable_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the selected dataset with hashable entries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the selected dataset with hashable entries."""</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
@@ -260,15 +260,15 @@
             <span class="k">if</span> <span class="n">h5py</span><span class="o">.</span><span class="n">check_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bytes</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[</span><span class="n">HashableArray</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">HashableArray</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;NaN&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"f"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"NaN"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">values</span></div>
 
 
 <div class="viewcode-block" id="LightCurveFile._get_configurations">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile._get_configurations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">quantities</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a the configurations for a given component.</span>
 
 <span class="sd">        Args:</span>
@@ -295,32 +295,32 @@
 
 <span class="sd">            Also stores the extracted list of configurations as</span>
 <span class="sd">            self.__configurations[component][set(substitutions.items())]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">report_indistinct_configurations</span><span class="p">(</span><span class="n">config_list</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Report all repeating configurations in an exception.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Report all repeating configurations in an exception."""</span>
 
             <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Identical </span><span class="si">{</span><span class="n">component</span><span class="si">!s}</span><span class="s2"> configurations found in &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Identical </span><span class="si">{</span><span class="n">component</span><span class="si">!s}</span><span class="s2"> configurations found in "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="n">hash_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">config_list</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">config_list</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">config_list</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">this_hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
                     <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
-                        <span class="s2">&quot;Indices (&quot;</span>
-                        <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="s2">"Indices ("</span>
+                        <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                             <span class="p">[</span>
                                 <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hash_list</span><span class="p">)</span>
                                 <span class="k">if</span> <span class="n">this_hash</span> <span class="o">==</span> <span class="n">h</span>
                             <span class="p">]</span>
                         <span class="p">)</span>
-                        <span class="o">+</span> <span class="s2">&quot;) contain: </span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="o">+</span> <span class="s2">") contain: </span><span class="se">\n</span><span class="s2">"</span>
                     <span class="p">)</span>
                     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">quantities</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-                        <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\t</span><span class="s2"> </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
         <span class="n">substitution_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">substitutions</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
@@ -357,7 +357,7 @@
 <div class="viewcode-block" id="LightCurveFile.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">source_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Open a lightcurve file.</span>
 
 <span class="sd">        Args:</span>
@@ -373,20 +373,20 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_configurations</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_indices</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">if</span> <span class="s2">&quot;Identifiers&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span> <span class="o">!=</span> <span class="s2">&quot;core&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"Identifiers"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span> <span class="o">!=</span> <span class="s2">"core"</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">source_ids</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Must specify at least one identifier when creating new &quot;</span>
-                    <span class="s2">&quot;lightcurve file!&quot;</span>
+                    <span class="s2">"Must specify at least one identifier when creating new "</span>
+                    <span class="s2">"lightcurve file!"</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
-                <span class="s2">&quot;Identifiers&quot;</span><span class="p">,</span>
+                <span class="s2">"Identifiers"</span><span class="p">,</span>
                 <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
                 <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
                 <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
@@ -397,7 +397,7 @@
             <span class="n">add_source_ids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">source_ids</span><span class="p">)</span>
             <span class="c1"># False positive</span>
             <span class="c1"># pylint: disable=no-member</span>
-            <span class="n">stored_identifiers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">asstr</span><span class="p">())</span>
+            <span class="n">stored_identifiers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">]</span><span class="o">.</span><span class="n">asstr</span><span class="p">())</span>
             <span class="c1"># pylint: enable=no-member</span>
             <span class="k">for</span> <span class="n">catalogue</span><span class="p">,</span> <span class="n">identifier</span> <span class="ow">in</span> <span class="n">source_ids</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">catalogue</span> <span class="ow">in</span> <span class="n">stored_identifiers</span><span class="p">:</span>
@@ -405,18 +405,18 @@
                     <span class="k">del</span> <span class="n">add_source_ids</span><span class="p">[</span><span class="n">catalogue</span><span class="p">]</span>
             <span class="c1"># False positive</span>
             <span class="c1"># pylint: disable=no-member</span>
-            <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">destination</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">add_source_ids</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">destination</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">add_source_ids</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
             <span class="c1"># pylint: enable=no-member</span>
             <span class="k">for</span> <span class="n">new_id</span> <span class="ow">in</span> <span class="n">add_source_ids</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">][</span><span class="n">destination</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">][</span><span class="n">destination</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
                 <span class="n">destination</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 
 <div class="viewcode-block" id="LightCurveFile.get_config_indices">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.get_config_indices">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_config_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config index dset for indexing the given config dset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the config index dset for indexing the given config dset."""</span>
 
         <span class="n">substitution_key</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">substitutions</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="n">config_component</span> <span class="o">=</span> <span class="n">dataset_key</span>
@@ -427,7 +427,7 @@
                     <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">substitution_key</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
-                        <span class="n">config_component</span> <span class="o">+</span> <span class="s2">&quot;.cfg_index&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+                        <span class="n">config_component</span> <span class="o">+</span> <span class="s2">".cfg_index"</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">config_component</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_indices</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_config_indices</span><span class="p">[</span><span class="n">config_component</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -437,13 +437,13 @@
 
                 <span class="k">return</span> <span class="n">result</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="n">config_component</span> <span class="o">=</span> <span class="n">config_component</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+                <span class="n">config_component</span> <span class="o">=</span> <span class="n">config_component</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="LightCurveFile.read_data">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.read_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Similar to get_dataset, except config datasets are expanded.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Similar to get_dataset, except config datasets are expanded."""</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
 
@@ -458,7 +458,7 @@
 <div class="viewcode-block" id="LightCurveFile.read_data_array">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.read_data_array">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_data_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a numpy structured array of the given variables.</span>
 
 <span class="sd">        Args:</span>
@@ -474,18 +474,18 @@
 <span class="sd">                containing the specified data. Configuration datasets are</span>
 <span class="sd">                expanded to lightcurve points using the corresponding</span>
 <span class="sd">                configuration index.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">result_column_dtype</span><span class="p">(</span><span class="n">dset_key</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;The type to use for the given column in the result.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""The type to use for the given column in the result."""</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="n">dset_key</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">"O"</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">create_empty_result</span><span class="p">(</span><span class="n">result_size</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create an uninitialized dasates to hold the result.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create an uninitialized dasates to hold the result."""</span>
 
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
                 <span class="n">result_size</span><span class="p">,</span>
@@ -504,9 +504,9 @@
                 <span class="n">first_dset</span> <span class="o">=</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">substitutions</span>
             <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;For </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="n">dataset_key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">substitutions</span><span class="si">!r}</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;dataset shape </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">!r}</span><span class="s2"> does not match the shape of &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="si">!r}</span><span class="s2"> of </span><span class="si">{</span><span class="n">first_dset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">first_dset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"For </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="n">dataset_key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">substitutions</span><span class="si">!r}</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"dataset shape </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">!r}</span><span class="s2"> does not match the shape of "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="si">!r}</span><span class="s2"> of </span><span class="si">{</span><span class="n">first_dset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">first_dset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="n">result</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
 
@@ -524,7 +524,7 @@
         <span class="n">config_index_selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a list of configurations to the LC, merging with existing ones.</span>
 
 <span class="sd">        Also updates the configuration index dataset.</span>
@@ -556,10 +556,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_new_data</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return a dict of pipeline_key, data of the updates needed.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return a dict of pipeline_key, data of the updates needed."""</span>
 
             <span class="n">index_dset</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">config_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">)</span>
 
@@ -610,7 +610,7 @@
                     <span class="n">vlen</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">vlen_base</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">vlen_base</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="c1"># Ragged numeric config: each configuration&#39;s value is an</span>
+                    <span class="c1"># Ragged numeric config: each configuration's value is an</span>
                     <span class="c1"># array of possibly differing length. Store as a 1-D object</span>
                     <span class="c1"># array of arrays so h5py writes them as variable-length</span>
                     <span class="c1"># rows (a fixed-width array would fail to broadcast).</span>
@@ -624,17 +624,17 @@
                     <span class="n">config_data_to_add</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                         <span class="n">config_data_to_add</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">vlen_base</span>
                     <span class="p">)</span>
-            <span class="n">config_data_to_add</span><span class="p">[</span><span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;.cfg_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index_dset</span>
+            <span class="n">config_data_to_add</span><span class="p">[</span><span class="n">component</span> <span class="o">+</span> <span class="s2">".cfg_index"</span><span class="p">]</span> <span class="o">=</span> <span class="n">index_dset</span>
             <span class="k">return</span> <span class="n">config_data_to_add</span>
 
         <span class="k">for</span> <span class="n">pipeline_key</span><span class="p">,</span> <span class="n">new_data</span> <span class="ow">in</span> <span class="n">get_new_data</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">config_index_selection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pipeline_key</span> <span class="o">==</span> <span class="p">(</span>
-                <span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;.cfg_index&quot;</span>
+                <span class="n">component</span> <span class="o">+</span> <span class="s2">".cfg_index"</span>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
                     <span class="n">dataset_key</span><span class="o">=</span><span class="n">pipeline_key</span><span class="p">,</span>
                     <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+                    <span class="n">if_exists</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span>
                     <span class="n">unlimited</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">shape</span><span class="o">=</span><span class="n">new_data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
                     <span class="n">dtype</span><span class="o">=</span><span class="n">new_data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
@@ -647,7 +647,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">extend_dataset</span><span class="p">(</span>
                     <span class="n">pipeline_key</span><span class="p">,</span>
                     <span class="n">new_data</span><span class="p">,</span>
-                    <span class="n">resolve_size</span><span class="o">=</span><span class="s2">&quot;actual&quot;</span><span class="p">,</span>
+                    <span class="n">resolve_size</span><span class="o">=</span><span class="s2">"actual"</span><span class="p">,</span>
                     <span class="n">is_config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
                 <span class="p">)</span></div>
@@ -656,10 +656,10 @@
 <div class="viewcode-block" id="LightCurveFile.get_lc_length">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.get_lc_length">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_lc_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of poinst present in this lightcurve.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of poinst present in this lightcurve."""</span>
 
         <span class="n">dataset_path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="s2">&quot;skypos.BJD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="s2">"skypos.BJD"</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span>
@@ -676,7 +676,7 @@
         <span class="n">is_config</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add more points to the dataset identified by dataset_key.</span>
 
 <span class="sd">        If the given dataset does not exist it is created as unlimited in its</span>
@@ -690,7 +690,7 @@
 <span class="sd">            new_data:    The additional values that should be written, a numpy</span>
 <span class="sd">                array with an appropriate data type and shape.</span>
 
-<span class="sd">            resolve_size:    Should be either &#39;actual&#39; or &#39;confirmed&#39;.</span>
+<span class="sd">            resolve_size:    Should be either 'actual' or 'confirmed'.</span>
 <span class="sd">                Indicating which dataset length to accept when</span>
 <span class="sd">                adding new data. If left as `None`, an error is rasied if the</span>
 <span class="sd">                confirmed length does not match the actual length of the</span>
@@ -701,39 +701,39 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_pad_value</span><span class="p">(</span><span class="n">replace_nonfinite</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;If replace_nonfinite is undefined base padding on dtype.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""If replace_nonfinite is undefined base padding on dtype."""</span>
 
             <span class="k">if</span> <span class="n">replace_nonfinite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">replace_nonfinite</span>
 
             <span class="n">dtype_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
-            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">&quot;numpy.bool_&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">"numpy.bool_"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">&quot;numpy.float64&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">"numpy.float64"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
-            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">&quot;numpy.int32&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">"numpy.int32"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
-            <span class="k">if</span> <span class="n">dtype_str</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">):</span>
-                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">&quot;numpy.uint&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dtype_str</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"numpy.string_"</span><span class="p">,</span> <span class="s2">"numpy.bytes_"</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s2">""</span>
+            <span class="k">if</span> <span class="n">dtype_str</span> <span class="o">==</span> <span class="s2">"numpy.uint"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
             <span class="k">assert</span> <span class="kc">False</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">add_new_data</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">confirmed_length</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add new_data to the given dataset after confirmed_length.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Add new_data to the given dataset after confirmed_length."""</span>
 
             <span class="n">dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset_creation_args</span><span class="p">(</span>
                 <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dtype"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">dtype</span> <span class="o">=</span> <span class="n">new_data</span><span class="o">.</span><span class="n">dtype</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Adding new data after confirmed length </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Adding new data after confirmed length </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">confirmed_length</span><span class="p">),</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">new_data</span><span class="p">),</span>
             <span class="p">)</span>
@@ -749,14 +749,14 @@
                     <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                        <span class="s2">&quot;Failed to read lightcurve dataset &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;(actual length of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;expected </span><span class="si">{</span><span class="n">confirmed_length</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">)!&quot;</span>
+                        <span class="s2">"Failed to read lightcurve dataset "</span>
+                        <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' "</span>
+                        <span class="sa">f</span><span class="s2">"(actual length of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, "</span>
+                        <span class="sa">f</span><span class="s2">"expected </span><span class="si">{</span><span class="n">confirmed_length</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">)!"</span>
                     <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Dataset </span><span class="si">%s</span><span class="s2"> length (</span><span class="si">%s</span><span class="s2">) exceeds confirmed (</span><span class="si">%d</span><span class="s2">) + new </span><span class="si">%s</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Recreating from scratch.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Dataset </span><span class="si">%s</span><span class="s2"> length (</span><span class="si">%s</span><span class="s2">) exceeds confirmed (</span><span class="si">%d</span><span class="s2">) + new </span><span class="si">%s</span><span class="s2">. "</span>
+                    <span class="s2">"Recreating from scratch."</span><span class="p">,</span>
                     <span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
                     <span class="n">confirmed_length</span><span class="p">,</span>
@@ -773,7 +773,7 @@
                 <span class="n">dataset</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">new_dataset_size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">pad</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="s2">&quot;Padding </span><span class="si">%s</span><span class="s2"> (shape </span><span class="si">%s</span><span class="s2">) from </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Padding </span><span class="si">%s</span><span class="s2"> (shape </span><span class="si">%s</span><span class="s2">) from </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                         <span class="nb">repr</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
                         <span class="nb">repr</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
                         <span class="nb">repr</span><span class="p">(</span><span class="n">confirmed_length</span> <span class="o">-</span> <span class="n">pad</span><span class="p">),</span>
@@ -797,27 +797,27 @@
         <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
 
         <span class="n">confirmed_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
-            <span class="s2">&quot;confirmed_lc_length&quot;</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mi">0</span>
+            <span class="s2">"confirmed_lc_length"</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mi">0</span>
         <span class="p">)</span>
         <span class="n">actual_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lc_length</span><span class="p">(</span><span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">confirmed_length</span> <span class="o">&gt;</span> <span class="n">actual_length</span> <span class="ow">and</span> <span class="n">resolve_size</span> <span class="o">!=</span> <span class="s2">&quot;actual&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">confirmed_length</span> <span class="o">&gt;</span> <span class="n">actual_length</span> <span class="ow">and</span> <span class="n">resolve_size</span> <span class="o">!=</span> <span class="s2">"actual"</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> lightcurve has a length of &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">actual_length</span><span class="si">}</span><span class="s2">, smaller than the confirmed &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;length of </span><span class="si">{</span><span class="n">confirmed_length</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"The </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> lightcurve has a length of "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">actual_length</span><span class="si">}</span><span class="s2">, smaller than the confirmed "</span>
+                <span class="sa">f</span><span class="s2">"length of </span><span class="si">{</span><span class="n">confirmed_length</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">confirmed_length</span> <span class="o">!=</span> <span class="n">actual_length</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">resolve_size</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The lightcurve </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">!r}</span><span class="s2"> has an actual &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;length of </span><span class="si">{</span><span class="n">actual_length</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, expected &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">confirmed_length</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">!&quot;</span>
+                    <span class="sa">f</span><span class="s2">"The lightcurve </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">!r}</span><span class="s2"> has an actual "</span>
+                    <span class="sa">f</span><span class="s2">"length of </span><span class="si">{</span><span class="n">actual_length</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, expected "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">confirmed_length</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">!"</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">resolve_size</span> <span class="o">==</span> <span class="s2">&quot;actual&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resolve_size</span> <span class="o">==</span> <span class="s2">"actual"</span><span class="p">:</span>
                 <span class="n">confirmed_length</span> <span class="o">=</span> <span class="n">actual_length</span>
-            <span class="k">elif</span> <span class="n">resolve_size</span> <span class="o">!=</span> <span class="s2">&quot;confirmed&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">resolve_size</span> <span class="o">!=</span> <span class="s2">"confirmed"</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                    <span class="s2">&quot;Unexpected lightcurve length resolution: &quot;</span>
+                    <span class="s2">"Unexpected lightcurve length resolution: "</span>
                     <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">resolve_size</span><span class="p">)</span>
                 <span class="p">)</span>
         <span class="n">confirmed_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">confirmed_length</span><span class="p">)</span>
@@ -850,10 +850,10 @@
 <div class="viewcode-block" id="LightCurveFile.confirm_lc_length">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.confirm_lc_length">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">confirm_lc_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the confirmed length of the lightcurve to match actual length.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the confirmed length of the lightcurve to match actual length."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
-            <span class="s2">&quot;confirmed_lc_length&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lc_length</span><span class="p">(</span><span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
+            <span class="s2">"confirmed_lc_length"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lc_length</span><span class="p">(</span><span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -862,7 +862,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_num_magfit_iterations</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">photometry_mode</span><span class="p">,</span> <span class="n">lc_points</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return how many magnitude fitting iterations are in the file.</span>
 
 <span class="sd">        Args:</span>
@@ -873,15 +873,15 @@
 <span class="sd">                The number of magnitude fitting iterations performed on the</span>
 <span class="sd">                set of photometry measurements identified by the</span>
 <span class="sd">                path_substitutions argument.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">dataset_key</span> <span class="o">=</span> <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">&quot;.magfit.magnitude&quot;</span>
+        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dataset_key</span> <span class="o">=</span> <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">".magfit.magnitude"</span>
         <span class="n">path_zero</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">path_substitutions</span>
         <span class="p">)</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">path_substitutions</span>
                 <span class="o">==</span> <span class="n">path_zero</span>
@@ -897,7 +897,7 @@
             <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
                 <span class="k">break</span>
 
-        <span class="k">return</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="LightCurveFile.add_corrected_dataset">
@@ -910,7 +910,7 @@
         <span class="n">corrected_selection</span><span class="p">,</span>
         <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add corrected values for a dataset (e.g. after EPD or TFA).</span>
 
 <span class="sd">        Args:</span>
@@ -932,10 +932,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Adding to </span><span class="si">%s</span><span class="s2"> corrected version of </span><span class="si">%d</span><span class="s2"> points of </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Adding to </span><span class="si">%s</span><span class="s2"> corrected version of </span><span class="si">%d</span><span class="s2"> points of </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span>
             <span class="n">corrected_selection</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span><span class="p">),</span>
@@ -947,7 +947,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
             <span class="n">dataset_key</span><span class="o">=</span><span class="n">corrected_key</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="n">if_exists</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span>
             <span class="n">unlimited</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="n">original_dset</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
             <span class="n">dtype</span><span class="o">=</span><span class="n">original_dset</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
@@ -957,8 +957,8 @@
         <span class="n">destination_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">corrected_key</span><span class="p">]</span>
         <span class="n">dest_path</span> <span class="o">=</span> <span class="n">destination_config</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Setting </span><span class="si">%d</span><span class="s2"> points in </span><span class="si">%s</span><span class="s2">[</span><span class="si">%s</span><span class="s2">]. Selection shape: </span><span class="si">%s</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;Destination shape: </span><span class="si">%s</span><span class="s2">. Corrected values shape: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+            <span class="s2">"Setting </span><span class="si">%d</span><span class="s2"> points in </span><span class="si">%s</span><span class="s2">[</span><span class="si">%s</span><span class="s2">]. Selection shape: </span><span class="si">%s</span><span class="s2">. "</span>
+            <span class="s2">"Destination shape: </span><span class="si">%s</span><span class="s2">. Corrected values shape: </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
             <span class="n">corrected_selection</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">dest_path</span><span class="p">,</span>
@@ -969,7 +969,7 @@
         <span class="bp">self</span><span class="p">[</span><span class="n">dest_path</span><span class="p">][</span><span class="n">corrected_selection</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace_nonfinite</span><span class="p">(</span>
             <span class="n">corrected_values</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset_creation_args</span><span class="p">(</span><span class="n">corrected_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;dtype&quot;</span>
+                <span class="s2">"dtype"</span>
             <span class="p">),</span>
             <span class="n">destination_config</span><span class="o">.</span><span class="n">replace_nonfinite</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -978,7 +978,7 @@
 <div class="viewcode-block" id="LightCurveFile.evaluate_expression">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.evaluate_expression">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the values of the given expression at each LC point.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the values of the given expression at each LC point."""</span>
 
         <span class="k">return</span> <span class="n">Evaluator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_data_array</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">variables</span><span class="p">)))(</span><span class="n">expression</span><span class="p">)</span></div>
 </div>

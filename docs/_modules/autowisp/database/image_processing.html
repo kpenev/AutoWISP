@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.image_processing &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -167,7 +167,7 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># pylint: disable=too-many-lines</span>
 
-<span class="sd">&quot;&quot;&quot;Handle data processing DB interactions.&quot;&quot;&quot;</span>
+<span class="sd">"""Handle data processing DB interactions."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">inf</span>
@@ -219,7 +219,7 @@
 <div class="viewcode-block" id="NoMasterError">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.NoMasterError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NoMasterError</span><span class="p">(</span><span class="n">MasterSelectionError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when no suitable master can be found for a batch of frames.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Raised when no suitable master can be found for a batch of frames."""</span></div>
 
 
 
@@ -228,17 +228,17 @@
 <div class="viewcode-block" id="ExpressionMatcher">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExpressionMatcher</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compare condition expressions for an image/channel to a target.</span>
 
 <span class="sd">    Usually check if matched expressions and master expression values are</span>
 <span class="sd">    identical, but also handles special case of calibrate step.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ExpressionMatcher._get_master_values">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher._get_master_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_master_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ready to compare masster expression values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return ready to compare masster expression values."""</span>
 
         <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
@@ -248,14 +248,14 @@
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Getting master expression values for expression ids </span><span class="si">%s</span><span class="s2">, &quot;</span>
-            <span class="s2">&quot;image </span><span class="si">%d</span><span class="s2">, channel </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Getting master expression values for expression ids </span><span class="si">%s</span><span class="s2">, "</span>
+            <span class="s2">"image </span><span class="si">%d</span><span class="s2">, channel </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_master_expression_ids</span><span class="p">),</span>
             <span class="n">image_id</span><span class="p">,</span>
             <span class="n">channel</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="s2">&quot;values&quot;</span><span class="p">][</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="s2">"values"</span><span class="p">][</span>
                 <span class="n">expression_id</span>
             <span class="p">]</span>
             <span class="k">for</span> <span class="n">expression_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_master_expression_ids</span>
@@ -273,22 +273,22 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">masters_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set up comparison to the given evaluated expressions.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span> <span class="o">=</span> <span class="n">evaluated_expressions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_master_expression_ids</span> <span class="o">=</span> <span class="n">master_expression_ids</span>
         <span class="n">reference_evaluated</span> <span class="o">=</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="n">ref_image_id</span><span class="p">][</span><span class="n">ref_channel</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ref_matched</span> <span class="o">=</span> <span class="n">reference_evaluated</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ref_matched</span> <span class="o">=</span> <span class="n">reference_evaluated</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ref_master_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_master_values</span><span class="p">(</span>
             <span class="n">ref_image_id</span><span class="p">,</span> <span class="n">ref_channel</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_masters_only</span> <span class="o">=</span> <span class="n">masters_only</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Finding images matching expressions </span><span class="si">%s</span><span class="s2"> and values </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Finding images matching expressions </span><span class="si">%s</span><span class="s2"> and values </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ref_matched</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_master_values</span><span class="p">),</span>
         <span class="p">)</span></div>
@@ -297,21 +297,21 @@
 <div class="viewcode-block" id="ExpressionMatcher.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;True iff the expressions for the given image/channel match.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""True iff the expressions for the given image/channel match."""</span>
 
         <span class="n">image_evaluated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span><span class="n">channel</span><span class="p">]</span>
         <span class="n">image_master_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_master_values</span><span class="p">(</span><span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Comparing </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="nb">repr</span><span class="p">(</span><span class="n">image_evaluated</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]),</span>
+            <span class="s2">"Comparing </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">image_evaluated</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ref_matched</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">image_master_values</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_master_values</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_masters_only</span>
-            <span class="ow">or</span> <span class="n">image_evaluated</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ref_matched</span>
+            <span class="ow">or</span> <span class="n">image_evaluated</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ref_matched</span>
         <span class="p">)</span> <span class="ow">and</span> <span class="n">image_master_values</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_master_values</span></div>
 </div>
 
@@ -323,7 +323,7 @@
 <div class="viewcode-block" id="get_master_expression_ids">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.get_master_expression_ids">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_master_expression_ids</span><span class="p">(</span><span class="n">step_id</span><span class="p">,</span> <span class="n">image_type_id</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    List all condition expression IDs determining input or output masters.</span>
 
 <span class="sd">    Args:</span>
@@ -338,7 +338,7 @@
 <span class="sd">            The combined expression IDs reqired to determine which required</span>
 <span class="sd">            masters can be used for the given step or which masters will be</span>
 <span class="sd">            created by it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="nb">set</span><span class="p">(</span>
@@ -388,7 +388,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">remove_failed_prerequisite</span><span class="p">(</span>
     <span class="n">pending</span><span class="p">,</span> <span class="n">pending_image_type_id</span><span class="p">,</span> <span class="n">prereq_step_id</span><span class="p">,</span> <span class="n">db_session</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove from pending any entries that failed the prerequisite step.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Remove from pending any entries that failed the prerequisite step."""</span>
 
     <span class="n">prereq_statuses</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -419,7 +419,7 @@
 <div class="viewcode-block" id="ImageProcessingManager">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ImageProcessingManager</span><span class="p">(</span><span class="n">ProcessingManager</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read configuration and record processing progress in the database.</span>
 
 <span class="sd">    Attrs:</span>
@@ -434,28 +434,28 @@
 <span class="sd">        _failed_dependencies(dict):    Dictionary with keys (step, image_type)</span>
 <span class="sd">            that contains the list of images and channels that failed the given</span>
 <span class="sd">            step.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ImageProcessingManager._set_calibration_config">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._set_calibration_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_calibration_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">first_image</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrun the specially formatted argument for the calibration step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Retrun the specially formatted argument for the calibration step."""</span>
 
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_channels</span><span class="p">(</span><span class="n">first_image</span><span class="p">)</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_header&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_extra_header</span><span class="p">(</span><span class="n">first_image</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_channels</span><span class="p">(</span><span class="n">first_image</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"extra_header"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_extra_header</span><span class="p">(</span><span class="n">first_image</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
             <span class="p">(</span>
-                <span class="s2">&quot;split_channels&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="s2">"split_channels"</span><span class="p">,</span>
+                <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">first_image</span><span class="o">.</span><span class="n">observing_session</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">channels</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;observing_session&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_header&quot;</span><span class="p">][</span><span class="s2">&quot;OBSSSNID&quot;</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s2">"observing_session"</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">"extra_header"</span><span class="p">][</span><span class="s2">"OBSSSNID"</span><span class="p">]),</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Calibration step configuration:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
+            <span class="s2">"Calibration step configuration:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -463,7 +463,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._split_by_master">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._split_by_master">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_split_by_master</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">input_master_type</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Split the given list of images by the best master of given type.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Split the given list of images by the best master of given type."""</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -473,7 +473,7 @@
                     <span class="p">(</span>
                         <span class="n">channel</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span>
-                            <span class="s2">&quot;masters&quot;</span>
+                            <span class="s2">"masters"</span>
                         <span class="p">][</span><span class="n">input_master_type</span><span class="o">.</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
                     <span class="p">)</span>
                     <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
@@ -484,7 +484,7 @@
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">best_master</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span>
-                    <span class="s2">&quot;masters&quot;</span>
+                    <span class="s2">"masters"</span>
                 <span class="p">][</span><span class="n">input_master_type</span><span class="o">.</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">best_master</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
@@ -501,16 +501,17 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_batch_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">master_expression_values</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">db_session</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Split given batch of images by configuration for given step.</span>
 
 <span class="sd">        The batch must already be split by all relevant condition expressions.</span>
 <span class="sd">        Only splits batches by the best master for each image.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            batch([Image, channel, status]):    List of database image instances</span>
-<span class="sd">                and for channels which to find the configuration(s). The channel</span>
-<span class="sd">                should be ``None`` for the ``calibrate`` step</span>
+<span class="sd">            batch(list):    ``(Image, channel, status)`` tuples: the</span>
+<span class="sd">                database image instances and the channels to find the</span>
+<span class="sd">                configuration(s) for. The channel should be ``None`` for</span>
+<span class="sd">                the ``calibrate`` step</span>
 
 <span class="sd">            master_expression_values(tuple):    The values the expressions</span>
 <span class="sd">                required to select input masters or to guarantee a unique output</span>
@@ -534,20 +535,20 @@
 
 <span class="sd">                    [Image]:     The (sub-)batch of images to process with given</span>
 <span class="sd">                        configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finding configuration for batch: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Finding configuration for batch: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
         <span class="n">first_image_expressions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
         <span class="n">config</span><span class="p">,</span> <span class="n">config_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-            <span class="n">first_image_expressions</span><span class="p">[</span><span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]][</span><span class="s2">&quot;matched&quot;</span><span class="p">],</span>
+            <span class="n">first_image_expressions</span><span class="p">[</span><span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]][</span><span class="s2">"matched"</span><span class="p">],</span>
             <span class="n">db_session</span><span class="p">,</span>
             <span class="n">db_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">config_key</span> <span class="o">|=</span> <span class="p">{</span><span class="n">master_expression_values</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;calibrate&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"calibrate"</span><span class="p">:</span>
             <span class="n">config_key</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_calibration_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;processing_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;image_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"processing_step"</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"image_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="n">config_key</span><span class="p">:</span> <span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">batch</span><span class="p">)}</span>
         <span class="k">for</span> <span class="n">input_master_type</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
@@ -563,24 +564,24 @@
                     <span class="k">if</span> <span class="n">best_master</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">input_master_type</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
                             <span class="k">assert</span> <span class="n">config_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">,</span> <span class="p">(</span>
-                                <span class="s2">&quot;Two groups of images ended up sharing &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;configuration </span><span class="si">{</span><span class="n">config_key</span><span class="si">}</span><span class="s2"> when split by &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_master_type</span><span class="o">.</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
-                                <span class="s2">&quot;master!&quot;</span>
+                                <span class="s2">"Two groups of images ended up sharing "</span>
+                                <span class="sa">f</span><span class="s2">"configuration </span><span class="si">{</span><span class="n">config_key</span><span class="si">}</span><span class="s2"> when split by "</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">input_master_type</span><span class="o">.</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+                                <span class="s2">"master!"</span>
                             <span class="p">)</span>
                             <span class="n">result</span><span class="p">[</span><span class="n">config_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">sub_batch</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">result</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                                <span class="s2">&quot;No master &quot;</span>
+                                <span class="s2">"No master "</span>
                                 <span class="o">+</span> <span class="n">input_master_type</span><span class="o">.</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span>
-                                <span class="o">+</span> <span class="s2">&quot; found!&quot;</span><span class="p">,</span>
+                                <span class="o">+</span> <span class="s2">" found!"</span><span class="p">,</span>
                                 <span class="n">sub_batch</span><span class="p">,</span>
                             <span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">new_config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
                         <span class="n">new_config</span><span class="p">[</span>
-                            <span class="n">input_master_type</span><span class="o">.</span><span class="n">config_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                            <span class="n">input_master_type</span><span class="o">.</span><span class="n">config_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
                         <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                             <span class="n">best_master</span>
                             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">best_master</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
@@ -601,7 +602,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_clean_pending_per_dependencies</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">from_step_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_image_type_id</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove pending images from steps if they failed a required step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Remove pending images from steps if they failed a required step."""</span>
 
         <span class="n">dropped</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">step_id</span><span class="p">,</span> <span class="n">image_type_id</span><span class="p">),</span> <span class="n">pending</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -631,14 +632,14 @@
                 <span class="n">dropped</span><span class="p">[(</span><span class="n">step_id</span><span class="p">,</span> <span class="n">image_type_id</span><span class="p">)]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">failed_prereq</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;The following image/channel combinations failed </span><span class="si">%s</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Excluding from </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"The following image/channel combinations failed </span><span class="si">%s</span><span class="s2">. "</span>
+                    <span class="s2">"Excluding from </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                         <span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">prereq_step_id</span><span class="p">)</span>
                     <span class="p">),</span>
                     <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">step_id</span><span class="p">)),</span>
-                    <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                        <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">channel</span>
+                    <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span> <span class="o">+</span> <span class="s2">":"</span> <span class="o">+</span> <span class="n">channel</span>
                         <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">failed_prereq</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
@@ -649,7 +650,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._require_blocking_complete">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._require_blocking_complete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_require_blocking_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Restrict query to images where allow_pending blocking steps are done.</span>
 
 <span class="sd">        For same-type dependencies marked allow_pending=True, inner-join the</span>
@@ -669,7 +670,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The query with zero or more inner joins added.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># pylint: disable=singleton-comparison</span>
         <span class="k">for</span> <span class="p">(</span>
@@ -715,7 +716,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._check_ready">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._check_ready">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check if the given type of images is ready to process with given step.</span>
 
 <span class="sd">        Args:</span>
@@ -728,7 +729,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            bool:    Whether all requirements for the specified processing are</span>
 <span class="sd">                satisfied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">for</span> <span class="n">requirement</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span>
@@ -746,16 +747,16 @@
         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">requirement</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Not ready for </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> frames because of </span><span class="si">%d</span><span class="s2"> pending </span><span class="si">%s</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;type ID images for step ID </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Not ready for </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> frames because of </span><span class="si">%d</span><span class="s2"> pending </span><span class="si">%s</span><span class="s2"> "</span>
+                    <span class="s2">"type ID images for step ID </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[(</span><span class="n">step</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">)]),</span>
                     <span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">requirement</span><span class="p">]),</span>
                     <span class="n">requirement</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                     <span class="n">requirement</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">requirement</span><span class="p">]</span>
+                    <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">requirement</span><span class="p">]</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -765,7 +766,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._get_interrupted">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_interrupted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_interrupted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">need_cleanup</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of interrupted files and configuration for cleanup.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return list of interrupted files and configuration for cleanup."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span> <span class="o">=</span> <span class="n">need_cleanup</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
@@ -779,14 +780,14 @@
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">need_cleanup</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="p">,</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Interrupted processing of step </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> turned up &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;while cleaning up after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span>
+                <span class="sa">f</span><span class="s2">"Interrupted processing of step </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> turned up "</span>
+                <span class="sa">f</span><span class="s2">"while cleaning up after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">!"</span>
             <span class="p">)</span>
 
         <span class="n">pending</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span>
                 <span class="n">image</span><span class="p">,</span>
-                <span class="kc">None</span> <span class="k">if</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span> <span class="k">else</span> <span class="n">processed</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+                <span class="kc">None</span> <span class="k">if</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">"raw"</span> <span class="k">else</span> <span class="n">processed</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
                 <span class="n">processed</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">processed</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">need_cleanup</span>
@@ -811,7 +812,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._cleanup_interrupted">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._cleanup_interrupted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_interrupted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cleanup previously interrupted processing for the current step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Cleanup previously interrupted processing for the current step."""</span>
 
         <span class="n">need_cleanup</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="n">ProcessedImages</span><span class="p">,</span> <span class="n">Step</span><span class="p">)</span>
@@ -831,9 +832,9 @@
             <span class="n">need_cleanup</span><span class="p">,</span> <span class="n">db_session</span>
         <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Cleaning up interrupted </span><span class="si">%s</span><span class="s2"> processing of </span><span class="si">%d</span><span class="s2"> images:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;config: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Cleaning up interrupted </span><span class="si">%s</span><span class="s2"> processing of </span><span class="si">%d</span><span class="s2"> images:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"</span><span class="si">%s</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"config: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">need_cleanup</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">interrupted</span><span class="p">),</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">interrupted</span><span class="p">),</span>
@@ -854,9 +855,9 @@
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">processed</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">need_cleanup</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">new_status</span> <span class="o">&lt;=</span> <span class="n">processed</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Cleaning up interrupted </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;reported status </span><span class="si">{</span><span class="n">new_status</span><span class="si">}</span><span class="s2">, further along than the &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">processed</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2"> reached before the interruption!&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Cleaning up interrupted </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"reported status </span><span class="si">{</span><span class="n">new_status</span><span class="si">}</span><span class="s2">, further along than the "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">processed</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2"> reached before the interruption!"</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">new_status</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                     <span class="n">db_session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">processed</span><span class="p">)</span>
@@ -867,7 +868,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._init_processed_ids">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._init_processed_ids">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_init_processed_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">step_input_type</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare to record processing of the given image by current step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Prepare to record processing of the given image by current step."""</span>
 
         <span class="k">if</span> <span class="n">channels</span> <span class="o">==</span> <span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
             <span class="n">channels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -883,14 +884,14 @@
             <span class="k">if</span> <span class="n">step_input_fname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">[</span><span class="n">step_input_fname</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">[</span><span class="n">step_input_fname</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;channel&quot;</span><span class="p">:</span> <span class="n">channel_name</span><span class="p">}</span>
+                <span class="p">{</span><span class="s2">"image_id"</span><span class="p">:</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">"channel"</span><span class="p">:</span> <span class="n">channel_name</span><span class="p">}</span>
             <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ImageProcessingManager._start_step">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._start_step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_start_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Record the start of a processing step and return the images to process.</span>
 
 <span class="sd">        Args:</span>
@@ -907,10 +908,10 @@
 
 <span class="sd">            str:</span>
 <span class="sd">                The type of input expected by the current step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_current_processing</span><span class="p">(</span>
-            <span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;image_type&quot;</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">db_session</span>
+            <span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="s2">"image_type"</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">db_session</span>
         <span class="p">)</span>
 
         <span class="n">pending_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[(</span><span class="n">step</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -918,7 +919,7 @@
             <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="p">[]</span>
         <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Prerequisite failed for </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">image</span>
+                <span class="s2">"Prerequisite failed for </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">image</span>
             <span class="p">)</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                 <span class="n">ProcessedImages</span><span class="p">(</span>
@@ -934,7 +935,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">step_input_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">processing_steps</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">input_type</span>
 
-        <span class="k">if</span> <span class="n">step_input_type</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step_input_type</span> <span class="o">==</span> <span class="s2">"raw"</span><span class="p">:</span>
             <span class="n">added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="n">new_pending</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">pending_images</span><span class="p">:</span>
@@ -948,7 +949,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_init_processed_ids</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="n">channel_name</span><span class="p">],</span> <span class="n">step_input_type</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Starting </span><span class="si">%s</span><span class="s2"> step for </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> images&quot;</span><span class="p">,</span>
+            <span class="s2">"Starting </span><span class="si">%s</span><span class="s2"> step for </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> images"</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">pending_images</span><span class="p">),</span>
             <span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -962,14 +963,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_batch</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">image_type_name</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the current step for a batch of images given configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run the current step for a batch of images given configuration."""</span>
 
         <span class="c1"># ``error_context`` (outer) scopes the step name and its resolved</span>
-        <span class="c1"># config so both are still active when ``_run_step``&#39;s</span>
+        <span class="c1"># config so both are still active when ``_run_step``'s</span>
         <span class="c1"># ``capture_errors`` stamps the exception on the way out -- the</span>
-        <span class="c1"># context manager&#39;s reset fires only after the inner ``except`` has</span>
+        <span class="c1"># context manager's reset fires only after the inner ``except`` has</span>
         <span class="c1"># run. Scoping config here (uniformly for every step) is what lets a</span>
-        <span class="c1"># parent-side error carry the failing step&#39;s config.</span>
+        <span class="c1"># parent-side error carry the failing step's config.</span>
         <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">):</span>
             <span class="n">new_masters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_step</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span>
 
@@ -981,7 +982,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._run_step">[docs]</a>
     <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">step_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Invoke the step&#39;s entry function for a batch of images.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Invoke the step's entry function for a batch of images."""</span>
 
         <span class="n">step_module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">processing_steps</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_start_status</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">start_status</span><span class="p">)</span>
@@ -997,7 +998,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._start_processing">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._start_processing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_start_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Mark in the database that processing the given file has begun.</span>
 
 <span class="sd">        Args:</span>
@@ -1006,17 +1007,17 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as started outside of any processing step!&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as started outside of any processing step!"</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as started before the &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> progress record was created!&quot;</span>
+            <span class="sa">f</span><span class="s2">"Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as started before the "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> progress record was created!"</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Starting processing IDs: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Starting processing IDs: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">[</span><span class="n">input_fname</span><span class="p">]),</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
@@ -1034,7 +1035,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._save_diagnostics">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._save_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">finished_id</span><span class="p">,</span> <span class="n">diagnostics</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save diagnostic values for a single image/channel.</span>
 
 <span class="sd">        Args:</span>
@@ -1049,7 +1050,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError:    If a diagnostic name is not found in the</span>
 <span class="sd">                ``diagnostic_type`` table.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">for</span> <span class="n">diag_name</span><span class="p">,</span> <span class="n">diag_value</span> <span class="ow">in</span> <span class="n">diagnostics</span><span class="p">:</span>
             <span class="n">diag_type_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
@@ -1059,12 +1060,12 @@
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">diag_type_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">is_quantile_diagnostic</span><span class="p">(</span><span class="n">diag_name</span><span class="p">):</span>
-                    <span class="n">quantile_digits</span> <span class="o">=</span> <span class="n">diag_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;pixel_q&quot;</span><span class="p">)</span> <span class="p">:]</span>
+                    <span class="n">quantile_digits</span> <span class="o">=</span> <span class="n">diag_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">"pixel_q"</span><span class="p">)</span> <span class="p">:]</span>
                     <span class="n">new_type</span> <span class="o">=</span> <span class="n">DiagnosticType</span><span class="p">(</span>
                         <span class="n">name</span><span class="o">=</span><span class="n">diag_name</span><span class="p">,</span>
                         <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;The 0.</span><span class="si">{</span><span class="n">quantile_digits</span><span class="si">}</span><span class="s2"> quantile of &quot;</span>
-                            <span class="s2">&quot;calibrated pixel values&quot;</span>
+                            <span class="sa">f</span><span class="s2">"The 0.</span><span class="si">{</span><span class="n">quantile_digits</span><span class="si">}</span><span class="s2"> quantile of "</span>
+                            <span class="s2">"calibrated pixel values"</span>
                         <span class="p">),</span>
                     <span class="p">)</span>
                     <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_type</span><span class="p">)</span>
@@ -1072,12 +1073,12 @@
                     <span class="n">diag_type_id</span> <span class="o">=</span> <span class="n">new_type</span><span class="o">.</span><span class="n">id</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Unknown diagnostic type </span><span class="si">{</span><span class="n">diag_name</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Unknown diagnostic type </span><span class="si">{</span><span class="n">diag_name</span><span class="si">!r}</span><span class="s2">"</span>
                     <span class="p">)</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                 <span class="n">ImageDiagnostics</span><span class="p">(</span>
-                    <span class="n">image_id</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">],</span>
-                    <span class="n">channel</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">],</span>
+                    <span class="n">image_id</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">],</span>
+                    <span class="n">channel</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">],</span>
                     <span class="n">diagnostic_id</span><span class="o">=</span><span class="n">diag_type_id</span><span class="p">,</span>
                     <span class="n">value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">diag_value</span><span class="p">),</span>
                 <span class="p">)</span>
@@ -1089,7 +1090,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_photometry_diagnostics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">finished_id</span><span class="p">,</span> <span class="n">photometry_diagnostics</span><span class="p">,</span> <span class="n">db_session</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save per-photometry diagnostic values for a single image/channel.</span>
 
 <span class="sd">        If a row already exists for the same image, channel, photometry,</span>
@@ -1109,7 +1110,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError:    If a diagnostic name is not found in the</span>
 <span class="sd">                ``diagnostic_type`` table.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">for</span> <span class="n">diag_name</span><span class="p">,</span> <span class="n">diag_value</span><span class="p">,</span> <span class="n">phot_id</span> <span class="ow">in</span> <span class="n">photometry_diagnostics</span><span class="p">:</span>
             <span class="n">diag_type_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
@@ -1118,12 +1119,12 @@
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">diag_type_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown diagnostic type </span><span class="si">{</span><span class="n">diag_name</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown diagnostic type </span><span class="si">{</span><span class="n">diag_name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="n">existing_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                    <span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">],</span>
-                    <span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">],</span>
+                    <span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">],</span>
+                    <span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">],</span>
                     <span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">photometry_id</span> <span class="o">==</span> <span class="n">phot_id</span><span class="p">,</span>
                     <span class="n">PhotometryDiagnostics</span><span class="o">.</span><span class="n">diagnostic_id</span> <span class="o">==</span> <span class="n">diag_type_id</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -1137,8 +1138,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                     <span class="n">PhotometryDiagnostics</span><span class="p">(</span>
-                        <span class="n">image_id</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">],</span>
-                        <span class="n">channel</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">],</span>
+                        <span class="n">image_id</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">],</span>
+                        <span class="n">channel</span><span class="o">=</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">],</span>
                         <span class="n">photometry_id</span><span class="o">=</span><span class="n">phot_id</span><span class="p">,</span>
                         <span class="n">diagnostic_id</span><span class="o">=</span><span class="n">diag_type_id</span><span class="p">,</span>
                         <span class="n">value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">diag_value</span><span class="p">),</span>
@@ -1156,7 +1157,7 @@
         <span class="n">diagnostics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">photometry_diagnostics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Record that the current step has finished processing the given file.</span>
 
 <span class="sd">        Args:</span>
@@ -1180,30 +1181,30 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as finished outside of any processing step!&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as finished outside of any processing step!"</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as finished before the &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> progress record was created!&quot;</span>
+            <span class="sa">f</span><span class="s2">"Marking </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> as finished before the "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> progress record was created!"</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="n">status</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Status -1 is reserved for </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> being skipped because &quot;</span>
-            <span class="s2">&quot;a prerequisite step failed, so a step may not report it!&quot;</span>
+            <span class="sa">f</span><span class="s2">"Status -1 is reserved for </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> being skipped because "</span>
+            <span class="s2">"a prerequisite step failed, so a step may not report it!"</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">status</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_some_failed</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Finished processing </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">[</span><span class="n">input_fname</span><span class="p">])</span>
+            <span class="s2">"Finished processing </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">[</span><span class="n">input_fname</span><span class="p">])</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">finished_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_ids</span><span class="p">[</span><span class="n">input_fname</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">diagnostics</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diagnostics</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                        <span class="n">channel_diags</span> <span class="o">=</span> <span class="n">diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">])</span>
+                        <span class="n">channel_diags</span> <span class="o">=</span> <span class="n">diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">])</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">channel_diags</span> <span class="o">=</span> <span class="n">diagnostics</span>
                     <span class="k">if</span> <span class="n">channel_diags</span><span class="p">:</span>
@@ -1214,21 +1215,21 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_save_photometry_diagnostics</span><span class="p">(</span>
                         <span class="n">finished_id</span><span class="p">,</span> <span class="n">photometry_diagnostics</span><span class="p">,</span> <span class="n">db_session</span>
                     <span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;find_stars&quot;</span> <span class="ow">and</span> <span class="n">status</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"find_stars"</span> <span class="ow">and</span> <span class="n">status</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">dr_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span>
-                        <span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span>
-                    <span class="p">][</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">]][</span><span class="s2">&quot;dr&quot;</span><span class="p">]</span>
-                    <span class="n">image</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">])</span>
+                        <span class="n">finished_id</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">]</span>
+                    <span class="p">][</span><span class="n">finished_id</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">]][</span><span class="s2">"dr"</span><span class="p">]</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">])</span>
                     <span class="k">if</span> <span class="p">(</span>
                         <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                         <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">observing_session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                     <span class="p">):</span>
-                        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
                             <span class="n">dr_file</span><span class="o">.</span><span class="n">add_provenance</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">observing_session</span><span class="p">)</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                     <span class="n">update</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="p">)</span>
-                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">])</span>
-                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">])</span>
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">])</span>
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">finished_id</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">])</span>
                     <span class="o">.</span><span class="n">where</span><span class="p">(</span>
                         <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">progress_id</span>
                         <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span><span class="o">.</span><span class="n">id</span>
@@ -1242,7 +1243,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._get_config_batches">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_config_batches">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_config_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pending_images</span><span class="p">,</span> <span class="n">step_input_type</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the batches of images to process with identical config.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the batches of images to process with identical config."""</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">check_image_type_id</span> <span class="o">=</span> <span class="n">pending_images</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image_type_id</span>
@@ -1252,7 +1253,7 @@
         <span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_pending_by_conditions</span><span class="p">(</span>
             <span class="n">pending_images</span><span class="p">,</span>
             <span class="n">db_session</span><span class="p">,</span>
-            <span class="n">match_observing_session</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;calibrate&quot;</span><span class="p">,</span>
+            <span class="n">match_observing_session</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"calibrate"</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="k">for</span> <span class="n">config_key</span><span class="p">,</span> <span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_batch_config</span><span class="p">(</span>
                 <span class="n">by_condition</span><span class="p">,</span>
@@ -1262,9 +1263,9 @@
             <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">config_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;Excluding the following images from </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Excluding the following images from </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">config</span><span class="p">,</span>
-                        <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                             <span class="p">[</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">get_step_input</span><span class="p">(</span>
                                     <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">step_input_type</span>
@@ -1276,9 +1277,9 @@
                     <span class="k">continue</span>
                 <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">check_image_type_id</span><span class="p">,</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is of image type &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2"> in a batch collected for &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;image type </span><span class="si">{</span><span class="n">check_image_type_id</span><span class="si">}</span><span class="s2">!&quot;</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is of image type "</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2"> in a batch collected for "</span>
+                        <span class="sa">f</span><span class="s2">"image type </span><span class="si">{</span><span class="n">check_image_type_id</span><span class="si">}</span><span class="s2">!"</span>
                     <span class="p">)</span>
 
                     <span class="k">if</span> <span class="p">(</span><span class="n">config_key</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
@@ -1297,11 +1298,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_photrefs_for_condition</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">photref_type</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return {expr_values: [MasterFile]} for all enabled single_photrefs.</span>
+<span class="w">        </span><span class="sd">"""Return {expr_values: [MasterFile]} for all enabled single_photrefs.</span>
 
-<span class="sd">        Evaluates the condition expressions against each photref&#39;s filename</span>
+<span class="sd">        Evaluates the condition expressions against each photref's filename</span>
 <span class="sd">        (same logic as _get_master) to group them by their expression values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">photrefs_by_expr</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">master_file</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
@@ -1316,14 +1317,14 @@
 <div class="viewcode-block" id="ImageProcessingManager._get_photref_diagnostics">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_photref_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_photref_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photrefs_by_expr</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return {pf.id: {name: value}} of astrometry diagnostics per photref.</span>
+<span class="w">        </span><span class="sd">"""Return {pf.id: {name: value}} of astrometry diagnostics per photref.</span>
 
-<span class="sd">        Each photref DR file&#39;s FITS header contains RAWFNAME and CLRCHNL which</span>
+<span class="sd">        Each photref DR file's FITS header contains RAWFNAME and CLRCHNL which</span>
 <span class="sd">        identify the source Image row. ra_center, dec_center, and diagonal_fov</span>
 <span class="sd">        are then read from ImageDiagnostics for that image/channel.</span>
 <span class="sd">        Photrefs whose source image or diagnostics cannot be found are logged</span>
 <span class="sd">        and omitted from the result.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">master_files</span> <span class="ow">in</span> <span class="n">photrefs_by_expr</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -1331,21 +1332,21 @@
                 <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
                         <span class="n">header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
                     <span class="n">image_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                         <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
                             <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">like</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
-                                <span class="sa">f</span><span class="s2">&quot;%/</span><span class="si">{</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;RAWFNAME&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.%&quot;</span>
+                                <span class="sa">f</span><span class="s2">"%/</span><span class="si">{</span><span class="n">header</span><span class="p">[</span><span class="s1">'RAWFNAME'</span><span class="p">]</span><span class="si">}</span><span class="s2">.%"</span>
                             <span class="p">)</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">image_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="s2">&quot;Cannot find source image for photref </span><span class="si">%s</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot; (RAWFNAME=</span><span class="si">%s</span><span class="s2">).&quot;</span><span class="p">,</span>
+                            <span class="s2">"Cannot find source image for photref </span><span class="si">%s</span><span class="s2">"</span>
+                            <span class="s2">" (RAWFNAME=</span><span class="si">%s</span><span class="s2">)."</span><span class="p">,</span>
                             <span class="n">pf</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
-                            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">],</span>
+                            <span class="n">header</span><span class="p">[</span><span class="s2">"RAWFNAME"</span><span class="p">],</span>
                         <span class="p">)</span>
                         <span class="k">continue</span>
                     <span class="n">diags</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -1358,26 +1359,26 @@
                             <span class="p">)</span>
                             <span class="o">.</span><span class="n">where</span><span class="p">(</span>
                                 <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">image_id</span><span class="p">,</span>
-                                <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">],</span>
+                                <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">header</span><span class="p">[</span><span class="s2">"CLRCHNL"</span><span class="p">],</span>
                                 <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span>
-                                    <span class="p">[</span><span class="s2">&quot;ra_center&quot;</span><span class="p">,</span> <span class="s2">&quot;dec_center&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">]</span>
+                                    <span class="p">[</span><span class="s2">"ra_center"</span><span class="p">,</span> <span class="s2">"dec_center"</span><span class="p">,</span> <span class="s2">"diagonal_fov"</span><span class="p">]</span>
                                 <span class="p">),</span>
                             <span class="p">)</span>
                         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
                         <span class="n">k</span> <span class="ow">in</span> <span class="n">diags</span>
-                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ra_center&quot;</span><span class="p">,</span> <span class="s2">&quot;dec_center&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"ra_center"</span><span class="p">,</span> <span class="s2">"dec_center"</span><span class="p">,</span> <span class="s2">"diagonal_fov"</span><span class="p">]</span>
                     <span class="p">):</span>
                         <span class="n">result</span><span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">diags</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="s2">&quot;Incomplete astrometry diagnostics for photref </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                            <span class="s2">"Incomplete astrometry diagnostics for photref </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
                             <span class="n">pf</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
                         <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;Could not retrieve diagnostics for photref </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                        <span class="s2">"Could not retrieve diagnostics for photref </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
                         <span class="n">pf</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
                         <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="p">)</span>
@@ -1387,14 +1388,14 @@
 <div class="viewcode-block" id="ImageProcessingManager._get_photref_binding_counts">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_photref_binding_counts">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_photref_binding_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photref_ids</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the number of images bound to each single photometric reference</span>
 
 <span class="sd">        Return:</span>
 <span class="sd">            dict:</span>
 <span class="sd">                MasterFile.id: count of existing ImageMasterSelection rows per</span>
 <span class="sd">                    photometric reference.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">pf_id</span><span class="p">:</span> <span class="p">(</span>
@@ -1423,12 +1424,12 @@
         <span class="n">max_sep</span><span class="p">,</span>
         <span class="n">db_session</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pick and record the best photref binding for one image/channel.</span>
+<span class="w">        </span><span class="sd">"""Pick and record the best photref binding for one image/channel.</span>
 
 <span class="sd">        Returns True if bound (either pre-existing or newly written), False if</span>
 <span class="sd">        no suitable photref is found.</span>
 <span class="sd">        The distance threshold is max_sep * diagonal_fov of the photref.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
@@ -1452,27 +1453,27 @@
                 <span class="o">.</span><span class="n">where</span><span class="p">(</span>
                     <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">image_id</span> <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                     <span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="n">channel</span><span class="p">,</span>
-                    <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="s2">&quot;ra_center&quot;</span><span class="p">,</span> <span class="s2">&quot;dec_center&quot;</span><span class="p">]),</span>
+                    <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="s2">"ra_center"</span><span class="p">,</span> <span class="s2">"dec_center"</span><span class="p">]),</span>
                 <span class="p">)</span>
             <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">image_diags</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ra_center&quot;</span><span class="p">,</span> <span class="s2">&quot;dec_center&quot;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">image_diags</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"ra_center"</span><span class="p">,</span> <span class="s2">"dec_center"</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Astrometry diagnostics missing for image </span><span class="si">%d</span><span class="s2"> channel </span><span class="si">%s</span><span class="s2">;&quot;</span>
-                <span class="s2">&quot; cannot bind to photref.&quot;</span><span class="p">,</span>
+                <span class="s2">"Astrometry diagnostics missing for image </span><span class="si">%d</span><span class="s2"> channel </span><span class="si">%s</span><span class="s2">;"</span>
+                <span class="s2">" cannot bind to photref."</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                 <span class="n">channel</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="n">image_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
-            <span class="n">ra</span><span class="o">=</span><span class="n">image_diags</span><span class="p">[</span><span class="s2">&quot;ra_center&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-            <span class="n">dec</span><span class="o">=</span><span class="n">image_diags</span><span class="p">[</span><span class="s2">&quot;dec_center&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-            <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+            <span class="n">ra</span><span class="o">=</span><span class="n">image_diags</span><span class="p">[</span><span class="s2">"ra_center"</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">dec</span><span class="o">=</span><span class="n">image_diags</span><span class="p">[</span><span class="s2">"dec_center"</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">frame</span><span class="o">=</span><span class="s2">"icrs"</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">image_expr_values</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="s2">&quot;values&quot;</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="s2">"values"</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">expr_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">expressions</span>
         <span class="p">)</span>
         <span class="n">candidates</span> <span class="o">=</span> <span class="n">photrefs_by_expr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_expr_values</span><span class="p">,</span> <span class="p">[])</span>
@@ -1484,13 +1485,13 @@
                 <span class="k">continue</span>
             <span class="n">pf_diags</span> <span class="o">=</span> <span class="n">photref_diagnostics</span><span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
             <span class="n">pf_coord</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
-                <span class="n">ra</span><span class="o">=</span><span class="n">pf_diags</span><span class="p">[</span><span class="s2">&quot;ra_center&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-                <span class="n">dec</span><span class="o">=</span><span class="n">pf_diags</span><span class="p">[</span><span class="s2">&quot;dec_center&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-                <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+                <span class="n">ra</span><span class="o">=</span><span class="n">pf_diags</span><span class="p">[</span><span class="s2">"ra_center"</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">dec</span><span class="o">=</span><span class="n">pf_diags</span><span class="p">[</span><span class="s2">"dec_center"</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">frame</span><span class="o">=</span><span class="s2">"icrs"</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">sep</span> <span class="o">=</span> <span class="n">image_coord</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">pf_coord</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span>
-                <span class="n">sep</span> <span class="o">&lt;=</span> <span class="n">max_sep</span> <span class="o">*</span> <span class="n">pf_diags</span><span class="p">[</span><span class="s2">&quot;diagonal_fov&quot;</span><span class="p">]</span>
+                <span class="n">sep</span> <span class="o">&lt;=</span> <span class="n">max_sep</span> <span class="o">*</span> <span class="n">pf_diags</span><span class="p">[</span><span class="s2">"diagonal_fov"</span><span class="p">]</span>
                 <span class="ow">and</span> <span class="n">binding_counts</span><span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">best_count</span>
             <span class="p">):</span>
                 <span class="n">best_count</span> <span class="o">=</span> <span class="n">binding_counts</span><span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
@@ -1498,7 +1499,7 @@
 
         <span class="k">if</span> <span class="n">best_pf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;No suitable photref for image </span><span class="si">%d</span><span class="s2"> channel </span><span class="si">%s</span><span class="s2">; leaving pending.&quot;</span><span class="p">,</span>
+                <span class="s2">"No suitable photref for image </span><span class="si">%d</span><span class="s2"> channel </span><span class="si">%s</span><span class="s2">; leaving pending."</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                 <span class="n">channel</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1519,7 +1520,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._bind_photref_for_pending">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._bind_photref_for_pending">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_bind_photref_for_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pending_images</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bind unbound fit_magnitudes pending images to photrefs.</span>
+<span class="w">        </span><span class="sd">"""Bind unbound fit_magnitudes pending images to photrefs.</span>
 
 <span class="sd">        For each pending image/channel without an ImageMasterSelection entry,</span>
 <span class="sd">        assigns it to the best registered single_photref (condition expressions</span>
@@ -1527,24 +1528,24 @@
 <span class="sd">        diagonal_fov + most existing bindings). Returns only the images that</span>
 <span class="sd">        have a valid binding; the rest are silently left pending until a</span>
 <span class="sd">        suitable photref is registered via the BUI.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">pending_images</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pending_images</span>
 
         <span class="n">first_img</span><span class="p">,</span> <span class="n">first_ch</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pending_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">first_img</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">first_ch</span><span class="p">][</span><span class="s2">&quot;matched&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">first_img</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">first_ch</span><span class="p">][</span><span class="s2">"matched"</span><span class="p">],</span>
             <span class="n">db_session</span><span class="p">,</span>
             <span class="n">db_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">max_sep</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_photref_separation&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+        <span class="n">max_sep</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_photref_separation"</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">max_sep</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_sep</span> <span class="o">==</span> <span class="n">inf</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pending_images</span>
 
         <span class="n">photref_type</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
-            <span class="n">select</span><span class="p">(</span><span class="n">MasterType</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;single_photref&quot;</span><span class="p">)</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">MasterType</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"single_photref"</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">photref_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -1599,12 +1600,12 @@
 <div class="viewcode-block" id="ImageProcessingManager._prepare_processing">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._prepare_processing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">limit_to_steps</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare for processing images of given type by a calibration step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Prepare for processing images of given type by a calibration step."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">setup_process</span><span class="p">(</span>
-                <span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-                <span class="n">parent_pid</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">task</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span>
+                <span class="n">parent_pid</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
                 <span class="n">processing_step</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">,</span>
@@ -1616,7 +1617,7 @@
 
             <span class="k">if</span> <span class="n">limit_to_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">limit_to_steps</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Skipping disabled </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> frames&quot;</span><span class="p">,</span>
+                    <span class="s2">"Skipping disabled </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> frames"</span><span class="p">,</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -1631,7 +1632,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">pending_images</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span>
 
-            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"fit_magnitudes"</span><span class="p">:</span>
                 <span class="n">pending_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bind_photref_for_pending</span><span class="p">(</span>
                     <span class="n">pending_images</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">db_session</span>
                 <span class="p">)</span>
@@ -1650,7 +1651,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._finalize_processing">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._finalize_processing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_finalize_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update database and instance after processing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Update database and instance after processing."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
@@ -1670,8 +1671,8 @@
             <span class="p">]</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Removing from pending all successful images for &quot;</span>
-                <span class="s2">&quot;progress: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Removing from pending all successful images for "</span>
+                <span class="s2">"progress: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">finished_image_id</span><span class="p">,</span> <span class="n">finished_channel</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1696,24 +1697,24 @@
                         <span class="ow">and</span> <span class="n">channel</span> <span class="o">==</span> <span class="n">finished_channel</span>
                     <span class="p">):</span>
                         <span class="k">assert</span> <span class="ow">not</span> <span class="n">found</span><span class="p">,</span> <span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Image </span><span class="si">{</span><span class="n">finished_image_id</span><span class="si">}</span><span class="s2"> channel &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">finished_channel</span><span class="si">}</span><span class="s2"> is listed more than once &quot;</span>
-                            <span class="s2">&quot;among the images still to be processed!&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Image </span><span class="si">{</span><span class="n">finished_image_id</span><span class="si">}</span><span class="s2"> channel "</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">finished_channel</span><span class="si">}</span><span class="s2"> is listed more than once "</span>
+                            <span class="s2">"among the images still to be processed!"</span>
                         <span class="p">)</span>
                         <span class="k">del</span> <span class="n">pending</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                         <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="k">break</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="s2">&quot;Completed image ID </span><span class="si">%d</span><span class="s2">, channel </span><span class="si">%s</span><span class="s2"> not found in &quot;</span>
-                        <span class="s2">&quot;pending for step ID </span><span class="si">%d</span><span class="s2">, image type ID </span><span class="si">%d</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Completed image ID </span><span class="si">%d</span><span class="s2">, channel </span><span class="si">%s</span><span class="s2"> not found in "</span>
+                        <span class="s2">"pending for step ID </span><span class="si">%d</span><span class="s2">, image type ID </span><span class="si">%d</span><span class="s2">:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">finished_image_id</span><span class="p">,</span>
                         <span class="n">finished_channel</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span><span class="o">.</span><span class="n">step_id</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">,</span>
-                        <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">),</span>
+                        <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">),</span>
                     <span class="p">)</span>
-                    <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;Finished non-pending image!&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="s2">"Finished non-pending image!"</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span>
                     <span class="p">(</span>
@@ -1744,7 +1745,7 @@
 <div class="viewcode-block" id="ImageProcessingManager.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize self._failed_dependencies in addition to normali init.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize self._failed_dependencies in addition to normali init."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_failed_dependencies</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -1753,26 +1754,26 @@
 <div class="viewcode-block" id="ImageProcessingManager.get_step_input">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.get_step_input">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_step_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">step_input_type</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the file required by the current step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the name of the file required by the current step."""</span>
 
-        <span class="k">if</span> <span class="n">step_input_type</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step_input_type</span> <span class="o">==</span> <span class="s2">"raw"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span>
 
-        <span class="k">if</span> <span class="n">step_input_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;calibrated&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">step_input_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"calibrated"</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel_name</span><span class="p">][</span>
-                <span class="s2">&quot;calibrated&quot;</span>
+                <span class="s2">"calibrated"</span>
             <span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">step_input_type</span> <span class="o">==</span> <span class="s2">&quot;dr&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel_name</span><span class="p">][</span><span class="s2">&quot;dr&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">step_input_type</span> <span class="o">==</span> <span class="s2">"dr"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">channel_name</span><span class="p">][</span><span class="s2">"dr"</span><span class="p">]</span>
 
-        <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid step input type </span><span class="si">{</span><span class="n">step_input_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid step input type </span><span class="si">{</span><span class="n">step_input_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ImageProcessingManager.set_pending">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.set_pending">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">steps_imtypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set the unprocessed images and channels split by step and image type.</span>
 
 <span class="sd">        Set the self.pending attribute to a dictionary with format ``{(step.id,</span>
@@ -1793,13 +1794,13 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">status_select</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">select</span><span class="p">(</span>
                 <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span>
                 <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
-                <span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">status</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">),</span>
+                <span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">status</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">"status"</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageProcessingProgress</span><span class="p">)</span>
             <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">status</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
@@ -1920,14 +1921,14 @@
             <span class="c1"># pylint: enable=singleton-comparison</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is pending for </span><span class="si">%d</span><span class="s2"> and failed dependencies for </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> images&quot;</span><span class="p">,</span>
+                <span class="s2">"</span><span class="si">%s</span><span class="s2"> is pending for </span><span class="si">%d</span><span class="s2"> and failed dependencies for </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> images"</span><span class="p">,</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[(</span><span class="n">step</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">)]),</span>
                 <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_failed_dependencies</span><span class="p">[(</span><span class="n">step</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">)]),</span>
                 <span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Pending: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Pending: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="ImageProcessingManager.group_pending_by_conditions">
@@ -1941,7 +1942,7 @@
         <span class="n">step_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">masters_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Group pendig_images by condition expression values.</span>
 
 <span class="sd">        Args:</span>
@@ -1965,7 +1966,7 @@
 <span class="sd">                Each entry is contains a list of the image/channel combinations</span>
 <span class="sd">                matching a unique set of conditions and the second entry is the</span>
 <span class="sd">                master expression values for all images in the list.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">image_type_id</span> <span class="o">=</span> <span class="n">pending_images</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image_type_id</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1974,8 +1975,8 @@
         <span class="p">)</span>
         <span class="k">while</span> <span class="n">pending_images</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Finding images matching the same expressions as image id </span><span class="si">%d</span><span class="s2">, &quot;</span>
-                <span class="s2">&quot;channel </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Finding images matching the same expressions as image id </span><span class="si">%d</span><span class="s2">, "</span>
+                <span class="s2">"channel </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">pending_images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                 <span class="n">pending_images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
             <span class="p">)</span>
@@ -1999,12 +2000,12 @@
                 <span class="p">):</span>
                     <span class="n">batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pending_images</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not a match&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Not a match"</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Image batch:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2"> status </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"Image batch:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2"> status </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span>
                     <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">batch</span>
                 <span class="p">),</span>
             <span class="p">)</span>
@@ -2020,7 +2021,7 @@
 <div class="viewcode-block" id="ImageProcessingManager._progress_image_type">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._progress_image_type">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_progress_image_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processing_progress</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The image type is carried directly on an image progress row.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The image type is carried directly on an image progress row."""</span>
 
         <span class="k">return</span> <span class="n">processing_progress</span><span class="o">.</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span></div>
 
@@ -2028,7 +2029,7 @@
 <div class="viewcode-block" id="ImageProcessingManager.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_imtype_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform all the processing for the given steps (all if None).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform all the processing for the given steps (all if None)."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">processing_sequence</span> <span class="o">=</span> <span class="n">get_processing_sequence</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -2037,7 +2038,7 @@
 
         <span class="k">if</span> <span class="n">step_imtype_filter</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Applying step-image-type filter: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Applying step-image-type filter: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">step_imtype_filter</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -2049,7 +2050,7 @@
                 <span class="ow">and</span> <span class="n">image_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">step_imtype_filter</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;User skipped </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> - skipping step&quot;</span><span class="p">,</span>
+                    <span class="s2">"User skipped </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> - skipping step"</span><span class="p">,</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -2059,13 +2060,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_processing</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">limit_to_steps</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;At start of </span><span class="si">%s</span><span class="s2"> step for </span><span class="si">%s</span><span class="s2"> images, &quot;</span>
-                <span class="s2">&quot;project home </span><span class="si">%s</span><span class="s2"> pending:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"At start of </span><span class="si">%s</span><span class="s2"> step for </span><span class="si">%s</span><span class="s2"> images, "</span>
+                <span class="s2">"project home </span><span class="si">%s</span><span class="s2"> pending:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">step_name</span><span class="p">,</span>
                 <span class="n">image_type_name</span><span class="p">,</span>
                 <span class="n">get_project_home</span><span class="p">(),</span>
-                <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                 <span class="p">),</span>
             <span class="p">)</span>
 
@@ -2080,12 +2081,12 @@
             <span class="p">)</span> <span class="ow">in</span> <span class="n">processing_batches</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_create_current_processing</span><span class="p">(</span>
-                        <span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;image_type&quot;</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">db_session</span>
+                        <span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="s2">"image_type"</span><span class="p">,</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">db_session</span>
                     <span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Starting </span><span class="si">%s</span><span class="s2"> for a batch of </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> images from status </span><span class="si">%s</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;with config:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Starting </span><span class="si">%s</span><span class="s2"> for a batch of </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> images from status </span><span class="si">%s</span><span class="s2"> "</span>
+                    <span class="s2">"with config:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">step_name</span><span class="p">,</span>
                     <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">),</span>
                     <span class="n">image_type_name</span><span class="p">,</span>
@@ -2101,13 +2102,13 @@
                     <span class="n">image_type_name</span><span class="o">=</span><span class="n">image_type_name</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Processed </span><span class="si">%s</span><span class="s2"> batch of </span><span class="si">%d</span><span class="s2"> images.&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                    <span class="s2">"Processed </span><span class="si">%s</span><span class="s2"> batch of </span><span class="si">%d</span><span class="s2"> images."</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_processing</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;After processing batch, pending:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="s2">"After processing batch, pending:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
@@ -2118,18 +2119,18 @@
 <div class="viewcode-block" id="ImageProcessingManager.add_raw_images">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.add_raw_images">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_raw_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_collection</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the given RAW images to the database for processing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add the given RAW images to the database for processing."""</span>
 
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">default_expression_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">ConditionExpression</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                    <span class="n">ConditionExpression</span><span class="o">.</span><span class="n">notes</span> <span class="o">==</span> <span class="s2">&quot;Default expression&quot;</span>
+                    <span class="n">ConditionExpression</span><span class="o">.</span><span class="n">notes</span> <span class="o">==</span> <span class="s2">"Default expression"</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="n">configuration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
                 <span class="p">{</span><span class="n">default_expression_id</span><span class="p">},</span>
                 <span class="n">db_session</span><span class="p">,</span>
-                <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;add_images_to_db&quot;</span><span class="p">,</span>
+                <span class="n">step_name</span><span class="o">=</span><span class="s2">"add_images_to_db"</span><span class="p">,</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">processing_steps</span><span class="o">.</span><span class="n">add_images_to_db</span><span class="o">.</span><span class="n">add_images_to_db</span><span class="p">(</span>
             <span class="n">image_collection</span><span class="p">,</span> <span class="n">configuration</span>

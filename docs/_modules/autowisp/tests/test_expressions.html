@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_expressions &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,21 +165,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_expressions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tests for the database-free half of diagnostic expressions.</span>
+<span></span><span class="sd">"""Tests for the database-free half of diagnostic expressions.</span>
 
 <span class="sd">Everything here runs against a library and values passed in as arguments,</span>
 <span class="sd">so there is no database, no Django and no fixture beyond a dictionary --</span>
 <span class="sd">which is the point of keeping this tier free of both.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">quantiles_quantity</span><span class="p">,</span>
-    <span class="n">time_quantity</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_quantity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">QuantityLookUp</span><span class="p">,</span>
     <span class="n">check_expression</span><span class="p">,</span>
@@ -200,33 +197,33 @@
 <span class="c1">#: Everything is read in slot 1, this being about composition rather than</span>
 <span class="c1">#: about channels; the slot classes below bind several.</span>
 <span class="n">_library</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;rel&quot;</span><span class="p">:</span> <span class="s2">&quot;astrom_residual[1] / diagonal_fov[1]&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;scaled&quot;</span><span class="p">:</span> <span class="s2">&quot;rel[1] / nanmedian(rel[1])&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="s2">&quot;rel[1] + bg_center[1]&quot;</span><span class="p">,</span>
+    <span class="s2">"rel"</span><span class="p">:</span> <span class="s2">"astrom_residual[1] / diagonal_fov[1]"</span><span class="p">,</span>
+    <span class="s2">"scaled"</span><span class="p">:</span> <span class="s2">"rel[1] / nanmedian(rel[1])"</span><span class="p">,</span>
+    <span class="s2">"offset"</span><span class="p">:</span> <span class="s2">"rel[1] + bg_center[1]"</span><span class="p">,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="TestReferencedNames">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReferencedNames">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestReferencedNames</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reading the names out of an expression.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Reading the names out of an expression."""</span>
 
 <div class="viewcode-block" id="TestReferencedNames.test_names_include_functions">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReferencedNames.test_names_include_functions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_names_include_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Splitting them apart is the caller&#39;s job, not this one&#39;s.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Splitting them apart is the caller's job, not this one's."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_expression_names</span><span class="p">(</span><span class="s2">&quot;rel / nanmedian(rel)&quot;</span><span class="p">),</span> <span class="p">{</span><span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;nanmedian&quot;</span><span class="p">}</span>
+            <span class="n">get_expression_names</span><span class="p">(</span><span class="s2">"rel / nanmedian(rel)"</span><span class="p">),</span> <span class="p">{</span><span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"nanmedian"</span><span class="p">}</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestReferencedNames.test_statements_are_rejected">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReferencedNames.test_statements_are_rejected">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_statements_are_rejected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``mode=&quot;eval&quot;`` refuses anything that is not one expression.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``mode="eval"`` refuses anything that is not one expression."""</span>
 
-        <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;import os&quot;</span><span class="p">,</span> <span class="s2">&quot;y = 1&quot;</span><span class="p">,</span> <span class="s2">&quot;for i in x: pass&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"import os"</span><span class="p">,</span> <span class="s2">"y = 1"</span><span class="p">,</span> <span class="s2">"for i in x: pass"</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">):</span>
                 <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SyntaxError</span><span class="p">):</span>
                     <span class="n">get_expression_names</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
@@ -237,58 +234,58 @@
 <div class="viewcode-block" id="TestReachableNames">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestReachableNames</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;What an expression is allowed to reach.</span>
+<span class="w">    </span><span class="sd">"""What an expression is allowed to reach.</span>
 
 <span class="sd">    Parsing is not what makes this safe -- most attacks are perfectly valid</span>
-<span class="sd">    expressions. The evaluator&#39;s symbol table is, and these pin the part of</span>
+<span class="sd">    expressions. The evaluator's symbol table is, and these pin the part of</span>
 <span class="sd">    it AutoWISP chooses rather than inherits.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestReachableNames.test_filesystem_access_is_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_filesystem_access_is_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_filesystem_access_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``open`` is dropped from the evaluator, so the name is unknown.</span>
+<span class="w">        </span><span class="sd">"""``open`` is dropped from the evaluator, so the name is unknown.</span>
 
 <span class="sd">        Asteval permits reading files; harmless for text the local user</span>
 <span class="sd">        typed, but expressions travel between installations in export</span>
 <span class="sd">        files, so a shared one must not be able to read ``~/.ssh``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;evil&quot;</span><span class="p">,</span> <span class="s2">&quot;open(&#39;/etc/passwd&#39;).read()&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">&quot;open&quot;</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
+        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="s2">"evil"</span><span class="p">,</span> <span class="s2">"open('/etc/passwd').read()"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">"open"</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestReachableNames.test_hidden_filesystem_access_is_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_hidden_filesystem_access_is_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_hidden_filesystem_access_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Also when buried in something that would otherwise plot.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Also when buried in something that would otherwise plot."""</span>
 
         <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span>
-            <span class="s2">&quot;evil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bg_center + len(open(&#39;/etc/passwd&#39;).read())&quot;</span><span class="p">,</span>
+            <span class="s2">"evil"</span><span class="p">,</span>
+            <span class="s2">"bg_center + len(open('/etc/passwd').read())"</span><span class="p">,</span>
             <span class="p">{},</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">&quot;open&quot;</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">"open"</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestReachableNames.test_side_effects_are_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_side_effects_are_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_side_effects_are_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``print`` returns nothing, so it was never a valid value.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``print`` returns nothing, so it was never a valid value."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;noisy&quot;</span><span class="p">,</span> <span class="s2">&quot;print(bg_center)&quot;</span><span class="p">,</span> <span class="p">{}))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">"noisy"</span><span class="p">,</span> <span class="s2">"print(bg_center)"</span><span class="p">,</span> <span class="p">{}))</span></div>
 
 
 <div class="viewcode-block" id="TestReachableNames.test_the_mathematical_subset_still_works">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestReachableNames.test_the_mathematical_subset_still_works">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_mathematical_subset_still_works</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The removals must not cost anything anyone would write.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The removals must not cost anything anyone would write."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">check_expression</span><span class="p">(</span>
-                <span class="s2">&quot;fine&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;bg_center[1] - nanmedian(bg_center[1]) &quot;</span>
-                <span class="s2">&quot;+ sqrt(abs(bg_center[1]))&quot;</span><span class="p">,</span>
+                <span class="s2">"fine"</span><span class="p">,</span>
+                <span class="s2">"bg_center[1] - nanmedian(bg_center[1]) "</span>
+                <span class="s2">"+ sqrt(abs(bg_center[1]))"</span><span class="p">,</span>
                 <span class="p">{},</span>
             <span class="p">),</span>
             <span class="p">[],</span>
@@ -300,25 +297,25 @@
 <div class="viewcode-block" id="TestBareAggregates">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestBareAggregates">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestBareAggregates</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spotting the ``median``-where-``nanmedian``-was-meant mistake.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Spotting the ``median``-where-``nanmedian``-was-meant mistake."""</span>
 
 <div class="viewcode-block" id="TestBareAggregates.test_flags_bare_and_ignores_nan_forms">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestBareAggregates.test_flags_bare_and_ignores_nan_forms">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_flags_bare_and_ignores_nan_forms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Both halves matter: a false positive would nag on good input.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Both halves matter: a false positive would nag on good input."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_bare_aggregates</span><span class="p">(</span><span class="s2">&quot;median(a) + nanmedian(b) + std(c)&quot;</span><span class="p">),</span>
-            <span class="p">{</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">},</span>
+            <span class="n">get_bare_aggregates</span><span class="p">(</span><span class="s2">"median(a) + nanmedian(b) + std(c)"</span><span class="p">),</span>
+            <span class="p">{</span><span class="s2">"median"</span><span class="p">,</span> <span class="s2">"std"</span><span class="p">},</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestBareAggregates.test_ignores_names_that_are_not_calls">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestBareAggregates.test_ignores_names_that_are_not_calls">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_ignores_names_that_are_not_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A diagnostic called ``sum`` is not an aggregate call.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A diagnostic called ``sum`` is not an aggregate call."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_bare_aggregates</span><span class="p">(</span><span class="s2">&quot;mean + 1&quot;</span><span class="p">),</span> <span class="nb">set</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_bare_aggregates</span><span class="p">(</span><span class="s2">"mean + 1"</span><span class="p">),</span> <span class="nb">set</span><span class="p">())</span></div>
 </div>
 
 
@@ -326,24 +323,24 @@
 <div class="viewcode-block" id="TestDependents">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestDependents">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestDependents</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The delete guard.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The delete guard."""</span>
 
 <div class="viewcode-block" id="TestDependents.test_finds_every_dependent">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestDependents.test_finds_every_dependent">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_finds_every_dependent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Both members of the diamond, not just the first.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Both members of the diamond, not just the first."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_expression_dependents</span><span class="p">(</span><span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="n">_library</span><span class="p">),</span> <span class="p">{</span><span class="s2">&quot;scaled&quot;</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">}</span>
+            <span class="n">get_expression_dependents</span><span class="p">(</span><span class="s2">"rel"</span><span class="p">,</span> <span class="n">_library</span><span class="p">),</span> <span class="p">{</span><span class="s2">"scaled"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">}</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDependents.test_unreferenced_expression_has_none">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestDependents.test_unreferenced_expression_has_none">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unreferenced_expression_has_none</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deleting this one would break nothing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Deleting this one would break nothing."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_expression_dependents</span><span class="p">(</span><span class="s2">&quot;scaled&quot;</span><span class="p">,</span> <span class="n">_library</span><span class="p">),</span> <span class="nb">set</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_expression_dependents</span><span class="p">(</span><span class="s2">"scaled"</span><span class="p">,</span> <span class="n">_library</span><span class="p">),</span> <span class="nb">set</span><span class="p">())</span></div>
 </div>
 
 
@@ -351,83 +348,83 @@
 <div class="viewcode-block" id="TestRenamingReferences">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestRenamingReferences</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Carrying dependents through a rename.</span>
+<span class="w">    </span><span class="sd">"""Carrying dependents through a rename.</span>
 
 <span class="sd">    The one place expression text is rewritten, so what it must *not* touch</span>
 <span class="sd">    matters as much as what it must.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestRenamingReferences.test_every_use_is_renamed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_every_use_is_renamed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_every_use_is_renamed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Including two uses in the one expression.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Including two uses in the one expression."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">rename_references</span><span class="p">(</span><span class="s2">&quot;rel / nanmedian(rel)&quot;</span><span class="p">,</span> <span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;relative&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;relative / nanmedian(relative)&quot;</span><span class="p">,</span>
+            <span class="n">rename_references</span><span class="p">(</span><span class="s2">"rel / nanmedian(rel)"</span><span class="p">,</span> <span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"relative"</span><span class="p">),</span>
+            <span class="s2">"relative / nanmedian(relative)"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestRenamingReferences.test_a_longer_name_containing_it_is_untouched">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_a_longer_name_containing_it_is_untouched">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_longer_name_containing_it_is_untouched</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The case that kills a textual replace.</span>
+<span class="w">        </span><span class="sd">"""The case that kills a textual replace.</span>
 
 <span class="sd">        ``rel_bg`` merely starts with ``rel``; renaming ``rel`` must leave</span>
 <span class="sd">        it alone, and only ``ast`` knows where one identifier ends.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">rename_references</span><span class="p">(</span><span class="s2">&quot;rel_bg + rel&quot;</span><span class="p">,</span> <span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">),</span> <span class="s2">&quot;rel_bg + r&quot;</span>
+            <span class="n">rename_references</span><span class="p">(</span><span class="s2">"rel_bg + rel"</span><span class="p">,</span> <span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">),</span> <span class="s2">"rel_bg + r"</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestRenamingReferences.test_a_string_literal_is_untouched">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_a_string_literal_is_untouched">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_string_literal_is_untouched</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Text that merely looks like the name is not a reference.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Text that merely looks like the name is not a reference."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">rename_references</span><span class="p">(</span><span class="s2">&quot;where(flag == &#39;rel&#39;, rel, 0)&quot;</span><span class="p">,</span> <span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;where(flag == &#39;rel&#39;, r, 0)&quot;</span><span class="p">,</span>
+            <span class="n">rename_references</span><span class="p">(</span><span class="s2">"where(flag == 'rel', rel, 0)"</span><span class="p">,</span> <span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">),</span>
+            <span class="s2">"where(flag == 'rel', r, 0)"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestRenamingReferences.test_spacing_and_parentheses_survive">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_spacing_and_parentheses_survive">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_spacing_and_parentheses_survive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Splicing rather than unparsing, so nothing is reformatted.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Splicing rather than unparsing, so nothing is reformatted."""</span>
 
-        <span class="n">original</span> <span class="o">=</span> <span class="s2">&quot;( rel+1 )*2  # keep me&quot;</span>
+        <span class="n">original</span> <span class="o">=</span> <span class="s2">"( rel+1 )*2  # keep me"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">rename_references</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">),</span> <span class="s2">&quot;( r+1 )*2  # keep me&quot;</span>
+            <span class="n">rename_references</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">),</span> <span class="s2">"( r+1 )*2  # keep me"</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestRenamingReferences.test_offsets_survive_a_non_ascii_character">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_offsets_survive_a_non_ascii_character">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_offsets_survive_a_non_ascii_character</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``ast`` counts utf-8 bytes, so the splice has to as well.</span>
+<span class="w">        </span><span class="sd">"""``ast`` counts utf-8 bytes, so the splice has to as well.</span>
 
 <span class="sd">        A multi-byte character earlier in the line shifts every offset</span>
 <span class="sd">        after it, and getting this wrong corrupts the text rather than</span>
 <span class="sd">        failing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">rename_references</span><span class="p">(</span><span class="s2">&quot;where(unit == &#39;µm&#39;, rel, 0)&quot;</span><span class="p">,</span> <span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;where(unit == &#39;µm&#39;, r, 0)&quot;</span><span class="p">,</span>
+            <span class="n">rename_references</span><span class="p">(</span><span class="s2">"where(unit == 'µm', rel, 0)"</span><span class="p">,</span> <span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">),</span>
+            <span class="s2">"where(unit == 'µm', r, 0)"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestRenamingReferences.test_an_unmentioned_name_changes_nothing">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestRenamingReferences.test_an_unmentioned_name_changes_nothing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_an_unmentioned_name_changes_nothing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Every expression in a library is offered to this, not just the</span>
-<span class="sd">        dependents.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Every expression in a library is offered to this, not just the</span>
+<span class="sd">        dependents."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">rename_references</span><span class="p">(</span><span class="s2">&quot;bg_center * 2&quot;</span><span class="p">,</span> <span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">),</span> <span class="s2">&quot;bg_center * 2&quot;</span>
+            <span class="n">rename_references</span><span class="p">(</span><span class="s2">"bg_center * 2"</span><span class="p">,</span> <span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">),</span> <span class="s2">"bg_center * 2"</span>
         <span class="p">)</span></div>
 </div>
 
@@ -436,102 +433,102 @@
 <div class="viewcode-block" id="TestOrdering">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestOrdering</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;What has to be evaluated, and in what order.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""What has to be evaluated, and in what order."""</span>
 
 <div class="viewcode-block" id="TestOrdering.test_chain_is_ordered">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_chain_is_ordered">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_chain_is_ordered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A reference comes before the expression using it.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A reference comes before the expression using it."""</span>
 
-        <span class="n">order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;scaled&quot;</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;scaled&quot;</span><span class="p">])</span></div>
+        <span class="n">order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"scaled"</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="p">[</span><span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"scaled"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_diamond_places_the_shared_expression_once">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_diamond_places_the_shared_expression_once">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_diamond_places_the_shared_expression_once</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The property that makes evaluation non-redundant.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The property that makes evaluation non-redundant."""</span>
 
-        <span class="n">order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;scaled&quot;</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;rel&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;rel&quot;</span><span class="p">),</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;scaled&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;rel&quot;</span><span class="p">),</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">))</span></div>
+        <span class="n">order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"scaled"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"rel"</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"rel"</span><span class="p">),</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"scaled"</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"rel"</span><span class="p">),</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"offset"</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_only_the_targets_subtree_is_ordered">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_only_the_targets_subtree_is_ordered">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_only_the_targets_subtree_is_ordered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asking for one expression does not drag in the library.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Asking for one expression does not drag in the library."""</span>
 
-        <span class="n">order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;offset&quot;</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;scaled&quot;</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span></div>
+        <span class="n">order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"offset"</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"scaled"</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_plain_diagnostic_needs_no_evaluation">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_plain_diagnostic_needs_no_evaluation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_plain_diagnostic_needs_no_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A target that is simply recorded orders nothing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A target that is simply recorded orders nothing."""</span>
 
-        <span class="n">order</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;bg_center&quot;</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
+        <span class="n">order</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"bg_center"</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">needed</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">needed</span><span class="p">,</span> <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_needed_diagnostics_are_transitive">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_needed_diagnostics_are_transitive">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_needed_diagnostics_are_transitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reported through the chain, not just one level down.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Reported through the chain, not just one level down."""</span>
 
-        <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;scaled&quot;</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">needed</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;astrom_residual&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">})</span></div>
+        <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"scaled"</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">needed</span><span class="p">,</span> <span class="p">{</span><span class="s2">"astrom_residual"</span><span class="p">,</span> <span class="s2">"diagonal_fov"</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_cycle_names_every_expression_involved">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_cycle_names_every_expression_involved">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_cycle_names_every_expression_involved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The whole loop, in the order it closes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The whole loop, in the order it closes."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
-            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">})</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">):</span>
+            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"a"</span><span class="p">],</span> <span class="p">{</span><span class="s2">"a"</span><span class="p">:</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">:</span> <span class="s2">"a"</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_cycle_names_the_loop_and_not_its_dependents">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_cycle_names_the_loop_and_not_its_dependents">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_cycle_names_the_loop_and_not_its_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An expression merely downstream of a cycle is not implicated.</span>
+<span class="w">        </span><span class="sd">"""An expression merely downstream of a cycle is not implicated.</span>
 
 <span class="sd">        ``d`` is unreachable because ``a`` and ``b`` reference each other,</span>
 <span class="sd">        but ``d`` is not itself part of the problem and naming it would</span>
 <span class="sd">        send the reader to the wrong expression.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
-            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;d&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="s2">&quot;a + 1&quot;</span><span class="p">})</span>
+            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"d"</span><span class="p">],</span> <span class="p">{</span><span class="s2">"a"</span><span class="p">:</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">:</span> <span class="s2">"a + 1"</span><span class="p">})</span>
         <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"d"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_unresolvable_reference_is_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_unresolvable_reference_is_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unresolvable_reference_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;And says which expression contains it.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""And says which expression contains it."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
-            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;no_such + 1&quot;</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;no_such&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
+            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"x"</span><span class="p">],</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="s2">"no_such + 1"</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"no_such"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestOrdering.test_unknown_target_is_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestOrdering.test_unknown_target_is_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_target_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bookmarked URL naming nothing should not evaluate.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A bookmarked URL naming nothing should not evaluate."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
-            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">&quot;no_such&quot;</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span></div>
+            <span class="n">order_expressions</span><span class="p">([</span><span class="s2">"no_such"</span><span class="p">],</span> <span class="n">_library</span><span class="p">)</span></div>
 </div>
 
 
@@ -539,82 +536,70 @@
 <div class="viewcode-block" id="TestQuantileNames">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestQuantileNames</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The diagnostics named by a pattern rather than listed.</span>
+<span class="w">    </span><span class="sd">"""The diagnostics named by a pattern rather than listed.</span>
 
 <span class="sd">    ``pixel_q*`` diagnostics are created by ``calibrate`` rather than</span>
 <span class="sd">    seeded, so they are the one part of the vocabulary that cannot be</span>
 <span class="sd">    enumerated. They must still resolve as variables and still be refused</span>
 <span class="sd">    as expression names, and both come from the same predicate.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestQuantileNames.test_a_quantile_resolves_as_a_variable">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_quantile_resolves_as_a_variable">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quantile_resolves_as_a_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Nothing enumerates these, so only the pattern can accept them.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Nothing enumerates these, so only the pattern can accept them."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q999[1] * 2&quot;</span><span class="p">,</span> <span class="p">{}),</span> <span class="p">[])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">"q"</span><span class="p">,</span> <span class="s2">"pixel_q999[1] * 2"</span><span class="p">,</span> <span class="p">{}),</span> <span class="p">[])</span></div>
 
 
 <div class="viewcode-block" id="TestQuantileNames.test_a_quantile_may_not_be_taken_as_a_name">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_quantile_may_not_be_taken_as_a_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quantile_may_not_be_taken_as_a_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The predicate reserves as well as resolves, which is easy to miss.</span>
+<span class="w">        </span><span class="sd">"""The predicate reserves as well as resolves, which is easy to miss.</span>
 
 <span class="sd">        Otherwise an expression could be named ``pixel_q999`` and shadow a</span>
 <span class="sd">        real quantile -- ambiguous in a flat name space, and undetectable</span>
 <span class="sd">        afterwards because by then both are simply variables.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;pixel_q999&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="p">{}))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">"pixel_q999"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="p">{}))</span></div>
 
 
 <div class="viewcode-block" id="TestQuantileNames.test_a_near_miss_is_still_unresolvable">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_near_miss_is_still_unresolvable">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_near_miss_is_still_unresolvable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The pattern must not become a licence for anything similar.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The pattern must not become a licence for anything similar."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_quality * 2&quot;</span><span class="p">,</span> <span class="p">{}))</span></div>
-
-
-<div class="viewcode-block" id="TestQuantileNames.test_the_family_name_may_not_be_taken_either">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_the_family_name_may_not_be_taken_either">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_family_name_may_not_be_taken_either</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``pixel_quantiles`` is a selector name, so it is reserved too.</span>
-
-<span class="sd">        It is the one reserved name that is not a readable quantity: it</span>
-<span class="sd">        stands for the whole ``pixel_q*`` family, expanding to one series</span>
-<span class="sd">        per member.  An expression allowed to take it would be swallowed by</span>
-<span class="sd">        that expansion and silently never drawn.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="n">quantiles_quantity</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="p">{}))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">"q"</span><span class="p">,</span> <span class="s2">"pixel_quality * 2"</span><span class="p">,</span> <span class="p">{}))</span></div>
 
 
-<div class="viewcode-block" id="TestQuantileNames.test_the_family_name_does_not_resolve_as_a_variable">
-<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_the_family_name_does_not_resolve_as_a_variable">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">test_the_family_name_does_not_resolve_as_a_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reserved is not the same as readable, and here they differ.</span>
+<div class="viewcode-block" id="TestQuantileNames.test_a_name_no_diagnostic_answers_to_is_unresolvable">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_name_no_diagnostic_answers_to_is_unresolvable">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_a_name_no_diagnostic_answers_to_is_unresolvable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""``pixel_quantiles`` is one such name, and nothing special now.</span>
 
-<span class="sd">        A family has no values of its own, so an expression referencing it</span>
-<span class="sd">        is a mistake rather than a way of reaching every quantile at once.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        It once stood for the whole ``pixel_q*`` family and was reserved</span>
+<span class="sd">        against being taken by an expression. Each quantile is an ordinary</span>
+<span class="sd">        quantity with a section of its own, so the family name means</span>
+<span class="sd">        nothing to anything and refuses like any other typo.</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quantiles_quantity</span><span class="si">}</span><span class="s2"> * 2&quot;</span><span class="p">,</span> <span class="p">{}))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">"q"</span><span class="p">,</span> <span class="s2">"pixel_quantiles * 2"</span><span class="p">,</span> <span class="p">{}))</span></div>
 
 
 <div class="viewcode-block" id="TestQuantileNames.test_a_quantile_survives_the_ordering_pass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestQuantileNames.test_a_quantile_survives_the_ordering_pass">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quantile_survives_the_ordering_pass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A composed expression must not be rejected by the cycle check.</span>
+<span class="w">        </span><span class="sd">"""A composed expression must not be rejected by the cycle check.</span>
 
 <span class="sd">        Ordering and the direct check have to agree about what a name may</span>
 <span class="sd">        mean, or ``check_expression`` contradicts itself: accepting a name,</span>
 <span class="sd">        then reporting it unresolvable from the pass looking for cycles.</span>
 <span class="sd">        One shared predicate is what makes that impossible.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="s2">&quot;pixel_q999[1] / pixel_q500[1]&quot;</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;q_scaled&quot;</span><span class="p">,</span> <span class="s2">&quot;q[1] * 2&quot;</span><span class="p">,</span> <span class="n">library</span><span class="p">),</span> <span class="p">[])</span></div>
+        <span class="n">library</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"q"</span><span class="p">:</span> <span class="s2">"pixel_q999[1] / pixel_q500[1]"</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">check_expression</span><span class="p">(</span><span class="s2">"q_scaled"</span><span class="p">,</span> <span class="s2">"q[1] * 2"</span><span class="p">,</span> <span class="n">library</span><span class="p">),</span> <span class="p">[])</span></div>
 </div>
 
 
@@ -622,22 +607,22 @@
 <div class="viewcode-block" id="TestNoProjectNeeded">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestNoProjectNeeded</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validation is the same everywhere, so it needs no database.</span>
+<span class="w">    </span><span class="sd">"""Validation is the same everywhere, so it needs no database.</span>
 
 <span class="sd">    A ``diagnostic_type`` row can only be seeded from the static catalogue</span>
 <span class="sd">    or created by the quantile branch, which refuses every other name. So</span>
 <span class="sd">    the vocabulary cannot vary between projects, and an expression means</span>
 <span class="sd">    the same thing in all of them -- which is what lets one library be</span>
 <span class="sd">    shared.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestNoProjectNeeded.test_a_catalogue_diagnostic_resolves">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded.test_a_catalogue_diagnostic_resolves">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_catalogue_diagnostic_resolves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Even though nothing here has opened a project database.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Even though nothing here has opened a project database."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;astrom_residual[1] / diagonal_fov[1]&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+            <span class="n">check_expression</span><span class="p">(</span><span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"astrom_residual[1] / diagonal_fov[1]"</span><span class="p">,</span> <span class="p">{}),</span>
             <span class="p">[],</span>
         <span class="p">)</span></div>
 
@@ -645,19 +630,19 @@
 <div class="viewcode-block" id="TestNoProjectNeeded.test_a_misspelling_does_not">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded.test_a_misspelling_does_not">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_misspelling_does_not</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The check is still a check: unknown names are still refused.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The check is still a check: unknown names are still refused."""</span>
 
-        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;typo&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_centre / diagonal_fov&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">&quot;bg_centre&quot;</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
+        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="s2">"typo"</span><span class="p">,</span> <span class="s2">"bg_centre / diagonal_fov"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">"bg_centre"</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestNoProjectNeeded.test_jd_is_a_variable">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNoProjectNeeded.test_jd_is_a_variable">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_jd_is_a_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not a diagnostic, but a name in the same flat space.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Not a diagnostic, but a name in the same flat space."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;rel_time&quot;</span><span class="p">,</span> <span class="s2">&quot;jd - nanmin(jd)&quot;</span><span class="p">,</span> <span class="p">{}),</span> <span class="p">[]</span>
+            <span class="n">check_expression</span><span class="p">(</span><span class="s2">"rel_time"</span><span class="p">,</span> <span class="s2">"jd - nanmin(jd)"</span><span class="p">,</span> <span class="p">{}),</span> <span class="p">[]</span>
         <span class="p">)</span></div>
 </div>
 
@@ -666,12 +651,12 @@
 <div class="viewcode-block" id="TestChecking">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestChecking</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;What is reported as wrong with a proposed expression.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""What is reported as wrong with a proposed expression."""</span>
 
 <div class="viewcode-block" id="TestChecking.check">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.check">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the problems, using the shared library by default.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the problems, using the shared library by default."""</span>
 
         <span class="k">return</span> <span class="n">check_expression</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -683,70 +668,70 @@
 <div class="viewcode-block" id="TestChecking.test_a_good_expression_has_no_problems">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_a_good_expression_has_no_problems">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_good_expression_has_no_problems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The case that must not produce noise.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The case that must not produce noise."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;rel_doubled&quot;</span><span class="p">,</span> <span class="s2">&quot;rel[1] * 2&quot;</span><span class="p">),</span> <span class="p">[])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"rel_doubled"</span><span class="p">,</span> <span class="s2">"rel[1] * 2"</span><span class="p">),</span> <span class="p">[])</span></div>
 
 
 <div class="viewcode-block" id="TestChecking.test_name_must_be_a_slug">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_name_must_be_a_slug">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_name_must_be_a_slug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Anything else could be stored but never put in a URL.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Anything else could be stored but never put in a URL."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;not a slug&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_center&quot;</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"not a slug"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestChecking.test_name_may_not_shadow_a_diagnostic">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_name_may_not_shadow_a_diagnostic">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_name_may_not_shadow_a_diagnostic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Both are variables in one flat space, so it is ambiguous.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Both are variables in one flat space, so it is ambiguous."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestChecking.test_statements_are_reported_not_raised">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_statements_are_reported_not_raised">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_statements_are_reported_not_raised</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The security guard, surfaced as a problem for the user.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The security guard, surfaced as a problem for the user."""</span>
 
-        <span class="n">problems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;import os&quot;</span><span class="p">)</span>
+        <span class="n">problems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"import os"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">problems</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;single expression&quot;</span><span class="p">,</span> <span class="n">problems</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"single expression"</span><span class="p">,</span> <span class="n">problems</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestChecking.test_unknown_name_is_reported">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_unknown_name_is_reported">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_name_is_reported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Naming what could not be resolved.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Naming what could not be resolved."""</span>
 
-        <span class="n">problems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;no_such * 2&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">&quot;no_such&quot;</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
+        <span class="n">problems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"no_such * 2"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">"no_such"</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestChecking.test_self_reference_is_a_cycle">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_self_reference_is_a_cycle">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_self_reference_is_a_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Caught by ordering the candidate library, not a special case.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Caught by ordering the candidate library, not a special case."""</span>
 
-        <span class="n">problems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;x + 1&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">&quot;cycle&quot;</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
+        <span class="n">problems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"x + 1"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">"cycle"</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestChecking.test_cycle_with_an_existing_expression">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_cycle_with_an_existing_expression">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_cycle_with_an_existing_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Editing one end of a pair is how a cycle usually arrives.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Editing one end of a pair is how a cycle usually arrives."""</span>
 
-        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="s2">&quot;rel&quot;</span><span class="p">,</span> <span class="s2">&quot;scaled[1] + 1&quot;</span><span class="p">,</span> <span class="n">_library</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">&quot;cycle&quot;</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
+        <span class="n">problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="s2">"rel"</span><span class="p">,</span> <span class="s2">"scaled[1] + 1"</span><span class="p">,</span> <span class="n">_library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="s2">"cycle"</span> <span class="ow">in</span> <span class="n">problem</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestChecking.test_problems_accumulate">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestChecking.test_problems_accumulate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_problems_accumulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A bad name and a bad body are both worth saying at once.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A bad name and a bad body are both worth saying at once."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;not a slug&quot;</span><span class="p">,</span> <span class="s2">&quot;no_such&quot;</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"not a slug"</span><span class="p">,</span> <span class="s2">"no_such"</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span></div>
 </div>
 
 
@@ -754,39 +739,39 @@
 <div class="viewcode-block" id="SlotTestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SlotTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;What the channel-slot tests share.</span>
+<span class="w">    </span><span class="sd">"""What the channel-slot tests share.</span>
 
 <span class="sd">    The library exercises every shape a slot comes in: two slots; one</span>
 <span class="sd">    expression used at two different bindings, and one used twice at the</span>
 <span class="sd">    same; a nested expression binding the slots the other way round; a</span>
 <span class="sd">    quantity over the time alone, one built on that, and one mixing a</span>
 <span class="sd">    subscripted diagnostic with a bare reference.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">library</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] / bg_center[2]&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;silly&quot;</span><span class="p">:</span> <span class="s2">&quot;sky_color[1,2] - sky_color[2,3]&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;twice&quot;</span><span class="p">:</span> <span class="s2">&quot;sky_color[1,2] + sky_color[1,2]&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;inner&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] / bg_center[2]&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;outer&quot;</span><span class="p">:</span> <span class="s2">&quot;inner[2,1] + bg_center[1]&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;night&quot;</span><span class="p">:</span> <span class="s2">&quot;jd - nanmin(jd)&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;scaled_night&quot;</span><span class="p">:</span> <span class="s2">&quot;night * 2&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mixed&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center[1] * night&quot;</span><span class="p">,</span>
+        <span class="s2">"sky_color"</span><span class="p">:</span> <span class="s2">"bg_center[1] / bg_center[2]"</span><span class="p">,</span>
+        <span class="s2">"silly"</span><span class="p">:</span> <span class="s2">"sky_color[1,2] - sky_color[2,3]"</span><span class="p">,</span>
+        <span class="s2">"twice"</span><span class="p">:</span> <span class="s2">"sky_color[1,2] + sky_color[1,2]"</span><span class="p">,</span>
+        <span class="s2">"inner"</span><span class="p">:</span> <span class="s2">"bg_center[1] / bg_center[2]"</span><span class="p">,</span>
+        <span class="s2">"outer"</span><span class="p">:</span> <span class="s2">"inner[2,1] + bg_center[1]"</span><span class="p">,</span>
+        <span class="s2">"night"</span><span class="p">:</span> <span class="s2">"jd - nanmin(jd)"</span><span class="p">,</span>
+        <span class="s2">"scaled_night"</span><span class="p">:</span> <span class="s2">"night * 2"</span><span class="p">,</span>
+        <span class="s2">"mixed"</span><span class="p">:</span> <span class="s2">"bg_center[1] * night"</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="c1">#: Two images&#39; worth, distinct per channel so that reading the wrong</span>
+    <span class="c1">#: Two images' worth, distinct per channel so that reading the wrong</span>
     <span class="c1">#: one cannot pass by coincidence.</span>
     <span class="n">jd</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
     <span class="n">bg</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.7</span><span class="p">]),</span>
-        <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.9</span><span class="p">,</span> <span class="mf">2.3</span><span class="p">]),</span>
-        <span class="s2">&quot;G0&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
+        <span class="s2">"B"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.7</span><span class="p">]),</span>
+        <span class="s2">"R"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.9</span><span class="p">,</span> <span class="mf">2.3</span><span class="p">]),</span>
+        <span class="s2">"G0"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
     <span class="p">}</span>
 
 <div class="viewcode-block" id="SlotTestCase.needed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.needed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wanted</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return what has to be read for *wanted*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return what has to be read for *wanted*."""</span>
 
         <span class="k">return</span> <span class="n">get_needed_values</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span></div>
 
@@ -794,13 +779,13 @@
 <div class="viewcode-block" id="SlotTestCase.fetch">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.fetch">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wanted</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return exactly the values :meth:`needed` asks for.</span>
+<span class="w">        </span><span class="sd">"""Return exactly the values :meth:`needed` asks for.</span>
 
-<span class="sd">        Deliberately not &quot;every channel available&quot;: supplying more would</span>
+<span class="sd">        Deliberately not "every channel available": supplying more would</span>
 <span class="sd">        hide a walk that under-reports, and that walk answers the series</span>
 <span class="sd">        table as well as the fetch, so an omission there is a wrong count</span>
 <span class="sd">        rather than merely a missing array.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">name</span><span class="p">:</span> <span class="p">{</span>
@@ -816,7 +801,7 @@
 <div class="viewcode-block" id="SlotTestCase.evaluate">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.evaluate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wanted</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate *wanted* against exactly what the walk asked for.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Evaluate *wanted* against exactly what the walk asked for."""</span>
 
         <span class="k">return</span> <span class="n">evaluate_quantities</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">wanted</span><span class="p">))</span></div>
 
@@ -824,12 +809,12 @@
 <div class="viewcode-block" id="SlotTestCase.evaluate_one">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.SlotTestCase.evaluate_one">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the values of a single instantiation.</span>
+<span class="w">        </span><span class="sd">"""Return the values of a single instantiation.</span>
 
 <span class="sd">        Sugar for the common case: everything takes and returns one</span>
 <span class="sd">        binding *set* per quantity, which is what lets two axes be one</span>
 <span class="sd">        quantity in two channels, and most cases here want neither.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="n">quantity</span><span class="p">:</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">)}})[</span><span class="n">quantity</span><span class="p">][</span>
             <span class="nb">tuple</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
@@ -841,61 +826,61 @@
 <div class="viewcode-block" id="TestSlotSyntax">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestSlotSyntax</span><span class="p">(</span><span class="n">SlotTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reading channel slots out of an expression.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Reading channel slots out of an expression."""</span>
 
 <div class="viewcode-block" id="TestSlotSyntax.test_references_keep_their_slots_and_repeats">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_references_keep_their_slots_and_repeats">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_references_keep_their_slots_and_repeats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;One name at two bindings is the point of the parameters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""One name at two bindings is the point of the parameters."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_indexed_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">&quot;silly&quot;</span><span class="p">]),</span>
-            <span class="p">[(</span><span class="s2">&quot;sky_color&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="p">(</span><span class="s2">&quot;sky_color&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))],</span>
+            <span class="n">get_indexed_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"silly"</span><span class="p">]),</span>
+            <span class="p">[(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="p">(</span><span class="s2">"sky_color"</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))],</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotSyntax.test_one_slot_is_still_a_tuple">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_one_slot_is_still_a_tuple">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_slot_is_still_a_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;So no caller has to care how many were written.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""So no caller has to care how many were written."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_indexed_names</span><span class="p">(</span><span class="s2">&quot;bg_center[1]&quot;</span><span class="p">),</span> <span class="p">[(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))]</span>
+            <span class="n">get_indexed_names</span><span class="p">(</span><span class="s2">"bg_center[1]"</span><span class="p">),</span> <span class="p">[(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))]</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotSyntax.test_parameters_are_derived_and_ordered">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_parameters_are_derived_and_ordered">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_parameters_are_derived_and_ordered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Nothing is declared, so nothing can drift out of step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Nothing is declared, so nothing can drift out of step."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_expression_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">&quot;silly&quot;</span><span class="p">]),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">get_expression_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"silly"</span><span class="p">]),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_expression_parameters</span><span class="p">(</span><span class="s2">&quot;jd * 2&quot;</span><span class="p">),</span> <span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_expression_parameters</span><span class="p">(</span><span class="s2">"jd * 2"</span><span class="p">),</span> <span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="TestSlotSyntax.test_parameters_are_sorted_whatever_order_the_body_uses">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_parameters_are_sorted_whatever_order_the_body_uses">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_parameters_are_sorted_whatever_order_the_body_uses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The order is what a reference&#39;s arguments are matched onto.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The order is what a reference's arguments are matched onto."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">get_expression_parameters</span><span class="p">(</span><span class="s2">&quot;bg_center[3] - bg_center[1]&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">get_expression_parameters</span><span class="p">(</span><span class="s2">"bg_center[3] - bg_center[1]"</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotSyntax.test_a_slot_must_be_a_whole_number">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_a_slot_must_be_a_whole_number">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_slot_must_be_a_whole_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Anything else cannot name a channel, and says so here rather</span>
-<span class="sd">        than failing later as an unresolvable name.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Anything else cannot name a channel, and says so here rather</span>
+<span class="sd">        than failing later as an unresolvable name."""</span>
 
         <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;bg_center[i]&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bg_center[1.5]&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bg_center[1:2]&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bg_center[1][2]&quot;</span><span class="p">,</span>
+            <span class="s2">"bg_center[i]"</span><span class="p">,</span>
+            <span class="s2">"bg_center[1.5]"</span><span class="p">,</span>
+            <span class="s2">"bg_center[1:2]"</span><span class="p">,</span>
+            <span class="s2">"bg_center[1][2]"</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">):</span>
                 <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
@@ -905,13 +890,13 @@
 <div class="viewcode-block" id="TestSlotSyntax.test_arity_is_a_rule_not_a_table">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotSyntax.test_arity_is_a_rule_not_a_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_arity_is_a_rule_not_a_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Two of the three answers are constants.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Two of the three answers are constants."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">time_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">&quot;silly&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">"silly"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
-            <span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">&quot;no_such&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span></div>
+            <span class="n">get_quantity_arity</span><span class="p">(</span><span class="s2">"no_such"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">)</span></div>
 </div>
 
 
@@ -919,7 +904,7 @@
 <div class="viewcode-block" id="TestNeededValues">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestNeededValues</span><span class="p">(</span><span class="n">SlotTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;What has to be read before anything is evaluated.</span>
+<span class="w">    </span><span class="sd">"""What has to be read before anything is evaluated.</span>
 
 <span class="sd">    Answered for two callers at once -- whatever reads a series in one</span>
 <span class="sd">    query, and the table counting the images that record all of it without</span>
@@ -927,74 +912,74 @@
 <span class="sd">    assertions compare whole dictionaries for that reason: what is *not*</span>
 <span class="sd">    needed matters as much, since over-reporting makes a count wrong</span>
 <span class="sd">    rather than merely fetching too much.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestNeededValues.test_one_expression_at_two_bindings_needs_both">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_one_expression_at_two_bindings_needs_both">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_expression_at_two_bindings_needs_both</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The channels come from resolving each reference&#39;s arguments.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The channels come from resolving each reference's arguments."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">&quot;silly&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;G0&quot;</span><span class="p">)}}),</span>
-            <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;G0&quot;</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"silly"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)}}),</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"G0"</span><span class="p">,)}},</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestNeededValues.test_one_quantity_asked_for_at_two_bindings">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_one_quantity_asked_for_at_two_bindings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_quantity_asked_for_at_two_bindings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Both are walked, neither replacing the other.</span>
+<span class="w">        </span><span class="sd">"""Both are walked, neither replacing the other.</span>
 
 <span class="sd">        The two axes of a plot may be one quantity read in two channels --</span>
 <span class="sd">        which is how a diagnostic is compared between them -- so what is</span>
 <span class="sd">        wanted cannot be one binding per quantity.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;G0&quot;</span><span class="p">)}}),</span>
-            <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;G0&quot;</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)}}),</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"G0"</span><span class="p">,)}},</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestNeededValues.test_slots_bound_the_other_way_round_are_followed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_slots_bound_the_other_way_round_are_followed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_slots_bound_the_other_way_round_are_followed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``inner[2,1]`` reads the outer binding reversed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``inner[2,1]`` reads the outer binding reversed."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">&quot;outer&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)}}),</span>
-            <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;R&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"outer"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)}}),</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"R"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,)}},</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestNeededValues.test_the_time_is_found_through_a_bare_reference">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_the_time_is_found_through_a_bare_reference">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_time_is_found_through_a_bare_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``mixed`` reads the time only by way of ``night``.</span>
+<span class="w">        </span><span class="sd">"""``mixed`` reads the time only by way of ``night``.</span>
 
 <span class="sd">        The time is the one quantity written without a subscript, so the</span>
 <span class="sd">        walk over subscripts never reaches it however deep it lies.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">&quot;mixed&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,)}}),</span>
-            <span class="p">{</span><span class="n">time_quantity</span><span class="p">:</span> <span class="p">{()},</span> <span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,)}},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"mixed"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,)}}),</span>
+            <span class="p">{</span><span class="n">time_quantity</span><span class="p">:</span> <span class="p">{()},</span> <span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,)}},</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestNeededValues.test_a_binding_of_the_wrong_length_is_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestNeededValues.test_a_binding_of_the_wrong_length_is_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_binding_of_the_wrong_length_is_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Too few or too many: either would plot something else.</span>
+<span class="w">        </span><span class="sd">"""Too few or too many: either would plot something else.</span>
 
 <span class="sd">        Too many is the one that could pass unnoticed -- the extra channel</span>
 <span class="sd">        binds no parameter, so it would simply be dropped.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">for</span> <span class="n">channels</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">&quot;B&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;G0&quot;</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">channels</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">):</span>
                 <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">channels</span><span class="p">}})</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">needed</span><span class="p">({</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{</span><span class="n">channels</span><span class="p">}})</span></div>
 </div>
 
 
@@ -1002,112 +987,112 @@
 <div class="viewcode-block" id="TestSlotEvaluation">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestSlotEvaluation</span><span class="p">(</span><span class="n">SlotTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluating quantities against the values the walk asked for.</span>
+<span class="w">    </span><span class="sd">"""Evaluating quantities against the values the walk asked for.</span>
 
 <span class="sd">    Every case here fetches exactly what the walk reported, so each also</span>
 <span class="sd">    asserts the two agree -- the pairing that would otherwise drift apart</span>
 <span class="sd">    unnoticed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_one_body_evaluated_at_two_bindings">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_one_body_evaluated_at_two_bindings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_body_evaluated_at_two_bindings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``sky_color`` is B/R in one term and R/G0 in the other.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``sky_color`` is B/R in one term and R/G0 in the other."""</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">&quot;silly&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;G0&quot;</span><span class="p">)),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;G0&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"silly"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"G0"</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_a_nested_binding_is_not_the_callers">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_nested_binding_is_not_the_callers">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_nested_binding_is_not_the_callers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``outer[1,2] = inner[2,1] + bg_center[1]``.</span>
+<span class="w">        </span><span class="sd">"""``outer[1,2] = inner[2,1] + bg_center[1]``.</span>
 
 <span class="sd">        The case that returns a wrong number rather than an error if a</span>
 <span class="sd">        lookup ever holds a binding of its own instead of reading the one</span>
 <span class="sd">        belonging to the body being evaluated.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">)),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"outer"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_an_instantiation_is_computed_once">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_an_instantiation_is_computed_once">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_an_instantiation_is_computed_once</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asked for twice, the *same array* comes back.</span>
+<span class="w">        </span><span class="sd">"""Asked for twice, the *same array* comes back.</span>
 
 <span class="sd">        Identity rather than equality, and rather than the size of the</span>
 <span class="sd">        cache: re-evaluating would overwrite the one entry with an equal</span>
 <span class="sd">        but distinct array, so only identity tells the two apart.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">lookups</span> <span class="o">=</span> <span class="n">QuantityLookUp</span><span class="o">.</span><span class="n">library</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">&quot;sky_color&quot;</span><span class="p">]},</span>
-            <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">],</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]}},</span>
+            <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]},</span>
+            <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">],</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]}},</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span>
-            <span class="n">lookups</span><span class="p">[</span><span class="s2">&quot;sky_color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)),</span>
-            <span class="n">lookups</span><span class="p">[</span><span class="s2">&quot;sky_color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)),</span>
+            <span class="n">lookups</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)),</span>
+            <span class="n">lookups</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">((</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)),</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_both_axes_at_once_share_their_instantiations">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_both_axes_at_once_share_their_instantiations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_both_axes_at_once_share_their_instantiations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Which is why the two are resolved in one call, not one each.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Which is why the two are resolved in one call, not one each."""</span>
 
         <span class="n">drawn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)},</span> <span class="s2">&quot;twice&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)}}</span>
+            <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)},</span> <span class="s2">"twice"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)}}</span>
         <span class="p">)</span>
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="n">drawn</span><span class="p">[</span><span class="s2">&quot;twice&quot;</span><span class="p">][(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">drawn</span><span class="p">[</span><span class="s2">&quot;sky_color&quot;</span><span class="p">][(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)]</span>
+            <span class="n">drawn</span><span class="p">[</span><span class="s2">"twice"</span><span class="p">][(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">drawn</span><span class="p">[</span><span class="s2">"sky_color"</span><span class="p">][(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)]</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_one_diagnostic_drawn_in_two_channels">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_one_diagnostic_drawn_in_two_channels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_one_diagnostic_drawn_in_two_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``bg_center`` against ``bg_center``, which is a colour plot.</span>
+<span class="w">        </span><span class="sd">"""``bg_center`` against ``bg_center``, which is a colour plot.</span>
 
 <span class="sd">        Both come back, told apart by the binding that asked for each. A</span>
 <span class="sd">        result keyed by quantity alone would hold one of them and draw it</span>
 <span class="sd">        on both axes, which looks like a perfectly good plot.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">drawn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,)}})</span>
+        <span class="n">drawn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">({</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,)}})</span>
 
-        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">drawn</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][(</span><span class="s2">&quot;B&quot;</span><span class="p">,)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">])</span>
-        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">drawn</span><span class="p">[</span><span class="s2">&quot;bg_center&quot;</span><span class="p">][(</span><span class="s2">&quot;R&quot;</span><span class="p">,)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">])</span></div>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">drawn</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"B"</span><span class="p">,)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">])</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">drawn</span><span class="p">[</span><span class="s2">"bg_center"</span><span class="p">][(</span><span class="s2">"R"</span><span class="p">,)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_a_quantity_over_the_time_alone">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_quantity_over_the_time_alone">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_quantity_over_the_time_alone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Written bare, there being no channel to subscript it with.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Written bare, there being no channel to subscript it with."""</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">&quot;night&quot;</span><span class="p">,</span> <span class="p">()),</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"night"</span><span class="p">,</span> <span class="p">()),</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_a_chain_of_channel_free_expressions">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_chain_of_channel_free_expressions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_chain_of_channel_free_expressions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``scaled_night`` reads ``night`` reads the time, all bare.</span>
+<span class="w">        </span><span class="sd">"""``scaled_night`` reads ``night`` reads the time, all bare.</span>
 
 <span class="sd">        Each has to be a value in the symbol table rather than a lookup,</span>
 <span class="sd">        since a bare name never reaches ``__getitem__``, and in an order</span>
 <span class="sd">        that respects what they read.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">&quot;scaled_night&quot;</span><span class="p">,</span> <span class="p">()),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"scaled_night"</span><span class="p">,</span> <span class="p">()),</span>
             <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span>
         <span class="p">)</span></div>
 
@@ -1115,57 +1100,57 @@
 <div class="viewcode-block" id="TestSlotEvaluation.test_slotted_and_channel_free_in_one_expression">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_slotted_and_channel_free_in_one_expression">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_slotted_and_channel_free_in_one_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``mixed`` subscripts one quantity and reads another bare.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``mixed`` subscripts one quantity and reads another bare."""</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">&quot;mixed&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,)),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"mixed"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_a_plain_diagnostic_is_a_quantity_too">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_a_plain_diagnostic_is_a_quantity_too">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_plain_diagnostic_is_a_quantity_too</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;One channel, no expression, and the same call resolves it.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""One channel, no expression, and the same call resolves it."""</span>
 
         <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"R"</span><span class="p">,)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"R"</span><span class="p">]</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_only_what_is_reached_is_built">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_only_what_is_reached_is_built">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_only_what_is_reached_is_built</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The library holds expressions about data nobody fetched.</span>
+<span class="w">        </span><span class="sd">"""The library holds expressions about data nobody fetched.</span>
 
 <span class="sd">        Building those would waste work, and for one read bare -- which is</span>
 <span class="sd">        evaluated on sight, so that it can be a value -- would raise about</span>
 <span class="sd">        values nobody asked for.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span>
-            <span class="n">time_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">({</span><span class="s2">&quot;silly&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;G0&quot;</span><span class="p">)}})</span>
+            <span class="n">time_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">({</span><span class="s2">"silly"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">)}})</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">&quot;silly&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;G0&quot;</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_one</span><span class="p">(</span><span class="s2">"silly"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">,</span> <span class="s2">"G0"</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestSlotEvaluation.test_an_unfetched_channel_is_reported">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_expressions.html#autowisp.tests.test_expressions.TestSlotEvaluation.test_an_unfetched_channel_is_reported">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_an_unfetched_channel_is_reported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A miss means the walk and the fetch disagree, which is a fault</span>
-<span class="sd">        in the pair rather than something to repair here.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A miss means the walk and the fetch disagree, which is a fault</span>
+<span class="sd">        in the pair rather than something to repair here."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
             <span class="n">evaluate_quantities</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;sky_color&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">)}},</span>
+                <span class="p">{</span><span class="s2">"sky_color"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,</span> <span class="s2">"R"</span><span class="p">)}},</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">{(</span><span class="s2">&quot;B&quot;</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]}},</span>
+                <span class="p">{</span><span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">{(</span><span class="s2">"B"</span><span class="p">,):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]}},</span>
             <span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

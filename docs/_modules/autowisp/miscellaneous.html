@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.miscellaneous &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.miscellaneous</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Collection of small utils that is hard to classify.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Collection of small utils that is hard to classify."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
@@ -174,36 +174,36 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">git</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="n">RECOGNIZED_HAT_ID_PREFIXES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HAT&quot;</span><span class="p">,</span> <span class="s2">&quot;UCAC4&quot;</span><span class="p">]</span>
+<span class="n">RECOGNIZED_HAT_ID_PREFIXES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"HAT"</span><span class="p">,</span> <span class="s2">"UCAC4"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="get_hat_source_id_str">
 <a class="viewcode-back" href="../../implementation/autowisp.miscellaneous.html#autowisp.miscellaneous.get_hat_source_id_str">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_hat_source_id_str</span><span class="p">(</span><span class="n">source_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the string representation of 3-integer HAT-id.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the string representation of 3-integer HAT-id."""</span>
 
     <span class="k">return</span> <span class="n">RECOGNIZED_HAT_ID_PREFIXES</span><span class="p">[</span>
         <span class="n">source_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;-</span><span class="si">{src[1]:03d}</span><span class="s2">-</span><span class="si">{src[2]:07d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">source_id</span><span class="p">)</span></div>
+    <span class="p">]</span> <span class="o">+</span> <span class="s2">"-</span><span class="si">{src[1]:03d}</span><span class="s2">-</span><span class="si">{src[2]:07d}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">source_id</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="get_code_version_str">
 <a class="viewcode-back" href="../../implementation/autowisp.miscellaneous.html#autowisp.miscellaneous.get_code_version_str">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_code_version_str</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a string identifying the version of the code being used.</span>
+<span class="w">    </span><span class="sd">"""Return a string identifying the version of the code being used.</span>
 
 <span class="sd">    For an installed package - which is not a git repository - returns the</span>
 <span class="sd">    version string recorded at build time in :mod:`autowisp._version` (see</span>
 <span class="sd">    ``autowisp/_write_version.py``).</span>
 
 <span class="sd">    When running from a git checkout with no build-generated version file,</span>
-<span class="sd">    walks up from the *caller&#39;s* file to the enclosing git repository, so</span>
+<span class="sd">    walks up from the *caller's* file to the enclosing git repository, so</span>
 <span class="sd">    the returned hash (with a ``:dirty`` suffix when the working tree has</span>
 <span class="sd">    uncommitted changes) identifies the entire working tree that produced</span>
 <span class="sd">    the call. This requires GitPython, which is only a build dependency, so</span>
 <span class="sd">    when it is not installed a placeholder string is returned instead.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">code_version</span>
@@ -213,11 +213,11 @@
         <span class="k">return</span> <span class="n">code_version</span>
 
     <span class="k">if</span> <span class="n">git</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;Code version unavailable (GitPython not installed).&quot;</span>
+        <span class="k">return</span> <span class="s2">"Code version unavailable (GitPython not installed)."</span>
 
     <span class="n">check_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
     <span class="n">repository</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">while</span> <span class="n">check_path</span> <span class="o">!=</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+    <span class="k">while</span> <span class="n">check_path</span> <span class="o">!=</span> <span class="s2">"/"</span><span class="p">:</span>
         <span class="n">check_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">check_path</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">repository</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="p">(</span><span class="n">check_path</span><span class="p">)</span>
@@ -225,10 +225,10 @@
         <span class="k">except</span> <span class="n">git</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">InvalidGitRepositoryError</span><span class="p">:</span>
             <span class="k">pass</span>
     <span class="k">if</span> <span class="n">repository</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;Caller not under git version control.&quot;</span>
+        <span class="k">return</span> <span class="s2">"Caller not under git version control."</span>
     <span class="n">head_sha</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span><span class="o">.</span><span class="n">hexsha</span>
     <span class="k">if</span> <span class="n">repository</span><span class="o">.</span><span class="n">is_dirty</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">head_sha</span> <span class="o">+</span> <span class="s2">&quot;:dirty&quot;</span>
+        <span class="k">return</span> <span class="n">head_sha</span> <span class="o">+</span> <span class="s2">":dirty"</span>
     <span class="k">return</span> <span class="n">head_sha</span></div>
 
 </pre></div>

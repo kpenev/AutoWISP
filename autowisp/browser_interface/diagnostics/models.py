@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from core.models import BuiModelBase
+from autowisp.browser_interface.core.models import BuiModelBase
 
 
 class DiagnosticExpression(BuiModelBase):

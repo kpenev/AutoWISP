@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.error_capture_middleware module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,16 +172,16 @@
 <span id="autowisp-browser-interface-error-capture-middleware-module"></span><h1>autowisp.browser_interface.error_capture_middleware module<a class="headerlink" href="#module-autowisp.browser_interface.error_capture_middleware" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-9c0f09fcfac7684a114481c05c5f4fcc52a57cf3.png" alt="Inheritance diagram of AutoWISPError, ErrorCaptureMiddleware, Http404, HttpResponseRedirect, PermissionDenied, ViewError, datetime, timezone" usemap="#inheritance4b06f3d85b" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-932a4b9310dbd950885dc792e82c8f41fede92bd.png" alt="Inheritance diagram of AutoWISPError, ErrorCaptureMiddleware, Http404, HttpResponseRedirect, PermissionDenied, ViewError, datetime, timezone" usemap="#inheritance4b06f3d85b" class="inheritance graphviz" /></div>
 <map id="inheritance4b06f3d85b" name="inheritance4b06f3d85b">
-<area shape="rect" id="node1" href="#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" target="_top" title="Persist an :class:`AutoWISPError` (or wrapped view error) on failure." alt="" coords="5,5,483,32"/>
-<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="507,5,741,32"/>
-<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="526,80,722,107"/>
-<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="523,155,725,181"/>
-<area shape="rect" id="node5" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="766,5,866,32"/>
-<area shape="rect" id="node6" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="753,80,879,107"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="902,80,1031,107"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="913,5,1020,32"/>
+<area shape="rect" id="node1" href="#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" target="_top" title="Persist an :class:`AutoWISPError` (or wrapped view error) on failure." alt="" coords="5,5,544,31"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="569,5,823,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="589,79,803,104"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="585,152,807,177"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="848,5,963,31"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="833,79,977,104"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="1001,79,1148,104"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="1013,5,1136,31"/>
 </map><p>Django middleware recording errors that escape a BUI view.</p>
 <p>When a view raises, this captures a lightweight request snapshot onto the
 error and records it as a queryable <code class="docutils literal notranslate"><span class="pre">Error</span></code> row plus detail sidecar
@@ -198,11 +198,11 @@ avoid persisting user-entered secrets.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.error_capture_middleware.</span></span><span class="sig-name descname"><span class="pre">ErrorCaptureMiddleware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">get_response</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/error_capture_middleware.html#ErrorCaptureMiddleware"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.error_capture_middleware.</span></span><span class="sig-name descname"><span class="pre">ErrorCaptureMiddleware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">get_response</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/error_capture_middleware.html#ErrorCaptureMiddleware"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-f37f0645239a1032a8886bb810db3854f568308b.png" alt="Inheritance diagram of autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" usemap="#inheritancee36f9be3cd" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-2488dabe3c497c406b4e679a8e42c9c56bc9486f.png" alt="Inheritance diagram of autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" usemap="#inheritancee36f9be3cd" class="inheritance graphviz" /></div>
 <map id="inheritancee36f9be3cd" name="inheritancee36f9be3cd">
-<area shape="rect" id="node1" href="#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" target="_top" title="Persist an :class:`AutoWISPError` (or wrapped view error) on failure." alt="" coords="5,5,483,32"/>
+<area shape="rect" id="node1" href="#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware" target="_top" title="Persist an :class:`AutoWISPError` (or wrapped view error) on failure." alt="" coords="5,5,544,31"/>
 </map><p>Persist an <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoWISPError</span></code> (or wrapped view error) on failure.</p>
 <p>Uses Django’s <code class="docutils literal notranslate"><span class="pre">process_exception</span></code> hook, which fires when a view
 raises before the exception is converted to a 500 response.</p>

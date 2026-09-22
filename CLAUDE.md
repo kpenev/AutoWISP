@@ -51,11 +51,22 @@ editable install breaks BUI styling (meson-python lays down no
 `pip install .`, repeated after every change, then hard-refresh the browser
 (Cmd-Shift-R).
 
+*Checking working-tree code without reinstalling:* a scratch script run with
+`PYTHONPATH=<repo>` imports the tree rather than site-packages, which is how
+a function can be exercised straight after editing it while the installed
+copy stays the non-editable one the BUI needs. Without it the import comes
+from site-packages and silently tests the last install — an `ImportError`
+for something just added is the friendly version of that; a stale function
+that merely passes is the other one. A browser check still needs the
+install.
+
 ## Running Tests
 
 Tests use Python `unittest` (pytest-compatible). They download test data automatically and run pipeline steps sequentially:
 
 ```bash
+conda activate autowisp          # or whatever the environment is called
+pip install .                    # the suite runs the *installed* package
 python -m autowisp.tests <failed_test_dir> -v    # Run all tests
 python -m autowisp.tests failed_test -v           # CI convention
 
@@ -63,11 +74,48 @@ python -m autowisp.tests failed_test -v           # CI convention
 python -m autowisp.tests failed_test -v -k TestCalibrate
 ```
 
+**Activate the environment; do not reach into it.** Calling
+`~/miniforge3/envs/autowisp/bin/python -m autowisp.tests` runs the right
+interpreter but leaves the environment's `bin` off `PATH`, so every test that
+shells out to a `wisp-*` console script dies with `FileNotFoundError:
+'wisp-calibrate'`. That is 21 errors that look like the pipeline is broken and
+are not, and they cost a full 16-minute run to find out. Non-interactive
+shells need `source ~/miniforge3/etc/profile.d/conda.sh` before
+`conda activate`.
+
+**Import the checkout, not site-packages.** `TestUpgradeFromRelease` migrates
+each tagged release's schema forward, which needs the repository's history, so
+it asks `git -C os.path.dirname(__file__) rev-parse --show-toplevel` whether
+the test file it is running from is inside a checkout. An installed copy is
+not, so it skips — correctly, there being no history to export, but three
+migration tests then vanish into the skip count. Run from the repository root,
+or set `PYTHONPATH=<repo>`; the working directory matters only because
+`python -m` puts it on `sys.path`. Installing first is what keeps this honest:
+the tree and site-packages then agree, so the in-process tests and the `wisp-*`
+subprocesses exercise the same code. A skip count above 1 is the tell — the one
+expected skip is the server-only backup check, which the MariaDB jobs run.
+
+**Select tests with `-k`, rather than running a module directly.** The full
+suite is too slow to run after every edit, but `python -m autowisp.tests
+failed_test -v -k TestCalibrate` still imports `__main__`, which is where the
+suite collects from and the first thing CI trips over. `python -m unittest
+autowisp.tests.test_x` costs about the same and skips that entirely, so it
+passes happily while the suite cannot even start. Run the whole thing before
+pushing for CI.
+
 The `<failed_test_dir>` argument is **required** — it's where artifacts from failed tests are preserved for debugging. Tests run in a temporary directory, copy test data there, and clean up on success.
 
 Test classes (in order of pipeline dependency): `TestCalibrate` → `TestStackToMaster` → `TestFindStars` → `TestSolveAstrometry` → `TestFitStarShape` → `TestMeasureAperturePhotometry` → `TestFitSourceExtractedPSFMap` → `TestFitMagnitudes` → `TestCreateLightcurves` → `TestEPD` → `TestTFA` → `TestDetrendingStat`
 
 Base test class: `AutoWISPTestCase` (extends `astrowisp.tests.utilities.FloatTestCase`). Use `self.run_step(command)` to invoke pipeline CLI commands within tests.
+
+**A new test class must be imported into `autowisp/tests/__main__.py`**, which
+is where the suite collects from — an unimported class is never run and nothing
+says so. `test_suite_registration` compares what the runner reaches with what
+the modules define and fails naming whatever is unreachable, so this is caught
+rather than remembered. Two test classes may not share a name across modules:
+the imports land in one namespace, where the second silently replaces the
+first.
 
 ## Linting
 
@@ -161,20 +209,49 @@ AstroWISP (`/home/kpenev/projects/git/AstroWISP/`) is the lower-level C++/Python
 Sphinx sources live in `documentation/source/`; the published `docs/` folder is
 build output (~1181 tracked files) served by GitHub Pages.
 
-Regenerate `documentation/source/wisp_options.rst` **first** by running
-`documentation/source/document_options.py` — it is gitignored and is built from
-a throwaway project, so it needs the current code installed. Skipping it does
-not fail the build: you get a "toctree contains reference to nonexisting
-document" warning lost among ~56 pre-existing ones, no options page, and every
-`:option:` link silently unresolved. Then `rm -rf docs/` and
-`sphinx-build -b html documentation/source docs`.
+**The build is warning-free, and is meant to stay that way.** Any warning
+`make html` prints was introduced by the change in hand — there is no
+background noise left to lose it in, so read the output rather than the exit
+code, which is 0 either way.
 
-The wipe matters: commit 07817f54 deleted the sources for eleven pages whose
-built HTML is still tracked, and a plain rebuild does not remove them — they
-stay live, unreachable from the nav but reachable by URL and search. Wiping is
-safe: `sphinx.ext.githubpages` recreates `.nojekyll`, which is essential, since
-without it Pages runs Jekyll and ignores `_static/`, `_sources/` and `_images/`.
+**Build with `make html` from `documentation/`** — never by calling
+`sphinx-build` yourself. The Makefile does five things in order that a bare
+build does not, each guarding a failure that is silent rather than loud:
+
+- runs `document_options.py`, which regenerates the gitignored
+  `wisp_options.rst` from a throwaway project, so it needs the current code
+  installed. Skipping it does not fail the build: you get a "toctree contains
+  reference to nonexisting document" warning, no options page, and every
+  `:option:` link silently unresolved.
+- wipes `source/implementation` before `sphinx-apidoc`, which overwrites the
+  pages it generates but never deletes the ones whose module is gone.
+- passes `sphinx-apidoc` the exclusions in `APIDOCSKIP`: the modules that are
+  deliberately not installed, which would otherwise get a page autodoc cannot
+  fill, and the `data_model` submodules, whose classes the package page
+  already documents by way of its `__all__`.
+- wipes `build/`, because an incremental build only writes the pages it
+  re-reads while the whole of `build/html` replaces `docs/`, so anything
+  skipped goes missing from the published site.
+- wipes `docs/` before moving the new build in. That matters: commit 07817f54
+  deleted the sources for eleven pages whose built HTML is still tracked, and
+  a plain rebuild does not remove them — they stay live, unreachable from the
+  nav but reachable by URL and search. Wiping is safe: `sphinx.ext.githubpages`
+  recreates `.nojekyll`, which is essential, since without it Pages runs Jekyll
+  and ignores `_static/`, `_sources/` and `_images/`.
+
 Keep the rebuild as its own commit; it rewrites every page.
+
+The toolchain is an extra, `pip install .[docs]`, and belongs in **the same
+environment as autowisp** — `sphinx-build` imports every module it documents,
+so a system-wide Sphinx whose interpreter cannot import `autowisp` produces a
+full set of API pages with every `automodule` silently empty. Graphviz (`dot`)
+must be on PATH for the inheritance diagrams.
+
+`conf.py` calls `django.setup()`, because the browser interface is Django
+applications and importing one of its modules needs the application registry.
+That works only while the applications name each other by their full import
+path; a short name reintroduces the empty pages, and worse, a second module
+identity for a model Django has already registered.
 
 ## Issue Tracking
 
@@ -251,10 +328,25 @@ work being abandoned.
   of edits and corrections on top, and committing each intermediate state makes
   noise that then has to be squashed. Wait for an explicit "commit".
 
+- **Plans are drafted as a file, then filed in Jira — never committed.** While
+  a design is still being argued over, keep it as an uncommitted Markdown plan
+  in the working tree: rereading and editing a local file beats reloading a
+  Jira page for every change. Once it settles and implementation is about to
+  start, create it as a SUP story with the implementation stages as sub-tasks
+  (see *Issue Tracking*), transition the ones in scope to Selected For
+  Development, leave deferred ideas Open, and delete the file. Jira then holds
+  the design, the reasoning and the rejected alternatives, and nothing has to
+  be committed and later removed.
+
 - **Don't revert incidental Black reformatting.** The repo is not uniformly
   Black-clean at 80 columns, so a directory-wide run touches unrelated files.
   Split the commits instead — functional change in one, formatting-only files in
   another. For a file carrying both, leave the formatting in with the fix.
+
+  This holds for lines the change never touched. Black reformatting old code
+  in a file being edited means a previous commit missed it, so the fix is to
+  let Black have it, not to preserve the old spelling — reverting it only
+  leaves the next person the same decision.
 
 - **Durable rules about this project belong in this file**, or in
   `.claude/skills/`, not in per-machine assistant memory. This repo is worked on

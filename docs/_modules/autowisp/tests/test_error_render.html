@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_error_render &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,11 +165,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_error_render</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for error rendering (the shared formatter).</span>
+<span></span><span class="sd">"""Unit tests for error rendering (the shared formatter).</span>
 
 <span class="sd">Renders persisted ``Error`` rows (written via ``persist_error``) through</span>
 <span class="sd">``error_render``; uses a throwaway project database.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
@@ -201,7 +201,7 @@
 <div class="viewcode-block" id="_RenderTestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render._RenderTestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_RenderTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base creating one throwaway project database for the class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base creating one throwaway project database for the class."""</span>
 
 <div class="viewcode-block" id="_RenderTestCase.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render._RenderTestCase.setUpClass">[docs]</a>
@@ -228,28 +228,28 @@
 <div class="viewcode-block" id="TestErrorSummary">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorSummary">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestErrorSummary</span><span class="p">(</span><span class="n">_RenderTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;error_summary: one-line component/step/artifact/message.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""error_summary: one-line component/step/artifact/message."""</span>
 
 <div class="viewcode-block" id="TestErrorSummary.test_summary_without_artifact">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorSummary.test_summary_without_artifact">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_summary_without_artifact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;No linked artifact -&gt; component:step + message only.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""No linked artifact -&gt; component:step + message only."""</span>
 
         <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">summary</span> <span class="o">=</span> <span class="n">error_summary</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;[step:find_stars]&quot;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;no stars found&quot;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"[step:find_stars]"</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"no stars found"</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorSummary.test_summary_with_artifact">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorSummary.test_summary_with_artifact">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_summary_with_artifact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A resolved image FK appears in the summary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A resolved image FK appears in the summary."""</span>
 
         <span class="c1"># pylint: disable=not-callable</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
-                <span class="n">raw_fname</span><span class="o">=</span><span class="s2">&quot;/data/raw/img042.fits&quot;</span><span class="p">,</span>
+                <span class="n">raw_fname</span><span class="o">=</span><span class="s2">"/data/raw/img042.fits"</span><span class="p">,</span>
                 <span class="n">image_type_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">observing_session_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
@@ -261,13 +261,13 @@
             <span class="n">related_files</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">RelatedFile</span><span class="p">(</span>
                     <span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span>
-                    <span class="s2">&quot;/data/raw/img042.fits&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;input&quot;</span><span class="p">,</span>
+                    <span class="s2">"/data/raw/img042.fits"</span><span class="p">,</span>
+                    <span class="s2">"input"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">summary</span> <span class="o">=</span> <span class="n">error_summary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;/data/raw/img042.fits&quot;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"/data/raw/img042.fits"</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span></div>
 </div>
 
 
@@ -275,61 +275,61 @@
 <div class="viewcode-block" id="TestErrorDetail">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorDetail">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestErrorDetail</span><span class="p">(</span><span class="n">_RenderTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;error_detail: user vs developer views, remediation, degradation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""error_detail: user vs developer views, remediation, degradation."""</span>
 
 <div class="viewcode-block" id="TestErrorDetail.test_user_view_omits_technical_fields">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorDetail.test_user_view_omits_technical_fields">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_user_view_omits_technical_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;developer=False shows user fields, hides traceback/details.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""developer=False shows user fields, hides traceback/details."""</span>
 
         <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">detail</span> <span class="o">=</span> <span class="n">error_detail</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">developer</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;user_message&quot;</span><span class="p">],</span> <span class="s2">&quot;no stars found&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;component&quot;</span><span class="p">],</span> <span class="s2">&quot;step&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;traceback&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;details&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;exception_class&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"user_message"</span><span class="p">],</span> <span class="s2">"no stars found"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"component"</span><span class="p">],</span> <span class="s2">"step"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"traceback"</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"details"</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"exception_class"</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorDetail.test_developer_view_adds_sidecar_backed_fields">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorDetail.test_developer_view_adds_sidecar_backed_fields">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_developer_view_adds_sidecar_backed_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;developer=True adds message/traceback/details and provenance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""developer=True adds message/traceback/details and provenance."""</span>
 
         <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">detail</span> <span class="o">=</span> <span class="n">error_detail</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">developer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;exception_class&quot;</span><span class="p">],</span> <span class="s2">&quot;FindStarsError&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;traceback&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;brightness_quantile&quot;</span><span class="p">:</span> <span class="mf">0.999</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;related_files&quot;</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;sidecar_available&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"exception_class"</span><span class="p">],</span> <span class="s2">"FindStarsError"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"traceback"</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"details"</span><span class="p">],</span> <span class="p">{</span><span class="s2">"brightness_quantile"</span><span class="p">:</span> <span class="mf">0.999</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"related_files"</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"sidecar_available"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestErrorDetail.test_remediation_only_when_present">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorDetail.test_remediation_only_when_present">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_remediation_only_when_present</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remediation appears iff the error provided one in details.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Remediation appears iff the error provided one in details."""</span>
 
         <span class="n">without</span> <span class="o">=</span> <span class="n">error_detail</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()),</span> <span class="n">developer</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;remediation&quot;</span><span class="p">,</span> <span class="n">without</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"remediation"</span><span class="p">,</span> <span class="n">without</span><span class="p">)</span>
 
         <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">(</span>
-            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;remediation&quot;</span><span class="p">:</span> <span class="s2">&quot;Lower the brightness threshold.&quot;</span><span class="p">}</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"remediation"</span><span class="p">:</span> <span class="s2">"Lower the brightness threshold."</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="n">with_rem</span> <span class="o">=</span> <span class="n">error_detail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="n">developer</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">with_rem</span><span class="p">[</span><span class="s2">&quot;remediation&quot;</span><span class="p">],</span> <span class="s2">&quot;Lower the brightness threshold.&quot;</span>
+            <span class="n">with_rem</span><span class="p">[</span><span class="s2">"remediation"</span><span class="p">],</span> <span class="s2">"Lower the brightness threshold."</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorDetail.test_missing_sidecar_degrades">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorDetail.test_missing_sidecar_degrades">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_sidecar_degrades</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;With no sidecar, developer fields are present but empty/flagged.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""With no sidecar, developer fields are present but empty/flagged."""</span>
 
         <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
@@ -339,11 +339,11 @@
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">detail</span> <span class="o">=</span> <span class="n">error_detail</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">developer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;sidecar_available&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;traceback&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">],</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"sidecar_available"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"traceback"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"details"</span><span class="p">],</span> <span class="p">{})</span>
         <span class="c1"># Falls back to the inline user_message for the technical message.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span> <span class="s2">&quot;no stars found&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="s2">"message"</span><span class="p">],</span> <span class="s2">"no stars found"</span><span class="p">)</span></div>
 </div>
 
 
@@ -351,32 +351,32 @@
 <div class="viewcode-block" id="TestFormatDetailText">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestFormatDetailText">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestFormatDetailText</span><span class="p">(</span><span class="n">_RenderTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;format_detail_text: terminal rendering of the detail dict.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""format_detail_text: terminal rendering of the detail dict."""</span>
 
 <div class="viewcode-block" id="TestFormatDetailText.test_user_text_is_summary_plus_remediation">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestFormatDetailText.test_user_text_is_summary_plus_remediation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_user_text_is_summary_plus_remediation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The user view text shows the summary and (any) remediation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The user view text shows the summary and (any) remediation."""</span>
 
-        <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">(</span><span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;remediation&quot;</span><span class="p">:</span> <span class="s2">&quot;Do X.&quot;</span><span class="p">})</span>
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">make_find_stars_error</span><span class="p">(</span><span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"remediation"</span><span class="p">:</span> <span class="s2">"Do X."</span><span class="p">})</span>
         <span class="n">detail</span> <span class="o">=</span> <span class="n">error_detail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="n">developer</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">format_detail_text</span><span class="p">(</span><span class="n">detail</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;no stars found&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;Remediation: Do X.&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;Traceback:&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"no stars found"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"Remediation: Do X."</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"Traceback:"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestFormatDetailText.test_developer_text_includes_traceback">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestFormatDetailText.test_developer_text_includes_traceback">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_developer_text_includes_traceback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The developer view text includes the traceback block.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The developer view text includes the traceback block."""</span>
 
         <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persist_and_get</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">format_detail_text</span><span class="p">(</span><span class="n">error_detail</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">developer</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;Exception: FindStarsError&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;Traceback:&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"Exception: FindStarsError"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"Traceback:"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
 </div>
 
 
@@ -384,38 +384,38 @@
 <div class="viewcode-block" id="TestErrorListRows">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorListRows">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestErrorListRows</span><span class="p">(</span><span class="n">_RenderTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;error_list_rows: the cheap, inline-only list-view projection.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""error_list_rows: the cheap, inline-only list-view projection."""</span>
 
 <div class="viewcode-block" id="TestErrorListRows.test_rows_newest_first_with_summary_fields">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorListRows.test_rows_newest_first_with_summary_fields">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_rows_newest_first_with_summary_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns one dict per error, newest first, with summary fields.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns one dict per error, newest first, with summary fields."""</span>
 
         <span class="n">first_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">second_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
 
         <span class="n">rows</span> <span class="o">=</span> <span class="n">error_list_rows</span><span class="p">()</span>
 
-        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
         <span class="c1"># Both present; the later-created one comes first.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">first_id</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">second_id</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">ids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">second_id</span><span class="p">),</span> <span class="n">ids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">first_id</span><span class="p">))</span>
 
         <span class="n">sample</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;component&quot;</span><span class="p">],</span> <span class="s2">&quot;step&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;step_name&quot;</span><span class="p">],</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;no stars found&quot;</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">"component"</span><span class="p">],</span> <span class="s2">"step"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">"step_name"</span><span class="p">],</span> <span class="s2">"find_stars"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"no stars found"</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestErrorListRows.test_does_not_read_sidecars">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorListRows.test_does_not_read_sidecars">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_does_not_read_sidecars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The list projection never opens a sidecar file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The list projection never opens a sidecar file."""</span>
 
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
-            <span class="s2">&quot;autowisp.error_render.load_sidecar&quot;</span>
+            <span class="s2">"autowisp.error_render.load_sidecar"</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">load_sidecar_mock</span><span class="p">:</span>
             <span class="n">error_list_rows</span><span class="p">()</span>
         <span class="n">load_sidecar_mock</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span></div>
@@ -426,10 +426,10 @@
 <div class="viewcode-block" id="TestErrorCounts">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestErrorCounts</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The badge counts / error_counts_by_step / the step filter.</span>
+<span class="w">    </span><span class="sd">"""The badge counts / error_counts_by_step / the step filter.</span>
 
 <span class="sd">    Fresh project per test, since these assert exact counts.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestErrorCounts.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.setUp">[docs]</a>
@@ -442,43 +442,43 @@
 <div class="viewcode-block" id="TestErrorCounts.test_total_count">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_total_count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_total_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The counts total every recorded error, any component.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The counts total every recorded error, any component."""</span>
 
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
-        <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;orchestration broke&quot;</span><span class="p">))</span>
+        <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">"orchestration broke"</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_and_total_error_count</span><span class="p">(),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_counts_by_step_excludes_stepless">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_counts_by_step_excludes_stepless">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_counts_by_step_excludes_stepless</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Per-step counts group step errors and skip pipeline/BUI ones.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Per-step counts group step errors and skip pipeline/BUI ones."""</span>
 
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span>
-            <span class="n">StackToMasterError</span><span class="p">(</span><span class="s2">&quot;cannot stack&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">)</span>
+            <span class="n">StackToMasterError</span><span class="p">(</span><span class="s2">"cannot stack"</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"stack_to_master"</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;no step here&quot;</span><span class="p">))</span>
+        <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">"no step here"</span><span class="p">))</span>
 
         <span class="n">by_step</span> <span class="o">=</span> <span class="n">error_counts_by_step</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">by_step</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;find_stars&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;stack_to_master&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">by_step</span><span class="p">,</span> <span class="p">{</span><span class="s2">"find_stars"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"stack_to_master"</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_step_filter_on_list_rows">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_step_filter_on_list_rows">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_step_filter_on_list_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;error_list_rows(step_name=...) restricts to that step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""error_list_rows(step_name=...) restricts to that step."""</span>
 
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span>
-            <span class="n">StackToMasterError</span><span class="p">(</span><span class="s2">&quot;cannot stack&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">)</span>
+            <span class="n">StackToMasterError</span><span class="p">(</span><span class="s2">"cannot stack"</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"stack_to_master"</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="n">rows</span> <span class="o">=</span> <span class="n">error_list_rows</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">error_list_rows</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="s2">"find_stars"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;step_name&quot;</span><span class="p">],</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"step_name"</span><span class="p">],</span> <span class="s2">"find_stars"</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_id</span><span class="p">):</span>
@@ -490,7 +490,7 @@
 <div class="viewcode-block" id="TestErrorCounts.test_counts_exclude_resolved">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_counts_exclude_resolved">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_counts_exclude_resolved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolving an error drops it from the badge and step markers.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Resolving an error drops it from the badge and step markers."""</span>
 
         <span class="n">open_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">resolved_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
@@ -498,14 +498,14 @@
 
         <span class="c1"># The total still counts the resolved one, so the badge stays.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_and_total_error_count</span><span class="p">(),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error_counts_by_step</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;find_stars&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">error_counts_by_step</span><span class="p">(),</span> <span class="p">{</span><span class="s2">"find_stars"</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">open_id</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_all_resolved_keeps_total">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_all_resolved_keeps_total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_all_resolved_keeps_total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;With everything resolved the history is still reachable.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""With everything resolved the history is still reachable."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">()))</span>
@@ -517,7 +517,7 @@
 <div class="viewcode-block" id="TestErrorCounts.test_list_shows_resolved_open_first">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_list_shows_resolved_open_first">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_list_shows_resolved_open_first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The list keeps resolved errors (annotated), open ones first.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The list keeps resolved errors (annotated), open ones first."""</span>
 
         <span class="n">resolved_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">resolved_id</span><span class="p">)</span>
@@ -526,59 +526,59 @@
         <span class="n">rows</span> <span class="o">=</span> <span class="n">error_list_rows</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
         <span class="c1"># Open first, resolved (dimmed) after.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">open_id</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;resolved&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">resolved_id</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;resolved&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">open_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"resolved"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">resolved_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">"resolved"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_gate_scopes_step_errors_to_selected_steps">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_gate_scopes_step_errors_to_selected_steps">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_gate_scopes_step_errors_to_selected_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Step errors gate only their own step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Step errors gate only their own step."""</span>
 
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">persist_error</span><span class="p">(</span>
-            <span class="n">StackToMasterError</span><span class="p">(</span><span class="s2">&quot;cannot stack&quot;</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">)</span>
+            <span class="n">StackToMasterError</span><span class="p">(</span><span class="s2">"cannot stack"</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"stack_to_master"</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">&quot;find_stars&quot;</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">"find_stars"</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">&quot;find_stars&quot;</span><span class="p">,</span> <span class="s2">&quot;stack_to_master&quot;</span><span class="p">]),</span> <span class="mi">3</span>
+            <span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">"find_stars"</span><span class="p">,</span> <span class="s2">"stack_to_master"</span><span class="p">]),</span> <span class="mi">3</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">&quot;calibrate&quot;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">"calibrate"</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_gate_always_includes_pipeline_errors">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_gate_always_includes_pipeline_errors">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_gate_always_includes_pipeline_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A pipeline error gates any launch, even unrelated steps.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A pipeline error gates any launch, even unrelated steps."""</span>
 
-        <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;orchestration broke&quot;</span><span class="p">))</span>
+        <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">"orchestration broke"</span><span class="p">))</span>
 
         <span class="c1"># The stepless pipeline error gates regardless of the selection.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">&quot;calibrate&quot;</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">&quot;find_stars&quot;</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">"calibrate"</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">"find_stars"</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([]),</span> <span class="mi">1</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_gate_excludes_bui_errors">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_gate_excludes_bui_errors">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_gate_excludes_bui_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;BUI errors do not gate processing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""BUI errors do not gate processing."""</span>
 
-        <span class="n">persist_error</span><span class="p">(</span><span class="n">ViewError</span><span class="p">(</span><span class="s2">&quot;a form blew up&quot;</span><span class="p">))</span>
+        <span class="n">persist_error</span><span class="p">(</span><span class="n">ViewError</span><span class="p">(</span><span class="s2">"a form blew up"</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([]),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">&quot;calibrate&quot;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([</span><span class="s2">"calibrate"</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestErrorCounts.test_gate_excludes_resolved">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_error_render.html#autowisp.tests.test_error_render.TestErrorCounts.test_gate_excludes_resolved">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_gate_excludes_resolved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolving an error removes it from the gate.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Resolving an error removes it from the gate."""</span>
 
-        <span class="n">pipeline_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">&quot;orchestration broke&quot;</span><span class="p">))</span>
+        <span class="n">pipeline_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">(</span><span class="s2">"orchestration broke"</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([]),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">pipeline_id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">open_error_count_for_steps</span><span class="p">([]),</span> <span class="mi">0</span><span class="p">)</span></div>
@@ -586,7 +586,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

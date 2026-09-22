@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_evaluator module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,15 +172,16 @@
 <span id="autowisp-tests-test-evaluator-module"></span><h1>autowisp.tests.test_evaluator module<a class="headerlink" href="#module-autowisp.tests.test_evaluator" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-4fe1d4c21451bfdf18eb80515a2c74f7338774b1.png" alt="Inheritance diagram of Evaluator, EvaluatorBase, LightCurveEvaluator, SimpleNamespace, TestErrorHandling, TestNanAggregates, TestRemovedNames" usemap="#inheritancea9b333d6fa" class="inheritance graphviz" /></div>
-<map id="inheritancea9b333d6fa" name="inheritancea9b333d6fa">
-<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="113,80,332,107"/>
-<area shape="rect" id="node2" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="5,155,195,181"/>
-<area shape="rect" id="node4" href="autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator" target="_top" title="Evaluator for expressions involving lightcurve datasets." alt="" coords="219,155,472,181"/>
-<area shape="rect" id="node5" href="#autowisp.tests.test_evaluator.TestErrorHandling" target="_top" title="A bad expression raises rather than evaluating to ``None``." alt="" coords="356,80,657,107"/>
-<area shape="rect" id="node7" href="#autowisp.tests.test_evaluator.TestNanAggregates" target="_top" title="The NaN&#45;ignoring aggregates are available and are numpy&#39;s." alt="" coords="680,80,992,107"/>
-<area shape="rect" id="node8" href="#autowisp.tests.test_evaluator.TestRemovedNames" target="_top" title="Names asteval offers that AutoWISP takes away." alt="" coords="1016,80,1336,107"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="938,5,1105,32"/>
+<div class="graphviz"><img src="../_images/inheritance-dec8dd11c30efcaddfa08c8fa8ab67575a3dc7b8.png" alt="Inheritance diagram of Evaluator, EvaluatorBase, LightCurveEvaluator, SimpleNamespace, TestErrorHandling, TestIterativeRejection, TestNanAggregates, TestRemovedNames" usemap="#inheritanceebb167d036" class="inheritance graphviz" /></div>
+<map id="inheritanceebb167d036" name="inheritanceebb167d036">
+<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="124,79,368,104"/>
+<area shape="rect" id="node2" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="5,152,217,177"/>
+<area shape="rect" id="node4" href="autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator" target="_top" title="Evaluator for expressions involving lightcurve datasets." alt="" coords="241,152,523,177"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_evaluator.TestErrorHandling" target="_top" title="A bad expression raises rather than evaluating to ``None``." alt="" coords="393,79,726,104"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_evaluator.TestIterativeRejection" target="_top" title="The iterative&#45;rejection fits cope with NaN&#45;padded input." alt="" coords="750,79,1110,104"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_evaluator.TestNanAggregates" target="_top" title="The NaN&#45;ignoring aggregates are available and are numpy&#39;s." alt="" coords="1134,79,1478,104"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_evaluator.TestRemovedNames" target="_top" title="Names asteval offers that AutoWISP takes away." alt="" coords="1502,79,1854,104"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="1226,5,1410,31"/>
 </map><p>Tests for the symbol table every AutoWISP expression is evaluated in.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Evaluator</span></code> and <code class="docutils literal notranslate"><span class="pre">LightCurveEvaluator</span></code> are siblings deriving from
 <code class="docutils literal notranslate"><span class="pre">EvaluatorBase</span></code>, and roughly two dozen modules build one. What they offer
@@ -189,11 +190,11 @@ it takes away, and what happens to a bad expression.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestErrorHandling">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_evaluator.</span></span><span class="sig-name descname"><span class="pre">TestErrorHandling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestErrorHandling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestErrorHandling" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_evaluator.</span></span><span class="sig-name descname"><span class="pre">TestErrorHandling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestErrorHandling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestErrorHandling" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-948ff607866bd9aef9e784ce5c0c489c8bdfb74e.png" alt="Inheritance diagram of autowisp.tests.test_evaluator.TestErrorHandling" usemap="#inheritanceb88bb0f603" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-4f4f8ae0a804cff396c4c53856a2238b2af58db4.png" alt="Inheritance diagram of autowisp.tests.test_evaluator.TestErrorHandling" usemap="#inheritanceb88bb0f603" class="inheritance graphviz" /></div>
 <map id="inheritanceb88bb0f603" name="inheritanceb88bb0f603">
-<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestErrorHandling" target="_top" title="A bad expression raises rather than evaluating to ``None``." alt="" coords="5,80,306,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestErrorHandling" target="_top" title="A bad expression raises rather than evaluating to ``None``." alt="" coords="5,79,339,104"/>
 </map><p>A bad expression raises rather than evaluating to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestErrorHandling.test_permissive_behaviour_remains_available">
@@ -210,12 +211,94 @@ it takes away, and what happens to a bad expression.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestNanAggregates">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_evaluator.</span></span><span class="sig-name descname"><span class="pre">TestNanAggregates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestNanAggregates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestNanAggregates" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_evaluator.</span></span><span class="sig-name descname"><span class="pre">TestIterativeRejection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-6e9601ee019bcb4b2f0c312fc2462ddd099f24fd.png" alt="Inheritance diagram of autowisp.tests.test_evaluator.TestNanAggregates" usemap="#inheritanceffea0cbf33" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-d35348077ab99be41ad9c609b35523dd1d078d57.png" alt="Inheritance diagram of autowisp.tests.test_evaluator.TestIterativeRejection" usemap="#inheritance64e71c0e1d" class="inheritance graphviz" /></div>
+<map id="inheritance64e71c0e1d" name="inheritance64e71c0e1d">
+<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestIterativeRejection" target="_top" title="The iterative&#45;rejection fits cope with NaN&#45;padded input." alt="" coords="5,79,365,104"/>
+</map><p>The iterative-rejection fits cope with NaN-padded input.</p>
+<p>Diagnostics are NaN-padded onto the full image list, so a missing value
+is the usual case rather than an exception. A NaN in the dependent
+variable is left out of the fit but still gets a prediction; a NaN in
+the independent one has nothing to predict at.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection._noisy_sine">
+<span class="sig-name descname"><span class="pre">_noisy_sine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection._noisy_sine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection._noisy_sine" title="Link to this definition"></a></dt>
+<dd><p>Return x, y, and the truth: noisy with outliers and NaNs.</p>
+<p>The noise (0.05) comes from <code class="docutils literal notranslate"><span class="pre">RandomState</span></code> because its stream is
+frozen, while a <code class="docutils literal notranslate"><span class="pre">Generator</span></code>’s may change between numpy versions.
+The outliers are 200 times the noise so that failing to reject them
+is unmistakable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.setUp" title="Link to this definition"></a></dt>
+<dd><p>A straight line with one outlier and some missing values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.test_average_ignores_nan_and_rejects_outlier">
+<span class="sig-name descname"><span class="pre">test_average_ignores_nan_and_rejects_outlier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.test_average_ignores_nan_and_rejects_outlier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.test_average_ignores_nan_and_rejects_outlier" title="Link to this definition"></a></dt>
+<dd><p>With <code class="docutils literal notranslate"><span class="pre">nanmean</span></code>, only rejection keeps the outlier out.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.test_polynomial_fit">
+<span class="sig-name descname"><span class="pre">test_polynomial_fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.test_polynomial_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.test_polynomial_fit" title="Link to this definition"></a></dt>
+<dd><p>Predicted where only y is missing, NaN where x is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.test_polynomial_fit_with_too_few_points_is_nan">
+<span class="sig-name descname"><span class="pre">test_polynomial_fit_with_too_few_points_is_nan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.test_polynomial_fit_with_too_few_points_is_nan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.test_polynomial_fit_with_too_few_points_is_nan" title="Link to this definition"></a></dt>
+<dd><p>Fewer finite points than coefficients gives no fit at all.</p>
+<p>Rather than the minimum-norm solution <code class="docutils literal notranslate"><span class="pre">lstsq</span></code> would return, which
+would plot as a line through nothing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline">
+<span class="sig-name descname"><span class="pre">test_smoothing_spline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.test_smoothing_spline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline" title="Link to this definition"></a></dt>
+<dd><p>Predicted where only y is missing, NaN where x is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline_rejects_outliers">
+<span class="sig-name descname"><span class="pre">test_smoothing_spline_rejects_outliers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.test_smoothing_spline_rejects_outliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline_rejects_outliers" title="Link to this definition"></a></dt>
+<dd><p>The result does not depend on how loose the initial <code class="docutils literal notranslate"><span class="pre">s</span></code> is.</p>
+<p>It only has to be loose enough for the spline not to bend to the
+outliers. Over 200 noise seeds, the largest error is at most 0.12,
+against at least 1.0 without rejection (see the next test).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline_without_iterations">
+<span class="sig-name descname"><span class="pre">test_smoothing_spline_without_iterations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.test_smoothing_spline_without_iterations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.test_smoothing_spline_without_iterations" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">max_iterations=0</span></code> is a single fit, rejecting nothing.</p>
+<p>Smoothing enough to leave the outliers alone flattens the sine.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestIterativeRejection.test_threshold_pair">
+<span class="sig-name descname"><span class="pre">test_threshold_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestIterativeRejection.test_threshold_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestIterativeRejection.test_threshold_pair" title="Link to this definition"></a></dt>
+<dd><p>A signed pair rejects above and below separately, in any order.</p>
+<p>The outlier above the line (at 4) is rejected; the one below it (at
+9) is well within the negative threshold, so it stays and pulls the
+fit. Two thresholds of the same sign are refused rather than
+guessed at.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestNanAggregates">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_evaluator.</span></span><span class="sig-name descname"><span class="pre">TestNanAggregates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestNanAggregates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestNanAggregates" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-e1559da848a3fe1e2e80549af9acbd36e82c0ced.png" alt="Inheritance diagram of autowisp.tests.test_evaluator.TestNanAggregates" usemap="#inheritanceffea0cbf33" class="inheritance graphviz" /></div>
 <map id="inheritanceffea0cbf33" name="inheritanceffea0cbf33">
-<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestNanAggregates" target="_top" title="The NaN&#45;ignoring aggregates are available and are numpy&#39;s." alt="" coords="5,80,317,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestNanAggregates" target="_top" title="The NaN&#45;ignoring aggregates are available and are numpy&#39;s." alt="" coords="5,79,349,104"/>
 </map><p>The NaN-ignoring aggregates are available and are numpy’s.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestNanAggregates.test_a_missing_numpy_name_would_fail_loudly">
@@ -249,11 +332,11 @@ so which aggregates worked depended on which one you were in.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestRemovedNames">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_evaluator.</span></span><span class="sig-name descname"><span class="pre">TestRemovedNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestRemovedNames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestRemovedNames" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_evaluator.</span></span><span class="sig-name descname"><span class="pre">TestRemovedNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_evaluator.html#TestRemovedNames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_evaluator.TestRemovedNames" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-b4f4cd388b48d79e0507ae00defd57fa106c83b4.png" alt="Inheritance diagram of autowisp.tests.test_evaluator.TestRemovedNames" usemap="#inheritanced5872bc6d4" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-90de299be33f7f2d61a9bbb342542fa87f46a64e.png" alt="Inheritance diagram of autowisp.tests.test_evaluator.TestRemovedNames" usemap="#inheritanced5872bc6d4" class="inheritance graphviz" /></div>
 <map id="inheritanced5872bc6d4" name="inheritanced5872bc6d4">
-<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestRemovedNames" target="_top" title="Names asteval offers that AutoWISP takes away." alt="" coords="5,80,325,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_evaluator.TestRemovedNames" target="_top" title="Names asteval offers that AutoWISP takes away." alt="" coords="5,79,357,104"/>
 </map><p>Names asteval offers that AutoWISP takes away.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_evaluator.TestRemovedNames.test_absent_from_both_evaluators">

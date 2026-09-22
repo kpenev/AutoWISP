@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_tfa_num_templates &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,13 +165,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_tfa_num_templates</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for variable TFA template counts and selection diagnostics.</span>
+<span></span><span class="sd">"""Unit tests for variable TFA template counts and selection diagnostics.</span>
 
 <span class="sd">These are deliberately self-contained (no downloaded test-data bundle): the</span>
 <span class="sd">bundle cannot exercise a *varying* template count because every test channel</span>
 <span class="sd">happens to select the same number, so the ragged-storage regression and the</span>
 <span class="sd">short-count warning are covered here instead.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
@@ -189,23 +189,23 @@
 <span class="c1">#: The two config datasets whose per-config value is a variable-length array of</span>
 <span class="c1">#: template star IDs.</span>
 <span class="n">_TEMPLATE_KEYS</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;shapefit.tfa.cfg.template_source_ids&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;apphot.tfa.cfg.template_source_ids&quot;</span><span class="p">,</span>
+    <span class="s2">"shapefit.tfa.cfg.template_source_ids"</span><span class="p">,</span>
+    <span class="s2">"apphot.tfa.cfg.template_source_ids"</span><span class="p">,</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="TestTemplateSourceIdsVlen">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSourceIdsVlen">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestTemplateSourceIdsVlen</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ragged storage of the TFA ``TemplateStarIDs`` config datasets.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Ragged storage of the TFA ``TemplateStarIDs`` config datasets."""</span>
 
 <div class="viewcode-block" id="TestTemplateSourceIdsVlen.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSourceIdsVlen.setUpClass">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Point the DB/project home at a throwaway directory.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Point the DB/project home at a throwaway directory."""</span>
 
-        <span class="bp">cls</span><span class="o">.</span><span class="n">_project_home</span> <span class="o">=</span> <span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;autowisp_vlen_&quot;</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_project_home</span> <span class="o">=</span> <span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">"autowisp_vlen_"</span><span class="p">)</span>
         <span class="n">set_project_home</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_project_home</span><span class="p">)</span></div>
 
 
@@ -213,7 +213,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSourceIdsVlen.tearDownClass">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop the throwaway project home.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Drop the throwaway project home."""</span>
 
         <span class="n">rmtree</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_project_home</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
@@ -221,15 +221,15 @@
 <div class="viewcode-block" id="TestTemplateSourceIdsVlen.test_dtype_override_is_vlen">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSourceIdsVlen.test_dtype_override_is_vlen">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_dtype_override_is_vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``get_dtype`` reports a vlen dtype (of the DB base) for the keys.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``get_dtype`` reports a vlen dtype (of the DB base) for the keys."""</span>
 
         <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_TEMPLATE_KEYS</span><span class="p">:</span>
                 <span class="n">dtype</span> <span class="o">=</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
                     <span class="n">dtype</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
-                    <span class="s2">&quot;O&quot;</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> should be stored as a variable-length dtype&quot;</span><span class="p">,</span>
+                    <span class="s2">"O"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> should be stored as a variable-length dtype"</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="c1"># The element type stays whatever the database declared</span>
                 <span class="c1"># (uint64), only wrapped as vlen.</span>
@@ -242,15 +242,15 @@
 <div class="viewcode-block" id="TestTemplateSourceIdsVlen.test_varying_template_counts_round_trip">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSourceIdsVlen.test_varying_template_counts_round_trip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_varying_template_counts_round_trip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Appending configs of *different* template counts must not broadcast.</span>
+<span class="w">        </span><span class="sd">"""Appending configs of *different* template counts must not broadcast.</span>
 
-<span class="sd">        Reproduces the production crash (``Can&#39;t broadcast (1, 12) -&gt;</span>
+<span class="sd">        Reproduces the production crash (``Can't broadcast (1, 12) -&gt;</span>
 <span class="sd">        (1, 10)``): one TFA run stores a width-10 row, a later run for the same</span>
 <span class="sd">        source appends a width-12 row. With fixed-2D storage the append failed;</span>
 <span class="sd">        as ragged rows it succeeds and round-trips.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;shapefit.tfa.cfg.template_source_ids&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">"shapefit.tfa.cfg.template_source_ids"</span>
         <span class="n">num_frames</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="n">template_id_sets</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
@@ -263,7 +263,7 @@
             <span class="c1"># than fresh creation) is exercised -- that is where the broadcast</span>
             <span class="c1"># crash lived.</span>
             <span class="n">light_curve</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
-                <span class="s2">&quot;skypos.BJD&quot;</span><span class="p">,</span>
+                <span class="s2">"skypos.BJD"</span><span class="p">,</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
                 <span class="n">unlimited</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
@@ -271,13 +271,13 @@
 
             <span class="k">for</span> <span class="n">template_ids</span> <span class="ow">in</span> <span class="n">template_id_sets</span><span class="p">:</span>
                 <span class="n">light_curve</span><span class="o">.</span><span class="n">add_configurations</span><span class="p">(</span>
-                    <span class="n">component</span><span class="o">=</span><span class="s2">&quot;shapefit.tfa&quot;</span><span class="p">,</span>
+                    <span class="n">component</span><span class="o">=</span><span class="s2">"shapefit.tfa"</span><span class="p">,</span>
                     <span class="n">configurations</span><span class="o">=</span><span class="p">(((</span><span class="n">key</span><span class="p">,</span> <span class="n">HashableArray</span><span class="p">(</span><span class="n">template_ids</span><span class="p">)),),),</span>
                     <span class="n">config_indices</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">),</span>
                 <span class="p">)</span>
 
             <span class="n">dataset</span> <span class="o">=</span> <span class="n">light_curve</span><span class="p">[</span><span class="n">light_curve</span><span class="o">.</span><span class="n">get_element_path</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="s2">"O"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">template_id_sets</span><span class="p">),))</span>
             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">template_id_sets</span><span class="p">):</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">expected</span><span class="p">)</span></div>
@@ -288,14 +288,14 @@
 <div class="viewcode-block" id="_TemplateSelectionHarness">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates._TemplateSelectionHarness">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_TemplateSelectionHarness</span><span class="p">(</span><span class="n">TFACorrection</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A ``TFACorrection`` exposing just the template-selection step.</span>
+<span class="w">    </span><span class="sd">"""A ``TFACorrection`` exposing just the template-selection step.</span>
 
 <span class="sd">    The full ``TFACorrection.__init__`` reads per-light-curve template</span>
 <span class="sd">    measurements and observation IDs (``_prepare_template_data``), which needs</span>
 <span class="sd">    real data. ``_select_template_stars`` only consults the configuration and</span>
 <span class="sd">    the (passed-in) EPD statistics, so this harness sets the configuration and</span>
 <span class="sd">    skips the data-reading construction.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># pylint: disable=super-init-not-called</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
@@ -306,41 +306,41 @@
 <div class="viewcode-block" id="TestTemplateSelectionDiagnostics">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSelectionDiagnostics">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestTemplateSelectionDiagnostics</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The short-count warning emitted by ``_select_template_stars``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The short-count warning emitted by ``_select_template_stars``."""</span>
 
-    <span class="n">_logger_name</span> <span class="o">=</span> <span class="s2">&quot;autowisp.light_curves.tfa_correction&quot;</span>
+    <span class="n">_logger_name</span> <span class="o">=</span> <span class="s2">"autowisp.light_curves.tfa_correction"</span>
 
 <div class="viewcode-block" id="TestTemplateSelectionDiagnostics._make_epd_statistics">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSelectionDiagnostics._make_epd_statistics">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_make_epd_statistics</span><span class="p">(</span><span class="n">num_stars</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A single-photometry structured array that survives every cut.</span>
+<span class="w">        </span><span class="sd">"""A single-photometry structured array that survives every cut.</span>
 
 <span class="sd">        All stars are unsaturated, bright, long-LC, and follow a clean</span>
 <span class="sd">        magnitude-RMS relation (small scatter so the typical-RMS fit keeps</span>
 <span class="sd">        them), spread over a 2-D field.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;num_finite&quot;</span><span class="p">,</span> <span class="s2">&quot;i8&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
-                <span class="p">(</span><span class="s2">&quot;rms&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
-                <span class="p">(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"mag"</span><span class="p">,</span> <span class="s2">"f8"</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"num_finite"</span><span class="p">,</span> <span class="s2">"i8"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                <span class="p">(</span><span class="s2">"rms"</span><span class="p">,</span> <span class="s2">"f8"</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                <span class="p">(</span><span class="s2">"xi"</span><span class="p">,</span> <span class="s2">"f8"</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"eta"</span><span class="p">,</span> <span class="s2">"f8"</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">epd_statistics</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_stars</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">magnitude</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">,</span> <span class="n">num_stars</span><span class="p">)</span>
-        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">magnitude</span>
-        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">magnitude</span>
+        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
         <span class="n">scatter</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">num_stars</span><span class="p">)</span>
-        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="p">(</span>
+        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="p">(</span>
             <span class="o">-</span><span class="mf">2.0</span> <span class="o">-</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="p">(</span><span class="n">magnitude</span> <span class="o">-</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">scatter</span>
         <span class="p">)</span>
         <span class="n">positions</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num_stars</span><span class="p">)</span>
-        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span>
-        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span>
+        <span class="n">epd_statistics</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">epd_statistics</span></div>
 
 
@@ -348,31 +348,31 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSelectionDiagnostics._configuration">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_configuration</span><span class="p">(</span><span class="n">sqrt_num_templates</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Config with cuts loose enough that every synthetic star passes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Config with cuts loose enough that every synthetic star passes."""</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;saturation_magnitude&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
-            <span class="s2">&quot;faint_mag_limit&quot;</span><span class="p">:</span> <span class="mf">12.0</span><span class="p">,</span>
-            <span class="s2">&quot;min_observations_quantile&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-            <span class="s2">&quot;min_observations_fraction&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-            <span class="s2">&quot;mag_rms_dependence_order&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;mag_rms_outlier_threshold&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
-            <span class="s2">&quot;mag_rms_max_rej_iter&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="s2">&quot;max_rms&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-            <span class="s2">&quot;allow_saturated_templates&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;sqrt_num_templates&quot;</span><span class="p">:</span> <span class="n">sqrt_num_templates</span><span class="p">,</span>
+            <span class="s2">"saturation_magnitude"</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
+            <span class="s2">"faint_mag_limit"</span><span class="p">:</span> <span class="mf">12.0</span><span class="p">,</span>
+            <span class="s2">"min_observations_quantile"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">"min_observations_fraction"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">"mag_rms_dependence_order"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">"mag_rms_outlier_threshold"</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+            <span class="s2">"mag_rms_max_rej_iter"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">"max_rms"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="s2">"allow_saturated_templates"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"sqrt_num_templates"</span><span class="p">:</span> <span class="n">sqrt_num_templates</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="TestTemplateSelectionDiagnostics.test_shortfall_emits_warning">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSelectionDiagnostics.test_shortfall_emits_warning">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_shortfall_emits_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fewer selected than ``sqrt_num_templates**2`` logs a warning.</span>
+<span class="w">        </span><span class="sd">"""Fewer selected than ``sqrt_num_templates**2`` logs a warning.</span>
 
 <span class="sd">        Ten eligible stars against a 4x4 (=16) grid: the grid-nearest-neighbor</span>
 <span class="sd">        collapse yields fewer than 16 distinct templates, which must warn and</span>
 <span class="sd">        report the per-stage funnel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">num_stars</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="n">sqrt_num_templates</span> <span class="o">=</span> <span class="mi">4</span>
@@ -396,16 +396,16 @@
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">warnings</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">warnings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;of the expected </span><span class="si">{</span><span class="n">grid_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;channel 0&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"of the expected </span><span class="si">{</span><span class="n">grid_size</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"channel 0"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
         <span class="c1"># The funnel counts are reported so the shortfall is explainable.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_stars</span><span class="si">}</span><span class="s2"> stars total&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">num_stars</span><span class="si">}</span><span class="s2"> stars total"</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestTemplateSelectionDiagnostics.test_full_count_no_warning">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa_num_templates.html#autowisp.tests.test_tfa_num_templates.TestTemplateSelectionDiagnostics.test_full_count_no_warning">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_full_count_no_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enough distinct templates for the grid must not warn.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Enough distinct templates for the grid must not warn."""</span>
 
         <span class="c1"># A 1x1 grid needs a single template; ten eligible stars easily clear</span>
         <span class="c1"># it, so no shortfall warning should fire.</span>
@@ -422,7 +422,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.forms module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,113 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-diagnostics-forms-module">
-<h1>autowisp.browser_interface.diagnostics.forms module<a class="headerlink" href="#autowisp-browser-interface-diagnostics-forms-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.diagnostics.forms">
+<span id="autowisp-browser-interface-diagnostics-forms-module"></span><h1>autowisp.browser_interface.diagnostics.forms module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.forms" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-93b458366580bac5707c724d067351f48fe28802.png" alt="Inheritance diagram of DiagnosticExpression, DiagnosticExpressionForm" usemap="#inheritancebbe8a6be92" class="inheritance graphviz" /></div>
+<map id="inheritancebbe8a6be92" name="inheritancebbe8a6be92">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="140,299,523,324"/>
+<area shape="rect" id="node5" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,372,481,397"/>
+<area shape="rect" id="node3" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" target="_top" title="Validate one proposed expression against the library it would join." alt="" coords="506,372,1005,397"/>
+</map><p>The form behind the diagnostic expression management page.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">ModelForm</span></code> rather than hand-written POST handling, which is a new
+pattern in this interface and a deliberate one.  The name charset, the
+uniqueness of the name, the create-versus-update branch and the per-field
+error plumbing are all things Django already does correctly, and each one
+written out by hand would be another thing to keep right.</p>
+<p>What Django cannot know is whether the expression <em>means</em> anything.  That
+is <a class="reference internal" href="autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.check_expression" title="autowisp.diagnostics.expressions.check_expression"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_expression()</span></code></a>, which
+returns its complaints as plain strings rather than raising so that it
+stays usable with no Django at all – import, and one day the command
+line, reach it by the same path.  Turning those strings into a
+<code class="docutils literal notranslate"><span class="pre">ValidationError</span></code> is this module’s whole reason to exist, and the only
+place that adaptation happens.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.forms.</span></span><span class="sig-name descname"><span class="pre">DiagnosticExpressionForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/forms.html#DiagnosticExpressionForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelForm</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-9031ab4969fc7f8a06652f2fbab678c5895a94e5.png" alt="Inheritance diagram of autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" usemap="#inheritance6d1dfd5529" class="inheritance graphviz" /></div>
+<map id="inheritance6d1dfd5529" name="inheritance6d1dfd5529">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" target="_top" title="Validate one proposed expression against the library it would join." alt="" coords="5,372,504,397"/>
+</map><p>Validate one proposed expression against the library it would join.</p>
+<p>No project is involved.  An expression is valid or not in every project
+alike – see <a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#module-autowisp.diagnostics.diagnostic_types" title="autowisp.diagnostics.diagnostic_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.diagnostic_types</span></code></a> – and
+whether the open project has <em>recorded</em> what it needs is a separate
+question, answered by counting rows elsewhere.  So this form works with
+no project open, which is part of what makes one global library
+coherent.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/forms.html#DiagnosticExpressionForm.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>The three user-editable columns of the model.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['name',</span> <span class="pre">'expression',</span> <span class="pre">'description']</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" title="autowisp.browser_interface.diagnostics.models.DiagnosticExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticExpression</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta.widgets">
+<span class="sig-name descname"><span class="pre">widgets</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'description':</span> <span class="pre">&lt;django.forms.widgets.TextInput</span> <span class="pre">object&gt;,</span> <span class="pre">'expression':</span> <span class="pre">&lt;django.forms.widgets.TextInput</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta.widgets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/forms.html#DiagnosticExpressionForm.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>, this
+one would join.  The view has it and the form does not, so
+it arrives as a keyword argument.  An entry of the same
+name is treated as the one being replaced rather than as a
+conflict, so an edit can pass the library unchanged.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.bare_aggregates">
+<span class="sig-name descname"><span class="pre">bare_aggregates</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.bare_aggregates" title="Link to this definition"></a></dt>
+<dd><p>The NaN-propagating aggregates the accepted expression calls,
+for the view to warn about.  Not an error: a deliberate
+<code class="docutils literal notranslate"><span class="pre">median</span></code> is a legitimate thing to write, it is merely almost
+never what was meant.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.base_fields">
+<span class="sig-name descname"><span class="pre">base_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'description':</span> <span class="pre">&lt;django.forms.fields.CharField</span> <span class="pre">object&gt;,</span> <span class="pre">'expression':</span> <span class="pre">&lt;django.forms.fields.CharField</span> <span class="pre">object&gt;,</span> <span class="pre">'name':</span> <span class="pre">&lt;django.forms.fields.SlugField</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.base_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/forms.html#DiagnosticExpressionForm.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.clean" title="Link to this definition"></a></dt>
+<dd><p>Report what <code class="docutils literal notranslate"><span class="pre">check_expression</span></code> says, against the field at fault.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.declared_fields">
+<span class="sig-name descname"><span class="pre">declared_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.declared_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.media" title="Link to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

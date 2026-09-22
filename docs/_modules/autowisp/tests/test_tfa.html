@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_tfa &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_tfa</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define test case for the tfa step.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define test case for the tfa step."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.h5_test_case</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5TestCase</span>
 
@@ -173,23 +173,23 @@
 <div class="viewcode-block" id="TestTFA">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa.html#autowisp.tests.test_tfa.TestTFA">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestTFA</span><span class="p">(</span><span class="n">H5TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests of the fit_source_extracted_psf_map step.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Tests of the fit_source_extracted_psf_map step."""</span>
 
 <div class="viewcode-block" id="TestTFA.test_tfa">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_tfa.html#autowisp.tests.test_tfa.TestTFA.test_tfa">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_tfa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the tfa step and check the outputs.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run the tfa step and check the outputs."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_step_test</span><span class="p">(</span>
-            <span class="s2">&quot;tfa&quot;</span><span class="p">,</span>
-            <span class="p">[</span><span class="s2">&quot;LC&quot;</span><span class="p">,</span> <span class="s2">&quot;DR&quot;</span><span class="p">,</span> <span class="s2">&quot;MASTERS/epd_statistics.txt&quot;</span><span class="p">],</span>
+            <span class="s2">"tfa"</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">"LC"</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">,</span> <span class="s2">"MASTERS/epd_statistics.txt"</span><span class="p">],</span>
             <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;AperturePhotometry/Aperture</span><span class="si">{</span><span class="n">ap_ind</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">/TFA&quot;</span>
+                <span class="sa">f</span><span class="s2">"AperturePhotometry/Aperture</span><span class="si">{</span><span class="n">ap_ind</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">/TFA"</span>
                 <span class="k">for</span> <span class="n">ap_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
             <span class="p">],</span>
-            <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;LC&quot;</span><span class="p">,</span>
+            <span class="n">output_type</span><span class="o">=</span><span class="s2">"LC"</span><span class="p">,</span>
             <span class="n">ignore</span><span class="o">=</span><span class="k">lambda</span> <span class="n">name</span><span class="p">:</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span>
-                <span class="s2">&quot;/TFA/FitProperties/PointsFilterExpression&quot;</span>
+                <span class="s2">"/TFA/FitProperties/PointsFilterExpression"</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
 </div>

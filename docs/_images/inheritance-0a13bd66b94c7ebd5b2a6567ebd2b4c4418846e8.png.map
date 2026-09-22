@@ -1,0 +1,22 @@
+<map id="inheritance938831b935" name="inheritance938831b935">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="246,299,614,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="283,372,577,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,225,425,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="450,225,842,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="499,152,793,177"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="829,5,1084,31"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="835,79,1078,104"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1102,79,1337,104"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1169,5,1269,31"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="817,152,1096,177"/>
+<area shape="rect" id="node11" href="#autowisp.tests.test_error_cli.TestCliEntryPoint" target="_top" title="cli_entry_point reports and exits non&#45;zero on an escaping error." alt="" coords="1379,5,1699,31"/>
+<area shape="rect" id="node12" href="#autowisp.tests.test_error_cli.TestConfigParseErrors" target="_top" title="Stored&#45;config parse errors are catchable, not an uncatchable exit." alt="" coords="1361,79,1712,104"/>
+<area shape="rect" id="node13" title="A class whose instances are single test cases." alt="" coords="1810,5,1978,31"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_error_cli.TestExitCodeFor" target="_top" title="exit_code_for distinguishes the components." alt="" coords="1737,79,2051,104"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_error_cli.TestStepEntryBoundaries" target="_top" title="Every pipeline&#45;step main() is wrapped as a CLI error boundary." alt="" coords="2076,79,2448,104"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_error_cli.TestReportError" target="_top" title="report_error persists, renders to the stream, returns the code." alt="" coords="2003,5,2313,31"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_error_cli.TestStepEntryEndToEnd" target="_top" title="A real decorated step main() surfaces an escaping error." alt="" coords="2337,5,2699,31"/>
+<area shape="rect" id="node18" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,152,399,177"/>
+<area shape="rect" id="node19" title="define a class as inspectable." alt="" coords="523,79,769,104"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+</map>

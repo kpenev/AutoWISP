@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.astrometry.transformation &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -166,7 +166,7 @@
   <h1>Source code for autowisp.astrometry.transformation</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;Define class to apply sky-to-frame transformation stored in DR files.&quot;&quot;&quot;</span>
+<span class="sd">"""Define class to apply sky-to-frame transformation stored in DR files."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 
@@ -185,7 +185,7 @@
 <div class="viewcode-block" id="Transformation">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.Transformation">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Transformation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A class that applies transformation stored in DR files.</span>
 
 <span class="sd">    Attributes:</span>
@@ -196,24 +196,24 @@
 
 <span class="sd">        evaluate_transformation(fit_expression.Interface):    Evaluator for the</span>
 <span class="sd">            pre-projected catalog -&gt; frame coordinates transformation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Transformation._create_projected_arrays">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.Transformation._create_projected_arrays">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_projected_arrays</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">save_intermediate</span><span class="p">,</span> <span class="n">in_place</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a numpy structured array to hold the projected sources.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a numpy structured array to hold the projected sources."""</span>
 
-        <span class="n">intermediate_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span>
+        <span class="n">intermediate_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"xi"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="p">(</span><span class="s2">"eta"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">in_place</span><span class="p">:</span>
             <span class="n">projected</span> <span class="o">=</span> <span class="n">sources</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">projected_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span>
+            <span class="n">projected_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span>
             <span class="c1"># pylint: enable=no-member</span>
             <span class="k">if</span> <span class="n">save_intermediate</span><span class="p">:</span>
                 <span class="n">projected_dtype</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">intermediate_dtype</span><span class="p">)</span>
             <span class="n">projected</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">])),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">projected_dtype</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">])),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">projected_dtype</span>
             <span class="p">)</span>
         <span class="n">intermediate</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">projected</span>
@@ -226,7 +226,7 @@
 <div class="viewcode-block" id="Transformation.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.Transformation.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Prepare to apply the transformation stored in the given DR file.</span>
 
 <span class="sd">        Args:</span>
@@ -236,7 +236,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_projection</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_projection_center</span> <span class="o">=</span> <span class="kc">None</span>
@@ -246,30 +246,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_coefficients</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_term_indices</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">dr_fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">read_transformation</span><span class="p">(</span><span class="n">dr_file</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Transformation.read_transformation">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.Transformation.read_transformation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_file</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the transformation from the given DR file (already opened).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Read the transformation from the given DR file (already opened)."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_transformation</span><span class="p">(</span>
             <span class="n">pre_projection_name</span><span class="o">=</span><span class="p">(</span>
                 <span class="n">dr_file</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
-                    <span class="s2">&quot;skytoframe.cfg.sky_preprojection&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+                    <span class="s2">"skytoframe.cfg.sky_preprojection"</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
                 <span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;_projection&quot;</span>
+                <span class="o">+</span> <span class="s2">"_projection"</span>
             <span class="p">),</span>
             <span class="n">pre_projection_center</span><span class="o">=</span><span class="n">dr_file</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
-                <span class="s2">&quot;skytoframe.sky_center&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+                <span class="s2">"skytoframe.sky_center"</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
             <span class="p">),</span>
             <span class="n">terms_expression</span><span class="o">=</span><span class="n">dr_file</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
-                <span class="s2">&quot;skytoframe.terms&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+                <span class="s2">"skytoframe.terms"</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
             <span class="p">),</span>
             <span class="n">coefficients</span><span class="o">=</span><span class="n">dr_file</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
-                <span class="s2">&quot;skytoframe.coefficients&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+                <span class="s2">"skytoframe.coefficients"</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
 
@@ -281,9 +281,9 @@
         <span class="n">pre_projection_center</span><span class="p">,</span>
         <span class="n">terms_expression</span><span class="p">,</span>
         <span class="n">coefficients</span><span class="p">,</span>
-        <span class="n">pre_projection_name</span><span class="o">=</span><span class="s2">&quot;tan_projection&quot;</span><span class="p">,</span>
+        <span class="n">pre_projection_name</span><span class="o">=</span><span class="s2">"tan_projection"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the projection to use.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the projection to use."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_projection_center</span> <span class="o">=</span> <span class="n">pre_projection_center</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_projection</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
@@ -292,7 +292,7 @@
             <span class="n">Dec</span><span class="o">=</span><span class="n">pre_projection_center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inverse_pre_projection</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="n">map_projections</span><span class="p">,</span> <span class="s2">&quot;inverse_&quot;</span> <span class="o">+</span> <span class="n">pre_projection_name</span><span class="p">),</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">map_projections</span><span class="p">,</span> <span class="s2">"inverse_"</span> <span class="o">+</span> <span class="n">pre_projection_name</span><span class="p">),</span>
             <span class="n">RA</span><span class="o">=</span><span class="n">pre_projection_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">Dec</span><span class="o">=</span><span class="n">pre_projection_center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
         <span class="p">)</span>
@@ -309,7 +309,7 @@
 <div class="viewcode-block" id="Transformation.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.Transformation.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">save_intermediate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the projected positions of the given catalogue sources.</span>
 
 <span class="sd">        Args:</span>
@@ -327,10 +327,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            numpy structured array:</span>
-<span class="sd">                The projected source positions with labels &#39;x&#39;, &#39;y&#39;, and</span>
+<span class="sd">                The projected source positions with labels 'x', 'y', and</span>
 <span class="sd">                optionally (if save_intermediate == True) the pre-projected</span>
 <span class="sd">                coordinates `xi` and `eta`. If `in_place` is True, return None.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">intermediate</span><span class="p">,</span> <span class="n">projected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_projected_arrays</span><span class="p">(</span>
             <span class="n">sources</span><span class="p">,</span> <span class="n">save_intermediate</span><span class="p">,</span> <span class="n">in_place</span>
@@ -338,7 +338,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_projection</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">intermediate</span><span class="p">)</span>
 
         <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_terms</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">intermediate</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="s2">&quot;xy&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="s2">"xy"</span><span class="p">):</span>
             <span class="n">projected</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coefficients</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">in_place</span> <span class="k">else</span> <span class="n">projected</span></div>
@@ -346,13 +346,13 @@
 
 <div class="viewcode-block" id="Transformation.inverse">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.Transformation.inverse">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="s2">&quot;equatorial&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">source_properties</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the sky coordinates of the given source.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="s2">"equatorial"</span><span class="p">,</span> <span class="o">**</span><span class="n">source_properties</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the sky coordinates of the given source."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">projection_error</span><span class="p">(</span><span class="n">xi_eta</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Apply the (xi, eta, source preperties) -&gt; (x, y) projection.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Apply the (xi, eta, source preperties) -&gt; (x, y) projection."""</span>
 
-            <span class="n">source_properties</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">],</span> <span class="n">source_properties</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xi_eta</span>
+            <span class="n">source_properties</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">],</span> <span class="n">source_properties</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xi_eta</span>
             <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_terms</span><span class="p">(</span><span class="n">source_properties</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -363,10 +363,10 @@
                 <span class="p">]</span>
             <span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">result</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;equatorial&quot;</span><span class="p">,</span> <span class="s2">&quot;pre_projected&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">)</span>
-        <span class="n">offset_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_term_indices</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
-        <span class="n">xi_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_term_indices</span><span class="p">[</span><span class="s2">&quot;(xi)&quot;</span><span class="p">]</span>
-        <span class="n">eta_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_term_indices</span><span class="p">[</span><span class="s2">&quot;(eta)&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">result</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"equatorial"</span><span class="p">,</span> <span class="s2">"pre_projected"</span><span class="p">,</span> <span class="s2">"both"</span><span class="p">)</span>
+        <span class="n">offset_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_term_indices</span><span class="p">[</span><span class="s2">"1"</span><span class="p">]</span>
+        <span class="n">xi_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_term_indices</span><span class="p">[</span><span class="s2">"(xi)"</span><span class="p">]</span>
+        <span class="n">eta_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_term_indices</span><span class="p">[</span><span class="s2">"(eta)"</span><span class="p">]</span>
         <span class="n">xi_eta_guess</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -390,15 +390,15 @@
         <span class="n">solution</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="n">projection_error</span><span class="p">,</span> <span class="n">xi_eta_guess</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">solution</span><span class="o">.</span><span class="n">success</span>
         <span class="n">pre_projected</span> <span class="o">=</span> <span class="n">unstructured_to_structured</span><span class="p">(</span>
-            <span class="n">solution</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">]</span>
+            <span class="n">solution</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">,</span> <span class="s2">"eta"</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;pre_projected&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">"pre_projected"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pre_projected</span>
 
-        <span class="n">equatorial</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)])</span>
+        <span class="n">equatorial</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"RA"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Dec"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inverse_pre_projection</span><span class="p">(</span><span class="n">equatorial</span><span class="p">,</span> <span class="n">pre_projected</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;equatorial&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">"equatorial"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">equatorial</span>
 
         <span class="k">return</span> <span class="n">pre_projected</span><span class="p">,</span> <span class="n">equatorial</span></div>
@@ -409,7 +409,7 @@
 <div class="viewcode-block" id="compute_diagonal_fov">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.compute_diagonal_fov">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_diagonal_fov</span><span class="p">(</span><span class="n">transformation</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return mean angular separation from image center to its four corners.</span>
+<span class="w">    </span><span class="sd">"""Return mean angular separation from image center to its four corners.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        transformation(Transformation):    Astrometric transformation for the</span>
@@ -423,22 +423,22 @@
 <span class="sd">        float: Mean angular separation in degrees from the image center to</span>
 <span class="sd">            each of the four pixel corners, projected to sky coordinates via</span>
 <span class="sd">            the inverse astrometric transformation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="n">transformation</span><span class="o">.</span><span class="n">pre_projection_center</span>
     <span class="n">center</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
-        <span class="n">ra</span><span class="o">=</span><span class="n">ra</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="n">dec</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span>
+        <span class="n">ra</span><span class="o">=</span><span class="n">ra</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="n">dec</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">"icrs"</span>
     <span class="p">)</span>
     <span class="n">corner_seps</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">])]:</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">])]:</span>
-            <span class="n">corner_sky</span> <span class="o">=</span> <span class="n">transformation</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="s2">&quot;equatorial&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS1"</span><span class="p">])]:</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS2"</span><span class="p">])]:</span>
+            <span class="n">corner_sky</span> <span class="o">=</span> <span class="n">transformation</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="s2">"equatorial"</span><span class="p">)</span>
             <span class="n">corner_seps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">center</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span>
                     <span class="n">SkyCoord</span><span class="p">(</span>
-                        <span class="n">ra</span><span class="o">=</span><span class="n">corner_sky</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-                        <span class="n">dec</span><span class="o">=</span><span class="n">corner_sky</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-                        <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+                        <span class="n">ra</span><span class="o">=</span><span class="n">corner_sky</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                        <span class="n">dec</span><span class="o">=</span><span class="n">corner_sky</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                        <span class="n">frame</span><span class="o">=</span><span class="s2">"icrs"</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">astropy_units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
             <span class="p">)</span>
@@ -449,41 +449,41 @@
 <div class="viewcode-block" id="parse_command_line">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.parse_command_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the configuration for running this module as a script.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the configuration for running this module as a script."""</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provide command line interface to the transformation in a &quot;</span>
-        <span class="s2">&quot;DR file&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Provide command line interface to the transformation in a "</span>
+        <span class="s2">"DR file"</span><span class="p">,</span>
         <span class="n">default_config_files</span><span class="o">=</span><span class="p">[],</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
         <span class="n">ignore_unknown_config_file_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;dr_fname&quot;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;DR_FILE&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The data reduction file to read the transformation from.&quot;</span><span class="p">,</span>
+        <span class="s2">"dr_fname"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"DR_FILE"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The data reduction file to read the transformation from."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--skytoframe_version&quot;</span><span class="p">,</span>
+        <span class="s2">"--skytoframe_version"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The version of the sky-to-frame transformation to use.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The version of the sky-to-frame transformation to use."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--project&quot;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">),</span>
+        <span class="s2">"--project"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">"RA"</span><span class="p">,</span> <span class="s2">"Dec"</span><span class="p">),</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Sky coordinates to project.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Sky coordinates to project."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--inverse&quot;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">),</span>
+        <span class="s2">"--inverse"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Frame coordinates for which to find the corresponding RA, Dec .&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Frame coordinates for which to find the corresponding RA, Dec ."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
 
@@ -492,32 +492,32 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid global variables.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Avoid global variables."""</span>
 
     <span class="n">transformation</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span>
         <span class="n">config</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">skytoframe_version</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">skytoframe_version</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">project</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">projected</span> <span class="o">=</span> <span class="n">transformation</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;RA&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Dec&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+            <span class="p">{</span><span class="s2">"RA"</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"Dec"</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;RA: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">, Dec </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> -&gt; &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">projected</span><span class="si">!r}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">"RA: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">, Dec </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> -&gt; "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">projected</span><span class="si">!r}</span><span class="s2">)"</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">inverse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">unprojected</span> <span class="o">=</span> <span class="n">transformation</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">result</span><span class="o">=</span><span class="s2">&quot;both&quot;</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">result</span><span class="o">=</span><span class="s2">"both"</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">) -&gt; &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unprojected</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">inverse</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s2">) -&gt; "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">unprojected</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="p">)</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>
 </pre></div>
 

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.error_render &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,13 +164,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.error_render</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Human-readable projections of a persisted :class:`Error` record.</span>
+<span></span><span class="sd">"""Human-readable projections of a persisted :class:`Error` record.</span>
 
 <span class="sd">The CLI and BUI never format an exception directly -- they render the</span>
 <span class="sd">persisted ``Error`` row (and, on demand, its detail sidecar) through the</span>
 <span class="sd">functions here, so the two front-ends cannot drift. Rendering is a</span>
 <span class="sd">projection of the stored record, never of a live exception.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
@@ -185,7 +185,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_sidecar</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: a90804b384c31bd1516e98e0e481fdb41cf7f06c $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">"$Id: a90804b384c31bd1516e98e0e481fdb41cf7f06c $"</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -193,9 +193,9 @@
 <div class="viewcode-block" id="_describe_artifact">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render._describe_artifact">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_describe_artifact</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a short description of the artifact the error is about.</span>
+<span class="w">    </span><span class="sd">"""Return a short description of the artifact the error is about.</span>
 
-<span class="sd">    Resolves the row&#39;s artifact FK to a path; falls back to the bare id if</span>
+<span class="sd">    Resolves the row's artifact FK to a path; falls back to the bare id if</span>
 <span class="sd">    the artifact row is gone, and to ``None`` when no artifact is linked.</span>
 
 <span class="sd">    Args:</span>
@@ -204,8 +204,8 @@
 <span class="sd">        db_session:    Active database session for resolving the FK.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        str or None:    e.g. ``&quot;image &#39;/data/raw/x.fits&#39;&quot;``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        str or None:    e.g. ``"image '/data/raw/x.fits'"``.</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">error_row</span><span class="o">.</span><span class="n">image_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">raw_fname</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
@@ -214,9 +214,9 @@
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;image </span><span class="si">{</span><span class="n">raw_fname</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"image </span><span class="si">{</span><span class="n">raw_fname</span><span class="si">!r}</span><span class="s2">"</span>
             <span class="k">if</span> <span class="n">raw_fname</span>
-            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;image #</span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">image_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">"image #</span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">image_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">error_row</span><span class="o">.</span><span class="n">master_file_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
@@ -226,9 +226,9 @@
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;master </span><span class="si">{</span><span class="n">filename</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"master </span><span class="si">{</span><span class="n">filename</span><span class="si">!r}</span><span class="s2">"</span>
             <span class="k">if</span> <span class="n">filename</span>
-            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;master #</span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">master_file_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">"master #</span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">master_file_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
@@ -237,11 +237,11 @@
 <div class="viewcode-block" id="_run_provenance">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render._run_provenance">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_run_provenance</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``{host, process_id, code_version}`` for the error&#39;s run.</span>
+<span class="w">    </span><span class="sd">"""Return ``{host, process_id, code_version}`` for the error's run.</span>
 
 <span class="sd">    Empty dict when the error has no pipeline run (standalone CLI/BUI) or</span>
 <span class="sd">    the run row is gone.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">error_row</span><span class="o">.</span><span class="n">pipeline_run_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
@@ -249,9 +249,9 @@
     <span class="k">if</span> <span class="n">run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
-        <span class="s2">&quot;process_id&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">process_id</span><span class="p">,</span>
-        <span class="s2">&quot;code_version&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">code_version</span><span class="p">,</span>
+        <span class="s2">"host"</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+        <span class="s2">"process_id"</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">process_id</span><span class="p">,</span>
+        <span class="s2">"code_version"</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">code_version</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -259,7 +259,7 @@
 <div class="viewcode-block" id="error_summary">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.error_summary">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">error_summary</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a one-line human summary of an error row.</span>
+<span class="w">    </span><span class="sd">"""Return a one-line human summary of an error row.</span>
 
 <span class="sd">    Format: ``[component:step] &lt;artifact&gt;: &lt;user_message&gt;`` (the artifact</span>
 <span class="sd">    clause is omitted when none is linked).</span>
@@ -272,7 +272,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str:    The one-line summary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
@@ -280,20 +280,20 @@
 
     <span class="n">label</span> <span class="o">=</span> <span class="n">error_row</span><span class="o">.</span><span class="n">component</span>
     <span class="k">if</span> <span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="p">:</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="n">artifact</span> <span class="o">=</span> <span class="n">_describe_artifact</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
-    <span class="n">head</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">]"</span>
     <span class="k">if</span> <span class="n">artifact</span><span class="p">:</span>
-        <span class="n">head</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">:&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">user_message</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="n">head</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">:"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">error_row</span><span class="o">.</span><span class="n">user_message</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 
 <div class="viewcode-block" id="error_list_rows">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.error_list_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">error_list_rows</span><span class="p">(</span><span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the rows for a list view, newest first, from inline columns.</span>
+<span class="w">    </span><span class="sd">"""Return the rows for a list view, newest first, from inline columns.</span>
 
 <span class="sd">    Reads only the queryable columns -- never a sidecar -- so a list view</span>
 <span class="sd">    stays cheap regardless of how many errors there are.</span>
@@ -309,7 +309,7 @@
 <span class="sd">        list[dict]:    One dict per error with ``id``, ``created``,</span>
 <span class="sd">            ``component``, ``step_name``, ``artifact``, ``user_message``,</span>
 <span class="sd">            and a one-line ``summary``, ordered newest first.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
@@ -338,14 +338,14 @@
 
     <span class="k">return</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
-            <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
-            <span class="s2">&quot;step_name&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
-            <span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="n">_describe_artifact</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
-            <span class="s2">&quot;user_message&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span>
-            <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="n">error_summary</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
-            <span class="s2">&quot;resolved&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">resolved</span><span class="p">,</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">"created"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+            <span class="s2">"component"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+            <span class="s2">"step_name"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+            <span class="s2">"artifact"</span><span class="p">:</span> <span class="n">_describe_artifact</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
+            <span class="s2">"user_message"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span>
+            <span class="s2">"summary"</span><span class="p">:</span> <span class="n">error_summary</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
+            <span class="s2">"resolved"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">resolved</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="p">]</span></div>
@@ -355,7 +355,7 @@
 <div class="viewcode-block" id="open_and_total_error_count">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.open_and_total_error_count">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">open_and_total_error_count</span><span class="p">(</span><span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(open_count, total_count)`` in a single query.</span>
+<span class="w">    </span><span class="sd">"""Return ``(open_count, total_count)`` in a single query.</span>
 
 <span class="sd">    The error badge needs both on every page render -- the open count to</span>
 <span class="sd">    display, and the total to decide whether the (possibly all-resolved)</span>
@@ -368,7 +368,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        (int, int):    The open-error count and the count including</span>
 <span class="sd">            resolved errors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
@@ -387,7 +387,7 @@
 <div class="viewcode-block" id="error_counts_by_step">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.error_counts_by_step">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">error_counts_by_step</span><span class="p">(</span><span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``{step_name: count}`` for open errors that name a step.</span>
+<span class="w">    </span><span class="sd">"""Return ``{step_name: count}`` for open errors that name a step.</span>
 
 <span class="sd">    Powers the per-step markers on the progress grid; resolved errors and</span>
 <span class="sd">    errors with no step (pipeline/BUI) are excluded.</span>
@@ -397,7 +397,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:    Mapping of step name to its open-error count.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
@@ -416,7 +416,7 @@
 <div class="viewcode-block" id="open_error_count_for_steps">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.open_error_count_for_steps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">open_error_count_for_steps</span><span class="p">(</span><span class="n">step_names</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return how many open errors would gate launching ``step_names``.</span>
+<span class="w">    </span><span class="sd">"""Return how many open errors would gate launching ``step_names``.</span>
 
 <span class="sd">    Counts open errors that bear on running the pipeline:</span>
 
@@ -436,7 +436,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        int:    The number of open errors relevant to the launch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
@@ -465,13 +465,13 @@
 <div class="viewcode-block" id="error_detail">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.error_detail">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">error_detail</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">developer</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the full human view of an error row as a dict.</span>
+<span class="w">    </span><span class="sd">"""Return the full human view of an error row as a dict.</span>
 
 <span class="sd">    Lazily loads the sidecar. With ``developer=False`` the result holds</span>
 <span class="sd">    the user-facing fields (summary, message, artifact, and remediation</span>
 <span class="sd">    if the error provided one). With ``developer=True`` it adds the</span>
 <span class="sd">    technical fields: exception class, full message, traceback, details,</span>
-<span class="sd">    ``subprocess_id``, the run&#39;s host/PID/`code_version`, and the</span>
+<span class="sd">    ``subprocess_id``, the run's host/PID/`code_version`, and the</span>
 <span class="sd">    related-file list. A missing sidecar degrades gracefully (the</span>
 <span class="sd">    sidecar-backed fields are simply absent / empty).</span>
 
@@ -484,36 +484,36 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:    The structured detail view.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">error_detail</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">own_session</span><span class="p">,</span> <span class="n">developer</span><span class="o">=</span><span class="n">developer</span><span class="p">)</span>
 
     <span class="n">sidecar</span> <span class="o">=</span> <span class="n">load_sidecar</span><span class="p">(</span><span class="n">error_row</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">sidecar_details</span> <span class="o">=</span> <span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;details&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">sidecar_details</span> <span class="o">=</span> <span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"details"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
 
     <span class="n">detail</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-        <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="n">error_summary</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
-        <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
-        <span class="s2">&quot;step_name&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
-        <span class="s2">&quot;user_message&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span>
-        <span class="s2">&quot;artifact&quot;</span><span class="p">:</span> <span class="n">_describe_artifact</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
-        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="s2">"summary"</span><span class="p">:</span> <span class="n">error_summary</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
+        <span class="s2">"component"</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+        <span class="s2">"step_name"</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+        <span class="s2">"user_message"</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span>
+        <span class="s2">"artifact"</span><span class="p">:</span> <span class="n">_describe_artifact</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
+        <span class="s2">"created"</span><span class="p">:</span> <span class="n">error_row</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">remediation</span> <span class="o">=</span> <span class="n">sidecar_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;remediation&quot;</span><span class="p">)</span>
+    <span class="n">remediation</span> <span class="o">=</span> <span class="n">sidecar_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"remediation"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">remediation</span><span class="p">:</span>
-        <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;remediation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">remediation</span>
+        <span class="n">detail</span><span class="p">[</span><span class="s2">"remediation"</span><span class="p">]</span> <span class="o">=</span> <span class="n">remediation</span>
 
     <span class="k">if</span> <span class="n">developer</span><span class="p">:</span>
         <span class="n">detail</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="n">exception_class</span><span class="o">=</span><span class="n">error_row</span><span class="o">.</span><span class="n">exception_class</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="n">error_row</span><span class="o">.</span><span class="n">user_message</span><span class="p">),</span>
-            <span class="n">traceback</span><span class="o">=</span><span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;traceback&quot;</span><span class="p">),</span>
+            <span class="n">message</span><span class="o">=</span><span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">,</span> <span class="n">error_row</span><span class="o">.</span><span class="n">user_message</span><span class="p">),</span>
+            <span class="n">traceback</span><span class="o">=</span><span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"traceback"</span><span class="p">),</span>
             <span class="n">details</span><span class="o">=</span><span class="n">sidecar_details</span><span class="p">,</span>
-            <span class="n">related_files</span><span class="o">=</span><span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;related_files&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">related_files</span><span class="o">=</span><span class="n">sidecar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"related_files"</span><span class="p">,</span> <span class="p">[]),</span>
             <span class="n">subprocess_id</span><span class="o">=</span><span class="n">error_row</span><span class="o">.</span><span class="n">subprocess_id</span><span class="p">,</span>
             <span class="n">sidecar_available</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">sidecar</span><span class="p">),</span>
             <span class="o">**</span><span class="n">_run_provenance</span><span class="p">(</span><span class="n">error_row</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
@@ -526,7 +526,7 @@
 <div class="viewcode-block" id="format_detail_text">
 <a class="viewcode-back" href="../../implementation/autowisp.error_render.html#autowisp.error_render.format_detail_text">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_detail_text</span><span class="p">(</span><span class="n">detail</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render an :func:`error_detail` dict as plain text for a terminal.</span>
+<span class="w">    </span><span class="sd">"""Render an :func:`error_detail` dict as plain text for a terminal.</span>
 
 <span class="sd">    Keeps all formatting in this module (the front-ends never format</span>
 <span class="sd">    fields themselves). Only the keys present in ``detail`` are shown, so</span>
@@ -537,39 +537,39 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str:    A multi-line, human-readable rendering.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">detail</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">]]</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">detail</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">]]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{}):</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{}):</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="n">add</span><span class="p">(</span><span class="s2">&quot;Error id&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">)</span>
-    <span class="n">add</span><span class="p">(</span><span class="s2">&quot;Remediation&quot;</span><span class="p">,</span> <span class="s2">&quot;remediation&quot;</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="s2">"Error id"</span><span class="p">,</span> <span class="s2">"id"</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="s2">"Remediation"</span><span class="p">,</span> <span class="s2">"remediation"</span><span class="p">)</span>
     <span class="c1"># Developer-only fields (absent unless developer=True was used).</span>
-    <span class="n">add</span><span class="p">(</span><span class="s2">&quot;Exception&quot;</span><span class="p">,</span> <span class="s2">&quot;exception_class&quot;</span><span class="p">)</span>
-    <span class="n">add</span><span class="p">(</span><span class="s2">&quot;Host&quot;</span><span class="p">,</span> <span class="s2">&quot;host&quot;</span><span class="p">)</span>
-    <span class="n">add</span><span class="p">(</span><span class="s2">&quot;Process&quot;</span><span class="p">,</span> <span class="s2">&quot;process_id&quot;</span><span class="p">)</span>
-    <span class="n">add</span><span class="p">(</span><span class="s2">&quot;Subprocess&quot;</span><span class="p">,</span> <span class="s2">&quot;subprocess_id&quot;</span><span class="p">)</span>
-    <span class="n">add</span><span class="p">(</span><span class="s2">&quot;Code version&quot;</span><span class="p">,</span> <span class="s2">&quot;code_version&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;related_files&quot;</span><span class="p">):</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  Related files:&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">related</span> <span class="ow">in</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;related_files&quot;</span><span class="p">]:</span>
+    <span class="n">add</span><span class="p">(</span><span class="s2">"Exception"</span><span class="p">,</span> <span class="s2">"exception_class"</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="s2">"Host"</span><span class="p">,</span> <span class="s2">"host"</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="s2">"Process"</span><span class="p">,</span> <span class="s2">"process_id"</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="s2">"Subprocess"</span><span class="p">,</span> <span class="s2">"subprocess_id"</span><span class="p">)</span>
+    <span class="n">add</span><span class="p">(</span><span class="s2">"Code version"</span><span class="p">,</span> <span class="s2">"code_version"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"related_files"</span><span class="p">):</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  Related files:"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">related</span> <span class="ow">in</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"related_files"</span><span class="p">]:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;    - [</span><span class="si">{</span><span class="n">related</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;kind&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">related</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;role&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">] &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">related</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"    - [</span><span class="si">{</span><span class="n">related</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'kind'</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">related</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'role'</span><span class="p">)</span><span class="si">}</span><span class="s2">] "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">related</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'path'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
-    <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;user_message&quot;</span>
+    <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"user_message"</span>
     <span class="p">):</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Message: </span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;traceback&quot;</span><span class="p">):</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  Traceback:&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Message: </span><span class="si">{</span><span class="n">detail</span><span class="p">[</span><span class="s1">'message'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"traceback"</span><span class="p">):</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  Traceback:"</span><span class="p">)</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;traceback&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+            <span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"traceback"</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
 </pre></div>
 

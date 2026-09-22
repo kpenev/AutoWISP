@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.FitTermsParser &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -599,7 +599,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FitTermsParser</span><span class="p">(</span><span class="n">Parser</span><span class="p">):</span>
 
-    <span class="n">grammarFileName</span> <span class="o">=</span> <span class="s2">&quot;FitTermsParser.g4&quot;</span>
+    <span class="n">grammarFileName</span> <span class="o">=</span> <span class="s2">"FitTermsParser.g4"</span>
 
     <span class="n">atn</span> <span class="o">=</span> <span class="n">ATNDeserializer</span><span class="p">()</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">serializedATN</span><span class="p">())</span>
 
@@ -608,28 +608,28 @@
     <span class="n">sharedContextCache</span> <span class="o">=</span> <span class="n">PredictionContextCache</span><span class="p">()</span>
 
     <span class="n">literalNames</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;{&#39;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;O&#39;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;*&#39;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;+&#39;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;}&#39;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;,&#39;&quot;</span><span class="p">,</span>
+        <span class="s2">"&lt;INVALID&gt;"</span><span class="p">,</span>
+        <span class="s2">"'{'"</span><span class="p">,</span>
+        <span class="s2">"&lt;INVALID&gt;"</span><span class="p">,</span>
+        <span class="s2">"'O'"</span><span class="p">,</span>
+        <span class="s2">"'*'"</span><span class="p">,</span>
+        <span class="s2">"'+'"</span><span class="p">,</span>
+        <span class="s2">"&lt;INVALID&gt;"</span><span class="p">,</span>
+        <span class="s2">"'}'"</span><span class="p">,</span>
+        <span class="s2">"','"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">symbolicNames</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TERM_LIST_START&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;UINT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;POLY_START&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;CROSSPRODUCT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;UNION&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;WS&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TERM_LIST_END&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TERM_SEP&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TERM&quot;</span><span class="p">,</span>
+        <span class="s2">"&lt;INVALID&gt;"</span><span class="p">,</span>
+        <span class="s2">"TERM_LIST_START"</span><span class="p">,</span>
+        <span class="s2">"UINT"</span><span class="p">,</span>
+        <span class="s2">"POLY_START"</span><span class="p">,</span>
+        <span class="s2">"CROSSPRODUCT"</span><span class="p">,</span>
+        <span class="s2">"UNION"</span><span class="p">,</span>
+        <span class="s2">"WS"</span><span class="p">,</span>
+        <span class="s2">"TERM_LIST_END"</span><span class="p">,</span>
+        <span class="s2">"TERM_SEP"</span><span class="p">,</span>
+        <span class="s2">"TERM"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">RULE_fit_term</span> <span class="o">=</span> <span class="mi">0</span>
@@ -640,12 +640,12 @@
     <span class="n">RULE_fit_terms_expression</span> <span class="o">=</span> <span class="mi">5</span>
 
     <span class="n">ruleNames</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;fit_term&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fit_terms_list&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fit_polynomial&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fit_terms_set&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fit_terms_set_cross_product&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fit_terms_expression&quot;</span><span class="p">,</span>
+        <span class="s2">"fit_term"</span><span class="p">,</span>
+        <span class="s2">"fit_terms_list"</span><span class="p">,</span>
+        <span class="s2">"fit_polynomial"</span><span class="p">,</span>
+        <span class="s2">"fit_terms_set"</span><span class="p">,</span>
+        <span class="s2">"fit_terms_set_cross_product"</span><span class="p">,</span>
+        <span class="s2">"fit_terms_expression"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">EOF</span> <span class="o">=</span> <span class="n">Token</span><span class="o">.</span><span class="n">EOF</span>
@@ -661,7 +661,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">TokenStream</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TextIO</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">checkVersion</span><span class="p">(</span><span class="s2">&quot;4.13.0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkVersion</span><span class="p">(</span><span class="s2">"4.13.0"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interp</span> <span class="o">=</span> <span class="n">ParserATNSimulator</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decisionsToDFA</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharedContextCache</span>
         <span class="p">)</span>
@@ -670,7 +670,7 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_termContext">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Fit_termContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
-        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">"parser"</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -696,21 +696,21 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_termContext.enterRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.enterRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_term&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"enterFit_term"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_termContext.exitRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.exitRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_term&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"exitFit_term"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_termContext.accept">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.accept">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_term&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">"visitFit_term"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -739,7 +739,7 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_listContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
-        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">"parser"</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -791,21 +791,21 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.enterRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.enterRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_list&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"enterFit_terms_list"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.exitRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.exitRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_list&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"exitFit_terms_list"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.accept">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.accept">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_list&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">"visitFit_terms_list"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -853,7 +853,7 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Fit_polynomialContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
-        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">"parser"</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -894,21 +894,21 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.enterRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.enterRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_polynomial&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"enterFit_polynomial"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.exitRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.exitRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_polynomial&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"exitFit_polynomial"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.accept">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.accept">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_polynomial&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">"visitFit_polynomial"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -943,7 +943,7 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_setContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
-        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">"parser"</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -979,21 +979,21 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.enterRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.enterRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_set&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"enterFit_terms_set"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.exitRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.exitRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_set&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"exitFit_terms_set"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.accept">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.accept">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_set&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">"visitFit_terms_set"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -1037,7 +1037,7 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_set_cross_productContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
-        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">"parser"</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -1079,21 +1079,21 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.enterRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.enterRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_set_cross_product&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"enterFit_terms_set_cross_product"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.exitRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.exitRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_set_cross_product&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"exitFit_terms_set_cross_product"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.accept">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.accept">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_set_cross_product&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">"visitFit_terms_set_cross_product"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -1137,7 +1137,7 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_expressionContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
-        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">"parser"</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -1179,21 +1179,21 @@
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.enterRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.enterRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_expression&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"enterFit_terms_expression"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.exitRule">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.exitRule">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_expression&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">"exitFit_terms_expression"</span><span class="p">):</span>
                 <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.accept">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.accept">[docs]</a>
         <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_expression&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">"visitFit_terms_expression"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>

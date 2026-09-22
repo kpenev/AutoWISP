@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.frozen_row &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,25 +164,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.frozen_row</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A dependency-free, picklable snapshot of a database row.</span>
+<span></span><span class="sd">"""A dependency-free, picklable snapshot of a database row.</span>
 
 <span class="sd">This module intentionally imports nothing from SQLAlchemy (or anything</span>
 <span class="sd">else heavy), so that :class:`FrozenRow` can be referenced from the</span>
 <span class="sd">exception hierarchy without dragging the ORM into it. The companion</span>
 <span class="sd">:func:`autowisp.database.interface.snapshot_row` -- which *does* need</span>
 <span class="sd">SQLAlchemy -- builds a :class:`FrozenRow` from a live ORM instance.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: fd0f8f8f563e719a0e85bdca652a9152c816b7ea $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">"$Id: fd0f8f8f563e719a0e85bdca652a9152c816b7ea $"</span>
 
 
 <div class="viewcode-block" id="FrozenRow">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FrozenRow</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Immutable, picklable snapshot of an ORM row&#39;s column values.</span>
+<span class="w">    </span><span class="sd">"""Immutable, picklable snapshot of an ORM row's column values.</span>
 
 <span class="sd">    Holds the column values of a SQLAlchemy row detached from any</span>
 <span class="sd">    session, so it stays usable after the session that produced it is</span>
@@ -204,7 +204,7 @@
 
 <span class="sd">        columns(dict):    ``{column_key: value}`` for every mapped</span>
 <span class="sd">            column captured. Treated as read-only.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">table</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">columns</span><span class="p">:</span> <span class="nb">dict</span>
@@ -213,7 +213,7 @@
         <span class="c1"># Only reached when normal attribute lookup fails. Guard the real</span>
         <span class="c1"># dataclass fields explicitly so that an access during unpickling</span>
         <span class="c1"># (before ``__dict__`` is populated) cannot recurse forever.</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"table"</span><span class="p">,</span> <span class="s2">"columns"</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>

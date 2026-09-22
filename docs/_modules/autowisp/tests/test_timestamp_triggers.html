@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_timestamp_triggers &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,12 +165,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_timestamp_triggers</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tests for the DDL that installs the update-timestamp triggers.</span>
+<span></span><span class="sd">"""Tests for the DDL that installs the update-timestamp triggers.</span>
 
 <span class="sd">Its own module rather than part of ``test_database_migration``: the</span>
 <span class="sd">migration code *reinstates* these triggers, but what they say is decided</span>
 <span class="sd">in :mod:`autowisp.database.data_model`, and that is what is checked here.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 
@@ -181,51 +181,51 @@
 <div class="viewcode-block" id="TestTriggerQuoting">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestTriggerQuoting</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every identifier a trigger names is quoted.</span>
+<span class="w">    </span><span class="sd">"""Every identifier a trigger names is quoted.</span>
 
 <span class="sd">    ``condition`` is a table here and a reserved word in MariaDB, so an</span>
 <span class="sd">    unquoted ``ON condition`` is a syntax error. Over the metadata rather</span>
 <span class="sd">    than over that one name, and on both dialects, since the next</span>
 <span class="sd">    reserved word to become a table would be as silent as this one was on</span>
 <span class="sd">    SQLite -- which reserves a different set and forgave it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestTriggerQuoting.tables">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting.tables">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the tables the timestamp triggers are installed on.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the tables the timestamp triggers are installed on."""</span>
 
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">table</span><span class="o">.</span><span class="n">name</span>
             <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s2">&quot;timestamp&quot;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">table</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">columns</span>
+            <span class="k">if</span> <span class="s2">"timestamp"</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">table</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">columns</span>
         <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="TestTriggerQuoting.test_mysql_quotes_what_it_names">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting.test_mysql_quotes_what_it_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_mysql_quotes_what_it_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The table and the column written; it names no key columns.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The table and the column written; it names no key columns."""</span>
 
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">():</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">):</span>
-                <span class="n">statement</span> <span class="o">=</span> <span class="n">timestamp_trigger_ddl</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="s2">&quot;mysql&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ON `</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;NEW.`timestamp`&quot;</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span></div>
+                <span class="n">statement</span> <span class="o">=</span> <span class="n">timestamp_trigger_ddl</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="s2">"mysql"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ON `</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">`"</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"NEW.`timestamp`"</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestTriggerQuoting.test_sqlite_quotes_what_it_names">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_timestamp_triggers.html#autowisp.tests.test_timestamp_triggers.TestTriggerQuoting.test_sqlite_quotes_what_it_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_sqlite_quotes_what_it_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Including the key columns the row is addressed by.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Including the key columns the row is addressed by."""</span>
 
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">():</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">):</span>
-                <span class="n">statement</span> <span class="o">=</span> <span class="n">timestamp_trigger_ddl</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ON &quot;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;UPDATE &quot;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;SET &quot;timestamp&quot;&#39;</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">&#39;&quot;id&quot; = NEW.&quot;id&quot;&#39;</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span></div>
+                <span class="n">statement</span> <span class="o">=</span> <span class="n">timestamp_trigger_ddl</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="s2">"sqlite"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'ON "</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">"'</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'UPDATE "</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">"'</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">'SET "timestamp"'</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s1">'"id" = NEW."id"'</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

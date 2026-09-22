@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_provenance_resolver &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_provenance_resolver</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for :mod:`autowisp.database.provenance_resolver`.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Unit tests for :mod:`autowisp.database.provenance_resolver`."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.exc</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoResultFound</span>
 
@@ -180,28 +180,28 @@
 <div class="viewcode-block" id="_make_header">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_provenance_resolver.html#autowisp.tests.test_provenance_resolver._make_header">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_make_header</span><span class="p">(</span><span class="o">**</span><span class="n">overrides</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a fake FITS-header dict matching the test survey configuration.</span>
+<span class="w">    </span><span class="sd">"""Build a fake FITS-header dict matching the test survey configuration.</span>
 
 <span class="sd">    Keys mirror the header expressions in ``test.cfg``; values match the</span>
 <span class="sd">    rows imported from ``survey_instruments.json`` by</span>
 <span class="sd">    :meth:`AutoWISPTestCase.setUp`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;VERSION&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.X-1958&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;CMSERIAL&quot;</span><span class="p">:</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TELNAME&quot;</span><span class="p">:</span> <span class="s2">&quot;Canon 135mm f2 SN 230236&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;MTID&quot;</span><span class="p">:</span> <span class="s2">&quot;11&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;OBSERVAT&quot;</span><span class="p">:</span> <span class="s2">&quot;FLWO&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;SITELAT&quot;</span><span class="p">:</span> <span class="mf">31.68138</span><span class="p">,</span>
-        <span class="s2">&quot;SITELONG&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">110.87857</span><span class="p">,</span>
-        <span class="s2">&quot;SITEALT&quot;</span><span class="p">:</span> <span class="mf">2345.3</span><span class="p">,</span>
-        <span class="s2">&quot;NRACA&quot;</span><span class="p">:</span> <span class="mf">10.2</span><span class="p">,</span>
-        <span class="s2">&quot;NDECCA&quot;</span><span class="p">:</span> <span class="mf">45.0</span><span class="p">,</span>
-        <span class="s2">&quot;OBJECT&quot;</span><span class="p">:</span> <span class="s2">&quot;G10124500_139&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;DATE-OBS&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TIME-OBS&quot;</span><span class="p">:</span> <span class="s2">&quot;00:00:00&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;EXPTIME&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
+        <span class="s2">"VERSION"</span><span class="p">:</span> <span class="s2">"0.0.X-1958"</span><span class="p">,</span>
+        <span class="s2">"CMSERIAL"</span><span class="p">:</span> <span class="s2">"None"</span><span class="p">,</span>
+        <span class="s2">"TELNAME"</span><span class="p">:</span> <span class="s2">"Canon 135mm f2 SN 230236"</span><span class="p">,</span>
+        <span class="s2">"MTID"</span><span class="p">:</span> <span class="s2">"11"</span><span class="p">,</span>
+        <span class="s2">"OBSERVAT"</span><span class="p">:</span> <span class="s2">"FLWO"</span><span class="p">,</span>
+        <span class="s2">"SITELAT"</span><span class="p">:</span> <span class="mf">31.68138</span><span class="p">,</span>
+        <span class="s2">"SITELONG"</span><span class="p">:</span> <span class="o">-</span><span class="mf">110.87857</span><span class="p">,</span>
+        <span class="s2">"SITEALT"</span><span class="p">:</span> <span class="mf">2345.3</span><span class="p">,</span>
+        <span class="s2">"NRACA"</span><span class="p">:</span> <span class="mf">10.2</span><span class="p">,</span>
+        <span class="s2">"NDECCA"</span><span class="p">:</span> <span class="mf">45.0</span><span class="p">,</span>
+        <span class="s2">"OBJECT"</span><span class="p">:</span> <span class="s2">"G10124500_139"</span><span class="p">,</span>
+        <span class="s2">"DATE-OBS"</span><span class="p">:</span> <span class="s2">"2020-01-01"</span><span class="p">,</span>
+        <span class="s2">"TIME-OBS"</span><span class="p">:</span> <span class="s2">"00:00:00"</span><span class="p">,</span>
+        <span class="s2">"EXPTIME"</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">overrides</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">header</span></div>
@@ -211,23 +211,23 @@
 <div class="viewcode-block" id="_make_configuration">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_provenance_resolver.html#autowisp.tests.test_provenance_resolver._make_configuration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_make_configuration</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a step configuration mirroring test.cfg&#39;s provenance fields.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a step configuration mirroring test.cfg's provenance fields."""</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;observer&quot;</span><span class="p">:</span> <span class="s2">&quot;VERSION&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;camera_serial_number&quot;</span><span class="p">:</span> <span class="s2">&quot;CMSERIAL.strip()&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;telescope_serial_number&quot;</span><span class="p">:</span> <span class="s2">&quot;TELNAME&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mount_serial_number&quot;</span><span class="p">:</span> <span class="s2">&quot;MTID&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;observatory&quot;</span><span class="p">:</span> <span class="s2">&quot;OBSERVAT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;observatory_location&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SITELAT&quot;</span><span class="p">,</span> <span class="s2">&quot;SITELONG&quot;</span><span class="p">,</span> <span class="s2">&quot;SITEALT&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;target_ra&quot;</span><span class="p">:</span> <span class="s2">&quot;NRACA&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;target_dec&quot;</span><span class="p">:</span> <span class="s2">&quot;NDECCA&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;target_name&quot;</span><span class="p">:</span> <span class="s2">&quot;OBJECT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;target_match_tolerance&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-        <span class="s2">&quot;observing_session_label&quot;</span><span class="p">:</span> <span class="s2">&quot;OBJECT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exposure_start_utc&quot;</span><span class="p">:</span> <span class="s1">&#39;DATE_OBS + &quot;T&quot; + TIME_OBS&#39;</span><span class="p">,</span>
-        <span class="s2">&quot;exposure_start_jd&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;exposure_seconds&quot;</span><span class="p">:</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">,</span>
+        <span class="s2">"observer"</span><span class="p">:</span> <span class="s2">"VERSION"</span><span class="p">,</span>
+        <span class="s2">"camera_serial_number"</span><span class="p">:</span> <span class="s2">"CMSERIAL.strip()"</span><span class="p">,</span>
+        <span class="s2">"telescope_serial_number"</span><span class="p">:</span> <span class="s2">"TELNAME"</span><span class="p">,</span>
+        <span class="s2">"mount_serial_number"</span><span class="p">:</span> <span class="s2">"MTID"</span><span class="p">,</span>
+        <span class="s2">"observatory"</span><span class="p">:</span> <span class="s2">"OBSERVAT"</span><span class="p">,</span>
+        <span class="s2">"observatory_location"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"SITELAT"</span><span class="p">,</span> <span class="s2">"SITELONG"</span><span class="p">,</span> <span class="s2">"SITEALT"</span><span class="p">],</span>
+        <span class="s2">"target_ra"</span><span class="p">:</span> <span class="s2">"NRACA"</span><span class="p">,</span>
+        <span class="s2">"target_dec"</span><span class="p">:</span> <span class="s2">"NDECCA"</span><span class="p">,</span>
+        <span class="s2">"target_name"</span><span class="p">:</span> <span class="s2">"OBJECT"</span><span class="p">,</span>
+        <span class="s2">"target_match_tolerance"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="s2">"observing_session_label"</span><span class="p">:</span> <span class="s2">"OBJECT"</span><span class="p">,</span>
+        <span class="s2">"exposure_start_utc"</span><span class="p">:</span> <span class="s1">'DATE_OBS + "T" + TIME_OBS'</span><span class="p">,</span>
+        <span class="s2">"exposure_start_jd"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"exposure_seconds"</span><span class="p">:</span> <span class="s2">"EXPTIME"</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -235,52 +235,52 @@
 <div class="viewcode-block" id="TestProvenanceResolver">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_provenance_resolver.html#autowisp.tests.test_provenance_resolver.TestProvenanceResolver">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestProvenanceResolver</span><span class="p">(</span><span class="n">AutoWISPTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unit tests for ``get_or_create_observing_session``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Unit tests for ``get_or_create_observing_session``."""</span>
 
 <div class="viewcode-block" id="TestProvenanceResolver.test_resolves_existing_survey_rows">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_provenance_resolver.html#autowisp.tests.test_provenance_resolver.TestProvenanceResolver.test_resolves_existing_survey_rows">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolves_existing_survey_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolver builds an ObservingSession from imported survey rows.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Resolver builds an ObservingSession from imported survey rows."""</span>
 
         <span class="n">configuration</span> <span class="o">=</span> <span class="n">_make_configuration</span><span class="p">()</span>
         <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">_make_header</span><span class="p">())</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">session</span> <span class="o">=</span> <span class="n">get_or_create_observing_session</span><span class="p">(</span>
-                <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
+                <span class="s2">"object"</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
             <span class="p">)</span>
             <span class="c1"># Flush so the new ObservingSession is persistent and its</span>
             <span class="c1"># relationships (observer, camera, ...) can be loaded -- pending</span>
-            <span class="c1"># objects don&#39;t lazy-load relationships from just the FK column.</span>
+            <span class="c1"># objects don't lazy-load relationships from just the FK column.</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;0.0.X-1958&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">make</span><span class="p">,</span> <span class="s2">&quot;Sony&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"0.0.X-1958"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">make</span><span class="p">,</span> <span class="s2">"Sony"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
                 <span class="n">session</span><span class="o">.</span><span class="n">telescope</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span>
-                <span class="s2">&quot;Canon 135mm f2 SN 230236&quot;</span><span class="p">,</span>
+                <span class="s2">"Canon 135mm f2 SN 230236"</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">mount</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span> <span class="s2">&quot;11&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">observatory</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;FLWO&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;G10124500_139&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;G10124500_139&quot;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">mount</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span> <span class="s2">"11"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">observatory</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"FLWO"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"G10124500_139"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="s2">"G10124500_139"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestProvenanceResolver.test_missing_survey_row_raises">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_provenance_resolver.html#autowisp.tests.test_provenance_resolver.TestProvenanceResolver.test_missing_survey_row_raises">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_survey_row_raises</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolver raises NoResultFound when a survey row is missing.</span>
+<span class="w">        </span><span class="sd">"""Resolver raises NoResultFound when a survey row is missing.</span>
 
 <span class="sd">        Equivalent to the ``wisp-survey import`` step having been skipped:</span>
-<span class="sd">        the matching ORM row simply isn&#39;t there. Use an unknown camera</span>
+<span class="sd">        the matching ORM row simply isn't there. Use an unknown camera</span>
 <span class="sd">        serial to trigger the same failure mode without tearing down the</span>
 <span class="sd">        rest of the survey DB.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">configuration</span> <span class="o">=</span> <span class="n">_make_configuration</span><span class="p">()</span>
-        <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">_make_header</span><span class="p">(</span><span class="n">CMSERIAL</span><span class="o">=</span><span class="s2">&quot;unknown-serial&quot;</span><span class="p">))</span>
+        <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">_make_header</span><span class="p">(</span><span class="n">CMSERIAL</span><span class="o">=</span><span class="s2">"unknown-serial"</span><span class="p">))</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">NoResultFound</span><span class="p">):</span>
                 <span class="n">get_or_create_observing_session</span><span class="p">(</span>
-                    <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
+                    <span class="s2">"object"</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
                 <span class="p">)</span></div>
 </div>
 

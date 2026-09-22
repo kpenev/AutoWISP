@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.hdf5_file_structure &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.hdf5_file_structure</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define HDF5 file setting its structure from a database.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define HDF5 file setting its structure from a database."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">contains_eager</span>
 
@@ -186,11 +186,11 @@
 <div class="viewcode-block" id="HDF5FileDatabaseStructure">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HDF5FileDatabaseStructure</span><span class="p">(</span><span class="n">HDF5File</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;HDF5 file with structure specified through the database.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""HDF5 file with structure specified through the database."""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :meth:HDF5File.elements for description.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""See :meth:HDF5File.elements for description."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defined_elements</span>
 
@@ -198,26 +198,26 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure.get_file_structure">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_file_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :meth:HDF5File.get_file_structure for description.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""See :meth:HDF5File.get_file_structure for description."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_defined_elements</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill cls._defined_elements with all defined pipeline keys.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Fill cls._defined_elements with all defined pipeline keys."""</span>
 
             <span class="n">defined_elements</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;attribute&quot;</span><span class="p">,</span> <span class="s2">&quot;link&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"dataset"</span><span class="p">,</span> <span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"link"</span><span class="p">]:</span>
                 <span class="n">defined_elements</span><span class="p">[</span><span class="n">element_type</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
                     <span class="n">element</span><span class="o">.</span><span class="n">pipeline_key</span>
                     <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span>
-                        <span class="n">structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">element_type</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span>
+                        <span class="n">structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">element_type</span> <span class="o">+</span> <span class="s2">"s"</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
             <span class="k">return</span> <span class="n">defined_elements</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">create_result</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create the final result of the parent function.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create the final result of the parent function."""</span>
 
             <span class="n">file_structure</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;datasets&quot;</span><span class="p">,</span> <span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="s2">&quot;links&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"datasets"</span><span class="p">,</span> <span class="s2">"attributes"</span><span class="p">,</span> <span class="s2">"links"</span><span class="p">]:</span>
                 <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span>
                     <span class="n">structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">element_type</span>
                 <span class="p">):</span>
@@ -231,7 +231,7 @@
 
         <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;_file_structure&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">"_file_structure"</span><span class="p">):</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_file_structure</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">version</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">version</span><span class="p">]</span>

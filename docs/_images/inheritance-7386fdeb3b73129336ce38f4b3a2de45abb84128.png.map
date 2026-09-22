@@ -1,5 +1,0 @@
-<map id="inheritance5bee70571b" name="inheritance5bee70571b">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,80,340,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" target="_top" title="A URL becomes Django&#39;s DATABASES dictionary." alt="" coords="8,155,337,181"/>
-<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="94,5,251,32"/>
-</map>

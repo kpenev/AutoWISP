@@ -1,27 +1,22 @@
 """
-URL configuration for django_project project.
+The browser interface's root URL configuration.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+One prefix per application, each application routing its own URLs from
+there, so that what a page's address begins with says which application
+answers it.  ``home`` takes the root, being where a session starts and
+what every other page's navigation leads back to.
 """
+
 from django.contrib import admin
 from django.urls import include, path
 
+_apps = "autowisp.browser_interface"
+
 urlpatterns = [
-    path("", include("home.urls")),
-    path("configuration/", include("configuration.urls")),
-    path("processing/", include("processing.urls")),
-    path("diagnostics/", include("diagnostics.urls")),
-    path("results/", include("results.urls")),
-    path('admin/', admin.site.urls),
+    path("", include(f"{_apps}.home.urls")),
+    path("configuration/", include(f"{_apps}.configuration.urls")),
+    path("processing/", include(f"{_apps}.processing.urls")),
+    path("diagnostics/", include(f"{_apps}.diagnostics.urls")),
+    path("results/", include(f"{_apps}.results.urls")),
+    path("admin/", admin.site.urls),
 ]

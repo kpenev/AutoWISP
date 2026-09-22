@@ -1,0 +1,12 @@
+<map id="inheritanceebb167d036" name="inheritanceebb167d036">
+<area shape="rect" id="node1" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="149,5,343,31"/>
+<area shape="rect" id="node3" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="124,79,368,104"/>
+<area shape="rect" id="node2" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="5,152,217,177"/>
+<area shape="rect" id="node4" href="autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator" target="_top" title="Evaluator for expressions involving lightcurve datasets." alt="" coords="241,152,523,177"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_evaluator.TestErrorHandling" target="_top" title="A bad expression raises rather than evaluating to ``None``." alt="" coords="393,79,726,104"/>
+<area shape="rect" id="node6" title="A class whose instances are single test cases." alt="" coords="1034,5,1202,31"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_evaluator.TestIterativeRejection" target="_top" title="The iterative&#45;rejection fits cope with NaN&#45;padded input." alt="" coords="750,79,1110,104"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_evaluator.TestNanAggregates" target="_top" title="The NaN&#45;ignoring aggregates are available and are numpy&#39;s." alt="" coords="1134,79,1478,104"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_evaluator.TestRemovedNames" target="_top" title="Names asteval offers that AutoWISP takes away." alt="" coords="1502,79,1854,104"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="1226,5,1410,31"/>
+</map>

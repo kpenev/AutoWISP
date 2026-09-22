@@ -151,11 +151,15 @@ def install_modified_triggers(sender, using, **_kwargs):
             cursor.execute(
                 template.format(
                     name=name,
-                    table=quote(model._meta.db_table),  # pylint: disable=protected-access
+                    table=quote(
+                        model._meta.db_table
+                    ),  # pylint: disable=protected-access
                     column=quote(_column),
                     # Derived, never assumed to be `id`: that assumption
                     # is exactly what broke the project database's
                     # triggers.
-                    key=quote(model._meta.pk.column),  # pylint: disable=protected-access
+                    key=quote(
+                        model._meta.pk.column
+                    ),  # pylint: disable=protected-access
                 )
             )

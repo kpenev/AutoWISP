@@ -7,12 +7,14 @@ from os import path, makedirs, environ
 import logging
 from hashlib import md5
 from contextlib import nullcontext
+from tempfile import TemporaryDirectory
 import time
 
 import numpy
 import pandas
 from astropy import units
 from astropy.io import fits
+from astropy.io.votable import parse as parse_votable
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
 
@@ -29,6 +31,17 @@ _logger = logging.getLogger(__name__)
 
 # Set timeout for Gaia TAP queries (includes result downloads)
 conf.timeout = 180
+
+
+class TruncatedQuery(Exception):
+    """A Gaia result the server itself reported as incomplete.
+
+    Separate from :class:`autowisp.exceptions.CatalogError` because it is
+    raised to be caught: it means *ask again*, where a ``CatalogError``
+    means the query is not going to work.  It only escapes
+    :meth:`WISPGaia.get_result` as the cause of one, once the retries are
+    spent.
+    """
 
 
 class WISPGaia(GaiaClass):
@@ -96,6 +109,64 @@ class WISPGaia(GaiaClass):
 
         cls._credentials = credentials
 
+    @staticmethod
+    def _check_query_status(votable_fname):
+        """
+        Raise unless the server called the result it just sent complete.
+
+        A TAP result carries ``<INFO name="QUERY_STATUS">`` elements saying
+        how the stream ended, and a stream cut short by trouble at the
+        server ends with one reading ``ERROR`` -- after a perfectly
+        well-formed table holding however many rows made it out.  Nothing
+        else distinguishes that table from a complete one, so a query that
+        half succeeded otherwise passes for a sky with fewer stars in it.
+
+        The last status is the one that counts: the first says the query
+        parsed and began returning rows, and is ``OK`` on a truncated
+        result too.
+
+        ``OVERFLOW`` is not an error but is worth saying out loud: the
+        service stopped at its own row limit, so the catalog is capped by
+        the server rather than by what was asked for.
+
+        Args:
+            votable_fname(str):    The VOTable as it arrived, before
+                anything parsed the table out of it.
+
+        Raises:
+            TruncatedQuery:    If the server reported the result
+                incomplete, which is worth asking again for.
+        """
+
+        statuses = [
+            info
+            for resource in parse_votable(votable_fname).resources
+            for info in resource.infos
+            if info.name == "QUERY_STATUS"
+        ]
+        if not statuses:
+            # Not every service sends one, and a missing status is no
+            # evidence of trouble. Logged because this check is worth
+            # nothing without it, and silence would look like success.
+            _logger.warning(
+                "Gaia result carried no QUERY_STATUS; "
+                "cannot tell a complete result from a truncated one."
+            )
+            return
+
+        final = statuses[-1]
+        _logger.debug("Gaia QUERY_STATUS: %s", final.value)
+        if final.value == "ERROR":
+            raise TruncatedQuery(
+                "Gaia reported the result incomplete: "
+                f"{final.content or 'no message given'}"
+            )
+        if final.value == "OVERFLOW":
+            _logger.warning(
+                "Gaia stopped at its own row limit, so this catalog is "
+                "capped by the service rather than by the query."
+            )
+
     def get_result(self, query, add_propagated, verbose=False):
         """Get and format the result as specified by user."""
 
@@ -113,12 +184,29 @@ class WISPGaia(GaiaClass):
                     _logger.debug(
                         "Gaia credentials undefined. Using anonymous access."
                     )
-                job = self.launch_job_async(query, verbose=verbose)
-                _logger.debug(
-                    "Retrieving async job results with timeout=%d seconds...",
-                    conf.timeout,
-                )
-                result = job.get_results()
+                # Downloaded to a file rather than straight to a table,
+                # because the table is all that survives the parse: the
+                # statuses saying whether it is the whole result live
+                # outside it and are dropped. The file is what arrived, so
+                # both questions can be asked of it, and asked of one
+                # download rather than two.
+                with TemporaryDirectory() as raw_dir:
+                    raw_fname = path.join(raw_dir, "gaia_result.vot.gz")
+                    job = self.launch_job_async(
+                        query,
+                        output_file=raw_fname,
+                        dump_to_file=True,
+                        verbose=verbose,
+                    )
+                    _logger.debug(
+                        "Retrieving async job results with "
+                        "timeout=%d seconds...",
+                        conf.timeout,
+                    )
+                    self._check_query_status(job.outputFile)
+                    # Reads the file just downloaded; the server is not
+                    # asked a second time.
+                    result = job.get_results()
                 break
             except Exception as error:  # pylint: disable=broad-except
                 if attempt + 1 == max_retries:
@@ -239,7 +327,8 @@ class WISPGaia(GaiaClass):
             count_only(bool):    If ``True``, only the number of objects is
                 returned without actually fetching the data.
 
-            fov: Forwarded directly to `estimate_fov_corners()`_
+            fov: Forwarded directly to
+                :meth:`~autowisp.catalog.WISPGaia.estimate_fov_corners`
 
         Returns:
             astropy Table:
@@ -393,7 +482,7 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
     Create a catalog file given the results of a Gaia query.
 
     Args:
-        See `create_catalog_file()`_
+        See :func:`create_catalog_file`
     """
 
     if query_kwargs.get("count_only", False):
@@ -424,7 +513,7 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
     query.meta["MAGEXPR"] = query_kwargs["magnitude_expression"]
     if query_kwargs.get("magnitude_limit") is not None:
         try:
-            (query.meta["MAGMIN"], query.meta["MAGMAX"]) = query_kwargs[
+            query.meta["MAGMIN"], query.meta["MAGMAX"] = query_kwargs[
                 "magnitude_limit"
             ]
         except ValueError:

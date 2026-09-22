@@ -1,0 +1,15 @@
+<map id="inheritanceceecf0f50b" name="inheritanceceecf0f50b">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="246,299,614,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="203,372,657,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,225,425,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="450,225,842,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="499,152,793,177"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostic_types.TestCatalogue" target="_top" title="The shape and content of the static catalogue." alt="" coords="793,79,1152,104"/>
+<area shape="rect" id="node7" title="A class whose instances are single test cases." alt="" coords="1491,5,1659,31"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostic_types.TestRuntimePatterns" target="_top" title="The names that are described rather than listed." alt="" coords="1176,79,1577,104"/>
+<area shape="rect" id="node9" href="#autowisp.tests.test_diagnostic_types.TestSeeding" target="_top" title="The catalogue and the rows it seeds must stay identical." alt="" coords="1601,79,1947,104"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_diagnostic_types.TestVocabulary" target="_top" title="What an expression may reference, without opening any project." alt="" coords="1971,79,2337,104"/>
+<area shape="rect" id="node11" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,152,399,177"/>
+<area shape="rect" id="node12" title="define a class as inspectable." alt="" coords="523,79,769,104"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+</map>

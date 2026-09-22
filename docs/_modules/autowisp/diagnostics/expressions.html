@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.diagnostics.expressions &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.diagnostics.expressions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Named expressions over per-image diagnostics, evaluated in dependency order.</span>
+<span></span><span class="sd">"""Named expressions over per-image diagnostics, evaluated in dependency order.</span>
 
 <span class="sd">This is the whole of what an expression *means*: which names it references,</span>
 <span class="sd">what order a library of them has to be evaluated in, and what is wrong with</span>
@@ -179,11 +179,11 @@
 <span class="sd">supplying diagnostics by hand. Building those arrays -- NaN-padded onto one</span>
 <span class="sd">canonical image list so that index *i* is the same image in every one of</span>
 <span class="sd">them -- belongs to the layer above.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
-<span class="c1"># Over pylint&#39;s 1000-line default, and left there: the split that suggests</span>
+<span class="c1"># Over pylint's 1000-line default, and left there: the split that suggests</span>
 <span class="c1"># itself -- reading expression text apart from evaluating it -- would put</span>
-<span class="c1"># most of the reading half on the evaluating half&#39;s import list.</span>
+<span class="c1"># most of the reading half on the evaluating half's import list.</span>
 <span class="c1"># pylint: disable=too-many-lines</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
@@ -195,7 +195,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">is_diagnostic</span><span class="p">,</span>
     <span class="n">is_known_quantity</span><span class="p">,</span>
-    <span class="n">is_reserved_name</span><span class="p">,</span>
     <span class="n">time_quantity</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span><span class="p">,</span> <span class="n">EvaluatorBase</span>
@@ -206,7 +205,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._evaluator_names">[docs]</a>
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_evaluator_names</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the names a bare :class:`Evaluator` already defines.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the names a bare :class:`Evaluator` already defines."""</span>
 
     <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">()</span><span class="o">.</span><span class="n">symtable</span><span class="p">)</span></div>
 
@@ -215,15 +214,15 @@
 <div class="viewcode-block" id="get_expression_names">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_expression_names">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_expression_names</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return every name one expression mentions, functions included.</span>
 
-<span class="sd">    ``nanmedian(rel)`` gives ``{&quot;nanmedian&quot;, &quot;rel&quot;}``: a call by bare name</span>
+<span class="sd">    ``nanmedian(rel)`` gives ``{"nanmedian", "rel"}``: a call by bare name</span>
 <span class="sd">    is an ``ast.Call`` whose ``func`` is an ``ast.Name``, so there is</span>
 <span class="sd">    nothing here to tell a function from a variable, and no attempt is made</span>
 <span class="sd">    to. Which is which cannot be decided from the text anyway -- it depends</span>
-<span class="sd">    on the open project&#39;s diagnostics, on what else the library holds, and</span>
-<span class="sd">    on the evaluator&#39;s symbol table -- so the split is left to the caller,</span>
+<span class="sd">    on the open project's diagnostics, on what else the library holds, and</span>
+<span class="sd">    on the evaluator's symbol table -- so the split is left to the caller,</span>
 <span class="sd">    which is what :func:`order_expressions` and :func:`check_expression`</span>
 <span class="sd">    both do.</span>
 
@@ -236,20 +235,20 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SyntaxError:    If the text is not a single Python expression.</span>
-<span class="sd">            ``mode=&quot;eval&quot;`` rejects statements, assignments, loops and</span>
+<span class="sd">            ``mode="eval"`` rejects statements, assignments, loops and</span>
 <span class="sd">            imports, which is worth having but is **not** what makes</span>
-<span class="sd">            evaluating an expression safe: ``__import__(&#39;os&#39;).listdir(&#39;.&#39;)``</span>
+<span class="sd">            evaluating an expression safe: ``__import__('os').listdir('.')``</span>
 <span class="sd">            is a perfectly valid expression. Safety comes from</span>
 <span class="sd">            :class:`autowisp.evaluator.EvaluatorBase` -- asteval refuses</span>
 <span class="sd">            imports, ``eval``, ``exec``, ``getattr`` and dunder traversal,</span>
 <span class="sd">            and AutoWISP drops ``open`` and ``print`` on top -- and from</span>
 <span class="sd">            :func:`check_expression` restricting names to that symbol table</span>
-<span class="sd">            plus the project&#39;s diagnostics.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            plus the project's diagnostics.</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">node</span><span class="o">.</span><span class="n">id</span>
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
     <span class="p">}</span></div>
 
@@ -258,12 +257,12 @@
 <div class="viewcode-block" id="get_indexed_names">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_indexed_names">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return what one expression reads, and in which channel slots.</span>
 
 <span class="sd">    A slot is written as a subscript -- ``bg_center[0]``, or</span>
 <span class="sd">    ``sky_color[0,1]`` for a quantity taking two -- and the numbers are</span>
-<span class="sd">    that expression&#39;s own formal parameters, bound to real channels only</span>
+<span class="sd">    that expression's own formal parameters, bound to real channels only</span>
 <span class="sd">    when something is plotted. So this reports the *shape* of what the</span>
 <span class="sd">    text asks for, and says nothing about channels.</span>
 
@@ -285,17 +284,17 @@
 <span class="sd">            ``bg_center[1:2]``, ``sky_color[1][2]`` -- cannot name a</span>
 <span class="sd">            channel slot, and saying so here is clearer than letting it</span>
 <span class="sd">            fail as an unresolvable name later.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">references</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">):</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: only &quot;</span>
-                <span class="s2">&quot;a diagnostic or an expression can take one.&quot;</span><span class="p">,</span>
-                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subscript&quot;</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)},</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: only "</span>
+                <span class="s2">"a diagnostic or an expression can take one."</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"subscript"</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)},</span>
             <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">slots</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">slice</span><span class="p">)</span>
@@ -310,9 +309,9 @@
             <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: a &quot;</span>
-                <span class="s2">&quot;slot is written as a whole number, as in bg_center[0].&quot;</span><span class="p">,</span>
-                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subscript&quot;</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)},</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> does not name a channel slot: a "</span>
+                <span class="s2">"slot is written as a whole number, as in bg_center[0]."</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"subscript"</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">node</span><span class="p">)},</span>
             <span class="p">)</span>
         <span class="n">references</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">slots</span><span class="p">))</span>
 
@@ -323,13 +322,13 @@
 <div class="viewcode-block" id="_get_bare_names">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._get_bare_names">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_bare_names</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the names *expression* reads without a subscript.</span>
+<span class="w">    </span><span class="sd">"""Return the names *expression* reads without a subscript.</span>
 
 <span class="sd">    The complement of :func:`get_indexed_names`, so between them every</span>
 <span class="sd">    ``ast.Name`` is accounted for once. Mostly functions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)</span>
 
     <span class="c1"># The nodes rather than their ids: one name may be read both ways, and</span>
     <span class="c1"># ``bg_center[0] - bg_center`` has to report the second.</span>
@@ -350,7 +349,7 @@
 <div class="viewcode-block" id="get_expression_parameters">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_expression_parameters">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_expression_parameters</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the channel slots one expression takes, in order.</span>
 
 <span class="sd">    Derived from the body rather than declared: the parameters *are* the</span>
@@ -359,7 +358,7 @@
 <span class="sd">    1)``; ``sky_color[0,1] - sky_color[1,2]`` takes ``(0, 1, 2)``.</span>
 
 <span class="sd">    Sorted, which is what makes the order well defined when a body writes</span>
-<span class="sd">    its slots out of sequence -- and the order matters, since a reference&#39;s</span>
+<span class="sd">    its slots out of sequence -- and the order matters, since a reference's</span>
 <span class="sd">    arguments are matched onto these positionally.</span>
 
 <span class="sd">    Args:</span>
@@ -372,7 +371,7 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        SyntaxError, PipelineError:    As for</span>
 <span class="sd">            :func:`get_indexed_names`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
         <span class="nb">sorted</span><span class="p">(</span>
@@ -389,7 +388,7 @@
 <div class="viewcode-block" id="get_quantity_arity">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_quantity_arity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_quantity_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return how many channels *name* has to be bound to before it can be read.</span>
 
 <span class="sd">    Only one of the three answers is data. A diagnostic is recorded once</span>
@@ -412,7 +411,7 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    If *name* is neither a diagnostic nor an</span>
 <span class="sd">            expression nor the time.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_expression_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
@@ -421,8 +420,8 @@
     <span class="k">if</span> <span class="n">is_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">1</span>
     <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Cannot plot </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: no such diagnostic or expression.&quot;</span><span class="p">,</span>
-        <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">name</span><span class="p">]},</span>
+        <span class="sa">f</span><span class="s2">"Cannot plot </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: no such diagnostic or expression."</span><span class="p">,</span>
+        <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"unknown"</span><span class="p">:</span> <span class="p">[</span><span class="n">name</span><span class="p">]},</span>
     <span class="p">)</span></div>
 
 
@@ -430,7 +429,7 @@
 <div class="viewcode-block" id="get_bare_aggregates">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_bare_aggregates">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_bare_aggregates</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the NaN-propagating aggregates an expression calls.</span>
 
 <span class="sd">    Every array is NaN-padded to the canonical image list, so a plain</span>
@@ -447,16 +446,16 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SyntaxError:    As for :func:`get_expression_names`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># The NaN-propagating spelling of each aggregate the evaluator defines:</span>
     <span class="c1"># `median` where `nanmedian` was meant, and so on. Derived from the</span>
-    <span class="c1"># evaluator&#39;s own list so the two cannot drift apart.</span>
-    <span class="n">bare</span> <span class="o">=</span> <span class="p">{</span><span class="n">nan_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">nan_name</span> <span class="ow">in</span> <span class="n">EvaluatorBase</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">}</span>
+    <span class="c1"># evaluator's own list so the two cannot drift apart.</span>
+    <span class="n">bare</span> <span class="o">=</span> <span class="p">{</span><span class="n">nan_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">nan_name</span> <span class="ow">in</span> <span class="n">EvaluatorBase</span><span class="o">.</span><span class="n">nan_aggregates</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">id</span>
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span>
         <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
         <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">bare</span>
@@ -467,7 +466,7 @@
 <div class="viewcode-block" id="rename_references">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.rename_references">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rename_references</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return *expression* with every reference to *old_name* renamed.</span>
 
 <span class="sd">    A source-level edit, and the only rewriting anywhere in this feature.</span>
@@ -480,7 +479,7 @@
 <span class="sd">    So it must not reformat: the new identifier is spliced in at the exact</span>
 <span class="sd">    source offsets ``ast`` reports, leaving every other byte alone. That is</span>
 <span class="sd">    also what makes it safe where a textual replace is not -- ``rel``</span>
-<span class="sd">    inside ``rel_bg``, inside a string literal, or as a keyword argument&#39;s</span>
+<span class="sd">    inside ``rel_bg``, inside a string literal, or as a keyword argument's</span>
 <span class="sd">    name is left untouched, because only ``ast.Name`` nodes are moved.</span>
 
 <span class="sd">    Args:</span>
@@ -496,12 +495,12 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SyntaxError:    As for :func:`get_expression_names`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># The offsets `ast` reports count utf-8 bytes rather than characters,</span>
     <span class="c1"># so the splicing happens on the encoded text: a non-ASCII character</span>
     <span class="c1"># earlier in the line would otherwise shift every offset after it.</span>
-    <span class="n">encoded</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">encoded</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
 
     <span class="n">line_starts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
@@ -514,23 +513,23 @@
             <span class="n">line_starts</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="n">col_offset</span><span class="p">,</span>
             <span class="n">line_starts</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">end_lineno</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="n">end_col_offset</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">old_name</span>
     <span class="p">)</span>
 
-    <span class="c1"># Right to left, so that an earlier span&#39;s offsets are still valid</span>
+    <span class="c1"># Right to left, so that an earlier span's offsets are still valid</span>
     <span class="c1"># after a later one has changed the length of the text.</span>
     <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">spans</span><span class="p">):</span>
-        <span class="n">encoded</span> <span class="o">=</span> <span class="n">encoded</span><span class="p">[:</span><span class="n">start</span><span class="p">]</span> <span class="o">+</span> <span class="n">new_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">encoded</span><span class="p">[</span><span class="n">end</span><span class="p">:]</span>
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">encoded</span><span class="p">[:</span><span class="n">start</span><span class="p">]</span> <span class="o">+</span> <span class="n">new_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="o">+</span> <span class="n">encoded</span><span class="p">[</span><span class="n">end</span><span class="p">:]</span>
 
-    <span class="k">return</span> <span class="n">encoded</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">encoded</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="get_expression_dependents">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_expression_dependents">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_expression_dependents</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the expressions referencing *name*, for the delete guard.</span>
 
 <span class="sd">    Args:</span>
@@ -540,7 +539,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        set:    Names of expressions that would break if *name* went away.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">other</span>
@@ -553,7 +552,7 @@
 <div class="viewcode-block" id="_evaluation_order">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._evaluation_order">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_evaluation_order</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the expressions to evaluate, each after what it references.</span>
+<span class="w">    </span><span class="sd">"""Return the expressions to evaluate, each after what it references.</span>
 
 <span class="sd">    A depth-first walk from *targets*, appending a name only once the</span>
 <span class="sd">    expressions it references have been appended. Only what the targets</span>
@@ -569,14 +568,14 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    On a reference cycle, naming the loop.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">order</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">done</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">visit</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append *name*, and first everything it references.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Append *name*, and first everything it references."""</span>
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">done</span><span class="p">:</span>
             <span class="k">return</span>
@@ -586,10 +585,10 @@
             <span class="c1"># suspects.</span>
             <span class="n">cycle</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
             <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-                <span class="s2">&quot;Expressions reference each other in a cycle: &quot;</span>
-                <span class="o">+</span> <span class="s2">&quot; -&gt; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
-                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cycle&quot;</span><span class="p">:</span> <span class="n">cycle</span><span class="p">},</span>
+                <span class="s2">"Expressions reference each other in a cycle: "</span>
+                <span class="o">+</span> <span class="s2">" -&gt; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">"."</span><span class="p">,</span>
+                <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"cycle"</span><span class="p">:</span> <span class="n">cycle</span><span class="p">},</span>
             <span class="p">)</span>
 
         <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -614,13 +613,13 @@
 <div class="viewcode-block" id="_needed_diagnostics">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._needed_diagnostics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_needed_diagnostics</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the diagnostics to fetch, rejecting names that resolve to</span>
+<span class="w">    </span><span class="sd">"""Return the diagnostics to fetch, rejecting names that resolve to</span>
 <span class="sd">    nothing.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    If any referenced name is neither an expression,</span>
 <span class="sd">            a diagnostic, nor an evaluator builtin.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">builtins</span> <span class="o">=</span> <span class="n">_evaluator_names</span><span class="p">()</span>
     <span class="n">needed</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">targets</span> <span class="k">if</span> <span class="n">is_known_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">)}</span>
@@ -636,12 +635,12 @@
 
     <span class="k">if</span> <span class="n">unresolved</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-            <span class="s2">&quot;Unresolvable names in &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="s2">"Unresolvable names in "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">))</span><span class="si">}</span><span class="s2">)"</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">names</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">unresolved</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="p">)</span>
-            <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="o">+</span> <span class="s2">"."</span><span class="p">,</span>
             <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">names</span> <span class="ow">in</span> <span class="n">unresolved</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
         <span class="p">)</span>
 
@@ -652,7 +651,7 @@
 <div class="viewcode-block" id="order_expressions">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.order_expressions">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">order_expressions</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the order to evaluate *targets* in, and what data that needs.</span>
 
 <span class="sd">    Only the dependency subtree of *targets* is walked, so asking for one</span>
@@ -681,7 +680,7 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    On a reference cycle, or on a name that is</span>
 <span class="sd">            neither an expression, a diagnostic, nor an evaluator builtin.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">unknown</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">name</span>
@@ -690,9 +689,9 @@
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-            <span class="s2">&quot;Cannot plot &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;: no such diagnostic or &quot;</span>
-            <span class="s2">&quot;expression.&quot;</span><span class="p">,</span>
-            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="n">unknown</span><span class="p">},</span>
+            <span class="s2">"Cannot plot "</span> <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span> <span class="o">+</span> <span class="s2">": no such diagnostic or "</span>
+            <span class="s2">"expression."</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"unknown"</span><span class="p">:</span> <span class="n">unknown</span><span class="p">},</span>
         <span class="p">)</span>
 
     <span class="c1"># The order is also exactly the set of expressions reached, so it</span>
@@ -709,11 +708,11 @@
 <div class="viewcode-block" id="_as_series">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._as_series">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_as_series</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return *values* as an array of *count* entries.</span>
+<span class="w">    </span><span class="sd">"""Return *values* as an array of *count* entries.</span>
 
 <span class="sd">    A constant-valued expression evaluates to a scalar, which still has to</span>
 <span class="sd">    plot as a series, so it is broadcast to the image count.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">count</span><span class="p">:</span>
@@ -721,8 +720,8 @@
     <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
     <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;An expression produced </span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> values for </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> images.&quot;</span><span class="p">,</span>
-        <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;produced&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">count</span><span class="p">)},</span>
+        <span class="sa">f</span><span class="s2">"An expression produced </span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> values for </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> images."</span><span class="p">,</span>
+        <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"produced"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="s2">"images"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">count</span><span class="p">)},</span>
     <span class="p">)</span></div>
 
 
@@ -730,7 +729,7 @@
 <div class="viewcode-block" id="QuantityLookUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantityLookUp</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    One name an expression may read, resolved when it is asked for.</span>
 
 <span class="sd">    Everything a quantity needs is held here: a diagnostic owns the values</span>
@@ -745,19 +744,19 @@
 
 <span class="sd">    Built through :meth:`library` rather than one at a time, because the</span>
 <span class="sd">    lookups of one evaluation share a binding stack and an evaluator, and</span>
-<span class="sd">    both are this class&#39;s business rather than its caller&#39;s.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    both are this class's business rather than its caller's.</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="QuantityLookUp.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shared</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">computed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name(str):    What the expressions call it, used for error</span>
 <span class="sd">                messages only -- nothing resolves by it.</span>
 
 <span class="sd">            shared(tuple):    The binding stack and evaluator this</span>
-<span class="sd">                evaluation&#39;s lookups share, from :meth:`library`.</span>
+<span class="sd">                evaluation's lookups share, from :meth:`library`.</span>
 
 <span class="sd">            definition(tuple):    The expression text and its parameters,</span>
 <span class="sd">                or ``None`` for a diagnostic, which has neither because it</span>
@@ -765,7 +764,7 @@
 
 <span class="sd">            computed(dict):    ``channels -&gt; array`` known in advance: the</span>
 <span class="sd">                whole of a diagnostic, and empty for an expression.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluator</span> <span class="o">=</span> <span class="n">shared</span>
@@ -777,13 +776,13 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp.library">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">library</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return ``{name: lookup}`` for one evaluation, ready to be asked.</span>
 
 <span class="sd">        The binding stack and the evaluator are created here and captured</span>
 <span class="sd">        by the lookups, so neither is named outside this class. The stack</span>
 <span class="sd">        is how a lookup finds the binding of the body asking it, which is</span>
-<span class="sd">        nobody else&#39;s concern; and it must belong to **one evaluation**</span>
+<span class="sd">        nobody else's concern; and it must belong to **one evaluation**</span>
 <span class="sd">        rather than to the class, or two plots drawn at once would</span>
 <span class="sd">        interleave their bindings on it and return wrong numbers rather</span>
 <span class="sd">        than failing.</span>
@@ -800,8 +799,8 @@
 <span class="sd">                :func:`get_needed_values` asked.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            dict:    A lookup per name, sharing one evaluation&#39;s state.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            dict:    A lookup per name, sharing one evaluation's state.</span>
+<span class="sd">        """</span>
 
         <span class="n">shared</span> <span class="o">=</span> <span class="p">([],</span> <span class="n">Evaluator</span><span class="p">({}))</span>
         <span class="n">lookups</span> <span class="o">=</span> <span class="p">{</span>
@@ -847,14 +846,14 @@
 <div class="viewcode-block" id="QuantityLookUp.__getitem__">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp.__getitem__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Resolve ``name[slots]`` as the body being evaluated means it.</span>
 
 <span class="sd">        Python passes ``1`` for ``x[1]`` and ``(1, 2)`` for ``x[1,2]``, so</span>
 <span class="sd">        the shapes take care of themselves. The binding read is the top of</span>
 <span class="sd">        the stack, which is always the body asking: a nested evaluation</span>
-<span class="sd">        finishes in here before the outer body&#39;s next operand is touched.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        finishes in here before the outer body's next operand is touched.</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slots</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="n">slots</span> <span class="o">=</span> <span class="p">(</span><span class="n">slots</span><span class="p">,)</span>
@@ -865,7 +864,7 @@
 <div class="viewcode-block" id="QuantityLookUp.at">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.QuantityLookUp.at">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return this quantity with its parameters bound to *channels*.</span>
 
 <span class="sd">        The cache is what makes an instantiation wanted twice -- by two</span>
@@ -889,15 +888,15 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            PipelineError:    If a diagnostic was not fetched for this</span>
 <span class="sd">                channel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">channels</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_computed</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;No values supplied for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2"> in &quot;</span>
-                    <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
-                    <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
-                    <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;missing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span> <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="n">channels</span><span class="p">},</span>
+                    <span class="sa">f</span><span class="s2">"No values supplied for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2"> in "</span>
+                    <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="s2">"."</span><span class="p">,</span>
+                    <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"missing"</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span> <span class="s2">"channels"</span><span class="p">:</span> <span class="n">channels</span><span class="p">},</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span> <span class="n">channels</span><span class="p">)))</span>
             <span class="k">try</span><span class="p">:</span>
@@ -912,13 +911,13 @@
 <div class="viewcode-block" id="_visit_needed">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._visit_needed">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_visit_needed</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">needed</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add what *name* bound to *channels* reads, recursively.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add what *name* bound to *channels* reads, recursively."""</span>
 
     <span class="n">expected</span> <span class="o">=</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2"> channel(s), not </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
-            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">channels</span><span class="p">)},</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2"> channel(s), not </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
+            <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s2">"quantity"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"channels"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">channels</span><span class="p">)},</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
@@ -942,7 +941,7 @@
 <div class="viewcode-block" id="get_needed_values">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.get_needed_values">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_needed_values</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the diagnostics to read, and in which channels.</span>
 
 <span class="sd">    Runs before anything is evaluated, for two callers that both need the</span>
@@ -956,7 +955,7 @@
 <span class="sd">      type, so evaluating per row would be work proportional to the whole</span>
 <span class="sd">      image collection.</span>
 
-<span class="sd">    It walks what evaluation walks, resolving each reference&#39;s arguments</span>
+<span class="sd">    It walks what evaluation walks, resolving each reference's arguments</span>
 <span class="sd">    through the binding of the body holding it, and stops at the</span>
 <span class="sd">    diagnostics.</span>
 
@@ -979,7 +978,7 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    On a reference cycle, on a name that resolves to</span>
 <span class="sd">            nothing, or on a binding of the wrong length for what it binds.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Refuses a cycle and an unresolvable name, so the walk below cannot</span>
     <span class="c1"># recurse for ever and neither it nor the evaluation need check again.</span>
@@ -1008,7 +1007,7 @@
 <div class="viewcode-block" id="_canonical_length">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._canonical_length">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_canonical_length</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the length of the image list *values* are padded onto.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the length of the image list *values* are padded onto."""</span>
 
     <span class="k">for</span> <span class="n">by_channels</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">by_channels</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -1020,7 +1019,7 @@
 <div class="viewcode-block" id="evaluate_quantities">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.evaluate_quantities">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_quantities</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Evaluate the quantities of one series, each bound to its channels.</span>
 
 <span class="sd">    Args:</span>
@@ -1044,7 +1043,7 @@
 <span class="sd">        PipelineError:    If a quantity resolves to nothing, if the</span>
 <span class="sd">            expressions reference each other in a cycle, or if *values*</span>
 <span class="sd">            lacks something they read.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Only what these quantities reach. The library may hold dozens of</span>
     <span class="c1"># expressions about other diagnostics entirely, and nothing was fetched</span>
@@ -1072,27 +1071,27 @@
 <div class="viewcode-block" id="_spell_slots">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._spell_slots">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_spell_slots</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return *count* channel slots, spelled for a message.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return *count* channel slots, spelled for a message."""</span>
 
-    <span class="k">return</span> <span class="s2">&quot;1 channel slot&quot;</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> channel slots&quot;</span></div>
+    <span class="k">return</span> <span class="s2">"1 channel slot"</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> channel slots"</span></div>
 
 
 
 <div class="viewcode-block" id="_slot_problems">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions._slot_problems">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_slot_problems</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">library</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return what is wrong with how *expression* reads its quantities.</span>
 
 <span class="sd">    One rule: a quantity is read with exactly as many channel slots as it</span>
 <span class="sd">    takes, and one taking none is read bare. The first half is what makes</span>
-<span class="sd">    a reference&#39;s arguments match a definition&#39;s parameters positionally;</span>
+<span class="sd">    a reference's arguments match a definition's parameters positionally;</span>
 <span class="sd">    the second is what lets :func:`get_needed_values` and</span>
 <span class="sd">    :meth:`QuantityLookUp.library` treat a bare name as a value and still</span>
 <span class="sd">    know they have seen everything.</span>
 
 <span class="sd">    Only names resolving to a quantity are judged, in either direction:</span>
-<span class="sd">    the evaluator&#39;s own arrays can be indexed too, and most bare names are</span>
+<span class="sd">    the evaluator's own arrays can be indexed too, and most bare names are</span>
 <span class="sd">    its functions.</span>
 
 <span class="sd">    Args:</span>
@@ -1108,10 +1107,10 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    From :func:`get_indexed_names`, if an index does</span>
 <span class="sd">            not name a channel slot at all.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">is_quantity</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether *candidate* reads data, rather than being a function.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Whether *candidate* reads data, rather than being a function."""</span>
 
         <span class="k">return</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">library</span> <span class="ow">or</span> <span class="n">is_known_quantity</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
 
@@ -1120,17 +1119,17 @@
     <span class="k">for</span> <span class="n">referenced</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="n">get_indexed_names</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_quantity</span><span class="p">(</span><span class="n">referenced</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">written</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">slots</span><span class="p">)</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">slots</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
         <span class="n">arity</span> <span class="o">=</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">arity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes no channel slot, being one value per &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;image: write </span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> rather than </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes no channel slot, being one value per "</span>
+                <span class="sa">f</span><span class="s2">"image: write </span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> rather than </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">arity</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">):</span>
             <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">_spell_slots</span><span class="p">(</span><span class="n">arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, not &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">_spell_slots</span><span class="p">(</span><span class="n">arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, not "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">referenced</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_get_bare_names</span><span class="p">(</span><span class="n">expression</span><span class="p">)):</span>
@@ -1138,10 +1137,10 @@
             <span class="k">continue</span>
         <span class="n">arity</span> <span class="o">=</span> <span class="n">get_quantity_arity</span><span class="p">(</span><span class="n">referenced</span><span class="p">,</span> <span class="n">library</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">arity</span><span class="p">:</span>
-            <span class="n">sample</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">arity</span><span class="p">))</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">arity</span><span class="p">))</span>
             <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">_spell_slots</span><span class="p">(</span><span class="n">arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, so it cannot be &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;read on its own: write </span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">sample</span><span class="si">}</span><span class="s2">].&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2"> takes </span><span class="si">{</span><span class="n">_spell_slots</span><span class="p">(</span><span class="n">arity</span><span class="p">)</span><span class="si">}</span><span class="s2">, so it cannot be "</span>
+                <span class="sa">f</span><span class="s2">"read on its own: write </span><span class="si">{</span><span class="n">referenced</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">sample</span><span class="si">}</span><span class="s2">]."</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">problems</span></div>
@@ -1151,7 +1150,7 @@
 <div class="viewcode-block" id="check_expression">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.expressions.html#autowisp.diagnostics.expressions.check_expression">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">current_library</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return what is wrong with a proposed expression, as plain strings.</span>
 
 <span class="sd">    Problems are returned rather than raised so that this module stays free</span>
@@ -1183,30 +1182,31 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list:    Descriptions of the problems; empty if there are none.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="c1"># Django&#39;s slug charset, spelled out so this module needs no Django. An</span>
+    <span class="c1"># Django's slug charset, spelled out so this module needs no Django. An</span>
     <span class="c1"># expression is selected through `image/&lt;slug:x&gt;/vs/&lt;slug:y&gt;`, so a name</span>
     <span class="c1"># outside this set could be stored but never plotted.</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[-a-zA-Z0-9_]+\Z&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^[-a-zA-Z0-9_]+\Z"</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not a valid name: use letters, digits, hyphens &quot;</span>
-            <span class="s2">&quot;and underscores, so that it survives being put in a URL.&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not a valid name: use letters, digits, hyphens "</span>
+            <span class="s2">"and underscores, so that it survives being put in a URL."</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">is_reserved_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_known_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
         <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already names a diagnostic, or the family of them &quot;</span>
-            <span class="s2">&quot;the selectors offer, and an expression cannot shadow either.&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already names a diagnostic, and an expression "</span>
+            <span class="s2">"cannot shadow one: the two share a name space, which is what "</span>
+            <span class="s2">"lets a selector and a URL treat them alike."</span>
         <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">referenced</span> <span class="o">=</span> <span class="n">get_expression_names</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">SyntaxError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
         <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Not a single expression: </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">. Assignments, &quot;</span>
-            <span class="s2">&quot;statements and imports are not allowed.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Not a single expression: </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">. Assignments, "</span>
+            <span class="s2">"statements and imports are not allowed."</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">problems</span>
 
@@ -1234,9 +1234,9 @@
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">unresolvable</span><span class="p">:</span>
         <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;Not a diagnostic, an expression or a function: &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unresolvable</span><span class="p">)</span>
-            <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+            <span class="s2">"Not a diagnostic, an expression or a function: "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unresolvable</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">"."</span>
         <span class="p">)</span>
         <span class="c1"># Ordering would only fail on the same names, less legibly.</span>
         <span class="k">return</span> <span class="n">problems</span>

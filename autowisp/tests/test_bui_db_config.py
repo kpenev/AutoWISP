@@ -9,17 +9,9 @@ import sys
 import tempfile
 import unittest
 from os import environ, path
-from pathlib import Path
 from unittest import mock
 
-_browser_interface = Path(__file__).resolve().parents[1] / "browser_interface"
-if str(_browser_interface) not in sys.path:
-    sys.path.insert(0, str(_browser_interface))
-
-# pylint: disable=wrong-import-position
-from django_project import db_config
-
-# pylint: enable=wrong-import-position
+from autowisp.browser_interface.django_project import db_config
 
 
 class DbConfigTestCase(unittest.TestCase):

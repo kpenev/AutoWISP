@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.evaluate_terms_visitor &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.fit_expression.evaluate_terms_visitor</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Implement visitor to parsed fit terms expression that evaluates all terms.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Implement visitor to parsed fit terms expression that evaluates all terms."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
@@ -178,12 +178,12 @@
 <div class="viewcode-block" id="EvaluateTermsVisitor">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EvaluateTermsVisitor</span><span class="p">(</span><span class="n">ProcessTermsVisitor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Visitor to parsed fit terms expression evaluating all terms.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Visitor to parsed fit terms expression evaluating all terms."""</span>
 
 <div class="viewcode-block" id="EvaluateTermsVisitor._start_expansion">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor._start_expansion">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_start_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_output_terms</span><span class="p">,</span> <span class="n">term_length</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Allocate the output array for an expannsion operation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Allocate the output array for an expannsion operation."""</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_expansion_terms</span> <span class="ow">is</span> <span class="kc">None</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expansion_term_index</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -195,7 +195,7 @@
 <div class="viewcode-block" id="EvaluateTermsVisitor._process_term_product">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor._process_term_product">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_term_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_terms</span><span class="p">,</span> <span class="n">term_powers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add to the current expansion the product of input terms to powers.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add to the current expansion the product of input terms to powers."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_expansion_terms</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_expansion_term_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">for</span> <span class="n">term_index</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_terms</span><span class="p">):</span>
@@ -211,7 +211,7 @@
 <div class="viewcode-block" id="EvaluateTermsVisitor._end_expansion">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor._end_expansion">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_end_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the result of an expansion and clean-up.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the result of an expansion and clean-up."""</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_expansion_terms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_expansion_terms</span> <span class="o">=</span> <span class="kc">None</span>
@@ -260,7 +260,7 @@
 <div class="viewcode-block" id="EvaluateTermsVisitor.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Define the data used to evaluate the terms.</span>
 
 <span class="sd">        Args:</span>
@@ -271,7 +271,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_term</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -285,7 +285,7 @@
 <div class="viewcode-block" id="EvaluateTermsVisitor.visitFit_term">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.visitFit_term">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_termContext</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the corresponding term.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Evaluate the corresponding term."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_term</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">TERM</span><span class="p">()</span><span class="o">.</span><span class="n">getText</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span></div>
 
@@ -296,7 +296,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_expression</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_expressionContext</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return all terms defined by the term expression.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return all terms defined by the term expression."""</span>
 
         <span class="n">term_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fit_terms_set_cross_product</span><span class="p">():</span>

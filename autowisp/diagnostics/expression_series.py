@@ -55,7 +55,6 @@ class _SeriesKeyFields(NamedTuple):
     session_id: int
     image_type: str
     channels: tuple
-    quantile_name: str = None
 
 
 class SeriesKey(_SeriesKeyFields):
@@ -76,18 +75,11 @@ class SeriesKey(_SeriesKeyFields):
     Every function here takes one of these rather than the fields
     separately, so a caller cannot pair a channel with the wrong session by
     getting an argument order wrong.
-
-    ``quantile_name`` is the odd one out: it says which ``pixel_q*`` a
-    series stands for when a caller has expanded the ``pixel_quantiles``
-    family into one series per member, and by the time values are read the
-    quantity it selects is already a concrete name. Nothing in this module
-    consults it -- as nothing but the image list consults the channels --
-    but it belongs to the identity of the series.
     """
 
     __slots__ = ()
 
-    def __new__(cls, session_id, image_type, channels, quantile_name=None):
+    def __new__(cls, session_id, image_type, channels):
         """
         Build the key, refusing a bare string where a tuple belongs.
 
@@ -108,9 +100,7 @@ class SeriesKey(_SeriesKeyFields):
                 f"channels={channels!r} is a string: a series binds a "
                 "*tuple* of channels, one per parameter of what it draws."
             )
-        return super().__new__(
-            cls, session_id, image_type, tuple(channels), quantile_name
-        )
+        return super().__new__(cls, session_id, image_type, tuple(channels))
 
     @property
     def channel(self):
@@ -456,8 +446,9 @@ def _count_images(matching, required, per_channel, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        list:    ``(session_label, session_id, image_type[, channel],
-            count)`` tuples, the channel present only when *per_channel*.
+        list:    One tuple per series, holding the session label, the
+            session id, the image type, the channel where *per_channel*,
+            and the count.
     """
 
     grouped = [ImageDiagnostics.image_id]

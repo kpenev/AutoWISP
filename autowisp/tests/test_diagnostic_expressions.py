@@ -6,16 +6,14 @@ is covered once for every browser-interface model by ``test_bui_models``.
 """
 
 import os
-import sys
 import unittest
-from pathlib import Path
 
 import django
 
-_browser_interface = Path(__file__).resolve().parents[1] / "browser_interface"
-if str(_browser_interface) not in sys.path:
-    sys.path.insert(0, str(_browser_interface))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_project.settings")
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "autowisp.browser_interface.django_project.settings",
+)
 django.setup()
 
 # pylint: disable=wrong-import-position
@@ -24,8 +22,10 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db.utils import IntegrityError
 
-from diagnostics.expression_data import get_expressions
-from diagnostics.models import DiagnosticExpression
+from autowisp.browser_interface.diagnostics.expression_data import (
+    get_expressions,
+)
+from autowisp.browser_interface.diagnostics.models import DiagnosticExpression
 
 # pylint: enable=wrong-import-position
 

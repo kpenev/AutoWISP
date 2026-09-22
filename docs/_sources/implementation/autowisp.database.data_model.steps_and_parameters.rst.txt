@@ -1,7 +1,0 @@
-autowisp.database.data\_model.steps\_and\_parameters module
-===========================================================
-
-.. automodule:: autowisp.database.data_model.steps_and_parameters
-   :members:
-   :undoc-members:
-   :show-inheritance:

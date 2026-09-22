@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processing_steps.add_images_to_db &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -166,7 +166,7 @@
   <h1>Source code for autowisp.processing_steps.add_images_to_db</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;Register new images with the database.&quot;&quot;&quot;</span>
+<span class="sd">"""Register new images with the database."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
@@ -193,12 +193,12 @@
 <div class="viewcode-block" id="parse_command_line">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.parse_command_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the parsed command line arguments."""</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
-        <span class="n">inputtype</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">inputtype</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">inputtype</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span>
+        <span class="n">inputtype</span> <span class="o">=</span> <span class="s2">"raw"</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
@@ -206,20 +206,20 @@
         <span class="n">add_provenance_args</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--image-type&quot;</span><span class="p">,</span>
+        <span class="s2">"--image-type"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Header expression that evaluates to the type of the image, which &quot;</span>
-        <span class="s2">&quot;must be one of the image types defined for the project. Images whose &quot;</span>
-        <span class="s2">&quot;type is not one of those are rejected, unless &quot;</span>
-        <span class="s2">&quot;``--ignore-unknown-image-types`` is passed. If not specified, every &quot;</span>
-        <span class="s2">&quot;image is treated as an object frame.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Header expression that evaluates to the type of the image, which "</span>
+        <span class="s2">"must be one of the image types defined for the project. Images whose "</span>
+        <span class="s2">"type is not one of those are rejected, unless "</span>
+        <span class="s2">"``--ignore-unknown-image-types`` is passed. If not specified, every "</span>
+        <span class="s2">"image is treated as an object frame."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--ignore-unknown-image-types&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="s2">"--ignore-unknown-image-types"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If this option is passed and an image of an unknown type is &quot;</span>
-        <span class="s2">&quot;encountered it will not be added tot he database.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"If this option is passed and an image of an unknown type is "</span>
+        <span class="s2">"encountered it will not be added tot he database."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
@@ -229,19 +229,19 @@
 <div class="viewcode-block" id="create_image">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.create_image">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_image</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the database Image entry corresponding to the given file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create the database Image entry corresponding to the given file."""</span>
 
     <span class="n">recognized_image_types</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="p">]</span>
-    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;image_type&quot;</span><span class="p">]:</span>
-        <span class="n">image_type</span> <span class="o">=</span> <span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;image_type&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"image_type"</span><span class="p">]:</span>
+        <span class="n">image_type</span> <span class="o">=</span> <span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"image_type"</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">image_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">recognized_image_types</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;ignore_unknown_image_types&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"ignore_unknown_image_types"</span><span class="p">]:</span>
                 <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unrecognized image type </span><span class="si">{</span><span class="n">image_type</span><span class="si">!r}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(expected one of </span><span class="si">{</span><span class="n">recognized_image_types</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Unrecognized image type </span><span class="si">{</span><span class="n">image_type</span><span class="si">!r}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"(expected one of </span><span class="si">{</span><span class="n">recognized_image_types</span><span class="si">}</span><span class="s2">)"</span>
             <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># With nothing to classify by, every frame is a science frame. This</span>
@@ -250,7 +250,7 @@
         <span class="c1"># could never be set, since they were created from the image types</span>
         <span class="c1"># found in the database, which are not yet visible when a new project</span>
         <span class="c1"># seeds its parameters.</span>
-        <span class="n">image_type</span> <span class="o">=</span> <span class="s2">&quot;object&quot;</span>
+        <span class="n">image_type</span> <span class="o">=</span> <span class="s2">"object"</span>
     <span class="n">image_type_id</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">image_type</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
     <span class="p">)</span>
@@ -265,19 +265,19 @@
 <div class="viewcode-block" id="add_images_to_db">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.add_images_to_db">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_images_to_db</span><span class="p">(</span><span class="n">image_collection</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add all the images in the collection to the database.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add all the images in the collection to the database."""</span>
 
     <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding image </span><span class="si">%s</span><span class="s2"> to database&quot;</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Adding image </span><span class="si">%s</span><span class="s2"> to database"</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span>
             <span class="n">related_files</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+                <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">"input"</span><span class="p">)</span>
             <span class="p">]</span>
         <span class="p">):</span>
             <span class="n">header_eval</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
-            <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;FULLPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_fname</span>
+            <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"FULLPATH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_fname</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Defining evaluator with keys: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Defining evaluator with keys: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
             <span class="p">)</span>
             <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
@@ -294,38 +294,38 @@
                 <span class="n">image</span><span class="o">.</span><span class="n">observing_session</span> <span class="o">=</span> <span class="n">get_or_create_observing_session</span><span class="p">(</span>
                     <span class="n">image_type</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
                 <span class="p">)</span>
-                <span class="n">image</span><span class="o">.</span><span class="n">jd</span> <span class="o">=</span> <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">)</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">jd</span> <span class="o">=</span> <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"JD-OBS"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">existing_image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;Image </span><span class="si">%s</span><span class="s2"> already in the database with ID: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Image </span><span class="si">%s</span><span class="s2"> already in the database with ID: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">,</span>
                         <span class="n">existing_image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="n">existing_image</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span>
                     <span class="p">),</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is already in the database as &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;image type </span><span class="si">{</span><span class="n">existing_image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2"> but now &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;looks like type </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2">!&quot;</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is already in the database as "</span>
+                        <span class="sa">f</span><span class="s2">"image type </span><span class="si">{</span><span class="n">existing_image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2"> but now "</span>
+                        <span class="sa">f</span><span class="s2">"looks like type </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2">!"</span>
                     <span class="p">)</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="n">existing_image</span><span class="o">.</span><span class="n">observing_session_id</span>
                         <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">observing_session</span><span class="o">.</span><span class="n">id</span>
                     <span class="p">),</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is already in the database under &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;observing session </span><span class="si">{</span><span class="n">existing_image</span><span class="o">.</span><span class="n">observing_session_id</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; but now resolves to </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">observing_session</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">!&quot;</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is already in the database under "</span>
+                        <span class="sa">f</span><span class="s2">"observing session </span><span class="si">{</span><span class="n">existing_image</span><span class="o">.</span><span class="n">observing_session_id</span><span class="si">}</span><span class="s2">"</span>
+                        <span class="sa">f</span><span class="s2">" but now resolves to </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">observing_session</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">!"</span>
                     <span class="p">)</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
-    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
     <span class="n">add_images_to_db</span><span class="p">(</span>
-        <span class="n">find_fits_fnames</span><span class="p">(</span><span class="n">cmdline_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;raw_images&quot;</span><span class="p">)),</span> <span class="n">cmdline_config</span>
+        <span class="n">find_fits_fnames</span><span class="p">(</span><span class="n">cmdline_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"raw_images"</span><span class="p">)),</span> <span class="n">cmdline_config</span>
     <span class="p">)</span>
 </pre></div>
 

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.error_persistence module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -171,24 +171,22 @@
 <span id="autowisp-error-persistence-module"></span><h1>autowisp.error_persistence module<a class="headerlink" href="#module-autowisp.error_persistence" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-7a49986a399b41c52783db8e9c93b7804d5f37e5.png" alt="Inheritance diagram of Component, Error, Image, MasterFile, datetime, timedelta, timezone" usemap="#inheritance74ccf85ca9" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-266e1924f4e39154e3199b69502b88d6faa2fa21.png" alt="Inheritance diagram of Component, Error, Image, MasterFile, datetime, timedelta, timezone" usemap="#inheritance74ccf85ca9" class="inheritance graphviz" /></div>
 <map id="inheritance74ccf85ca9" name="inheritance74ccf85ca9">
-<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="268,304,598,331"/>
-<area shape="rect" id="node5" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="5,379,269,405"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="293,379,573,405"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="597,379,938,405"/>
-<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="451,229,804,256"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="762,80,973,107"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="822,5,913,32"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="1010,5,1110,32"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="997,80,1122,107"/>
-<area shape="rect" id="node12" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="1134,5,1262,32"/>
-<area shape="rect" id="node13" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="1276,80,1404,107"/>
-<area shape="rect" id="node14" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="1286,5,1393,32"/>
-<area shape="rect" id="node17" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="575,5,680,32"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="5,372,300,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="324,372,640,397"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="664,372,1047,397"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="845,79,1079,104"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="912,5,1012,31"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="1118,5,1233,31"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="1103,79,1247,104"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="1257,5,1405,31"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="1418,79,1565,104"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="1430,5,1553,31"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="639,5,757,31"/>
 </map><p>Persist AutoWISP errors as a queryable row plus a JSON sidecar.</p>
 <p>Each persisted error becomes a small, queryable
-<a class="reference internal" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" title="autowisp.database.data_model.error.Error"><code class="xref py py-class docutils literal notranslate"><span class="pre">Error</span></code></a> row (the fields list
+<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" title="autowisp.database.data_model.error.Error"><code class="xref py py-class docutils literal notranslate"><span class="pre">Error</span></code></a> row (the fields list
 views and aggregate queries need) plus a per-error JSON sidecar holding
 the heavy remainder (full message, complete related-file list,
 <code class="docutils literal notranslate"><span class="pre">details</span></code>, traceback). The split keeps the SQLite file small while
@@ -264,7 +262,7 @@ files.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_persistence._write_sidecar">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_write_sidecar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gzip_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_write_sidecar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._write_sidecar" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">_write_sidecar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">gzip_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#_write_sidecar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence._write_sidecar" title="Link to this definition"></a></dt>
 <dd><p>Atomically write the sidecar JSON and return its relative path.</p>
 <p>The payload is written to a <code class="docutils literal notranslate"><span class="pre">.tmp</span></code> file and then <code class="docutils literal notranslate"><span class="pre">os.replace``d</span>
 <span class="pre">into</span> <span class="pre">place,</span> <span class="pre">so</span> <span class="pre">a</span> <span class="pre">reader</span> <span class="pre">never</span> <span class="pre">sees</span> <span class="pre">a</span> <span class="pre">half-written</span> <span class="pre">file.</span> <span class="pre">Payloads</span> <span class="pre">above</span>
@@ -291,7 +289,7 @@ gzipped.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_persistence.cleanup_errors">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">cleanup_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">older_than</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#cleanup_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.cleanup_errors" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">cleanup_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">older_than</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#cleanup_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.cleanup_errors" title="Link to this definition"></a></dt>
 <dd><p>Prune persisted errors: aged rows, orphan files, dangling rows.</p>
 <p>Three passes, all best-effort:</p>
 <ol class="arabic simple">
@@ -312,7 +310,7 @@ the aged-row pass and only sweeps orphans/dangling rows.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Counts <a href="#id1"><span class="problematic" id="id2">``</span></a>{“removed_rows”, “removed_files”,</dt><dd><p>”cleared_dangling”}``.</p>
+<dt>Counts under the keys <code class="docutils literal notranslate"><span class="pre">removed_rows</span></code>,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">removed_files</span></code> and <code class="docutils literal notranslate"><span class="pre">cleared_dangling</span></code>.</p>
 </dd>
 </dl>
 </p>
@@ -411,7 +409,7 @@ sidecar degrades to <code class="docutils literal notranslate"><span class="pre"
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_persistence.persist_error">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">persist_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_gzip_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#persist_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.persist_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_persistence.</span></span><span class="sig-name descname"><span class="pre">persist_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_gzip_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_persistence.html#persist_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_persistence.persist_error" title="Link to this definition"></a></dt>
 <dd><p>Persist <code class="docutils literal notranslate"><span class="pre">exc</span></code> as an <code class="docutils literal notranslate"><span class="pre">Error</span></code> row plus a JSON sidecar.</p>
 <p>Best-effort and never raises. The row is committed first, so it
 survives even if the sidecar write later fails (its <code class="docutils literal notranslate"><span class="pre">sidecar_path</span></code>

@@ -3,5 +3,5 @@ autowisp.exceptions module
 
 .. automodule:: autowisp.exceptions
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

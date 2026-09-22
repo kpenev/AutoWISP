@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.light_curve_status &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.light_curve_status</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define table tracking the state of interrupted lightcurve processing.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define table tracking the state of interrupted lightcurve processing."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -175,55 +175,55 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelSubBase</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LightCurveStatus&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"LightCurveStatus"</span><span class="p">]</span>
 
 <span class="n">GaiaIDType</span> <span class="o">=</span> <span class="n">BigInteger</span><span class="p">()</span>
-<span class="n">GaiaIDType</span> <span class="o">=</span> <span class="n">GaiaIDType</span><span class="o">.</span><span class="n">with_variant</span><span class="p">(</span><span class="n">postgresql</span><span class="o">.</span><span class="n">BIGINT</span><span class="p">(),</span> <span class="s2">&quot;postgresql&quot;</span><span class="p">)</span>
-<span class="n">GaiaIDType</span> <span class="o">=</span> <span class="n">GaiaIDType</span><span class="o">.</span><span class="n">with_variant</span><span class="p">(</span><span class="n">mysql</span><span class="o">.</span><span class="n">BIGINT</span><span class="p">(),</span> <span class="s2">&quot;mysql&quot;</span><span class="p">)</span>
-<span class="n">GaiaIDType</span> <span class="o">=</span> <span class="n">GaiaIDType</span><span class="o">.</span><span class="n">with_variant</span><span class="p">(</span><span class="n">sqlite</span><span class="o">.</span><span class="n">INTEGER</span><span class="p">(),</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">)</span>
+<span class="n">GaiaIDType</span> <span class="o">=</span> <span class="n">GaiaIDType</span><span class="o">.</span><span class="n">with_variant</span><span class="p">(</span><span class="n">postgresql</span><span class="o">.</span><span class="n">BIGINT</span><span class="p">(),</span> <span class="s2">"postgresql"</span><span class="p">)</span>
+<span class="n">GaiaIDType</span> <span class="o">=</span> <span class="n">GaiaIDType</span><span class="o">.</span><span class="n">with_variant</span><span class="p">(</span><span class="n">mysql</span><span class="o">.</span><span class="n">BIGINT</span><span class="p">(),</span> <span class="s2">"mysql"</span><span class="p">)</span>
+<span class="n">GaiaIDType</span> <span class="o">=</span> <span class="n">GaiaIDType</span><span class="o">.</span><span class="n">with_variant</span><span class="p">(</span><span class="n">sqlite</span><span class="o">.</span><span class="n">INTEGER</span><span class="p">(),</span> <span class="s2">"sqlite"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="LightCurveStatus">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.light_curve_status.html#autowisp.database.data_model.LightCurveStatus">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveStatus">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LightCurveStatus</span><span class="p">(</span><span class="n">DataModelSubBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Table tracking the status of lightcurves for interrupted steps.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Table tracking the status of lightcurves for interrupted steps."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;light_curve_status&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"light_curve_status"</span>
 
     <span class="n">progress_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="n">ForeignKey</span><span class="p">(</span>
-            <span class="s2">&quot;light_curve_processing_progress.id&quot;</span><span class="p">,</span>
-            <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span>
-            <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">,</span>
+            <span class="s2">"light_curve_processing_progress.id"</span><span class="p">,</span>
+            <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span>
+            <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The ID of the LC processing progress which was interrupted&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The ID of the LC processing progress which was interrupted"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The status of the processing (0 = started, &quot;</span>
-        <span class="s2">&quot;&gt;0 = successfully saved progress, &quot;</span>
-        <span class="s2">&quot;negative values indicate various reasons &quot;</span>
-        <span class="s2">&quot;for failure).&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The status of the processing (0 = started, "</span>
+        <span class="s2">"&gt;0 = successfully saved progress, "</span>
+        <span class="s2">"negative values indicate various reasons "</span>
+        <span class="s2">"for failure)."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="c1"># The Gaia source id of the star, not a row counter --</span>
         <span class="c1"># LightCurveProcessingManager stores src_id here. Those run to ~8e17,</span>
         <span class="c1"># which overflows the 32-bit INT that ``Integer`` becomes on MySQL and</span>
-        <span class="c1"># MariaDB (&quot;Out of range value for column &#39;id&#39;&quot;). SQLite hid it: its</span>
+        <span class="c1"># MariaDB ("Out of range value for column 'id'"). SQLite hid it: its</span>
         <span class="c1"># INTEGER is 64-bit and it does not enforce declared types anyway.</span>
         <span class="n">GaiaIDType</span><span class="p">,</span>
         <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The Gaia source id of the star whose lightcurve this row tracks.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The Gaia source id of the star whose lightcurve this row tracks."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Star </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> interrupted processing: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">processing</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Star </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> interrupted processing: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">processing</span><span class="si">}</span><span class="s2">"</span>
 
-    <span class="n">processing</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;LightCurveProcessingProgress&quot;</span><span class="p">)</span></div>
+    <span class="n">processing</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"LightCurveProcessingProgress"</span><span class="p">)</span></div>
 
 </pre></div>
 

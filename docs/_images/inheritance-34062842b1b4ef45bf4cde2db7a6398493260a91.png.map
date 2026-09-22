@@ -1,0 +1,14 @@
+<map id="inheritance81ff088c32" name="inheritance81ff088c32">
+<area shape="rect" id="node1" title="Test case involving floating point comparisons." alt="" coords="24,79,293,104"/>
+<area shape="rect" id="node7" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="37,152,280,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="253,5,421,31"/>
+<area shape="rect" id="node11" href="#autowisp.tests.test_find_stars.TestStarlessFrameHandling" target="_top" title="A starless frame must fail on its own, not take the batch down." alt="" coords="317,79,715,104"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="721,5,975,31"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="738,79,958,104"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="723,152,973,177"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.NoSourcesFoundError" target="_top" title="Source extraction completed but found no sources in a frame." alt="" coords="699,225,997,251"/>
+<area shape="rect" id="node9" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase" target="_top" title="Add assert for comparing groups in HDF5 files." alt="" coords="15,225,302,251"/>
+<area shape="rect" id="node8" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase" target="_top" title="H5TestCase aware of row&#45;order ambiguity in SourceExtraction groups." alt="" coords="15,299,302,324"/>
+<area shape="rect" id="node10" href="#autowisp.tests.test_find_stars.TestFindStars" target="_top" title="Tests of the find_stars step." alt="" coords="5,372,312,397"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="999,5,1209,31"/>
+</map>

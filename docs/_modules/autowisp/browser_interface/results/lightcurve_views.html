@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.results.lightcurve_views &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.results.lightcurve_views</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Views for displaying the lightcurve of a star.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Views for displaying the lightcurve of a star."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
@@ -191,20 +191,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.image_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageProcessingManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_project_home</span>
 
-<span class="n">_custom_aggregators</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;len&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">}</span>
+<span class="n">_custom_aggregators</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"len"</span><span class="p">:</span> <span class="nb">len</span><span class="p">}</span>
 
 <span class="n">_default_models</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;transit&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;times&quot;</span><span class="p">:</span> <span class="s2">&quot;skypos.BJD&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># the planet-star radius ratio</span>
-        <span class="s2">&quot;ldc&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>  <span class="c1"># limb darkening coeff</span>
-        <span class="s2">&quot;t0&quot;</span><span class="p">:</span> <span class="mf">2455787.553228</span><span class="p">,</span>  <span class="c1"># the zero epoch,</span>
-        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>  <span class="c1"># the orbital period,</span>
-        <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>  <span class="c1"># the orbital semi-major divided by R*,</span>
-        <span class="s2">&quot;i&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>  <span class="c1"># the orbital inclination in rad,</span>
-        <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># the orbital eccentricity (optional, can be left out if</span>
+    <span class="s2">"transit"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"times"</span><span class="p">:</span> <span class="s2">"skypos.BJD"</span><span class="p">,</span>
+        <span class="s2">"k"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># the planet-star radius ratio</span>
+        <span class="s2">"ldc"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>  <span class="c1"># limb darkening coeff</span>
+        <span class="s2">"t0"</span><span class="p">:</span> <span class="mf">2455787.553228</span><span class="p">,</span>  <span class="c1"># the zero epoch,</span>
+        <span class="s2">"p"</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>  <span class="c1"># the orbital period,</span>
+        <span class="s2">"a"</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>  <span class="c1"># the orbital semi-major divided by R*,</span>
+        <span class="s2">"i"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>  <span class="c1"># the orbital inclination in rad,</span>
+        <span class="s2">"e"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># the orbital eccentricity (optional, can be left out if</span>
         <span class="c1"># assuming circular a orbit), and</span>
-        <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># the argument of periastron in radians (also optional,</span>
+        <span class="s2">"w"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># the argument of periastron in radians (also optional,</span>
         <span class="c1"># can be left out if assuming circular a orbit).</span>
     <span class="p">}</span>
 <span class="p">}</span>
@@ -213,92 +213,92 @@
 <div class="viewcode-block" id="_init_session">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._init_session">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_init_session</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the session for displaying lightcurve with defaults.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the session for displaying lightcurve with defaults."""</span>
 
-    <span class="n">color_map</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">&quot;tab10&quot;</span><span class="p">)</span>
+    <span class="n">color_map</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"tab10"</span><span class="p">)</span>
     <span class="n">processing_manager</span> <span class="o">=</span> <span class="n">ImageProcessingManager</span><span class="p">(</span><span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">param_values</span> <span class="o">=</span> <span class="n">processing_manager</span><span class="o">.</span><span class="n">get_param_values</span><span class="p">(</span>
-        <span class="p">{</span><span class="mi">1</span><span class="p">},</span> <span class="p">[</span><span class="s2">&quot;lc-fname&quot;</span><span class="p">,</span> <span class="s2">&quot;apertures&quot;</span><span class="p">]</span>
+        <span class="p">{</span><span class="mi">1</span><span class="p">},</span> <span class="p">[</span><span class="s2">"lc-fname"</span><span class="p">,</span> <span class="s2">"apertures"</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">num_apertures</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_values</span><span class="p">[</span><span class="s2">&quot;apertures&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
-    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;lc_fname_template&quot;</span><span class="p">:</span> <span class="n">param_values</span><span class="p">[</span><span class="s2">&quot;lc-fname&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;target_fname&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gaia_id&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;color_map&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">hex_color</span><span class="p">(</span><span class="n">color_map</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span>
-        <span class="s2">&quot;data_select&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">num_apertures</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_values</span><span class="p">[</span><span class="s2">"apertures"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">))</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"lc_fname_template"</span><span class="p">:</span> <span class="n">param_values</span><span class="p">[</span><span class="s2">"lc-fname"</span><span class="p">],</span>
+        <span class="s2">"target_fname"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"gaia_id"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"color_map"</span><span class="p">:</span> <span class="p">[</span><span class="n">hex_color</span><span class="p">(</span><span class="n">color_map</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span>
+        <span class="s2">"data_select"</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;lc_substitutions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
-                <span class="s2">&quot;find_best&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;0..</span><span class="si">{</span><span class="n">num_apertures</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
-                <span class="s2">&quot;minimize&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="s2">&quot;nanmedian(abs(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude - &quot;</span>
-                    <span class="s2">&quot;nanmedian(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude)))&quot;</span>
+                <span class="s2">"lc_substitutions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"magfit_iteration"</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
+                <span class="s2">"find_best"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"aperture_index"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"0..</span><span class="si">{</span><span class="n">num_apertures</span><span class="si">}</span><span class="s2">"</span><span class="p">},</span>
+                <span class="s2">"minimize"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"nanmedian(abs(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude - "</span>
+                    <span class="s2">"nanmedian(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude)))"</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;photometry_modes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;selection&quot;</span><span class="p">:</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;expressions&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;magnitude&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude - &quot;</span>
-                        <span class="s2">&quot;nanmedian(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude)&quot;</span>
+                <span class="s2">"photometry_modes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"apphot"</span><span class="p">],</span>
+                <span class="s2">"selection"</span><span class="p">:</span> <span class="s2">"True"</span><span class="p">,</span>
+                <span class="s2">"model"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"expressions"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">"magnitude"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude - "</span>
+                        <span class="s2">"nanmedian(</span><span class="si">{mode}</span><span class="s2">.magfit.magnitude)"</span>
                     <span class="p">),</span>
-                    <span class="s2">&quot;bjd&quot;</span><span class="p">:</span> <span class="s2">&quot;skypos.BJD - skypos.BJD.min()&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;rawfname&quot;</span><span class="p">:</span> <span class="s2">&quot;fitsheader.rawfname&quot;</span><span class="p">,</span>
+                    <span class="s2">"bjd"</span><span class="p">:</span> <span class="s2">"skypos.BJD - skypos.BJD.min()"</span><span class="p">,</span>
+                    <span class="s2">"rawfname"</span><span class="p">:</span> <span class="s2">"fitsheader.rawfname"</span><span class="p">,</span>
                 <span class="p">},</span>
-                <span class="s2">&quot;plot_config&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"plot_config"</span><span class="p">:</span> <span class="p">[</span>
                     <span class="p">[</span>
                         <span class="p">{</span>
-                            <span class="s2">&quot;sphotref_selector&quot;</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;x_aggregate&quot;</span><span class="p">:</span> <span class="s2">&quot;nanmedian&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;y_aggregate&quot;</span><span class="p">:</span> <span class="s2">&quot;nanmedian&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;bjd&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;match_by&quot;</span><span class="p">:</span> <span class="s2">&quot;rawfname&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;curve_label&quot;</span><span class="p">:</span> <span class="s2">&quot;magfit&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;plot_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;markersize&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-                                <span class="s2">&quot;markeredgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;markerfacecolor&quot;</span><span class="p">:</span> <span class="n">hex_color</span><span class="p">(</span><span class="n">color_map</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span>
-                                <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#ffffff&quot;</span><span class="p">,</span>
+                            <span class="s2">"sphotref_selector"</span><span class="p">:</span> <span class="s2">"*"</span><span class="p">,</span>
+                            <span class="s2">"x_aggregate"</span><span class="p">:</span> <span class="s2">"nanmedian"</span><span class="p">,</span>
+                            <span class="s2">"y_aggregate"</span><span class="p">:</span> <span class="s2">"nanmedian"</span><span class="p">,</span>
+                            <span class="s2">"x"</span><span class="p">:</span> <span class="s2">"bjd"</span><span class="p">,</span>
+                            <span class="s2">"y"</span><span class="p">:</span> <span class="s2">"magnitude"</span><span class="p">,</span>
+                            <span class="s2">"match_by"</span><span class="p">:</span> <span class="s2">"rawfname"</span><span class="p">,</span>
+                            <span class="s2">"curve_label"</span><span class="p">:</span> <span class="s2">"magfit"</span><span class="p">,</span>
+                            <span class="s2">"plot_kwargs"</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s2">"marker"</span><span class="p">:</span> <span class="s2">"o"</span><span class="p">,</span>
+                                <span class="s2">"markersize"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                                <span class="s2">"markeredgecolor"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                                <span class="s2">"markerfacecolor"</span><span class="p">:</span> <span class="n">hex_color</span><span class="p">(</span><span class="n">color_map</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span>
+                                <span class="s2">"linestyle"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                                <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                                <span class="s2">"color"</span><span class="p">:</span> <span class="s2">"#ffffff"</span><span class="p">,</span>
                             <span class="p">},</span>
                         <span class="p">}</span>
                     <span class="p">]</span>
                 <span class="p">],</span>
             <span class="p">}</span>
         <span class="p">],</span>
-        <span class="s2">&quot;plot_layout&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"plot_layout"</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;width_ratios&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
-                <span class="s2">&quot;height_ratios&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
-                <span class="s2">&quot;wspace&quot;</span><span class="p">:</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.subplot.wspace&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;hspace&quot;</span><span class="p">:</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.subplot.hspace&quot;</span><span class="p">],</span>
+                <span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+                <span class="s2">"height_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+                <span class="s2">"wspace"</span><span class="p">:</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">"figure.subplot.wspace"</span><span class="p">],</span>
+                <span class="s2">"hspace"</span><span class="p">:</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">"figure.subplot.hspace"</span><span class="p">],</span>
             <span class="p">},</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
         <span class="p">],</span>
-        <span class="s2">&quot;plot_decorations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"plot_decorations"</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;x_label&quot;</span><span class="p">:</span> <span class="s2">&quot;BJD&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;y_label&quot;</span><span class="p">:</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;GDR3 </span><span class="si">{GaiaID}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;xmin&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;xmax&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;ymin&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;ymax&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"x_label"</span><span class="p">:</span> <span class="s2">"BJD"</span><span class="p">,</span>
+                <span class="s2">"y_label"</span><span class="p">:</span> <span class="s2">"magnitude"</span><span class="p">,</span>
+                <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"GDR3 </span><span class="si">{GaiaID}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"xmin"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"xmax"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"ymin"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"ymax"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">],</span>
-        <span class="s2">&quot;figure_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">"figure_config"</span><span class="p">:</span> <span class="p">{},</span>
     <span class="p">}</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Color map: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;color_map&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Color map: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"color_map"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="_jsonify_plot_data">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._jsonify_plot_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_jsonify_plot_data</span><span class="p">(</span><span class="n">plot_data</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Re-format plot data for single sphotref for storing in JSON format.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Re-format plot data for single sphotref for storing in JSON format."""</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">plot_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -316,7 +316,7 @@
 <div class="viewcode-block" id="_unjsonify_plot_data">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._unjsonify_plot_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_unjsonify_plot_data</span><span class="p">(</span><span class="n">json_data</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Undo `_jsonify_plot_data()`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Undo `_jsonify_plot_data()`."""</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">json_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -325,7 +325,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+                    <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -336,7 +336,7 @@
 <div class="viewcode-block" id="_convert_plot_data_json">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._convert_plot_data_json">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert_plot_data_json</span><span class="p">(</span><span class="n">plot_data</span><span class="p">,</span> <span class="n">inverse</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Re-format plot data for storing in JSON format or reverse conversion.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Re-format plot data for storing in JSON format or reverse conversion."""</span>
 
     <span class="n">transform</span> <span class="o">=</span> <span class="n">_unjsonify_plot_data</span> <span class="k">if</span> <span class="n">inverse</span> <span class="k">else</span> <span class="n">_jsonify_plot_data</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">fname</span><span class="p">:</span> <span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">plot_data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
@@ -346,13 +346,13 @@
 <div class="viewcode-block" id="_parse_optimizables">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._parse_optimizables">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_optimizables</span><span class="p">(</span><span class="n">optimizables</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert user shorthands to lists of allowed values for ``find_best``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convert user shorthands to lists of allowed values for ``find_best``."""</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">substitution</span><span class="p">,</span> <span class="n">user_value</span> <span class="ow">in</span> <span class="n">optimizables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="s2">&quot;..&quot;</span> <span class="ow">in</span> <span class="n">user_value</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">".."</span> <span class="ow">in</span> <span class="n">user_value</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">(</span><span class="n">substitution</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">user_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)))))</span>
+                <span class="p">(</span><span class="n">substitution</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">user_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">".."</span><span class="p">)))))</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -361,7 +361,7 @@
                     <span class="p">[</span>
                         <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">user_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-                            <span class="s2">&quot;,&quot;</span> <span class="k">if</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">user_value</span> <span class="k">else</span> <span class="kc">None</span>
+                            <span class="s2">","</span> <span class="k">if</span> <span class="s2">","</span> <span class="ow">in</span> <span class="n">user_value</span> <span class="k">else</span> <span class="kc">None</span>
                         <span class="p">)</span>
                     <span class="p">],</span>
                 <span class="p">)</span>
@@ -373,110 +373,110 @@
 <div class="viewcode-block" id="_add_lightcurve_to_session">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._add_lightcurve_to_session">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_lightcurve_to_session</span><span class="p">(</span><span class="n">plotting_info</span><span class="p">,</span> <span class="n">lightcurve_fname</span><span class="p">,</span> <span class="n">select</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add to the browser session a new entry for the given lightcurve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add to the browser session a new entry for the given lightcurve."""</span>
 
     <span class="n">plotting_info</span><span class="p">[</span><span class="n">lightcurve_fname</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data select pre getting data: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data_select</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Data select pre getting data: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data_select</span><span class="p">))</span>
         <span class="n">plot_data</span> <span class="o">=</span> <span class="n">get_plot_data</span><span class="p">(</span>
             <span class="n">lightcurve_fname</span><span class="p">,</span>
-            <span class="n">data_select</span><span class="p">[</span><span class="s2">&quot;expressions&quot;</span><span class="p">],</span>
+            <span class="n">data_select</span><span class="p">[</span><span class="s2">"expressions"</span><span class="p">],</span>
             <span class="p">{</span>
                 <span class="n">k</span><span class="p">:</span> <span class="p">(</span>
                     <span class="n">_parse_optimizables</span><span class="p">(</span><span class="n">data_select</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;find_best&quot;</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">"find_best"</span>
                     <span class="k">else</span> <span class="n">data_select</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span>
-                    <span class="s2">&quot;lc_substitutions&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;find_best&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;minimize&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;photometry_modes&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;selection&quot;</span><span class="p">,</span>
+                    <span class="s2">"lc_substitutions"</span><span class="p">,</span>
+                    <span class="s2">"find_best"</span><span class="p">,</span>
+                    <span class="s2">"minimize"</span><span class="p">,</span>
+                    <span class="s2">"photometry_modes"</span><span class="p">,</span>
+                    <span class="s2">"selection"</span><span class="p">,</span>
                 <span class="p">]</span>
             <span class="p">},</span>
-            <span class="n">data_select</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">),</span>
+            <span class="n">data_select</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model"</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data select post getting data: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data_select</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Data select post getting data: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data_select</span><span class="p">))</span>
 
         <span class="n">plotting_info</span><span class="p">[</span><span class="n">lightcurve_fname</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;plot_data&quot;</span><span class="p">:</span> <span class="n">_convert_plot_data_json</span><span class="p">(</span><span class="n">plot_data</span><span class="p">,</span> <span class="kc">False</span><span class="p">)}</span>
+            <span class="p">{</span><span class="s2">"plot_data"</span><span class="p">:</span> <span class="n">_convert_plot_data_json</span><span class="p">(</span><span class="n">plot_data</span><span class="p">,</span> <span class="kc">False</span><span class="p">)}</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">select</span><span class="p">:</span>
-        <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lightcurve_fname</span></div>
+        <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]</span> <span class="o">=</span> <span class="n">lightcurve_fname</span></div>
 
 
 
 <div class="viewcode-block" id="plot">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.plot">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="n">target_info</span><span class="p">,</span> <span class="n">plot_config</span><span class="p">,</span> <span class="n">plot_decorations</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a single plot of the spceified lighturve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Make a single plot of the spceified lighturve."""</span>
 
     <span class="n">plot_data</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plot config (len:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">plot_config</span><span class="p">)</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">plot_config</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plot decorations : </span><span class="si">{</span><span class="n">plot_decorations</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;len(target_info): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">target_info</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Plot config (len:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">plot_config</span><span class="p">)</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">plot_config</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Plot decorations : </span><span class="si">{</span><span class="n">plot_decorations</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"len(target_info): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">target_info</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">plot_config</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_info</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_plot_configs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">target_info</span><span class="p">,</span> <span class="n">plot_config</span><span class="p">):</span>
-        <span class="n">plot_data</span> <span class="o">=</span> <span class="n">_convert_plot_data_json</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;plot_data&quot;</span><span class="p">],</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plot configs: </span><span class="si">{</span><span class="n">dataset_plot_configs</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plot_data</span> <span class="o">=</span> <span class="n">_convert_plot_data_json</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">"plot_data"</span><span class="p">],</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Plot configs: </span><span class="si">{</span><span class="n">dataset_plot_configs</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">curve_config</span> <span class="ow">in</span> <span class="n">dataset_plot_configs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;sphotref_selector&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">curve_config</span><span class="p">[</span><span class="s2">"sphotref_selector"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>
                 <span class="n">curve_data</span> <span class="o">=</span> <span class="n">plot_data</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;sphotref_selector&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">"sphotref_selector"</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
                     <span class="n">curve_data</span> <span class="o">=</span> <span class="p">{</span>
                         <span class="n">sphotref_fname</span><span class="p">:</span> <span class="n">plot_data</span><span class="p">[</span><span class="n">sphotref_fname</span><span class="p">]</span>
-                        <span class="k">for</span> <span class="n">sphotref_fname</span> <span class="ow">in</span> <span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;sphotref_selector&quot;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">sphotref_fname</span> <span class="ow">in</span> <span class="n">curve_config</span><span class="p">[</span><span class="s2">"sphotref_selector"</span><span class="p">]</span>
                     <span class="p">}</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">curve_data</span> <span class="o">=</span> <span class="p">{</span>
                         <span class="n">sphotref_fname</span><span class="p">:</span> <span class="n">plot_data</span><span class="p">[</span><span class="n">sphotref_fname</span><span class="p">]</span>
                         <span class="k">for</span> <span class="n">sphotref_fname</span> <span class="ow">in</span> <span class="n">plot_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                         <span class="k">if</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">sphotref_fname</span><span class="p">)(</span>
-                            <span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;sphotref_selector&quot;</span><span class="p">]</span>
+                            <span class="n">curve_config</span><span class="p">[</span><span class="s2">"sphotref_selector"</span><span class="p">]</span>
                         <span class="p">)</span>
                     <span class="p">}</span>
             <span class="c1"># TODO: optimize to combine only coord and match_by</span>
             <span class="n">curve_data</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">coord</span><span class="p">:</span> <span class="n">calculate_combined</span><span class="p">(</span>
                     <span class="n">curve_data</span><span class="p">,</span>
-                    <span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;match_by&quot;</span><span class="p">],</span>
+                    <span class="n">curve_config</span><span class="p">[</span><span class="s2">"match_by"</span><span class="p">],</span>
                     <span class="p">(</span>
                         <span class="n">_custom_aggregators</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                            <span class="n">curve_config</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;_aggregate&quot;</span><span class="p">]</span>
+                            <span class="n">curve_config</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">"_aggregate"</span><span class="p">]</span>
                         <span class="p">)</span>
-                        <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">curve_config</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;_aggregate&quot;</span><span class="p">])</span>
+                        <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">curve_config</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">"_aggregate"</span><span class="p">])</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="s2">&quot;xy&quot;</span>
+                <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="s2">"xy"</span>
             <span class="p">}</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">curve_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]],</span>
-                <span class="n">curve_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]],</span>
-                <span class="o">*</span><span class="n">curve_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_args&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-                <span class="n">label</span><span class="o">=</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">&quot;curve_label&quot;</span><span class="p">],</span>
-                <span class="o">**</span><span class="n">curve_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_kwargs&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+                <span class="n">curve_data</span><span class="p">[</span><span class="s2">"x"</span><span class="p">][</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]],</span>
+                <span class="n">curve_data</span><span class="p">[</span><span class="s2">"y"</span><span class="p">][</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]],</span>
+                <span class="o">*</span><span class="n">curve_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_args"</span><span class="p">,</span> <span class="p">[]),</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">curve_config</span><span class="p">[</span><span class="s2">"curve_label"</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">curve_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_kwargs"</span><span class="p">,</span> <span class="p">{}),</span>
             <span class="p">)</span>
     <span class="n">pyplot</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-    <span class="n">pyplot</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">],</span> <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">])</span>
-    <span class="n">pyplot</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">],</span> <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">])</span>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"xmin"</span><span class="p">],</span> <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"xmax"</span><span class="p">])</span>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"ymin"</span><span class="p">],</span> <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"ymax"</span><span class="p">])</span>
 
-    <span class="n">pyplot</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;x_label&quot;</span><span class="p">])</span>
-    <span class="n">pyplot</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;y_label&quot;</span><span class="p">])</span>
-    <span class="n">pyplot</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">])</span></div>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"x_label"</span><span class="p">])</span>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"y_label"</span><span class="p">])</span>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"title"</span><span class="p">])</span></div>
 
 
 
 <div class="viewcode-block" id="_create_subplots">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._create_subplots">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_create_subplots</span><span class="p">(</span><span class="n">plotting_info</span><span class="p">,</span> <span class="n">splits</span><span class="p">,</span> <span class="n">children</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively walks the plot layout tree creating subplots as needed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Recursively walks the plot layout tree creating subplots as needed."""</span>
 
-    <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">&quot;height_ratios&quot;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">]))</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">"height_ratios"</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">"width_ratios"</span><span class="p">]))</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">k</span><span class="p">:</span> <span class="n">splits</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">splits</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x_label&quot;</span><span class="p">,</span> <span class="s2">&quot;y_label&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">]</span>
+        <span class="n">k</span><span class="p">:</span> <span class="n">splits</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">splits</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x_label"</span><span class="p">,</span> <span class="s2">"y_label"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">]</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -491,12 +491,12 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">pyplot</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">subplot</span><span class="p">))</span>
             <span class="n">plot</span><span class="p">(</span>
-                <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;target_info&quot;</span><span class="p">],</span>
+                <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"target_info"</span><span class="p">],</span>
                 <span class="p">[</span>
                     <span class="n">plot_config</span><span class="p">[</span><span class="n">child</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">plot_config</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_config&quot;</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">plot_config</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_config"</span><span class="p">]</span>
                 <span class="p">],</span>
-                <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">][</span><span class="n">child</span><span class="p">],</span>
+                <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">][</span><span class="n">child</span><span class="p">],</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_create_subplots</span><span class="p">(</span><span class="n">plotting_info</span><span class="p">,</span> <span class="o">*</span><span class="n">child</span><span class="p">,</span> <span class="n">subplot</span><span class="p">,</span> <span class="n">figure</span><span class="p">)</span></div>
@@ -506,20 +506,20 @@
 <div class="viewcode-block" id="_get_subplot_boundaries">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._get_subplot_boundaries">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_subplot_boundaries</span><span class="p">(</span><span class="n">splits</span><span class="p">,</span> <span class="n">children</span><span class="p">,</span> <span class="n">x_offset</span><span class="p">,</span> <span class="n">y_offset</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return coords of horizontal and vertical boundaries between plots.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return coords of horizontal and vertical boundaries between plots."""</span>
 
-    <span class="n">x_bounds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="n">x_offset</span><span class="p">]</span> <span class="o">+</span> <span class="n">splits</span><span class="p">[</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">])</span>
-    <span class="n">y_bounds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="n">y_offset</span><span class="p">]</span> <span class="o">+</span> <span class="n">splits</span><span class="p">[</span><span class="s2">&quot;height_ratios&quot;</span><span class="p">])</span>
+    <span class="n">x_bounds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="n">x_offset</span><span class="p">]</span> <span class="o">+</span> <span class="n">splits</span><span class="p">[</span><span class="s2">"width_ratios"</span><span class="p">])</span>
+    <span class="n">y_bounds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="n">y_offset</span><span class="p">]</span> <span class="o">+</span> <span class="n">splits</span><span class="p">[</span><span class="s2">"height_ratios"</span><span class="p">])</span>
     <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span>
-        <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">&quot;height_ratios&quot;</span><span class="p">])),</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">]))</span>
+        <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">"height_ratios"</span><span class="p">])),</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="s2">"width_ratios"</span><span class="p">]))</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">child</span><span class="p">,</span> <span class="p">(</span><span class="n">y_ind</span><span class="p">,</span> <span class="n">x_ind</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">cell_indices</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">result</span><span class="p">[</span><span class="n">child</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">x_bounds</span><span class="p">[</span><span class="n">x_ind</span><span class="p">],</span>
-                <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="n">x_bounds</span><span class="p">[</span><span class="n">x_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
-                <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="n">y_bounds</span><span class="p">[</span><span class="n">y_ind</span><span class="p">],</span>
-                <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="n">y_bounds</span><span class="p">[</span><span class="n">y_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"left"</span><span class="p">:</span> <span class="n">x_bounds</span><span class="p">[</span><span class="n">x_ind</span><span class="p">],</span>
+                <span class="s2">"right"</span><span class="p">:</span> <span class="n">x_bounds</span><span class="p">[</span><span class="n">x_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"top"</span><span class="p">:</span> <span class="n">y_bounds</span><span class="p">[</span><span class="n">y_ind</span><span class="p">],</span>
+                <span class="s2">"bottom"</span><span class="p">:</span> <span class="n">y_bounds</span><span class="p">[</span><span class="n">y_ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
             <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_get_subplot_boundaries</span><span class="p">(</span>
@@ -531,38 +531,38 @@
 <div class="viewcode-block" id="_subdivide_figure">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._subdivide_figure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_subdivide_figure</span><span class="p">(</span><span class="n">plot_config</span><span class="p">,</span> <span class="n">new_splits</span><span class="p">,</span> <span class="n">current_splits</span><span class="p">,</span> <span class="n">children</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sub-divide all plots with entries in new_splits accordingly.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Sub-divide all plots with entries in new_splits accordingly."""</span>
 
     <span class="k">for</span> <span class="n">child_ind</span><span class="p">,</span> <span class="n">child</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">children</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">child_splits</span> <span class="o">=</span> <span class="n">new_splits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">child</span><span class="p">))</span>
-            <span class="n">orig_width</span> <span class="o">=</span> <span class="n">current_splits</span><span class="p">[</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">][</span>
-                <span class="n">child_ind</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_splits</span><span class="p">[</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">])</span>
+            <span class="n">orig_width</span> <span class="o">=</span> <span class="n">current_splits</span><span class="p">[</span><span class="s2">"width_ratios"</span><span class="p">][</span>
+                <span class="n">child_ind</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_splits</span><span class="p">[</span><span class="s2">"width_ratios"</span><span class="p">])</span>
             <span class="p">]</span>
-            <span class="n">orig_height</span> <span class="o">=</span> <span class="n">current_splits</span><span class="p">[</span><span class="s2">&quot;height_ratios&quot;</span><span class="p">][</span>
-                <span class="n">child_ind</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_splits</span><span class="p">[</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">])</span>
+            <span class="n">orig_height</span> <span class="o">=</span> <span class="n">current_splits</span><span class="p">[</span><span class="s2">"height_ratios"</span><span class="p">][</span>
+                <span class="n">child_ind</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_splits</span><span class="p">[</span><span class="s2">"width_ratios"</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="k">if</span> <span class="n">child_splits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">child_splits</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="n">side</span><span class="p">:</span> <span class="n">child_splits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">side</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">])</span>
-                    <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"top"</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">]</span>
                 <span class="p">}</span>
-                <span class="n">num_subplots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">child_splits</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
-                    <span class="n">child_splits</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span>
+                <span class="n">num_subplots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">child_splits</span><span class="p">[</span><span class="s2">"top"</span><span class="p">])</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
+                    <span class="n">child_splits</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="n">children</span><span class="p">[</span><span class="n">child_ind</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;height_ratios&quot;</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="n">s</span> <span class="o">*</span> <span class="n">orig_height</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">child_splits</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span>
+                        <span class="s2">"height_ratios"</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="n">s</span> <span class="o">*</span> <span class="n">orig_height</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">child_splits</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span>
                         <span class="p">],</span>
-                        <span class="s2">&quot;width_ratios&quot;</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="n">s</span> <span class="o">*</span> <span class="n">orig_width</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">child_splits</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
+                        <span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="n">s</span> <span class="o">*</span> <span class="n">orig_width</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">child_splits</span><span class="p">[</span><span class="s2">"top"</span><span class="p">]</span>
                         <span class="p">],</span>
-                        <span class="s2">&quot;wspace&quot;</span><span class="p">:</span> <span class="p">(</span>
-                            <span class="n">current_splits</span><span class="p">[</span><span class="s2">&quot;wspace&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">child_splits</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
+                        <span class="s2">"wspace"</span><span class="p">:</span> <span class="p">(</span>
+                            <span class="n">current_splits</span><span class="p">[</span><span class="s2">"wspace"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">child_splits</span><span class="p">[</span><span class="s2">"top"</span><span class="p">])</span>
                         <span class="p">),</span>
-                        <span class="s2">&quot;hspace&quot;</span><span class="p">:</span> <span class="p">(</span>
-                            <span class="n">current_splits</span><span class="p">[</span><span class="s2">&quot;hspace&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">child_splits</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">])</span>
+                        <span class="s2">"hspace"</span><span class="p">:</span> <span class="p">(</span>
+                            <span class="n">current_splits</span><span class="p">[</span><span class="s2">"hspace"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">child_splits</span><span class="p">[</span><span class="s2">"left"</span><span class="p">])</span>
                         <span class="p">),</span>
                     <span class="p">},</span>
                     <span class="p">[</span><span class="n">child</span><span class="p">]</span>
@@ -580,7 +580,7 @@
                             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subplots</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After subdividing, children: </span><span class="si">{</span><span class="n">children</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"After subdividing, children: </span><span class="si">{</span><span class="n">children</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_subdivide_figure</span><span class="p">(</span><span class="n">plot_config</span><span class="p">,</span> <span class="n">new_splits</span><span class="p">,</span> <span class="o">*</span><span class="n">child</span><span class="p">)</span></div>
 
@@ -591,62 +591,62 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">update_subplot</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-branches</span>
     <span class="n">plotting_session</span><span class="p">,</span> <span class="n">updates</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Change a given sub-plot (and/or add plot quantities).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Change a given sub-plot (and/or add plot quantities)."""</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Updating plot </span><span class="si">{</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;plot_id&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> with: </span><span class="si">{</span><span class="n">updates</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">plot_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">updates</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;plot_id&quot;</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]):</span>
-        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Updating plot </span><span class="si">{</span><span class="n">updates</span><span class="p">[</span><span class="s2">"plot_id"</span><span class="p">]</span><span class="si">}</span><span class="s1"> with: </span><span class="si">{</span><span class="n">updates</span><span class="si">!r}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">plot_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">updates</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"plot_id"</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]):</span>
+        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;plot_config&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"plot_config"</span><span class="p">:</span> <span class="p">(</span>
                     <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-                    <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;plot_config&quot;</span><span class="p">])</span>
+                    <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"plot_config"</span><span class="p">])</span>
                 <span class="p">)</span>
             <span class="p">}</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">])</span>
-                <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">])</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">])</span>
+                <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">])</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]):</span>
-        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">][</span>
-            <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]):</span>
+        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">][</span>
+            <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">])</span>
         <span class="p">]</span>
     <span class="k">for</span> <span class="n">original</span><span class="p">,</span> <span class="n">updated</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">],</span> <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]</span>
+        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">],</span> <span class="n">updates</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]</span>
     <span class="p">):</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">updated</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;plot_config&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">"plot_config"</span><span class="p">:</span>
                 <span class="n">original</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">plot_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">updated</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated plotting info: </span><span class="si">{</span><span class="n">original</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Updated plotting info: </span><span class="si">{</span><span class="n">original</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">original</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">updated</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">decoration</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x_label&quot;</span><span class="p">,</span> <span class="s2">&quot;y_label&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">]:</span>
-        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">][</span><span class="n">plot_id</span><span class="p">][</span><span class="n">decoration</span><span class="p">]</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span>
+    <span class="k">for</span> <span class="n">decoration</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"x_label"</span><span class="p">,</span> <span class="s2">"y_label"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">]:</span>
+        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">][</span><span class="n">plot_id</span><span class="p">][</span><span class="n">decoration</span><span class="p">]</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span>
             <span class="n">decoration</span>
         <span class="p">]</span>
     <span class="k">for</span> <span class="n">decoration</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="s2">&quot;xmin&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;xmax&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ymin&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ymax&quot;</span><span class="p">,</span>
+        <span class="s2">"xmin"</span><span class="p">,</span>
+        <span class="s2">"xmax"</span><span class="p">,</span>
+        <span class="s2">"ymin"</span><span class="p">,</span>
+        <span class="s2">"ymax"</span><span class="p">,</span>
     <span class="p">]:</span>
-        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">][</span><span class="n">plot_id</span><span class="p">][</span><span class="n">decoration</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">][</span><span class="n">plot_id</span><span class="p">][</span><span class="n">decoration</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">float</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="n">decoration</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">updates</span><span class="p">[</span><span class="n">decoration</span><span class="p">]</span> <span class="ow">and</span> <span class="n">updates</span><span class="p">[</span><span class="n">decoration</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span>
+            <span class="k">if</span> <span class="n">updates</span><span class="p">[</span><span class="n">decoration</span><span class="p">]</span> <span class="ow">and</span> <span class="n">updates</span><span class="p">[</span><span class="n">decoration</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"None"</span>
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;star_id_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;GDR3&quot;</span><span class="p">:</span>
-        <span class="n">gaia_id</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;star_id&quot;</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;star_id_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;TIC&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">updates</span><span class="p">[</span><span class="s2">"star_id_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"GDR3"</span><span class="p">:</span>
+        <span class="n">gaia_id</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span><span class="s2">"star_id"</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">updates</span><span class="p">[</span><span class="s2">"star_id_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"TIC"</span><span class="p">:</span>
         <span class="n">gaia_id</span> <span class="o">=</span> <span class="n">Catalogs</span><span class="o">.</span><span class="n">query_criteria</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
-            <span class="n">catalog</span><span class="o">=</span><span class="s2">&quot;Tic&quot;</span><span class="p">,</span> <span class="n">ID</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;star_id&quot;</span><span class="p">])</span>
-        <span class="p">)[</span><span class="s2">&quot;GAIA&quot;</span><span class="p">]</span>
+            <span class="n">catalog</span><span class="o">=</span><span class="s2">"Tic"</span><span class="p">,</span> <span class="n">ID</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="s2">"star_id"</span><span class="p">])</span>
+        <span class="p">)[</span><span class="s2">"GAIA"</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">gaia_id</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">NasaExoplanetArchive</span><span class="o">.</span><span class="n">query_object</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
-                <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;star_id&quot;</span><span class="p">]</span>
-            <span class="p">)[</span><span class="s2">&quot;gaia_id&quot;</span><span class="p">]</span>
+                <span class="n">updates</span><span class="p">[</span><span class="s2">"star_id"</span><span class="p">]</span>
+            <span class="p">)[</span><span class="s2">"gaia_id"</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">gaia_id</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gaia_id</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">gaia_id</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
@@ -655,21 +655,21 @@
     <span class="n">gaia_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gaia_id</span><span class="p">)</span>
     <span class="n">gaia_id_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">gaia_id</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">plot_decorations</span> <span class="ow">in</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">]:</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="n">plot_decorations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">plot_decorations</span> <span class="ow">in</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">]:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">plot_decorations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{GaiaID}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{gaia_id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{gaiaid}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
+            <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="si">{GaiaID}</span><span class="s2">"</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="si">{gaia_id}</span><span class="s2">"</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="si">{gaiaid}</span><span class="s2">"</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span>
-        <span class="s2">&quot;lc_fname_template&quot;</span>
+    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span>
+        <span class="s2">"lc_fname_template"</span>
     <span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gaia_id</span><span class="p">,</span> <span class="n">PROJHOME</span><span class="o">=</span><span class="n">get_project_home</span><span class="p">())</span>
-    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;gaia_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaia_id</span>
+    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"gaia_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaia_id</span>
     <span class="n">_add_lightcurve_to_session</span><span class="p">(</span>
-        <span class="n">plotting_session</span><span class="p">,</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]</span>
+        <span class="n">plotting_session</span><span class="p">,</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]</span>
     <span class="p">)</span></div>
 
 
@@ -677,32 +677,32 @@
 <div class="viewcode-block" id="_update_plotting_info">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._update_plotting_info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_update_plotting_info</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">,</span> <span class="n">updates</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modify the currently set-up figure per user input from BUI.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Modify the currently set-up figure per user input from BUI."""</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updates to apply: </span><span class="si">{</span><span class="n">updates</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Updates to apply: </span><span class="si">{</span><span class="n">updates</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">modified_session</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="s2">&quot;applySplits&quot;</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"applySplits"</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
         <span class="n">_subdivide_figure</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="n">data_select</span><span class="p">[</span><span class="s2">&quot;plot_config&quot;</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]</span>
+                <span class="n">data_select</span><span class="p">[</span><span class="s2">"plot_config"</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]</span>
             <span class="p">]</span>
-            <span class="o">+</span> <span class="p">[</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">]],</span>
-            <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;applySplits&quot;</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;plot_layout&quot;</span><span class="p">],</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">]],</span>
+            <span class="n">updates</span><span class="p">[</span><span class="s2">"applySplits"</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">plotting_session</span><span class="p">[</span><span class="s2">"plot_layout"</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">modified_session</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="s2">&quot;rcParams&quot;</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;rcParams&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">rcParams</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;[]&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;subplot&quot;</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
-        <span class="n">update_subplot</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">,</span> <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;subplot&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"rcParams"</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">[</span><span class="s2">"rcParams"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">rcParams</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"[]"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"subplot"</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
+        <span class="n">update_subplot</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">,</span> <span class="n">updates</span><span class="p">[</span><span class="s2">"subplot"</span><span class="p">])</span>
         <span class="n">modified_session</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="mi">80</span> <span class="o">*</span> <span class="s2">&quot;*&quot;</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Updated plotting session: &quot;</span>
+        <span class="mi">80</span> <span class="o">*</span> <span class="s2">"*"</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Updated plotting session: "</span>
         <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">plotting_session</span><span class="p">)</span>
-        <span class="o">+</span> <span class="mi">80</span> <span class="o">*</span> <span class="s2">&quot;*&quot;</span>
+        <span class="o">+</span> <span class="mi">80</span> <span class="o">*</span> <span class="s2">"*"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">modified_session</span></div>
 
@@ -711,40 +711,40 @@
 <div class="viewcode-block" id="update_lightcurve_figure">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.update_lightcurve_figure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_lightcurve_figure</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate and return a new figure for the current lightcurve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Generate and return a new figure for the current lightcurve."""</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LC plotting session:</span><span class="se">\n</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;lc_plotting&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updates: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"LC plotting session:</span><span class="se">\n</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s1">'lc_plotting'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Updates: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">updates</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
 
     <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="n">_update_plotting_info</span><span class="p">(</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">],</span> <span class="n">updates</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">],</span> <span class="n">updates</span>
     <span class="p">)</span>
 
     <span class="n">setup_svg_matplotlib</span><span class="p">()</span>
 
-    <span class="n">figure</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;figure_config&quot;</span><span class="p">])</span>
-    <span class="n">plotting_info</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]:</span>
+    <span class="n">figure</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"figure_config"</span><span class="p">])</span>
+    <span class="n">plotting_info</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]:</span>
         <span class="n">_create_subplots</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;target_info&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]],</span>
-                <span class="s2">&quot;plot_layout&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_layout&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;plot_config&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="n">data_select</span><span class="p">[</span><span class="s2">&quot;plot_config&quot;</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]</span>
+                <span class="s2">"target_info"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]],</span>
+                <span class="s2">"plot_layout"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_layout"</span><span class="p">],</span>
+                <span class="s2">"plot_config"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">data_select</span><span class="p">[</span><span class="s2">"plot_config"</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;plot_decorations&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">],</span>
+                <span class="s2">"plot_decorations"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">],</span>
             <span class="p">},</span>
-            <span class="o">*</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;plot_layout&quot;</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"plot_layout"</span><span class="p">],</span>
             <span class="kc">None</span><span class="p">,</span>
             <span class="n">figure</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">subplot_boundaries</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">_get_subplot_boundaries</span><span class="p">(</span>
-        <span class="o">*</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;plot_layout&quot;</span><span class="p">],</span>
+        <span class="o">*</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"plot_layout"</span><span class="p">],</span>
         <span class="mi">0</span><span class="p">,</span>
         <span class="mi">0</span><span class="p">,</span>
         <span class="n">subplot_boundaries</span><span class="p">,</span>
@@ -756,34 +756,34 @@
 <div class="viewcode-block" id="edit_subplot">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.edit_subplot">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">edit_subplot</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">plot_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the view to allow editing the selected plot.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set the view to allow editing the selected plot."""</span>
 
-    <span class="n">plotting_info</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">]</span>
+    <span class="n">plotting_info</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">]</span>
     <span class="n">data_select</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="n">param</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">plot_id</span><span class="p">]</span> <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;plot_config&quot;</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="n">param</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">plot_id</span><span class="p">]</span> <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">"plot_config"</span> <span class="k">else</span> <span class="n">value</span>
             <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data_select_entry</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
-        <span class="k">for</span> <span class="n">data_select_entry</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">data_select_entry</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]</span>
     <span class="p">]</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">shape_grid</span> <span class="o">=</span> <span class="n">ImageProcessingManager</span><span class="p">(</span>
             <span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">get_param_values</span><span class="p">({</span><span class="mi">1</span><span class="p">},</span> <span class="p">[</span><span class="s2">&quot;shape-grid&quot;</span><span class="p">])[</span><span class="s2">&quot;shape-grid&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_param_values</span><span class="p">({</span><span class="mi">1</span><span class="p">},</span> <span class="p">[</span><span class="s2">"shape-grid"</span><span class="p">])[</span><span class="s2">"shape-grid"</span><span class="p">]</span>
         <span class="n">shapefit_checked</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mi">2</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
         <span class="n">shapefit_checked</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sub-plot data_select: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data_select</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Sub-plot data_select: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data_select</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
-        <span class="s2">&quot;results/subplot_config.html&quot;</span><span class="p">,</span>
+        <span class="s2">"results/subplot_config.html"</span><span class="p">,</span>
         <span class="p">{</span>
-            <span class="s2">&quot;data_select&quot;</span><span class="p">:</span> <span class="n">data_select</span><span class="p">,</span>
-            <span class="s2">&quot;plot_decorations&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">][</span><span class="n">plot_id</span><span class="p">],</span>
-            <span class="s2">&quot;figure_config&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;figure_config&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;shapefit_checked&quot;</span><span class="p">:</span> <span class="n">shapefit_checked</span><span class="p">,</span>
+            <span class="s2">"data_select"</span><span class="p">:</span> <span class="n">data_select</span><span class="p">,</span>
+            <span class="s2">"plot_decorations"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">][</span><span class="n">plot_id</span><span class="p">],</span>
+            <span class="s2">"figure_config"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"figure_config"</span><span class="p">],</span>
+            <span class="s2">"shapefit_checked"</span><span class="p">:</span> <span class="n">shapefit_checked</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span></div>
 
@@ -792,25 +792,25 @@
 <div class="viewcode-block" id="_sanitize_rcparams">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views._sanitize_rcparams">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_rcparams</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return list of matplotlib rcParams that can be set through BUI.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return list of matplotlib rcParams that can be set through BUI."""</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rcParams</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;lines.dash_capstyle&quot;</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;butt&quot;</span>
-        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;lines.solid_capstyle&quot;</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;projecting&quot;</span>
-        <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_joinstyle&quot;</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;round&quot;</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">"lines.dash_capstyle"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">"butt"</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">"lines.solid_capstyle"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">"projecting"</span>
+        <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_joinstyle"</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">"round"</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="c1"># Cannot be reduced in a readable way</span>
             <span class="c1"># pylint: disable=too-many-boolean-expressions</span>
-            <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;prop_cycle&quot;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;savefig.bbox&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">]</span>
-            <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;animation&quot;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;keymap&quot;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;figure.subplot&quot;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">param</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span>
+            <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"prop_cycle"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"savefig.bbox"</span><span class="p">,</span> <span class="s2">"backend"</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"animation"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"keymap"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"figure.subplot"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">param</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"_"</span>
             <span class="c1"># pylint: enable=too-many-boolean-expressions</span>
         <span class="p">):</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
@@ -821,12 +821,12 @@
 <div class="viewcode-block" id="edit_rcparams">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.edit_rcparams">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">edit_rcparams</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the view to allow editing rcParams.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set the view to allow editing rcParams."""</span>
 
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
-        <span class="s2">&quot;results/rcParams_config.html&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">_sanitize_rcparams</span><span class="p">()},</span>
+        <span class="s2">"results/rcParams_config.html"</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="n">_sanitize_rcparams</span><span class="p">()},</span>
     <span class="p">)</span></div>
 
 
@@ -834,27 +834,27 @@
 <div class="viewcode-block" id="display_lightcurve">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.display_lightcurve">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">display_lightcurve</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Display plots of a single lightcurve to the user.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Display plots of a single lightcurve to the user."""</span>
 
-    <span class="k">if</span> <span class="s2">&quot;lc_plotting&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
-        <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.subplot.bottom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.subplot.top&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
-        <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.subplot.left&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.subplot.right&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="s2">"lc_plotting"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+        <span class="n">rcParams</span><span class="p">[</span><span class="s2">"figure.subplot.bottom"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">rcParams</span><span class="p">[</span><span class="s2">"figure.subplot.top"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">rcParams</span><span class="p">[</span><span class="s2">"figure.subplot.left"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">rcParams</span><span class="p">[</span><span class="s2">"figure.subplot.right"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="n">_init_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"target_fname"</span><span class="p">]:</span>
             <span class="n">_add_lightcurve_to_session</span><span class="p">(</span>
-                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">],</span>
-                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;target_fname&quot;</span><span class="p">],</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">],</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"target_fname"</span><span class="p">],</span>
             <span class="p">)</span>
 
-    <span class="n">aperture_index</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;data_select&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span>
-        <span class="s2">&quot;find_best&quot;</span>
-    <span class="p">][</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">]</span>
+    <span class="n">aperture_index</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"data_select"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span>
+        <span class="s2">"find_best"</span>
+    <span class="p">][</span><span class="s2">"aperture_index"</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
-        <span class="s2">&quot;results/display_lightcurves.html&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;aperture_index&quot;</span><span class="p">:</span> <span class="n">aperture_index</span><span class="p">},</span>
+        <span class="s2">"results/display_lightcurves.html"</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"aperture_index"</span><span class="p">:</span> <span class="n">aperture_index</span><span class="p">},</span>
     <span class="p">)</span></div>
 
 
@@ -862,37 +862,37 @@
 <div class="viewcode-block" id="display_lightcurve_for_star">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.display_lightcurve_for_star">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">display_lightcurve_for_star</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">gaia_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Navigate to lightcurve display pre-loaded for the given Gaia ID.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Navigate to lightcurve display pre-loaded for the given Gaia ID."""</span>
 
-    <span class="k">if</span> <span class="s2">&quot;lc_plotting&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"lc_plotting"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
         <span class="n">_init_session</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-    <span class="n">plotting_session</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">]</span>
+    <span class="n">plotting_session</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">]</span>
     <span class="n">gaia_id_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">gaia_id</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">plot_decorations</span> <span class="ow">in</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">]:</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="n">plot_decorations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">plot_decorations</span> <span class="ow">in</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">]:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">plot_decorations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{GaiaID}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{gaia_id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{gaiaid}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
+            <span class="n">plot_decorations</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="si">{GaiaID}</span><span class="s2">"</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="si">{gaia_id}</span><span class="s2">"</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="si">{gaiaid}</span><span class="s2">"</span><span class="p">,</span> <span class="n">gaia_id_str</span><span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span>
-        <span class="s2">&quot;lc_fname_template&quot;</span>
+    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span>
+        <span class="s2">"lc_fname_template"</span>
     <span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gaia_id</span><span class="p">,</span> <span class="n">PROJHOME</span><span class="o">=</span><span class="n">get_project_home</span><span class="p">())</span>
-    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;gaia_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaia_id</span>
+    <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"gaia_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaia_id</span>
     <span class="n">_add_lightcurve_to_session</span><span class="p">(</span>
-        <span class="n">plotting_session</span><span class="p">,</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]</span>
+        <span class="n">plotting_session</span><span class="p">,</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">aperture_index</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;find_best&quot;</span><span class="p">][</span>
-        <span class="s2">&quot;aperture_index&quot;</span>
+    <span class="n">aperture_index</span> <span class="o">=</span> <span class="n">plotting_session</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"find_best"</span><span class="p">][</span>
+        <span class="s2">"aperture_index"</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
-        <span class="s2">&quot;results/display_lightcurves.html&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;aperture_index&quot;</span><span class="p">:</span> <span class="n">aperture_index</span><span class="p">,</span> <span class="s2">&quot;gaia_id&quot;</span><span class="p">:</span> <span class="n">gaia_id</span><span class="p">},</span>
+        <span class="s2">"results/display_lightcurves.html"</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"aperture_index"</span><span class="p">:</span> <span class="n">aperture_index</span><span class="p">,</span> <span class="s2">"gaia_id"</span><span class="p">:</span> <span class="n">gaia_id</span><span class="p">},</span>
     <span class="p">)</span></div>
 
 
@@ -900,16 +900,16 @@
 <div class="viewcode-block" id="edit_model">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.edit_model">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">edit_model</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="n">data_select_index</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add controls to edit the model parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add controls to edit the model parameters."""</span>
 
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
         <span class="n">request</span><span class="p">,</span>
-        <span class="s2">&quot;results/edit_model.html&quot;</span><span class="p">,</span>
+        <span class="s2">"results/edit_model.html"</span><span class="p">,</span>
         <span class="p">{</span>
-            <span class="s2">&quot;expressions&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">][</span><span class="s2">&quot;data_select&quot;</span><span class="p">][</span>
+            <span class="s2">"expressions"</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">][</span><span class="s2">"data_select"</span><span class="p">][</span>
                 <span class="n">data_select_index</span>
-            <span class="p">][</span><span class="s2">&quot;expressions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
-            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">_default_models</span><span class="p">[</span><span class="n">model_type</span><span class="p">],</span>
+            <span class="p">][</span><span class="s2">"expressions"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+            <span class="s2">"model"</span><span class="p">:</span> <span class="n">_default_models</span><span class="p">[</span><span class="n">model_type</span><span class="p">],</span>
         <span class="p">},</span>
     <span class="p">)</span></div>
 
@@ -918,61 +918,61 @@
 <div class="viewcode-block" id="clear_lightcurve_buffer">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.clear_lightcurve_buffer">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">clear_lightcurve_buffer</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove buffered lightcurve data from the session.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Remove buffered lightcurve data from the session."""</span>
 
-    <span class="k">if</span> <span class="s2">&quot;lc_plotting&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
-        <span class="k">del</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;/results&quot;</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="s2">"lc_plotting"</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"/results"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="download_lightcurve_figure">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.results.lightcurve_views.html#autowisp.browser_interface.results.lightcurve_views.download_lightcurve_figure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download_lightcurve_figure</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate and return a PDF file of the currently setup lightcurve.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Generate and return a PDF file of the currently setup lightcurve."""</span>
 
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
-    <span class="n">pyplot</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
-    <span class="n">plotting_info</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;lc_plotting&quot;</span><span class="p">]</span>
-    <span class="n">figure_config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;figure_config&quot;</span><span class="p">])</span>
-    <span class="n">figure_config</span><span class="p">[</span><span class="s2">&quot;facecolor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">"pdf"</span><span class="p">)</span>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">"default"</span><span class="p">)</span>
+    <span class="n">plotting_info</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"lc_plotting"</span><span class="p">]</span>
+    <span class="n">figure_config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">"figure_config"</span><span class="p">])</span>
+    <span class="n">figure_config</span><span class="p">[</span><span class="s2">"facecolor"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"white"</span>
     <span class="n">figure</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">figure_config</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]:</span>
         <span class="n">_create_subplots</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;target_info&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;target_fname&quot;</span><span class="p">]],</span>
-                <span class="s2">&quot;plot_layout&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_layout&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;plot_config&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="n">data_select</span><span class="p">[</span><span class="s2">&quot;plot_config&quot;</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;data_select&quot;</span><span class="p">]</span>
+                <span class="s2">"target_info"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">"target_fname"</span><span class="p">]],</span>
+                <span class="s2">"plot_layout"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_layout"</span><span class="p">],</span>
+                <span class="s2">"plot_config"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">data_select</span><span class="p">[</span><span class="s2">"plot_config"</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">data_select</span> <span class="ow">in</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"data_select"</span><span class="p">]</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;plot_decorations&quot;</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_decorations&quot;</span><span class="p">],</span>
+                <span class="s2">"plot_decorations"</span><span class="p">:</span> <span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_decorations"</span><span class="p">],</span>
             <span class="p">},</span>
-            <span class="o">*</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">&quot;plot_layout&quot;</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">plotting_info</span><span class="p">[</span><span class="s2">"plot_layout"</span><span class="p">],</span>
             <span class="kc">None</span><span class="p">,</span>
             <span class="n">figure</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">"white"</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">BytesIO</span><span class="p">()</span> <span class="k">as</span> <span class="n">image_stream</span><span class="p">:</span>
         <span class="n">pyplot</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
             <span class="n">image_stream</span><span class="p">,</span>
-            <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span>
-            <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">,</span>
-            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">"tight"</span><span class="p">,</span>
+            <span class="nb">format</span><span class="o">=</span><span class="s2">"pdf"</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">image_stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">gaia_id</span> <span class="o">=</span> <span class="n">plotting_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gaia_id&quot;</span><span class="p">)</span>
+        <span class="n">gaia_id</span> <span class="o">=</span> <span class="n">plotting_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gaia_id"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">gaia_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;lightcurve.pdf&quot;</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s2">"lightcurve.pdf"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;lightcurve-</span><span class="si">{</span><span class="n">gaia_id</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"lightcurve-</span><span class="si">{</span><span class="n">gaia_id</span><span class="si">}</span><span class="s2">.pdf"</span>
         <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
             <span class="n">image_stream</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
-            <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="s2">"application/pdf"</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;Content-Disposition&quot;</span><span class="p">:</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;attachment; filename=&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+                <span class="s2">"Content-Disposition"</span><span class="p">:</span> <span class="p">(</span><span class="sa">f</span><span class="s1">'attachment; filename="</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
             <span class="p">},</span>
         <span class="p">)</span></div>
 

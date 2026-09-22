@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.error_context module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -171,32 +171,32 @@
 <span id="autowisp-error-context-module"></span><h1>autowisp.error_context module<a class="headerlink" href="#module-autowisp.error_context" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-1ba3df6ac296dca83a2538bdef4aa2f01a8f7d3a.png" alt="Inheritance diagram of AutoWISPError, CalibrationError, Component, CreateLightCurvesError, DetrendingStatError, EPDError, ErrorContext, FileKind, FindStarsError, FitMagnitudesError, FitPSFMapError, FitStarShapeError, FrozenRow, MeasurePhotometryError, PipelineError, ProcessPoolExecutor, RelatedFile, SolveAstrometryError, StackToMasterError, StepError, TFAError, ViewError, WorkerCrashedError, _WorkerEntry" usemap="#inheritanceb49bc117ac" class="inheritance graphviz" /></div>
-<map id="inheritanceb49bc117ac" name="inheritanceb49bc117ac">
-<area shape="rect" id="node1" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="1150,5,1419,32"/>
-<area shape="rect" id="node2" href="#autowisp.error_context.ErrorContext" target="_top" title="Immutable bundle of the ambient context attached to errors." alt="" coords="1442,5,1674,32"/>
-<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1698,5,1932,32"/>
-<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="820,80,1016,107"/>
-<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1716,80,1915,107"/>
-<area shape="rect" id="node18" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1940,80,2158,107"/>
-<area shape="rect" id="node23" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="5,155,207,181"/>
-<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.CalibrationError" target="_top" title="Failure in the calibrate step." alt="" coords="230,155,464,181"/>
-<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.CreateLightCurvesError" target="_top" title="Failure in the create_lightcurves step." alt="" coords="488,155,769,181"/>
-<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.DetrendingStatError" target="_top" title="Failure computing detrending statistics." alt="" coords="794,155,1053,181"/>
-<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.EPDError" target="_top" title="Failure in the EPD detrending step." alt="" coords="1076,155,1277,181"/>
-<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="1301,155,1530,181"/>
-<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.FitMagnitudesError" target="_top" title="Failure in the fit_magnitudes step." alt="" coords="1554,155,1808,181"/>
-<area shape="rect" id="node15" href="autowisp.exceptions.html#autowisp.exceptions.FitPSFMapError" target="_top" title="Failure in the fit_source_extracted_psf_map step." alt="" coords="1832,155,2070,181"/>
-<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.FitStarShapeError" target="_top" title="Failure in the fit_star_shape step." alt="" coords="2095,155,2344,181"/>
-<area shape="rect" id="node17" href="autowisp.exceptions.html#autowisp.exceptions.MeasurePhotometryError" target="_top" title="Failure in the measure_aperture_photometry step." alt="" coords="2368,155,2657,181"/>
-<area shape="rect" id="node20" href="autowisp.exceptions.html#autowisp.exceptions.SolveAstrometryError" target="_top" title="Failure in the solve_astrometry step." alt="" coords="2682,155,2951,181"/>
-<area shape="rect" id="node21" href="autowisp.exceptions.html#autowisp.exceptions.StackToMasterError" target="_top" title="Failure stacking calibration frames into a master." alt="" coords="2976,155,3236,181"/>
-<area shape="rect" id="node22" href="autowisp.exceptions.html#autowisp.exceptions.TFAError" target="_top" title="Failure in the TFA detrending step." alt="" coords="3260,155,3456,181"/>
-<area shape="rect" id="node24" href="autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError" target="_top" title="A multiprocessing worker died without preserving its exception." alt="" coords="3480,155,3742,181"/>
-<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="2182,80,2393,107"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="2263,5,2354,32"/>
-<area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="2417,80,2608,107"/>
-<area shape="rect" id="node19" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="2400,5,2610,32"/>
+<div class="graphviz"><img src="../_images/inheritance-ed68dc5adbd1e7b608904e544e21f61223887308.png" alt="Inheritance diagram of AutoWISPError, CalibrationError, Component, CreateLightCurvesError, DetrendingStatError, EPDError, ErrorContext, FileKind, FindStarsError, FitMagnitudesError, FitPSFMapError, FitStarShapeError, FrozenRow, MeasurePhotometryError, PipelineError, ProcessPoolExecutor, RelatedFile, SolveAstrometryError, StackToMasterError, StepError, TFAError, ViewError, WorkerCrashedError" usemap="#inheritanced043ad0e44" class="inheritance graphviz" /></div>
+<map id="inheritanced043ad0e44" name="inheritanced043ad0e44">
+<area shape="rect" id="node1" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="1261,5,1556,31"/>
+<area shape="rect" id="node2" href="#autowisp.error_context.ErrorContext" target="_top" title="Immutable bundle of the ambient context attached to errors." alt="" coords="1581,5,1839,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1864,5,2119,31"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="900,79,1115,104"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1881,79,2101,104"/>
+<area shape="rect" id="node18" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="2126,79,2369,104"/>
+<area shape="rect" id="node23" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="5,152,228,177"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.CalibrationError" target="_top" title="Failure in the calibrate step." alt="" coords="252,152,515,177"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.CreateLightCurvesError" target="_top" title="Failure in the create_lightcurves step." alt="" coords="539,152,849,177"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.DetrendingStatError" target="_top" title="Failure computing detrending statistics." alt="" coords="873,152,1163,177"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.EPDError" target="_top" title="Failure in the EPD detrending step." alt="" coords="1187,152,1404,177"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="1429,152,1679,177"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.FitMagnitudesError" target="_top" title="Failure in the fit_magnitudes step." alt="" coords="1703,152,1986,177"/>
+<area shape="rect" id="node15" href="autowisp.exceptions.html#autowisp.exceptions.FitPSFMapError" target="_top" title="Failure in the fit_source_extracted_psf_map step." alt="" coords="2010,152,2269,177"/>
+<area shape="rect" id="node16" href="autowisp.exceptions.html#autowisp.exceptions.FitStarShapeError" target="_top" title="Failure in the fit_star_shape step." alt="" coords="2292,152,2565,177"/>
+<area shape="rect" id="node17" href="autowisp.exceptions.html#autowisp.exceptions.MeasurePhotometryError" target="_top" title="Failure in the measure_aperture_photometry step." alt="" coords="2589,152,2911,177"/>
+<area shape="rect" id="node20" href="autowisp.exceptions.html#autowisp.exceptions.SolveAstrometryError" target="_top" title="Failure in the solve_astrometry step." alt="" coords="2936,152,3236,177"/>
+<area shape="rect" id="node21" href="autowisp.exceptions.html#autowisp.exceptions.StackToMasterError" target="_top" title="Failure stacking calibration frames into a master." alt="" coords="3260,152,3547,177"/>
+<area shape="rect" id="node22" href="autowisp.exceptions.html#autowisp.exceptions.TFAError" target="_top" title="Failure in the TFA detrending step." alt="" coords="3571,152,3785,177"/>
+<area shape="rect" id="node24" href="autowisp.exceptions.html#autowisp.exceptions.WorkerCrashedError" target="_top" title="A multiprocessing worker died without preserving its exception." alt="" coords="3809,152,4099,177"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="2393,79,2627,104"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="2503,5,2603,31"/>
+<area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="2651,79,2863,104"/>
+<area shape="rect" id="node19" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="2711,5,2944,31"/>
 </map><p>Ambient error context and the capture boundaries that stamp it.</p>
 <p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" title="autowisp.exceptions.AutoWISPError"><code class="xref py py-class docutils literal notranslate"><span class="pre">AutoWISPError</span></code></a> carries fields for the
 pipeline run, the raising worker, the step, and the related files. This
@@ -213,88 +213,44 @@ on.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.error_context.ErrorContext">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">ErrorContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><span class="pre">FrozenRow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_worker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#ErrorContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.ErrorContext" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">ErrorContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><span class="pre">FrozenRow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_worker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#ErrorContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.ErrorContext" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-54665187d80f4afa8a5117a05abab578f7125a80.png" alt="Inheritance diagram of autowisp.error_context.ErrorContext" usemap="#inheritance34fe696084" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-520c48b65b06e5e20bf13da8814c4009e30f63ed.png" alt="Inheritance diagram of autowisp.error_context.ErrorContext" usemap="#inheritance34fe696084" class="inheritance graphviz" /></div>
 <map id="inheritance34fe696084" name="inheritance34fe696084">
-<area shape="rect" id="node1" href="#autowisp.error_context.ErrorContext" target="_top" title="Immutable bundle of the ambient context attached to errors." alt="" coords="5,5,237,32"/>
+<area shape="rect" id="node1" href="#autowisp.error_context.ErrorContext" target="_top" title="Immutable bundle of the ambient context attached to errors." alt="" coords="5,5,264,31"/>
 </map><p>Immutable bundle of the ambient context attached to errors.</p>
 <p>Held in a single <code class="xref py py-data docutils literal notranslate"><span class="pre">_context</span></code> ContextVar so any code on the call
 stack can read a consistent snapshot without it being threaded
 through every call. Frozen so that establishing or scoping context
 replaces the ContextVar value (preserving its set/reset semantics and
 thread/async isolation) rather than mutating shared state.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.pipeline_run">
-<span class="sig-name descname"><span class="pre">pipeline_run</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.pipeline_run" title="Link to this definition"></a></dt>
-<dd><p>Snapshot of the
-<code class="docutils literal notranslate"><span class="pre">PipelineRun</span></code> row, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for runs with no DB row.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow">FrozenRow</a> or None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.step_name">
-<span class="sig-name descname"><span class="pre">step_name</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.step_name" title="Link to this definition"></a></dt>
-<dd><p>The processing step currently
-executing.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.related_files">
-<span class="sig-name descname"><span class="pre">related_files</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.related_files" title="Link to this definition"></a></dt>
-<dd><p>The <code class="docutils literal notranslate"><span class="pre">RelatedFile</span></code> entries in scope.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.in_worker">
-<span class="sig-name descname"><span class="pre">in_worker</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.in_worker" title="Link to this definition"></a></dt>
-<dd><p>True inside a multiprocessing worker process;
-used by the nested-worker guard.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.config">
-<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.config" title="Link to this definition"></a></dt>
-<dd><p>Snapshot of the per-process configuration
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pipeline_run</strong> (<a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><em>FrozenRow</em></a><em> or </em><em>None</em>) – Snapshot of the
+<code class="docutils literal notranslate"><span class="pre">PipelineRun</span></code> row, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for runs with no DB row.</p></li>
+<li><p><strong>step_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – The processing step currently
+executing.</p></li>
+<li><p><strong>related_files</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The <code class="docutils literal notranslate"><span class="pre">RelatedFile</span></code> entries in scope.</p></li>
+<li><p><strong>in_worker</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – True inside a multiprocessing worker process;
+used by the nested-worker guard.</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><em>None</em>) – Snapshot of the per-process configuration
 (the resolved step parameters plus the runtime inputs threaded
 in), recorded onto errors so a crash report shows the exact
 settings the failing step ran with – the resolved config is a
 runtime derivation and lives nowhere else. <code class="docutils literal notranslate"><span class="pre">None</span></code> outside a
-configured process.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a> or None</p>
+configured process.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.config">
+<span class="sig-name descname"><span class="pre">config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#ErrorContext.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.ErrorContext.from_config" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#ErrorContext.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.ErrorContext.from_config" title="Link to this definition"></a></dt>
 <dd><p>Rebuild context inside a freshly-started process from config.</p>
 <p>A worker has no ORM instance, so the pipeline-run snapshot is
 built from the primitives threaded through the per-process config
@@ -324,30 +280,30 @@ calling a step directly).</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">in_worker</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.in_worker">
+<span class="sig-name descname"><span class="pre">in_worker</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.in_worker" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">pipeline_run</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><span class="pre">FrozenRow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.pipeline_run">
+<span class="sig-name descname"><span class="pre">pipeline_run</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="autowisp.database.frozen_row.html#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><span class="pre">FrozenRow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.pipeline_run" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">related_files</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.related_files">
+<span class="sig-name descname"><span class="pre">related_files</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.related_files" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">step_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.error_context.ErrorContext.step_name">
+<span class="sig-name descname"><span class="pre">step_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#autowisp.error_context.ErrorContext.step_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.error_context._WorkerEntry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">_WorkerEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inflight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#_WorkerEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context._WorkerEntry" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">_WorkerEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inflight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#_WorkerEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context._WorkerEntry" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Picklable wrapper that stamps errors leaving a Pool worker.</p>
 <p>Scheme A (<code class="docutils literal notranslate"><span class="pre">Pool</span></code> + <code class="docutils literal notranslate"><span class="pre">map</span></code>/<code class="docutils literal notranslate"><span class="pre">imap</span></code>): on the way out an error is
@@ -379,52 +335,18 @@ mapped callable to send it to the worker (under both <code class="docutils liter
 <code class="docutils literal notranslate"><span class="pre">spawn</span></code>); a closure is not picklable, whereas an instance holding a
 picklable <code class="docutils literal notranslate"><span class="pre">func</span></code> (e.g. a <code class="docutils literal notranslate"><span class="pre">functools.partial</span></code> of a module-level
 function), an enum <code class="docutils literal notranslate"><span class="pre">component</span></code>, and a picklable proxy is.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context._WorkerEntry.func">
-<span class="sig-name descname"><span class="pre">func</span></span><a class="headerlink" href="#autowisp.error_context._WorkerEntry.func" title="Link to this definition"></a></dt>
-<dd><p>The wrapped per-item worker callable.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Callable</p>
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – The wrapped per-item worker callable.</p></li>
+<li><p><strong>component</strong> (<a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><em>Component</em></a>) – Component for wrapping unknown errors.</p></li>
+<li><p><strong>inflight</strong> (<em>DictProxy</em><em> or </em><em>None</em>) – Shared <code class="docutils literal notranslate"><span class="pre">{pid:</span> <span class="pre">item}</span></code> map, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> to disable tracking (non-<code class="docutils literal notranslate"><span class="pre">run_pool</span></code> callers).</p></li>
+<li><p><strong>related_files</strong> (<a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" title="autowisp.exceptions.FileKind"><em>FileKind</em></a><em>, </em><em>Callable</em><em>, or </em><em>None</em>) – Classifier turning
+the item into related file(s); see <a class="reference internal" href="#autowisp.error_context._resolve_related_files" title="autowisp.error_context._resolve_related_files"><code class="xref py py-func docutils literal notranslate"><span class="pre">_resolve_related_files()</span></code></a>.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context._WorkerEntry.component">
-<span class="sig-name descname"><span class="pre">component</span></span><a class="headerlink" href="#autowisp.error_context._WorkerEntry.component" title="Link to this definition"></a></dt>
-<dd><p>Component for wrapping unknown errors.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component">Component</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context._WorkerEntry.inflight">
-<span class="sig-name descname"><span class="pre">inflight</span></span><a class="headerlink" href="#autowisp.error_context._WorkerEntry.inflight" title="Link to this definition"></a></dt>
-<dd><p>Shared <code class="docutils literal notranslate"><span class="pre">{pid:</span> <span class="pre">item}</span></code> map, or
-<code class="docutils literal notranslate"><span class="pre">None</span></code> to disable tracking (non-<code class="docutils literal notranslate"><span class="pre">run_pool</span></code> callers).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DictProxy or None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.error_context._WorkerEntry.related_files">
-<span class="sig-name descname"><span class="pre">related_files</span></span><a class="headerlink" href="#autowisp.error_context._WorkerEntry.related_files" title="Link to this definition"></a></dt>
-<dd><p>Classifier turning
-the item into related file(s); see <a class="reference internal" href="#autowisp.error_context._resolve_related_files" title="autowisp.error_context._resolve_related_files"><code class="xref py py-func docutils literal notranslate"><span class="pre">_resolve_related_files()</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" title="autowisp.exceptions.FileKind">FileKind</a>, Callable, or None</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py function">
@@ -703,7 +625,7 @@ is preserved as <code class="docutils literal notranslate"><span class="pre">__c
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_context.capture_errors">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">capture_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_unknown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#capture_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.capture_errors" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">capture_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_unknown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#capture_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.capture_errors" title="Link to this definition"></a></dt>
 <dd><p>Stamp ambient context onto errors leaving the wrapped callable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -726,7 +648,7 @@ exceptions in the appropriate concrete class (preserving
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_context.capture_for_queue">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">capture_for_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#Exception" title="(in Python v3.14)"><span class="pre">Exception</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" title="autowisp.exceptions.AutoWISPError"><span class="pre">AutoWISPError</span></a></span></span><a class="reference internal" href="../_modules/autowisp/error_context.html#capture_for_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.capture_for_queue" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">capture_for_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#Exception" title="(in Python v3.14)"><span class="pre">Exception</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" title="autowisp.exceptions.AutoWISPError"><span class="pre">AutoWISPError</span></a></span></span><a class="reference internal" href="../_modules/autowisp/error_context.html#capture_for_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.capture_for_queue" title="Link to this definition"></a></dt>
 <dd><p>Stamp a worker error and return it for a result queue (Scheme B).</p>
 <p>Sibling of <a class="reference internal" href="#autowisp.error_context.worker_entry" title="autowisp.error_context.worker_entry"><code class="xref py py-func docutils literal notranslate"><span class="pre">worker_entry()</span></code></a> for <code class="docutils literal notranslate"><span class="pre">Process</span></code> + <code class="docutils literal notranslate"><span class="pre">Queue</span></code> workers
 that catch and <em>return</em> their error (to <code class="docutils literal notranslate"><span class="pre">result_queue.put(...)</span></code>)
@@ -772,7 +694,7 @@ transport. Never raises.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_context.error_context">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">error_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#error_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.error_context" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">error_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#error_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.error_context" title="Link to this definition"></a></dt>
 <dd><p>Scope additional context for any error raised inside the block.</p>
 <p>Builds a new <a class="reference internal" href="#autowisp.error_context.ErrorContext" title="autowisp.error_context.ErrorContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorContext</span></code></a> (step, files, and config supplied at
 construction, not by mutating the current one), installs it for the
@@ -845,7 +767,7 @@ flows up to the parent’s <code class="docutils literal notranslate"><span clas
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_context.run_pool">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">run_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_processes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Component.STEP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tasks_per_child</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_consumer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#run_pool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.run_pool" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_context.</span></span><span class="sig-name descname"><span class="pre">run_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_processes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="autowisp.exceptions.html#autowisp.exceptions.Component" title="autowisp.exceptions.Component"><span class="pre">Component</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Component.STEP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tasks_per_child</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_consumer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_context.html#run_pool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_context.run_pool" title="Link to this definition"></a></dt>
 <dd><p>Map <code class="docutils literal notranslate"><span class="pre">worker</span></code> over <code class="docutils literal notranslate"><span class="pre">items</span></code> in a process pool, stamping errors.</p>
 <p>Single entry point for the <code class="docutils literal notranslate"><span class="pre">Pool</span></code>-style parallel sites. It enforces
 the no-nested-workers policy, bootstraps each worker with

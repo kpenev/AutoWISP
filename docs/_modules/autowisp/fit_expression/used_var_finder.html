@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.used_var_finder &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.fit_expression.used_var_finder</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define dict-like class tracking vars used when evaluating fit expressions.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define dict-like class tracking vars used when evaluating fit expressions."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
@@ -172,12 +172,12 @@
 <div class="viewcode-block" id="UsedVarFinder">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">UsedVarFinder</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Record the names of all keys not in default symtable ever requested.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Record the names of all keys not in default symtable ever requested."""</span>
 
 <div class="viewcode-block" id="UsedVarFinder.__contains__">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.__contains__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Is the given key in either the default symtable or data dtype.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Is the given key in either the default symtable or data dtype."""</span>
 
         <span class="k">return</span> <span class="kc">True</span></div>
 
@@ -185,7 +185,7 @@
 <div class="viewcode-block" id="UsedVarFinder.__getitem__">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.__getitem__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;1.0 if key is one of the data otherwise default symtable entry&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""1.0 if key is one of the data otherwise default symtable entry"""</span>
 
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_symtable</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_symtable</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -197,7 +197,7 @@
 <div class="viewcode-block" id="UsedVarFinder.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_symtable</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the symtable before data is given and dtype to track usage of.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the symtable before data is given and dtype to track usage of."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_symtable</span> <span class="o">=</span> <span class="n">default_symtable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_used</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span></div>
@@ -206,7 +206,7 @@
 <div class="viewcode-block" id="UsedVarFinder.get_used_vars">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.get_used_vars">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_used_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the names of the variables used so far.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the names of the variables used so far."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_used</span></div>
 </div>

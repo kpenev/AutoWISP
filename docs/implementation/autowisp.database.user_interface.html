@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.user_interface module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,44 +172,40 @@
 <span id="autowisp-database-user-interface-module"></span><h1>autowisp.database.user_interface module<a class="headerlink" href="#module-autowisp.database.user_interface" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-da94e251dbf521767ff5b2827426ae598e322b3b.png" alt="Inheritance diagram of ArgumentParser, Camera, CameraChannel, CameraType, ColumnProperty, Condition, ConditionExpression, Configuration, ConfigurationError, DataReductionFile, DefaultsFormatter, Image, ImageProcessingProgress, ImageType, LightCurveProcessingProgress, MasterFile, MasterType, ObservingSession, Parameter, ProcessedImages, ProcessingSequence, Step, StepDependencies" usemap="#inheritance3167d79c55" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-966868a5080a45ac22c3cc56d71f9d11d3e3fca4.png" alt="Inheritance diagram of ArgumentParser, Camera, CameraChannel, CameraType, ColumnProperty, Condition, ConditionExpression, Configuration, ConfigurationError, DataReductionFile, DefaultsFormatter, Image, ImageProcessingProgress, ImageType, LightCurveProcessingProgress, MasterFile, MasterType, ObservingSession, Parameter, ProcessedImages, ProcessingSequence, Step, StepDependencies" usemap="#inheritance3167d79c55" class="inheritance graphviz" /></div>
 <map id="inheritance3167d79c55" name="inheritance3167d79c55">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
-<area shape="rect" id="node29" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
-<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="1907,80,2170,107"/>
-<area shape="rect" id="node4" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="3312,5,3482,32"/>
-<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
-<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="3824,304,4154,331"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="368,379,685,405"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="709,379,1160,405"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="1184,379,1544,405"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="1568,379,1848,405"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1872,379,2269,405"/>
-<area shape="rect" id="node16" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="2293,379,2642,405"/>
-<area shape="rect" id="node17" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="2667,379,3007,405"/>
-<area shape="rect" id="node18" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="3032,379,3611,405"/>
-<area shape="rect" id="node19" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="3634,379,3976,405"/>
-<area shape="rect" id="node20" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4000,379,4349,405"/>
-<area shape="rect" id="node21" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="4372,379,4796,405"/>
-<area shape="rect" id="node22" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="4820,379,5278,405"/>
-<area shape="rect" id="node23" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="5302,379,5671,405"/>
-<area shape="rect" id="node24" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel" target="_top" title="The table describing each of the channels of a type of camera." alt="" coords="5696,379,6165,405"/>
-<area shape="rect" id="node25" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="6189,379,6618,405"/>
-<area shape="rect" id="node26" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="6643,379,7074,405"/>
-<area shape="rect" id="node27" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="7098,379,7499,405"/>
-<area shape="rect" id="node28" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="7524,379,7892,405"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="4007,229,4360,256"/>
-<area shape="rect" id="node30" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="4348,5,4582,32"/>
-<area shape="rect" id="node32" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="4356,80,4574,107"/>
-<area shape="rect" id="node31" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="4340,155,4590,181"/>
-<area shape="rect" id="node34" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="411,80,581,107"/>
-<area shape="rect" id="node38" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="415,155,576,181"/>
-<area shape="rect" id="node35" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="248,5,394,32"/>
-<area shape="rect" id="node36" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="418,5,574,32"/>
-<area shape="rect" id="node37" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="597,5,765,32"/>
-<area shape="rect" id="node39" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="280,229,488,256"/>
-<area shape="rect" id="node48" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="4131,5,4236,32"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,445,207,471"/>
+<area shape="rect" id="node29" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="131,519,335,544"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="2107,79,2403,104"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="3679,5,3866,31"/>
+<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="16,665,449,691"/>
+<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,592,460,617"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="401,372,757,397"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="781,372,1287,397"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="1311,372,1717,397"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="1741,372,2057,397"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="2082,372,2525,397"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="2549,372,2938,397"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="2963,372,3345,397"/>
+<area shape="rect" id="node18" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="3370,372,4013,397"/>
+<area shape="rect" id="node19" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="4037,372,4420,397"/>
+<area shape="rect" id="node20" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4445,372,4834,397"/>
+<area shape="rect" id="node21" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="4859,372,5329,397"/>
+<area shape="rect" id="node22" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="5354,372,5861,397"/>
+<area shape="rect" id="node26" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="7378,372,7858,397"/>
+<area shape="rect" id="node27" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="7883,372,8332,397"/>
+<area shape="rect" id="node28" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="8357,372,8767,397"/>
+<area shape="rect" id="node30" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="4832,5,5087,31"/>
+<area shape="rect" id="node32" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="4838,79,5081,104"/>
+<area shape="rect" id="node31" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="4820,152,5099,177"/>
+<area shape="rect" id="node34" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="448,79,636,104"/>
+<area shape="rect" id="node38" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="453,152,631,177"/>
+<area shape="rect" id="node35" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="272,5,431,31"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="455,5,629,31"/>
+<area shape="rect" id="node37" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="653,5,839,31"/>
+<area shape="rect" id="node39" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="303,225,535,251"/>
+<area shape="rect" id="node48" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="4590,5,4707,31"/>
+<area shape="rect" id="node49" href="https://docs.sqlalchemy.org/en/20/core/internals.html#sqlalchemy.log.Identified" target="_top" title="sqlalchemy.log.Identified" alt="" coords="5178,225,5362,251"/>
 </map><p>Define interface to the pipeline database.</p>
 </section>
 <dl class="py function">

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.processing.progress_view &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.processing.progress_view</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define the view displaying the current processing progress.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define the view displaying the current processing progress."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -192,6 +192,9 @@
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.quantities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_quantile_names</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.log_views</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime_fmt</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -200,45 +203,45 @@
 <div class="viewcode-block" id="progress">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.progress_view.html#autowisp.browser_interface.processing.progress_view.progress">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">progress</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">await_start</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-locals</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Display the current processing progress.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Display the current processing progress."""</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating progress page with await start: </span><span class="si">{</span><span class="n">await_start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;await_start&quot;</span><span class="p">:</span> <span class="n">await_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Generating progress page with await start: </span><span class="si">{</span><span class="n">await_start</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"await_start"</span><span class="p">:</span> <span class="n">await_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span>
     <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">await_start</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
         <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;await_start&quot;</span><span class="p">:</span> <span class="n">await_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;running&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;refresh_seconds&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">"await_start"</span><span class="p">:</span> <span class="n">await_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">"running"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"refresh_seconds"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;await_start&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;running&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;refresh_seconds&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">"await_start"</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s2">"running"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"refresh_seconds"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="n">context</span><span class="p">[</span><span class="s2">&quot;channels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">list_channels</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span>
+        <span class="n">context</span><span class="p">[</span><span class="s2">"channels"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">list_channels</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span>
         <span class="n">channel_index</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">channel</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;channels&quot;</span><span class="p">])</span>
+            <span class="n">channel</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="s2">"channels"</span><span class="p">])</span>
         <span class="p">}</span>
         <span class="n">processing_sequence</span> <span class="o">=</span> <span class="n">get_processing_sequence</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
 
         <span class="n">error_by_step</span> <span class="o">=</span> <span class="n">error_counts_by_step</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
         <span class="c1"># Drives the colour of the Start Processing button: open pipeline +</span>
-        <span class="c1"># step errors (BUI errors excluded) mean &quot;errors pending&quot;.</span>
-        <span class="n">context</span><span class="p">[</span><span class="s2">&quot;gate_error_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">open_error_count_for_steps</span><span class="p">([],</span> <span class="n">db_session</span><span class="p">)</span>
-        <span class="n">context</span><span class="p">[</span><span class="s2">&quot;progress&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># step errors (BUI errors excluded) mean "errors pending".</span>
+        <span class="n">context</span><span class="p">[</span><span class="s2">"gate_error_count"</span><span class="p">]</span> <span class="o">=</span> <span class="n">open_error_count_for_steps</span><span class="p">([],</span> <span class="n">db_session</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s2">"progress"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[</span>
-                <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">),</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">),</span>
                 <span class="n">imtype</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;channels&quot;</span><span class="p">]],</span>
+                <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">context</span><span class="p">[</span><span class="s2">"channels"</span><span class="p">]],</span>
                 <span class="p">[],</span>
                 <span class="n">error_by_step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
             <span class="p">]</span>
             <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">imtype</span> <span class="ow">in</span> <span class="n">processing_sequence</span>
         <span class="p">]</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">imtype</span><span class="p">),</span> <span class="n">destination</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="n">processing_sequence</span><span class="p">,</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;progress&quot;</span><span class="p">]</span>
+            <span class="n">processing_sequence</span><span class="p">,</span> <span class="n">context</span><span class="p">[</span><span class="s2">"progress"</span><span class="p">]</span>
         <span class="p">):</span>
             <span class="n">final</span><span class="p">,</span> <span class="n">pending</span><span class="p">,</span> <span class="n">by_status</span> <span class="o">=</span> <span class="n">get_progress</span><span class="p">(</span>
                 <span class="n">step</span><span class="p">,</span> <span class="n">imtype</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">db_session</span>
@@ -258,8 +261,8 @@
             <span class="n">destination</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">(</span>
                     <span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime_fmt</span><span class="p">)</span> <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-                    <span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime_fmt</span><span class="p">)</span> <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+                    <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime_fmt</span><span class="p">)</span> <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"-"</span><span class="p">,</span>
+                    <span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime_fmt</span><span class="p">)</span> <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"-"</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                     <span class="n">select</span><span class="p">(</span>
@@ -295,26 +298,37 @@
                 <span class="ow">or</span> <span class="n">recently_started</span>
             <span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Calibration process with ID </span><span class="si">%s</span><span class="s2"> still exists.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Calibration process with ID </span><span class="si">%s</span><span class="s2"> still exists."</span><span class="p">,</span>
                     <span class="n">check_running</span><span class="o">.</span><span class="n">process_id</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">context</span><span class="p">[</span><span class="s2">&quot;running&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">context</span><span class="p">[</span><span class="s2">&quot;refresh_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
-                <span class="n">context</span><span class="p">[</span><span class="s2">&quot;await_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">context</span><span class="p">[</span><span class="s2">"running"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">context</span><span class="p">[</span><span class="s2">"refresh_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+                <span class="n">context</span><span class="p">[</span><span class="s2">"await_start"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Marking </span><span class="si">%s</span><span class="s2"> as finished&quot;</span><span class="p">,</span> <span class="n">check_running</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Marking </span><span class="si">%s</span><span class="s2"> as finished"</span><span class="p">,</span> <span class="n">check_running</span><span class="p">)</span>
                 <span class="n">check_running</span><span class="o">.</span><span class="n">finished</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">sql</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>  <span class="c1"># pylint: disable=not-callable</span>
                 <span class="p">)</span>
 
     <span class="c1"># Get selected steps from session if processing</span>
     <span class="n">selected_tokens</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;running&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;selected_step_tokens&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
-        <span class="n">selected_tokens</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;selected_step_tokens&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">context</span><span class="p">[</span><span class="s2">"running"</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">"selected_step_tokens"</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+        <span class="n">selected_tokens</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"selected_step_tokens"</span><span class="p">])</span>
 
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;selected_tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_tokens</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"selected_tokens"</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_tokens</span>
 
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;processing/progress.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+    <span class="c1"># The calibration bar links to every quantile recorded, each its own</span>
+    <span class="c1"># section of one plot, there being no longer a single name standing</span>
+    <span class="c1"># for the family. Empty until one is recorded, since the URL converter</span>
+    <span class="c1"># cannot build a section list out of nothing -- which is the same as</span>
+    <span class="c1"># the other bars, whose links lead nowhere until there is something to</span>
+    <span class="c1"># show.</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">context</span><span class="p">[</span><span class="s2">"quantile_quantities"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">get_quantile_names</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"processing/progress.html"</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 
 </pre></div>
 

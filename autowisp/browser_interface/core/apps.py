@@ -3,7 +3,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate, pre_migrate
 
-from core.timestamp_triggers import (
+from autowisp.browser_interface.core.timestamp_triggers import (
     drop_modified_triggers,
     install_modified_triggers,
 )
@@ -13,7 +13,7 @@ class CoreConfig(AppConfig):
     """Machinery shared by every browser-interface app."""
 
     default_auto_field = "django.db.models.BigAutoField"
-    name = "core"
+    name = "autowisp.browser_interface.core"
 
     def ready(self):
         """Arrange for the modified-timestamp triggers to be maintained.

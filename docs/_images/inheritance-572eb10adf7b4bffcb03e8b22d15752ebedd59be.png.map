@@ -1,0 +1,4 @@
+<map id="inheritance4bfdd3f274" name="inheritance4bfdd3f274">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="5,152,388,177"/>
+<area shape="rect" id="node3" title="Make subclasses preserve the alters_data attribute on overridden methods." alt="" coords="75,5,318,31"/>
+</map>

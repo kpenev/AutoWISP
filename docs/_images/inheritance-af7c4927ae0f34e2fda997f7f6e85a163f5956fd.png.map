@@ -1,0 +1,5 @@
+<map id="inheritance8a02c6f4c3" name="inheritance8a02c6f4c3">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="55,79,463,104"/>
+<area shape="rect" id="node3" href="autowisp.browser_interface.processing.select_raw_view.html#autowisp.browser_interface.processing.select_raw_view.SelectRawImages" target="_top" title="A view for selecting raw images to add for processing." alt="" coords="5,152,512,177"/>
+<area shape="rect" id="node2" title="Intentionally simple parent class for all views. Only implements" alt="" coords="143,5,374,31"/>
+</map>

@@ -3,8 +3,8 @@ autowisp.browser\_interface package
 
 .. automodule:: autowisp.browser_interface
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------

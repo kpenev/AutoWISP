@@ -955,7 +955,7 @@ class HDF5File(ABC, h5py.File):
                 (i.e. ap_ind, config_id, ...).
 
         Returns:
-            value:    The value of the attribute.
+            The value of the attribute.
 
         Raises:
             KeyError:

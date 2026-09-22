@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.image_calibration.calibrator &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.image_calibration.calibrator</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define a class (Calibrator) for low-level image calibration.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define a class (Calibrator) for low-level image calibration."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">hashlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">sha1</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -197,13 +197,13 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.fits_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_raw_header</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: c72fee21827def4d0ca6ba20358bdcaed8037661 $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">"$Id: c72fee21827def4d0ca6ba20358bdcaed8037661 $"</span>
 
 
 <div class="viewcode-block" id="Calibrator">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Calibrator</span><span class="p">(</span><span class="n">Processor</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Provide basic calibration operations (bias/dark/flat) fully tracking noise.</span>
 
 <span class="sd">    Public attributes, set through :func:`__init__`, provide defaults for</span>
@@ -312,7 +312,7 @@
 <span class="sd">        &gt;&gt;&gt;                    method=overscan_methods.Median())</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt;     #The master bias frame to use.</span>
-<span class="sd">        &gt;&gt;&gt;     master_bias=&#39;masters/master_bias1.fits&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;     master_bias='masters/master_bias1.fits',</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt;     #The gain (electrons/ADU) to assume for the input images.</span>
 <span class="sd">        &gt;&gt;&gt;     gain=16.0,</span>
@@ -322,42 +322,42 @@
 <span class="sd">        &gt;&gt;&gt; )</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; #Specify a master dark after construction.</span>
-<span class="sd">        &gt;&gt;&gt; calibrate.set_masters(dark=&#39;masters/master_dark3.fits&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; calibrate.set_masters(dark='masters/master_dark3.fits')</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; #Calibrate an image called &#39;raw1.fits&#39;, producing (or overwriting a</span>
-<span class="sd">        &gt;&gt;&gt; #calibrated file called &#39;calib1.fits&#39; using the previously specified</span>
+<span class="sd">        &gt;&gt;&gt; #Calibrate an image called 'raw1.fits', producing (or overwriting a</span>
+<span class="sd">        &gt;&gt;&gt; #calibrated file called 'calib1.fits' using the previously specified</span>
 <span class="sd">        &gt;&gt;&gt; #calibration parameters. Note that no flat correction is going to be</span>
 <span class="sd">        &gt;&gt;&gt; #applied, since a master flat was never specified.</span>
-<span class="sd">        &gt;&gt;&gt; calibrate(raw=&#39;raw1.fits&#39;, calibrated=&#39;calib1.fits&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; calibrate(raw='raw1.fits', calibrated='calib1.fits')</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; #Calibrate an image, changing the gain assumed for this image only</span>
 <span class="sd">        &gt;&gt;&gt; #and disabling overscan correction for this image only.</span>
-<span class="sd">        &gt;&gt;&gt; calibrate(raw=&#39;raw2.fits&#39;,</span>
-<span class="sd">        &gt;&gt;&gt;           calibrated=&#39;calib2.fits&#39;,</span>
+<span class="sd">        &gt;&gt;&gt; calibrate(raw='raw2.fits',</span>
+<span class="sd">        &gt;&gt;&gt;           calibrated='calib2.fits',</span>
 <span class="sd">        &gt;&gt;&gt;           gain=8.0,</span>
 <span class="sd">        &gt;&gt;&gt;           overscans=None)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">module_git_ids</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;calibrator&quot;</span><span class="p">:</span> <span class="n">git_id</span><span class="p">,</span>
-        <span class="s2">&quot;overscan_methods&quot;</span><span class="p">:</span> <span class="n">overscan_methods_git_id</span><span class="p">,</span>
-        <span class="s2">&quot;mask_utilities&quot;</span><span class="p">:</span> <span class="n">mask_utilities_git_id</span><span class="p">,</span>
+        <span class="s2">"calibrator"</span><span class="p">:</span> <span class="n">git_id</span><span class="p">,</span>
+        <span class="s2">"overscan_methods"</span><span class="p">:</span> <span class="n">overscan_methods_git_id</span><span class="p">,</span>
+        <span class="s2">"mask_utilities"</span><span class="p">:</span> <span class="n">mask_utilities_git_id</span><span class="p">,</span>
     <span class="p">}</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A collection of Git Id values (sha1 checksums of the git blobs) for each</span>
 <span class="sd">    module used by the calibration. Those get added to the header to ensure</span>
 <span class="sd">    reprobducability.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">default_configuration</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;overscans&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s2">&quot;image_area&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;bias_level_adu&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;gain&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;leak_directions&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;split_channels&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;compress_calibrated&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
-        <span class="s2">&quot;allow_overwrite&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"overscans"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"areas"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"method"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+        <span class="s2">"image_area"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"bias_level_adu"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"gain"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"leak_directions"</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">"split_channels"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"compress_calibrated"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">"allow_overwrite"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">extra_header_expressions</span> <span class="o">=</span> <span class="p">{}</span>
@@ -366,7 +366,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator.check_calib_params">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_calib_params</span><span class="p">(</span><span class="n">raw_image</span><span class="p">,</span> <span class="n">calib_params</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check if calibration parameters are consistent mutually and with image.</span>
 
 <span class="sd">        Raises an exception if some problem is detected.</span>
@@ -392,10 +392,10 @@
 <span class="sd">              * gain is not a finite positive number</span>
 
 <span class="sd">              * leak_directions is not an iterable of 2-element iterables</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">check_area</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">area_name</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Make sure the given area is within raw_image, raise excption if not.</span>
 
 <span class="sd">            Args:</span>
@@ -407,50 +407,50 @@
 <span class="sd">                    an exception is raised.</span>
 
 <span class="sd">            Returns: None</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
-            <span class="k">for</span> <span class="n">direction</span><span class="p">,</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">raw_image</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">area_min</span> <span class="o">=</span> <span class="n">area</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">&quot;min&quot;</span><span class="p">]</span>
-                <span class="n">area_max</span> <span class="o">=</span> <span class="n">area</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">&quot;max&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">direction</span><span class="p">,</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">],</span> <span class="n">raw_image</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+                <span class="n">area_min</span> <span class="o">=</span> <span class="n">area</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">"min"</span><span class="p">]</span>
+                <span class="n">area_max</span> <span class="o">=</span> <span class="n">area</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">"max"</span><span class="p">]</span>
 
                 <span class="k">if</span> <span class="n">area_min</span> <span class="o">&gt;</span> <span class="n">area_max</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span>
                         <span class="n">area_name</span>
-                        <span class="o">+</span> <span class="s2">&quot; area has &quot;</span>
+                        <span class="o">+</span> <span class="s2">" area has "</span>
                         <span class="o">+</span> <span class="n">direction</span>
-                        <span class="o">+</span> <span class="s2">&quot;min(&quot;</span>
+                        <span class="o">+</span> <span class="s2">"min("</span>
                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">area_min</span><span class="p">)</span>
-                        <span class="o">+</span> <span class="s2">&quot;) &gt; &quot;</span>
+                        <span class="o">+</span> <span class="s2">") &gt; "</span>
                         <span class="o">+</span> <span class="n">direction</span>
-                        <span class="o">+</span> <span class="s2">&quot;max (&quot;</span>
+                        <span class="o">+</span> <span class="s2">"max ("</span>
                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">area_max</span><span class="p">)</span>
-                        <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+                        <span class="o">+</span> <span class="s2">")"</span>
                     <span class="p">)</span>
                 <span class="k">if</span> <span class="n">area_min</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">OutsideImageError</span><span class="p">(</span>
                         <span class="n">area_name</span>
-                        <span class="o">+</span> <span class="s2">&quot; area (&quot;</span>
+                        <span class="o">+</span> <span class="s2">" area ("</span>
                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
-                        <span class="o">+</span> <span class="s2">&quot;) &quot;</span>
-                        <span class="o">+</span> <span class="s2">&quot;extends below &quot;</span>
+                        <span class="o">+</span> <span class="s2">") "</span>
+                        <span class="o">+</span> <span class="s2">"extends below "</span>
                         <span class="o">+</span> <span class="n">direction</span>
-                        <span class="o">+</span> <span class="s2">&quot; = 0&quot;</span>
+                        <span class="o">+</span> <span class="s2">" = 0"</span>
                     <span class="p">)</span>
                 <span class="k">if</span> <span class="n">area_max</span> <span class="o">&gt;</span> <span class="n">resolution</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">OutsideImageError</span><span class="p">(</span>
                         <span class="n">area_name</span>
-                        <span class="o">+</span> <span class="s2">&quot; area (&quot;</span>
+                        <span class="o">+</span> <span class="s2">" area ("</span>
                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
-                        <span class="o">+</span> <span class="s2">&quot;) &quot;</span>
-                        <span class="o">+</span> <span class="s2">&quot;extends beyond the image &quot;</span>
+                        <span class="o">+</span> <span class="s2">") "</span>
+                        <span class="o">+</span> <span class="s2">"extends beyond the image "</span>
                         <span class="o">+</span> <span class="n">direction</span>
-                        <span class="o">+</span> <span class="s2">&quot; resolution &quot;</span>
-                        <span class="o">+</span> <span class="s2">&quot;of &quot;</span>
+                        <span class="o">+</span> <span class="s2">" resolution "</span>
+                        <span class="o">+</span> <span class="s2">"of "</span>
                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
                     <span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">check_master_resolution</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Raise exception if any master has resolution not that of image area.</span>
 
 <span class="sd">            Args:</span>
@@ -458,76 +458,76 @@
 
 <span class="sd">            Returns:</span>
 <span class="sd">                None</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
-            <span class="k">for</span> <span class="n">channel_name</span> <span class="ow">in</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">channel_name</span> <span class="ow">in</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">]:</span>
                 <span class="n">expected_master_shape</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">][</span><span class="s2">&quot;ymax&quot;</span><span class="p">]</span>
-                        <span class="o">-</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">][</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span>
+                        <span class="n">calib_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">][</span><span class="s2">"ymax"</span><span class="p">]</span>
+                        <span class="o">-</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">][</span><span class="s2">"ymin"</span><span class="p">]</span>
                     <span class="p">),</span>
                     <span class="p">(</span>
-                        <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">][</span><span class="s2">&quot;xmax&quot;</span><span class="p">]</span>
-                        <span class="o">-</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">][</span><span class="s2">&quot;xmin&quot;</span><span class="p">]</span>
+                        <span class="n">calib_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">][</span><span class="s2">"xmax"</span><span class="p">]</span>
+                        <span class="o">-</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">][</span><span class="s2">"xmin"</span><span class="p">]</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"bias"</span><span class="p">,</span> <span class="s2">"dark"</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">calib_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">continue</span>
-                    <span class="k">for</span> <span class="n">master_component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">,</span> <span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;mask&quot;</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">master_component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"correction"</span><span class="p">,</span> <span class="s2">"variance"</span><span class="p">,</span> <span class="s2">"mask"</span><span class="p">]:</span>
                         <span class="n">master_shape</span> <span class="o">=</span> <span class="n">calib_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">][</span>
                             <span class="n">master_component</span>
                         <span class="p">]</span><span class="o">.</span><span class="n">shape</span>
 
                         <span class="k">if</span> <span class="n">master_shape</span> <span class="o">!=</span> <span class="n">expected_master_shape</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="n">ImageMismatchError</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;Master </span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">master_component</span><span class="si">}</span><span class="s2"> &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot; for channel </span><span class="si">{</span><span class="n">channel_name</span><span class="si">}</span><span class="s2"> shape &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">master_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">master_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">) &quot;</span>
-                                <span class="s2">&quot;does not match the image area specified during&quot;</span>
-                                <span class="s2">&quot; calibration &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">&#39;image_area&#39;</span><span class="p">][</span><span class="s1">&#39;xmin&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> &quot;</span>
-                                <span class="s2">&quot;&lt; x &lt; &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">&#39;image_area&#39;</span><span class="p">][</span><span class="s1">&#39;xmax&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">&#39;image_area&#39;</span><span class="p">][</span><span class="s1">&#39;ymin&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> &quot;</span>
-                                <span class="s2">&quot;&lt; y &lt; &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">&#39;image_area&#39;</span><span class="p">][</span><span class="s1">&#39;ymax&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">).&quot;</span>
+                                <span class="sa">f</span><span class="s2">"Master </span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">master_component</span><span class="si">}</span><span class="s2"> "</span>
+                                <span class="sa">f</span><span class="s2">" for channel </span><span class="si">{</span><span class="n">channel_name</span><span class="si">}</span><span class="s2"> shape "</span>
+                                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">master_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">master_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">) "</span>
+                                <span class="s2">"does not match the image area specified during"</span>
+                                <span class="s2">" calibration "</span>
+                                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">'image_area'</span><span class="p">][</span><span class="s1">'xmin'</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> "</span>
+                                <span class="s2">"&lt; x &lt; "</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">'image_area'</span><span class="p">][</span><span class="s1">'xmax'</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, "</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">'image_area'</span><span class="p">][</span><span class="s1">'ymin'</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> "</span>
+                                <span class="s2">"&lt; y &lt; "</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">calib_params</span><span class="p">[</span><span class="s1">'image_area'</span><span class="p">][</span><span class="s1">'ymax'</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">)."</span>
                             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;xmin&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="s2">&quot;ymin&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="s2">&quot;xmax&quot;</span><span class="p">:</span> <span class="n">raw_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="s2">&quot;ymax&quot;</span><span class="p">:</span> <span class="n">raw_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="k">if</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">calib_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">"xmin"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">"ymin"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">"xmax"</span><span class="p">:</span> <span class="n">raw_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"ymax"</span><span class="p">:</span> <span class="n">raw_image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">check_area</span><span class="p">(</span><span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">],</span> <span class="s2">&quot;image_area&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">overscan_area</span> <span class="ow">in</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">]:</span>
-                <span class="n">check_area</span><span class="p">(</span><span class="n">overscan_area</span><span class="p">,</span> <span class="s2">&quot;overscan&quot;</span><span class="p">)</span>
+            <span class="n">check_area</span><span class="p">(</span><span class="n">calib_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">],</span> <span class="s2">"image_area"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"areas"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">overscan_area</span> <span class="ow">in</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"areas"</span><span class="p">]:</span>
+                <span class="n">check_area</span><span class="p">(</span><span class="n">overscan_area</span><span class="p">,</span> <span class="s2">"overscan"</span><span class="p">)</span>
 
         <span class="n">check_master_resolution</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span>
-            <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span>
+            <span class="n">calib_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">]</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span>
-                <span class="s2">&quot;Invalid gain specified during calibration: &quot;</span>
-                <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">])</span>
+                <span class="s2">"Invalid gain specified during calibration: "</span>
+                <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">calib_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">])</span>
             <span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">x_offset</span><span class="p">,</span> <span class="n">y_offset</span> <span class="ow">in</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;leak_directions&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">x_offset</span><span class="p">,</span> <span class="n">y_offset</span> <span class="ow">in</span> <span class="n">calib_params</span><span class="p">[</span><span class="s2">"leak_directions"</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x_offset</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
                     <span class="n">y_offset</span><span class="p">,</span> <span class="nb">int</span>
                 <span class="p">):</span>
                     <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Invalid leak direction: (</span><span class="si">{</span><span class="n">x_offset</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">y_offset</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">)&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Invalid leak direction: (</span><span class="si">{</span><span class="n">x_offset</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">y_offset</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">)"</span>
                     <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">leak_problem</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span>
-                <span class="s2">&quot;Malformatted list of leak directions: &quot;</span>
-                <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">calib_params</span><span class="p">[</span><span class="s2">&quot;leak_directions&quot;</span><span class="p">])</span>
+                <span class="s2">"Malformatted list of leak directions: "</span>
+                <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">calib_params</span><span class="p">[</span><span class="s2">"leak_directions"</span><span class="p">])</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">leak_problem</span></div>
 
 
@@ -535,7 +535,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator._calib_mask_from_master">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_calib_mask_from_master</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Overwrite a master mask with what should be used for a calibrated frame.</span>
 
 <span class="sd">        Args:</span>
@@ -545,15 +545,15 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;OVERSATURATED&quot;</span><span class="p">,</span> <span class="s2">&quot;LEAKED&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"OVERSATURATED"</span><span class="p">,</span> <span class="s2">"LEAKED"</span><span class="p">]:</span>
             <span class="n">match_flag</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">mask_flags</span><span class="p">[</span><span class="n">flag</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
             <span class="n">mask</span><span class="p">[</span><span class="n">match_flag</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span>
                 <span class="n">mask</span><span class="p">[</span><span class="n">match_flag</span><span class="p">],</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_not</span><span class="p">(</span><span class="n">mask_flags</span><span class="p">[</span><span class="n">flag</span><span class="p">])</span>
             <span class="p">)</span>
             <span class="n">mask</span><span class="p">[</span><span class="n">match_flag</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span>
-                <span class="n">mask</span><span class="p">[</span><span class="n">match_flag</span><span class="p">],</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;FAULT&quot;</span><span class="p">]</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">match_flag</span><span class="p">],</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">"FAULT"</span><span class="p">]</span>
             <span class="p">)</span></div>
 
 
@@ -563,7 +563,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator._document_in_header">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_document_in_header</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Return header(s) documenting how the calibration was done.</span>
 
 <span class="sd">        The following keywords are added or overwritten::</span>
@@ -587,7 +587,7 @@
 <span class="sd">                sibustition dictionary given directly by the corresponding</span>
 <span class="sd">                overscan area.</span>
 
-<span class="sd">            IMAGAREA: &#39;%(xmin)d &lt; x &lt; %(xmax)d, %(ymin)d &lt; y &lt; %(ymax)d&#39;</span>
+<span class="sd">            IMAGAREA: '%(xmin)d &lt; x &lt; %(xmax)d, %(ymin)d &lt; y &lt; %(ymax)d'</span>
 <span class="sd">                subsituted with the image are as specified during</span>
 <span class="sd">                calibration.</span>
 
@@ -608,67 +608,67 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict:    Indexed by channel name the header to use for the</span>
 <span class="sd">                calibrated image.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">channel</span><span class="p">:</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">]</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span> <span class="ow">in</span> <span class="n">calibration_params</span><span class="p">[</span>
-            <span class="s2">&quot;split_channels&quot;</span>
+            <span class="s2">"split_channels"</span>
         <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">channel_header</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span>
             <span class="n">add_channel_keywords</span><span class="p">(</span><span class="n">channel_header</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="s2">"bias"</span><span class="p">,</span> <span class="s2">"dark"</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">master_fname</span> <span class="o">=</span> <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">][</span><span class="s2">&quot;filename&quot;</span><span class="p">][</span>
+                    <span class="n">master_fname</span> <span class="o">=</span> <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">][</span><span class="s2">"filename"</span><span class="p">][</span>
                         <span class="n">channel_name</span>
                     <span class="p">]</span>
-                    <span class="n">channel_header</span><span class="p">[</span><span class="s2">&quot;M&quot;</span> <span class="o">+</span> <span class="n">master_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;FNM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">channel_header</span><span class="p">[</span><span class="s2">"M"</span> <span class="o">+</span> <span class="n">master_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"FNM"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">master_fname</span><span class="p">,</span>
-                        <span class="s2">&quot;Master &quot;</span> <span class="o">+</span> <span class="n">master_type</span> <span class="o">+</span> <span class="s2">&quot; frame applied&quot;</span><span class="p">,</span>
+                        <span class="s2">"Master "</span> <span class="o">+</span> <span class="n">master_type</span> <span class="o">+</span> <span class="s2">" frame applied"</span><span class="p">,</span>
                     <span class="p">)</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">master_fname</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">master</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">master_fname</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">master</span><span class="p">:</span>
                         <span class="n">hasher</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">()</span>
                         <span class="n">hasher</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">master</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-                        <span class="n">channel_header</span><span class="p">[</span><span class="s2">&quot;M&quot;</span> <span class="o">+</span> <span class="n">master_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;SHA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">channel_header</span><span class="p">[</span><span class="s2">"M"</span> <span class="o">+</span> <span class="n">master_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"SHA"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                             <span class="n">hasher</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span>
-                            <span class="s2">&quot;SHA-1 checksum of the master &quot;</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span>
+                            <span class="s2">"SHA-1 checksum of the master "</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span>
                         <span class="p">)</span>
 
-            <span class="n">area_pattern</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(xmin)d</span><span class="s2"> &lt; x &lt; </span><span class="si">%(xmax)d</span><span class="s2">, </span><span class="si">%(ymin)d</span><span class="s2"> &lt; y &lt; </span><span class="si">%(ymax)d</span><span class="s2">&quot;</span>
+            <span class="n">area_pattern</span> <span class="o">=</span> <span class="s2">"</span><span class="si">%(xmin)d</span><span class="s2"> &lt; x &lt; </span><span class="si">%(xmax)d</span><span class="s2">, </span><span class="si">%(ymin)d</span><span class="s2"> &lt; y &lt; </span><span class="si">%(ymax)d</span><span class="s2">"</span>
 
             <span class="k">if</span> <span class="p">(</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="ow">and</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"method"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"areas"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="p">):</span>
                 <span class="k">for</span> <span class="n">overscan_id</span><span class="p">,</span> <span class="n">overscan_area</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">]</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"areas"</span><span class="p">]</span>
                 <span class="p">):</span>
-                    <span class="n">channel_header</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;OVRSCN</span><span class="si">{</span><span class="n">overscan_id</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">channel_header</span><span class="p">[</span><span class="sa">f</span><span class="s2">"OVRSCN</span><span class="si">{</span><span class="n">overscan_id</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">area_pattern</span> <span class="o">%</span> <span class="n">overscan_area</span><span class="p">,</span>
-                        <span class="s2">&quot;Overscan area #&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">overscan_id</span><span class="p">),</span>
+                        <span class="s2">"Overscan area #"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">overscan_id</span><span class="p">),</span>
                     <span class="p">)</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span>
-                    <span class="s2">&quot;method&quot;</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span>
+                    <span class="s2">"method"</span>
                 <span class="p">]</span><span class="o">.</span><span class="n">document_in_fits_header</span><span class="p">(</span><span class="n">channel_header</span><span class="p">)</span>
 
-            <span class="n">channel_header</span><span class="p">[</span><span class="s2">&quot;IMAGAREA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">area_pattern</span> <span class="o">%</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;Image region in raw frame&quot;</span><span class="p">,</span>
+            <span class="n">channel_header</span><span class="p">[</span><span class="s2">"IMAGAREA"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">area_pattern</span> <span class="o">%</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">],</span>
+                <span class="s2">"Image region in raw frame"</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="n">channel_header</span><span class="p">[</span><span class="s2">&quot;CALBGAIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;Electrons/ADU assumed during calib&quot;</span><span class="p">,</span>
+            <span class="n">channel_header</span><span class="p">[</span><span class="s2">"CALBGAIN"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">],</span>
+                <span class="s2">"Electrons/ADU assumed during calib"</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">module_git_id</span> <span class="ow">in</span> <span class="n">Calibrator</span><span class="o">.</span><span class="n">module_git_ids</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">assert</span> <span class="n">module_git_id</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$Id:&quot;</span>
-                <span class="k">assert</span> <span class="n">module_git_id</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span>
-                <span class="n">channel_header</span><span class="p">[</span><span class="s2">&quot;CALGITID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">module_name</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">module_git_id</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                    <span class="s2">&quot;Git ID of calib module.&quot;</span><span class="p">,</span>
+                <span class="k">assert</span> <span class="n">module_git_id</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"$Id:"</span>
+                <span class="k">assert</span> <span class="n">module_git_id</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"$"</span>
+                <span class="n">channel_header</span><span class="p">[</span><span class="s2">"CALGITID"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">module_name</span> <span class="o">+</span> <span class="s2">":"</span> <span class="o">+</span> <span class="n">module_git_id</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                    <span class="s2">"Git ID of calib module."</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -678,72 +678,72 @@
 <div class="viewcode-block" id="Calibrator._get_calibration_params">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator._get_calibration_params">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_calibration_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite_params</span><span class="p">,</span> <span class="n">raw_image</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set all calibration parameters following overwrite rules.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set all calibration parameters following overwrite rules."""</span>
 
         <span class="n">calibration_params</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">**</span><span class="n">overwrite_params</span><span class="p">)</span>
-        <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;combine_headers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"combine_headers"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">)</span>
         <span class="n">raw_hdu</span> <span class="o">=</span> <span class="p">(</span>
             <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="p">(</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
-                <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+                <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="mi">1</span> <span class="k">if</span> <span class="n">raw_image</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">1</span> <span class="k">if</span> <span class="n">raw_image</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
-                <span class="n">raw_image</span><span class="p">[</span><span class="n">raw_hdu</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;GAIN&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">raw_image</span><span class="p">[</span><span class="n">raw_hdu</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"GAIN"</span><span class="p">]</span>
             <span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"bias"</span><span class="p">,</span> <span class="s2">"dark"</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="n">calibration_params</span><span class="p">:</span>
                 <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span>
+                    <span class="s2">"filename"</span><span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span>
                 <span class="p">}</span>
                 <span class="p">(</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">],</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">],</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"correction"</span><span class="p">],</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">],</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">],</span>
                 <span class="p">)</span> <span class="o">=</span> <span class="n">assemble_channels</span><span class="p">(</span>
                     <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">],</span>
-                    <span class="s2">&quot;components&quot;</span><span class="p">,</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">],</span>
+                    <span class="s2">"components"</span><span class="p">,</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">],</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_calib_mask_from_master</span><span class="p">(</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">][</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">][</span><span class="s2">"mask"</span><span class="p">]</span>
                 <span class="p">)</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">][</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span> <span class="o">**=</span> <span class="mi">2</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">][</span><span class="s2">"variance"</span><span class="p">]</span> <span class="o">**=</span> <span class="mi">2</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;master_&quot;</span> <span class="o">+</span> <span class="n">master_type</span>
+                    <span class="bp">self</span><span class="p">,</span> <span class="s2">"master_"</span> <span class="o">+</span> <span class="n">master_type</span>
                 <span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;masks&quot;</span> <span class="ow">in</span> <span class="n">calibration_params</span><span class="p">:</span>
-            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;masks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;filenames&quot;</span><span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;masks&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">assemble_channels</span><span class="p">(</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;masks&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;masks&quot;</span><span class="p">,</span>
-                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">],</span>
+        <span class="k">if</span> <span class="s2">"masks"</span> <span class="ow">in</span> <span class="n">calibration_params</span><span class="p">:</span>
+            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"masks"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">"filenames"</span><span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"masks"</span><span class="p">],</span>
+                <span class="s2">"image"</span><span class="p">:</span> <span class="n">assemble_channels</span><span class="p">(</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"masks"</span><span class="p">],</span>
+                    <span class="s2">"masks"</span><span class="p">,</span>
+                    <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">],</span>
                 <span class="p">),</span>
             <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;masks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span>
+            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"masks"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span>
         <span class="k">return</span> <span class="n">calibration_params</span></div>
 
 
 <div class="viewcode-block" id="Calibrator.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">saturation_threshold</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a calibrator and define some default calibration parameters.</span>
 
 <span class="sd">        Args:</span>
@@ -754,15 +754,15 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;saturation_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">saturation_threshold</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">"saturation_threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="n">saturation_threshold</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_masters</span><span class="p">(</span>
             <span class="o">**</span><span class="p">{</span>
-                <span class="n">master_type</span><span class="p">:</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;master_&quot;</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">]</span>
+                <span class="n">master_type</span><span class="p">:</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"master_"</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"bias"</span><span class="p">,</span> <span class="s2">"dark"</span><span class="p">,</span> <span class="s2">"flat"</span><span class="p">]</span>
             <span class="p">}</span>
         <span class="p">)</span></div>
 
@@ -770,7 +770,7 @@
 <div class="viewcode-block" id="Calibrator.set_masters">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator.set_masters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_masters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">masks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Define the default masterts to use for calibrations.</span>
 
 <span class="sd">        The cannels and image area must be correctly set by __init__.</span>
@@ -789,10 +789,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Setting masters: bias(</span><span class="si">%s</span><span class="s2">), dark(</span><span class="si">%s</span><span class="s2">), flat(</span><span class="si">%s</span><span class="s2">), masks(</span><span class="si">%s</span><span class="s2">).&quot;</span><span class="p">,</span>
+            <span class="s2">"Setting masters: bias(</span><span class="si">%s</span><span class="s2">), dark(</span><span class="si">%s</span><span class="s2">), flat(</span><span class="si">%s</span><span class="s2">), masks(</span><span class="si">%s</span><span class="s2">)."</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">bias</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">dark</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">flat</span><span class="p">),</span>
@@ -800,47 +800,47 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">masks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;filenames&quot;</span><span class="p">:</span> <span class="n">masks</span><span class="p">,</span>
-                <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">assemble_channels</span><span class="p">(</span>
-                    <span class="n">masks</span><span class="p">,</span> <span class="s2">&quot;masks&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">]</span>
+                <span class="s2">"filenames"</span><span class="p">:</span> <span class="n">masks</span><span class="p">,</span>
+                <span class="s2">"image"</span><span class="p">:</span> <span class="n">assemble_channels</span><span class="p">(</span>
+                    <span class="n">masks</span><span class="p">,</span> <span class="s2">"masks"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">]</span>
                 <span class="p">),</span>
             <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">for</span> <span class="n">master_type</span><span class="p">,</span> <span class="n">master_fname</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="n">bias</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="n">dark</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"bias"</span><span class="p">,</span> <span class="n">bias</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"dark"</span><span class="p">,</span> <span class="n">dark</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"flat"</span><span class="p">,</span> <span class="n">flat</span><span class="p">),</span>
         <span class="p">]:</span>
             <span class="k">if</span> <span class="n">master_fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">setattr</span><span class="p">(</span>
                     <span class="bp">self</span><span class="p">,</span>
-                    <span class="s2">&quot;master_&quot;</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span>
+                    <span class="s2">"master_"</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">master_fname</span><span class="p">,</span>
+                        <span class="s2">"filename"</span><span class="p">:</span> <span class="n">master_fname</span><span class="p">,</span>
                     <span class="p">},</span>
                 <span class="p">)</span>
-                <span class="n">master_attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;master_&quot;</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">)</span>
+                <span class="n">master_attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"master_"</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">)</span>
                 <span class="p">(</span>
-                    <span class="n">master_attr</span><span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">],</span>
-                    <span class="n">master_attr</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">],</span>
-                    <span class="n">master_attr</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span>
+                    <span class="n">master_attr</span><span class="p">[</span><span class="s2">"correction"</span><span class="p">],</span>
+                    <span class="n">master_attr</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">],</span>
+                    <span class="n">master_attr</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">],</span>
                 <span class="p">)</span> <span class="o">=</span> <span class="n">assemble_channels</span><span class="p">(</span>
                     <span class="n">master_fname</span><span class="p">,</span>
-                    <span class="s2">&quot;components&quot;</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">],</span>
+                    <span class="s2">"components"</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">],</span>
                 <span class="p">)</span>
-                <span class="n">master_attr</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span> <span class="o">**=</span> <span class="mi">2</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_calib_mask_from_master</span><span class="p">(</span><span class="n">master_attr</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">])</span>
+                <span class="n">master_attr</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">]</span> <span class="o">**=</span> <span class="mi">2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_calib_mask_from_master</span><span class="p">(</span><span class="n">master_attr</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;master_&quot;</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"master_"</span> <span class="o">+</span> <span class="n">master_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Calibrator.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="p">,</span> <span class="o">**</span><span class="n">calibration_params</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Calibrate the raw frame, save result to calibrated.</span>
 
 <span class="sd">        Args:</span>
@@ -851,10 +851,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">apply_subtractive_correction</span><span class="p">(</span><span class="n">correction</span><span class="p">,</span> <span class="n">calibrated_images</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Subtract correction from calibrated_image &amp; update variance &amp; mask.</span>
 
 <span class="sd">            Args:</span>
@@ -866,17 +866,17 @@
 
 <span class="sd">            Returns:</span>
 <span class="sd">                None</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
-            <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">correction</span><span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">]</span>
-            <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">correction</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">correction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mask&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">correction</span><span class="p">[</span><span class="s2">"correction"</span><span class="p">]</span>
+            <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">correction</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">correction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mask"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span>
-                    <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">correction</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span>
+                    <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">correction</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">]</span>
                 <span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">apply_flat_correction</span><span class="p">(</span><span class="n">master_flat</span><span class="p">,</span> <span class="n">calibrated_images</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Apply flat-field correction to calibrated image and update variance.</span>
 
 <span class="sd">            Args:</span>
@@ -888,111 +888,111 @@
 
 <span class="sd">            Returns:</span>
 <span class="sd">                None</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
-            <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">]</span>
+            <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">"correction"</span><span class="p">]</span>
             <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
-                <span class="o">+</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span>
+                <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">"correction"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="o">+</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">]</span>
                 <span class="o">*</span> <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
-                <span class="o">/</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">4</span>
+                <span class="o">/</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">"correction"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">4</span>
             <span class="p">)</span>
             <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span>
-                <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span>
+                <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">master_flat</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">]</span>
             <span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">raw_image</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">raw_image</span><span class="p">:</span>
             <span class="n">calibration_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_calibration_params</span><span class="p">(</span>
                 <span class="n">calibration_params</span><span class="p">,</span> <span class="n">raw_image</span>
             <span class="p">)</span>
             <span class="n">raw_pixels</span> <span class="o">=</span> <span class="n">assemble_channels</span><span class="p">(</span>
                 <span class="n">raw</span><span class="p">,</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">],</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">],</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">],</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">check_calib_params</span><span class="p">(</span><span class="n">raw_pixels</span><span class="p">,</span> <span class="n">calibration_params</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Calibrating raw image </span><span class="si">%s</span><span class="s2"> with configuration:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Calibrating raw image </span><span class="si">%s</span><span class="s2"> with configuration:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="n">trimmed_image</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">raw_pixels</span><span class="p">[</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">][</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span>
-                    <span class="s2">&quot;image_area&quot;</span>
-                <span class="p">][</span><span class="s2">&quot;ymax&quot;</span><span class="p">],</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">][</span><span class="s2">&quot;xmin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span>
-                    <span class="s2">&quot;image_area&quot;</span>
-                <span class="p">][</span><span class="s2">&quot;xmax&quot;</span><span class="p">],</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">][</span><span class="s2">"ymin"</span><span class="p">]</span> <span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span>
+                    <span class="s2">"image_area"</span>
+                <span class="p">][</span><span class="s2">"ymax"</span><span class="p">],</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">][</span><span class="s2">"xmin"</span><span class="p">]</span> <span class="p">:</span> <span class="n">calibration_params</span><span class="p">[</span>
+                    <span class="s2">"image_area"</span>
+                <span class="p">][</span><span class="s2">"xmax"</span><span class="p">],</span>
             <span class="p">]</span>
-            <span class="o">-</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;bias_level_adu&quot;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"bias_level_adu"</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">calibrated_images</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">trimmed_image</span><span class="p">,</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">trimmed_image</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
             <span class="n">get_saturation_mask</span><span class="p">(</span>
                 <span class="n">trimmed_image</span><span class="p">,</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;saturation_threshold&quot;</span><span class="p">],</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;leak_directions&quot;</span><span class="p">],</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"saturation_threshold"</span><span class="p">],</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"leak_directions"</span><span class="p">],</span>
             <span class="p">),</span>
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="p">(</span>
-            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"method"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"areas"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
             <span class="n">apply_subtractive_correction</span><span class="p">(</span>
-                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;method&quot;</span><span class="p">](</span>
+                <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"method"</span><span class="p">](</span>
                     <span class="n">raw_fname</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span>
-                    <span class="n">raw_hdu</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">],</span>
-                    <span class="n">overscans</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;overscans&quot;</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">],</span>
-                    <span class="n">image_area</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;image_area&quot;</span><span class="p">],</span>
-                    <span class="n">gain</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">],</span>
-                    <span class="n">split_channels</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">],</span>
+                    <span class="n">raw_hdu</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">],</span>
+                    <span class="n">overscans</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"overscans"</span><span class="p">][</span><span class="s2">"areas"</span><span class="p">],</span>
+                    <span class="n">image_area</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"image_area"</span><span class="p">],</span>
+                    <span class="n">gain</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">],</span>
+                    <span class="n">split_channels</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">],</span>
                 <span class="p">),</span>
                 <span class="n">calibrated_images</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"bias"</span><span class="p">,</span> <span class="s2">"dark"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">apply_subtractive_correction</span><span class="p">(</span>
                     <span class="n">calibration_params</span><span class="p">[</span><span class="n">master_type</span><span class="p">],</span> <span class="n">calibrated_images</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">master_type</span> <span class="o">==</span> <span class="s2">&quot;bias&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">master_type</span> <span class="o">==</span> <span class="s2">"bias"</span><span class="p">:</span>
                 <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">calibrated_images</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">]</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">calibrated_images</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">]</span>
                     <span class="o">+</span> <span class="p">(</span>
-                        <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;read_noise_electrons&quot;</span><span class="p">]</span>
-                        <span class="o">/</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;gain&quot;</span><span class="p">]</span>
+                        <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"read_noise_electrons"</span><span class="p">]</span>
+                        <span class="o">/</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">]</span>
                     <span class="p">)</span>
                     <span class="o">**</span> <span class="mi">2</span>
                 <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;flat&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">apply_flat_correction</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;flat&quot;</span><span class="p">],</span> <span class="n">calibrated_images</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"flat"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">apply_flat_correction</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"flat"</span><span class="p">],</span> <span class="n">calibrated_images</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">raw_image</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">raw_image</span><span class="p">:</span>
             <span class="n">raw_header</span> <span class="o">=</span> <span class="n">get_raw_header</span><span class="p">(</span><span class="n">raw_image</span><span class="p">,</span> <span class="n">calibration_params</span><span class="p">)</span>
-            <span class="n">raw_header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">calibration_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_header&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+            <span class="n">raw_header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">calibration_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"extra_header"</span><span class="p">,</span> <span class="p">{}))</span>
 
             <span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">calibrated_images</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
             <span class="n">create_result</span><span class="p">(</span>
                 <span class="n">image_list</span><span class="o">=</span><span class="n">calibrated_images</span><span class="p">,</span>
                 <span class="n">header</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_document_in_header</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">,</span> <span class="n">raw_header</span><span class="p">),</span>
-                <span class="n">result_fname</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;calibrated_fname&quot;</span><span class="p">],</span>
-                <span class="n">split_channels</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">],</span>
-                <span class="n">compress</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;compress_calibrated&quot;</span><span class="p">],</span>
-                <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;allow_overwrite&quot;</span><span class="p">],</span>
+                <span class="n">result_fname</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"calibrated_fname"</span><span class="p">],</span>
+                <span class="n">split_channels</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">],</span>
+                <span class="n">compress</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"compress_calibrated"</span><span class="p">],</span>
+                <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">"allow_overwrite"</span><span class="p">],</span>
             <span class="p">)</span>
 
-        <span class="n">diagnostic_quantiles</span> <span class="o">=</span> <span class="n">calibration_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;diagnostic_quantiles&quot;</span><span class="p">)</span>
+        <span class="n">diagnostic_quantiles</span> <span class="o">=</span> <span class="n">calibration_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"diagnostic_quantiles"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">diagnostic_quantiles</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">split_channels</span> <span class="o">=</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;split_channels&quot;</span><span class="p">]</span>
+        <span class="n">split_channels</span> <span class="o">=</span> <span class="n">calibration_params</span><span class="p">[</span><span class="s2">"split_channels"</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">split_channels</span><span class="p">:</span>
             <span class="n">split_channels</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)}</span>
 
@@ -1005,7 +1005,7 @@
                 <span class="k">continue</span>
             <span class="n">channel_diags</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="n">diagnostic_quantiles</span><span class="p">:</span>
-                <span class="n">diag_name</span> <span class="o">=</span> <span class="s2">&quot;pixel_q&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">diag_name</span> <span class="o">=</span> <span class="s2">"pixel_q"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">channel_diags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">(</span><span class="n">diag_name</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">good_pixels</span><span class="p">,</span> <span class="n">quantile</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
                 <span class="p">)</span>

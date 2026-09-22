@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.process_terms_visitor &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.fit_expression.process_terms_visitor</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Implement base visitor class for processing individual terms in expression&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Implement base visitor class for processing individual terms in expression"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
@@ -177,18 +177,18 @@
 <div class="viewcode-block" id="ProcessTermsVisitor">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessTermsVisitor</span><span class="p">(</span><span class="n">FitTermsParserVisitor</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base visitor class for processing individual terms in fit terms expressions.</span>
 
 <span class="sd">    Children should overwrite visitFit_term() to process individual terms, as</span>
 <span class="sd">    well as implement the abstract methods.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ProcessTermsVisitor._start_polynomial_expansion">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._start_polynomial_expansion">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_start_polynomial_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_output_terms</span><span class="p">,</span> <span class="n">input_terms_list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Called at the beginning of processing of a new polynomial expansion.</span>
 
 <span class="sd">        Args:</span>
@@ -197,14 +197,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="ProcessTermsVisitor._process_polynomial_term">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._process_polynomial_term">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_polynomial_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_terms</span><span class="p">,</span> <span class="n">term_powers</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Called for each term in a polynomial expansion.</span>
 
 <span class="sd">        Args:</span>
@@ -216,14 +216,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="ProcessTermsVisitor._end_polynomial_expansion">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._end_polynomial_expansion">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_end_polynomial_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Called at the end of processing of a new polynomial expansion.</span>
 
 <span class="sd">        Args:</span>
@@ -232,14 +232,14 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The terms produced by the polynomial expansion, as generated by the</span>
 <span class="sd">            repeated calls to process_polynomial_term().</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="ProcessTermsVisitor._start_cross_product_expansion">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._start_cross_product_expansion">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_start_cross_product_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_term_sets</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Called at the beginning of processing of a new cross product expansion.</span>
 
 <span class="sd">        Args:</span>
@@ -248,14 +248,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="ProcessTermsVisitor._process_cross_product_term">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._process_cross_product_term">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_cross_product_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_terms</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Called for each term in a cross product expansion.</span>
 
 <span class="sd">        Args:</span>
@@ -265,14 +265,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="ProcessTermsVisitor._end_cross_product_expansion">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._end_cross_product_expansion">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_end_cross_product_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Called at the end of processing of a new cross product expansion.</span>
 
 <span class="sd">        Args:</span>
@@ -281,14 +281,14 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The terms produced by the cross producc expansion, as generated by</span>
 <span class="sd">            the repeated calls to process_cross_product_term().</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
     <span class="c1"># Visit a parse tree produced by FitTermsParser#fit_terms_list.</span>
 <div class="viewcode-block" id="ProcessTermsVisitor.visitFit_terms_list">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_terms_list">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_listContext</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of the terms in the list.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a list of the terms in the list."""</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fit_term</span><span class="p">()]</span></div>
 
@@ -297,7 +297,7 @@
 <div class="viewcode-block" id="ProcessTermsVisitor.visitFit_terms_set">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_terms_set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_setContext</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of the terms in the set.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a list of the terms in the set."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">getChild</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span></div>
 
@@ -306,10 +306,10 @@
 <div class="viewcode-block" id="ProcessTermsVisitor.visitFit_polynomial">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_polynomial">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_polynomialContext</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the list of terms the polynomial expression expands to.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Process the list of terms the polynomial expression expands to."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">next_power_set</span><span class="p">(</span><span class="n">powerlaw_indices</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Advance to the next term powerlaw indices preserting total order.</span>
 
 <span class="sd">            Args:</span>
@@ -321,7 +321,7 @@
 <span class="sd">                bool:</span>
 <span class="sd">                    False iff the input powerlaw indices correspond to the last</span>
 <span class="sd">                    term of the current maximum order.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">powerlaw_indices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">powerlaw_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
@@ -353,7 +353,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_set_cross_product</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_set_cross_productContext</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return all possible terms combining one term from each input set.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return all possible terms combining one term from each input set."""</span>
 
         <span class="n">term_sets</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">tset</span><span class="p">)</span> <span class="k">for</span> <span class="n">tset</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fit_terms_set</span><span class="p">()]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_cross_product_expansion</span><span class="p">(</span><span class="n">term_sets</span><span class="p">)</span>

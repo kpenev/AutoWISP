@@ -1,0 +1,30 @@
+<map id="inheritance50bfee109a" name="inheritance50bfee109a">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="246,299,614,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="119,372,413,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="437,372,753,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,225,425,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="450,225,842,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="499,152,793,177"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1055,5,1309,31"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.BUIError" target="_top" title="Failure in the Django views/forms/templates of the BUI." alt="" coords="821,79,1036,104"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1061,79,1303,104"/>
+<area shape="rect" id="node14" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="1328,79,1548,104"/>
+<area shape="rect" id="node15" href="autowisp.exceptions.html#autowisp.exceptions.ViewError" target="_top" title="Failure rendering or handling a BUI view." alt="" coords="817,152,1040,177"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1572,79,1784,104"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1628,5,1728,31"/>
+<area shape="rect" id="node12" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1752,5,1985,31"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.StackToMasterError" target="_top" title="Failure stacking calibration frames into a master." alt="" coords="1295,152,1581,177"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_error_render.TestErrorCounts" target="_top" title="The badge counts / error_counts_by_step / the step filter." alt="" coords="1925,79,2263,104"/>
+<area shape="rect" id="node17" title="A class whose instances are single test cases." alt="" coords="2010,5,2178,31"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_error_render.TestErrorDetail" target="_top" title="error_detail: user vs developer views, remediation, degradation." alt="" coords="2203,5,2535,31"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_error_render.TestErrorListRows" target="_top" title="error_list_rows: the cheap, inline&#45;only list&#45;view projection." alt="" coords="2559,5,2909,31"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_error_render.TestErrorSummary" target="_top" title="error_summary: one&#45;line component/step/artifact/message." alt="" coords="2933,5,3289,31"/>
+<area shape="rect" id="node21" href="#autowisp.tests.test_error_render.TestFormatDetailText" target="_top" title="format_detail_text: terminal rendering of the detail dict." alt="" coords="3313,5,3688,31"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="3713,5,3827,31"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="3698,79,3842,104"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="3866,79,4013,104"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="3878,5,4001,31"/>
+<area shape="rect" id="node26" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,152,399,177"/>
+<area shape="rect" id="node27" title="define a class as inspectable." alt="" coords="523,79,769,104"/>
+<area shape="rect" id="node28" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+</map>

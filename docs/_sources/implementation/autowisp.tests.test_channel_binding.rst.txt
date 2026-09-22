@@ -3,5 +3,5 @@ autowisp.tests.test\_channel\_binding module
 
 .. automodule:: autowisp.tests.test_channel_binding
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

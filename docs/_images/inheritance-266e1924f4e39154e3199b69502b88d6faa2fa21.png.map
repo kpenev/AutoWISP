@@ -1,0 +1,19 @@
+<map id="inheritance74ccf85ca9" name="inheritance74ccf85ca9">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="298,299,666,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="5,372,300,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="324,372,640,397"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="664,372,1047,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="57,225,477,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="502,225,894,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="551,152,845,177"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="845,79,1079,104"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="912,5,1012,31"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="1118,5,1233,31"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="1103,79,1247,104"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="1257,5,1405,31"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/datetime.html#datetime.timezone" target="_top" title="Fixed offset from UTC implementation of tzinfo." alt="" coords="1418,79,1565,104"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/datetime.html#datetime.tzinfo" target="_top" title="Abstract base class for time zone info objects." alt="" coords="1430,5,1553,31"/>
+<area shape="rect" id="node15" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="84,152,451,177"/>
+<area shape="rect" id="node16" title="define a class as inspectable." alt="" coords="575,79,821,104"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="639,5,757,31"/>
+</map>

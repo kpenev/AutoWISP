@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.correction &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.light_curves.correction</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define base class for all LC de-trend algorithms.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define base class for all LC de-trend algorithms."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
@@ -176,7 +176,7 @@
 <div class="viewcode-block" id="Correction">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Correction</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Functionality and interface shared by all LC de-trending corrections.</span>
 
 <span class="sd">    Attributes:</span>
@@ -184,7 +184,7 @@
 
 <span class="sd">        iterative_fit_config(dict):    Configuration to use for iterative</span>
 <span class="sd">            fitting. See iterative_fit() for details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -192,16 +192,16 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_config_key_prefix">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_config_key_prefix</span><span class="p">(</span><span class="n">fit_target</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the prefix of the pipeline key for storing configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the prefix of the pipeline key for storing configuration."""</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fit target: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">fit_target</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.cfg.&quot;</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Fit target: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">fit_target</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">".cfg."</span></div>
 
 
 <div class="viewcode-block" id="Correction._get_io_iterative_fit_config">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._get_io_iterative_fit_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_io_iterative_fit_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_key_prefix</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the iterative fit portion of the configuration to save in the LC.</span>
 
 <span class="sd">        Args:</span>
@@ -213,16 +213,16 @@
 <span class="sd">            [()]:</span>
 <span class="sd">                A list of tuples of the configuration options contained in</span>
 <span class="sd">                :attr:`iterative_fit_config`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span>
-                <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;error_avg&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">iterative_fit_config</span><span class="p">[</span><span class="s2">&quot;error_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+                <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">"error_avg"</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iterative_fit_config</span><span class="p">[</span><span class="s2">"error_avg"</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
             <span class="p">(</span><span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="n">cfg_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_fit_config</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">cfg_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rej_level&quot;</span><span class="p">,</span> <span class="s2">&quot;max_rej_iter&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">cfg_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"rej_level"</span><span class="p">,</span> <span class="s2">"max_rej_iter"</span><span class="p">]</span>
         <span class="p">]</span></div>
 
 
@@ -239,7 +239,7 @@
         <span class="n">configuration</span><span class="p">,</span>
         <span class="n">light_curve</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Stores the de-treneded results and configuration to the light curve.</span>
 
 <span class="sd">        Args:</span>
@@ -267,7 +267,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">original_key</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">,</span> <span class="n">destination_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_datasets</span><span class="p">[</span>
             <span class="n">fit_index</span>
@@ -283,13 +283,13 @@
             <span class="n">corrected_selection</span><span class="o">=</span><span class="n">fit_points</span><span class="p">,</span>
             <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">config_key_prefix</span> <span class="o">=</span> <span class="n">destination_key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">config_key_prefix</span> <span class="o">=</span> <span class="n">destination_key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">configuration</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
             <span class="n">configuration</span>
             <span class="o">+</span> <span class="p">[</span>
-                <span class="p">(</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.fit_residual&quot;</span><span class="p">,</span> <span class="n">fit_residual</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.num_fit_points&quot;</span><span class="p">,</span> <span class="n">non_rejected_points</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">".fit_residual"</span><span class="p">,</span> <span class="n">fit_residual</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">".num_fit_points"</span><span class="p">,</span> <span class="n">non_rejected_points</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">light_curve</span><span class="o">.</span><span class="n">add_configurations</span><span class="p">(</span>
@@ -314,7 +314,7 @@
         <span class="n">result</span><span class="p">,</span>
         <span class="n">num_extra_predictors</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Incorporate the results of a single fit in final result of __call__().</span>
 
 <span class="sd">        Args:</span>
@@ -340,7 +340,7 @@
 <span class="sd">            dict:</span>
 <span class="sd">                The same structure as fit_results, but ready to pass to</span>
 <span class="sd">                self._save_result().</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">fit_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">num_extra_predictors</span><span class="p">:</span>
@@ -348,11 +348,11 @@
                     <span class="n">result</span><span class="p">[</span><span class="n">predictor</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">fit_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
 
             <span class="n">fit_results</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;corrected_values&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="s2">"corrected_values"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
                     <span class="n">raw_values</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">raw_values</span><span class="o">.</span><span class="n">dtype</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;fit_residual&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
-                <span class="s2">&quot;non_rejected_points&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">"fit_residual"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="s2">"non_rejected_points"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
             <span class="p">}</span>
 
         <span class="k">else</span><span class="p">:</span>
@@ -372,16 +372,16 @@
                 <span class="p">)</span>
 
             <span class="n">fit_results</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;corrected_values&quot;</span><span class="p">:</span> <span class="n">corrected_values</span><span class="p">,</span>
-                <span class="s2">&quot;fit_residual&quot;</span><span class="p">:</span> <span class="n">fit_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">,</span>
-                <span class="s2">&quot;non_rejected_points&quot;</span><span class="p">:</span> <span class="n">fit_results</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="s2">"corrected_values"</span><span class="p">:</span> <span class="n">corrected_values</span><span class="p">,</span>
+                <span class="s2">"fit_residual"</span><span class="p">:</span> <span class="n">fit_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s2">"non_rejected_points"</span><span class="p">:</span> <span class="n">fit_results</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
             <span class="p">}</span>
 
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">fit_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
-            <span class="n">numpy</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;corrected_values&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"rms"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">fit_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">fit_results</span><span class="p">[</span><span class="s2">"corrected_values"</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
         <span class="p">)</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">fit_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span>
-            <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;corrected_values&quot;</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"num_finite"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">fit_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span>
+            <span class="n">fit_results</span><span class="p">[</span><span class="s2">"corrected_values"</span><span class="p">]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">fit_results</span></div>
 
@@ -390,18 +390,18 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction.get_result_dtype">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_result_dtype</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">,</span> <span class="n">extra_predictors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">id_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data type for the result of __call__.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the data type for the result of __call__."""</span>
 
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span>
-                <span class="s2">&quot;ID&quot;</span><span class="p">,</span>
+                <span class="s2">"ID"</span><span class="p">,</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span> <span class="k">if</span> <span class="n">id_size</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">,</span> <span class="n">id_size</span><span class="p">),</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;rms&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="p">(</span><span class="n">num_photometries</span><span class="p">,))),</span>
-            <span class="p">(</span><span class="s2">&quot;num_finite&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="p">(</span><span class="n">num_photometries</span><span class="p">,))),</span>
+            <span class="p">(</span><span class="s2">"mag"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"xi"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"eta"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"rms"</span><span class="p">,</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="p">(</span><span class="n">num_photometries</span><span class="p">,))),</span>
+            <span class="p">(</span><span class="s2">"num_finite"</span><span class="p">,</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span> <span class="p">(</span><span class="n">num_photometries</span><span class="p">,))),</span>
         <span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
             <span class="p">(</span><span class="n">predictor_name</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">predictor_name</span> <span class="ow">in</span> <span class="p">(</span>
@@ -427,15 +427,15 @@
         <span class="n">substitutions</span><span class="p">,</span>
         <span class="n">in_place</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fix magfit iteration in substitutions if negative.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Fix magfit iteration in substitutions if negative."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fixing LC substitutions: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">substitutions</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">substitutions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Fixing LC substitutions: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">substitutions</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">substitutions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"magfit_iteration"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">substitutions</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">in_place</span><span class="p">:</span>
             <span class="n">substitutions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span>
         <span class="n">substitutions</span><span class="p">[</span>
-            <span class="s2">&quot;magfit_iteration&quot;</span>
+            <span class="s2">"magfit_iteration"</span>
         <span class="p">]</span> <span class="o">+=</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">get_num_magfit_iterations</span><span class="p">(</span>
             <span class="n">photometry_mode</span><span class="p">,</span> <span class="n">fit_points</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
         <span class="p">)</span>
@@ -449,16 +449,16 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_fit_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">get_fit_dataset</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">,</span> <span class="n">fit_points</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the lightcurve points to detrend.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the lightcurve points to detrend."""</span>
 
         <span class="n">substitutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_substitutions</span><span class="p">(</span>
             <span class="n">light_curve</span><span class="o">=</span><span class="n">light_curve</span><span class="p">,</span>
-            <span class="n">photometry_mode</span><span class="o">=</span><span class="n">fit_target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">photometry_mode</span><span class="o">=</span><span class="n">fit_target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">fit_points</span><span class="o">=</span><span class="n">fit_points</span><span class="p">,</span>
             <span class="n">substitutions</span><span class="o">=</span><span class="n">fit_target</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Fitting </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) for </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span>
+            <span class="s2">"Fitting </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) for </span><span class="si">%s</span><span class="s2"> "</span><span class="p">,</span>
             <span class="n">fit_target</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">substitutions</span><span class="p">),</span>
             <span class="n">light_curve</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
@@ -469,7 +469,7 @@
 <div class="viewcode-block" id="Correction.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_datasets</span><span class="p">,</span> <span class="n">mark_progress</span><span class="p">,</span> <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Configure the fitting.</span>
 
 <span class="sd">        Args:</span>
@@ -479,12 +479,12 @@
 <span class="sd">                pipeline key for the output dataset. Configurations of how the</span>
 <span class="sd">                fitting was done and the resulting residual and non-rejected</span>
 <span class="sd">                points are added to configuration datasets generated by removing</span>
-<span class="sd">                the tail of the destination and adding `&#39;.cfg.&#39; + &lt;parameter</span>
-<span class="sd">                name&gt;` for configurations and just `&#39;.&#39; + &lt;parameter name&gt;` for</span>
+<span class="sd">                the tail of the destination and adding `'.cfg.' + &lt;parameter</span>
+<span class="sd">                name&gt;` for configurations and just `'.' + &lt;parameter name&gt;` for</span>
 <span class="sd">                fitting statistics. For example, if the output dataset key is</span>
-<span class="sd">            `&#39;shapefit.epd.magnitude&#39;`, the configuration datasets will look</span>
-<span class="sd">            like `&#39;shapefit.epd.cfg.fit_terms&#39;`, and</span>
-<span class="sd">            `&#39;shapefit.epd.residual&#39;`.</span>
+<span class="sd">            `'shapefit.epd.magnitude'`, the configuration datasets will look</span>
+<span class="sd">            like `'shapefit.epd.cfg.fit_terms'`, and</span>
+<span class="sd">            `'shapefit.epd.residual'`.</span>
 
 
 <span class="sd">            iterative_fit_config:    Any other arguments to pass directly to</span>
@@ -492,7 +492,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_datasets</span> <span class="o">=</span> <span class="n">fit_datasets</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iterative_fit_config</span> <span class="o">=</span> <span class="n">iterative_fit_config</span>

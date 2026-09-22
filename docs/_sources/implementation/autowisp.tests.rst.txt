@@ -3,8 +3,8 @@ autowisp.tests package
 
 .. automodule:: autowisp.tests
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------
@@ -14,7 +14,6 @@ Submodules
 
    autowisp.tests.error_fixtures
    autowisp.tests.fits_test_case
-   autowisp.tests.generate_catalog_test_data
    autowisp.tests.get_test_data
    autowisp.tests.h5_test_case
    autowisp.tests.test_bui_db_config
@@ -28,6 +27,7 @@ Submodules
    autowisp.tests.test_detrending_stat
    autowisp.tests.test_diagnostic_expressions
    autowisp.tests.test_diagnostic_types
+   autowisp.tests.test_diagnostics_rules
    autowisp.tests.test_diagnostics_views
    autowisp.tests.test_epd
    autowisp.tests.test_error_capture_middleware
@@ -58,4 +58,3 @@ Submodules
    autowisp.tests.test_tfa
    autowisp.tests.test_tfa_num_templates
    autowisp.tests.test_timestamp_triggers
-   autowisp.tests.update_hdf5_contents

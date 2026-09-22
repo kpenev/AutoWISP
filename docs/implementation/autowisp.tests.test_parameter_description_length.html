@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_parameter_description_length module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,14 +172,12 @@
 <span id="autowisp-tests-test-parameter-description-length-module"></span><h1>autowisp.tests.test_parameter_description_length module<a class="headerlink" href="#module-autowisp.tests.test_parameter_description_length" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-93a92c254eefee605c8816b3bd4d2b690acacb33.png" alt="Inheritance diagram of Parameter, Step, TestParameterDescriptionLength" usemap="#inheritance3a98bbee8f" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-a3b65e04cbfbf7ec4df66246576983d086cb2110.png" alt="Inheritance diagram of Parameter, Step, TestParameterDescriptionLength" usemap="#inheritance3a98bbee8f" class="inheritance graphviz" /></div>
 <map id="inheritance3a98bbee8f" name="inheritance3a98bbee8f">
-<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="245,304,575,331"/>
-<area shape="rect" id="node5" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="5,379,407,405"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="431,379,800,405"/>
-<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="428,229,781,256"/>
-<area shape="rect" id="node7" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" target="_top" title="Everything initialization inserts must fit its column." alt="" coords="738,80,1242,107"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="552,5,657,32"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="5,372,455,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="479,372,890,397"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" target="_top" title="Everything initialization inserts must fit its column." alt="" coords="819,79,1382,104"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="614,5,731,31"/>
 </map><p>Check that step argument help fits the parameter description column.</p>
 <p>Project initialization stores the command line help of every processing
 step argument in <code class="docutils literal notranslate"><span class="pre">parameter.description</span></code>. SQLite ignores declared
@@ -190,15 +188,15 @@ where it aborts the insert with “Data too long for column
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_parameter_description_length.</span></span><span class="sig-name descname"><span class="pre">TestParameterDescriptionLength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_parameter_description_length.html#TestParameterDescriptionLength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_parameter_description_length.</span></span><span class="sig-name descname"><span class="pre">TestParameterDescriptionLength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_parameter_description_length.html#TestParameterDescriptionLength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-01e0667759f4759a08c1c6b99dd6c95a7055c85c.png" alt="Inheritance diagram of autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" usemap="#inheritance25d6fb24a3" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-8eb54a99b317f014147c399607834601c4614f0d.png" alt="Inheritance diagram of autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" usemap="#inheritance25d6fb24a3" class="inheritance graphviz" /></div>
 <map id="inheritance25d6fb24a3" name="inheritance25d6fb24a3">
-<area shape="rect" id="node1" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" target="_top" title="Everything initialization inserts must fit its column." alt="" coords="5,80,509,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength" target="_top" title="Everything initialization inserts must fit its column." alt="" coords="5,79,568,104"/>
 </map><p>Everything initialization inserts must fit its column.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.setUpClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_parameter_description_length.html#TestParameterDescriptionLength.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.setUpClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_parameter_description_length.html#TestParameterDescriptionLength.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_parameter_description_length.TestParameterDescriptionLength.setUpClass" title="Link to this definition"></a></dt>
 <dd><p>Collect the descriptions initialization would store.</p>
 </dd></dl>
 

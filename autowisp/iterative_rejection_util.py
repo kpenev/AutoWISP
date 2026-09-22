@@ -11,6 +11,35 @@ from autowisp.exceptions import ConvergenceError
 git_id = "$Id$"
 
 
+def split_threshold(threshold):
+    """
+    Return the upper and lower outlier thresholds a user specified.
+
+    Args:
+        threshold:    Either a single positive value, applying in both
+            directions, or a pair with one positive and one negative entry,
+            in either order, applying above and below respectively.
+
+    Returns:
+        (float, float):    The upper threshold (positive) and the lower one
+            (negative).
+
+    Raises:
+        ValueError:    If a pair does not have entries of opposite signs, or
+            more than two values are given.
+    """
+
+    values = numpy.atleast_1d(threshold).astype(float)
+    if values.size == 1:
+        return abs(values[0]), -abs(values[0])
+    if values.size != 2 or values[0] * values[1] >= 0:
+        raise ValueError(
+            f"Invalid outlier threshold {threshold!r}: give a single value or "
+            "a pair with one positive and one negative entry."
+        )
+    return values.max(), values.min()
+
+
 # Too many arguments indeed, but most would never be needed.
 # Breaking up into smaller pieces will decrease readability
 # pylint: disable=too-many-arguments
@@ -39,8 +68,9 @@ def iterative_rejection_average(
         outlier_threshold:    Outliers are defined as outlier_threshold * (root
             maen square deviation around the average). Non-finite values are
             always outliers. This value could also be a 2-tuple with one
-            positive and one negative entry, specifying the thresholds in the
-            positive and negative directions separately.
+            positive and one negative entry, in either order, specifying the
+            thresholds in the positive and negative directions separately (see
+            :func:`split_threshold`\ ).
 
         average_func:    A function which returns the average to compute (e.g.
             :func:`numpy.nanmean` or :func:`numpy.nanmedian`\ ), must ignore nan
@@ -94,21 +124,7 @@ def iterative_rejection_average(
         repr(working_array),
     )
 
-    if isinstance(outlier_threshold, (float, int)):
-        threshold_plus = outlier_threshold
-        threshold_minus = -outlier_threshold
-    else:
-        if len(outlier_threshold) == 1:
-            assert outlier_threshold[0] > 0
-            threshold_plus = outlier_threshold[0]
-            threshold_minus = -outlier_threshold[0]
-        else:
-            assert len(outlier_threshold) == 2
-            assert outlier_threshold[0] * outlier_threshold[1] < 0
-            if outlier_threshold[0] > 0:
-                threshold_plus, threshold_minus = outlier_threshold
-            else:
-                threshold_minus, threshold_plus = outlier_threshold
+    threshold_plus, threshold_minus = split_threshold(outlier_threshold)
 
     if not hasattr(deviation_average, "__getitem__"):
         deviation_average = (deviation_average,)
@@ -181,18 +197,10 @@ def iterative_rejection_average(
 def flag_outliers(residuals, threshold):
     """Flag outlier residuals (see :func:`iterative_rej_linear_leastsq`)."""
 
-    try:
-        if len(threshold) == 1:
-            upper_threshold = lower_threshold = threshold[0]
-        upper_threshold, lower_threshold = float(threshold[0]), float(
-            threshold[1]
-        )
-    except TypeError:
-        upper_threshold = lower_threshold = float(threshold)
-
+    upper_threshold, lower_threshold = split_threshold(threshold)
     rms = numpy.sqrt(numpy.mean(residuals**2))
     return numpy.logical_or(
-        residuals > upper_threshold * rms, residuals < -lower_threshold * rms
+        residuals > upper_threshold * rms, residuals < lower_threshold * rms
     )
 
 
@@ -213,21 +221,28 @@ def iterative_rej_linear_leastsq(
     Args:
         matrix:    The matrix defining the linear least squares problem.
 
-        rhs:    The RHS of the least squares problem.
+        rhs:    The RHS of the least squares problem. Non-finite entries are
+            always treated as outliers.
 
         outlier_threshold:    The RHS entries are considered outliers if they
             devite from the fit by more than this values times the root mean
-            square of the fit residuals.
+            square of the fit residuals. Could also be a pair with one
+            positive and one negative entry, in either order, specifying the
+            thresholds above (rhs > matrix * coefficients) and below the fit
+            separately (see :func:`split_threshold`).
 
         max_iterations:    The maximum number of rejection/re-fitting iterations
-            allowed. Zero for simple fit with no rejections.
+            allowed. Zero for simple fit with no rejections (other than of
+            non-finite RHS entries).
 
         return_predicted:    Should the best-fit values for the RHS be returned?
 
     Returns:
         (tuple):
             array:
-                The best fit coefficients.
+                The best fit coefficients. All NaN, as are the other returned
+                values, if fewer RHS entries survive than there are
+                coefficients to fit.
 
             float:
                 The root mean square residual of the latest fit iteration.
@@ -237,24 +252,30 @@ def iterative_rej_linear_leastsq(
                 **return_predicted** == ``True``.
     """
 
+    outlier_threshold = numpy.atleast_1d(outlier_threshold)
     num_surviving = rhs.size
     iteration = 0
     fit_rhs = numpy.copy(rhs)
     fit_matrix = numpy.copy(matrix)
-    while True:
+    outliers = numpy.logical_not(numpy.isfinite(rhs))
+    while iteration == 0 or outliers.any():
+        num_surviving -= outliers.sum()
+        fit_rhs[outliers] = 0
+        fit_matrix[outliers, :] = 0
+
+        if num_surviving < matrix.shape[1]:
+            fit_coef = numpy.full(matrix.shape[1], numpy.nan)
+            residual = numpy.nan
+            break
+
         fit_coef, residual = scipy.linalg.lstsq(fit_matrix, fit_rhs)[:2]
         residual /= num_surviving
         if iteration == max_iterations:
             break
         outliers = flag_outliers(
             fit_rhs - fit_matrix.dot(fit_coef),
-            outlier_threshold
+            outlier_threshold * numpy.sqrt(rhs.size / num_surviving),
         )
-        num_surviving -= outliers.sum()
-        fit_rhs[outliers] = 0
-        fit_matrix[outliers, :] = 0
-        if not outliers.any():
-            break
         iteration += 1
     if return_predicted:
         return fit_coef, numpy.sqrt(residual), matrix.dot(fit_coef)
@@ -295,7 +316,55 @@ def iterative_rej_polynomial_fit(x, y, order, *leastsq_args, **leastsq_kwargs):
     )
 
 
-def iterative_rej_smoothing_spline(
+def _estimate_smoothing(knots, fit_x, fit_y, fit_w, spline_args):
+    """
+    Return the smoothing condition the noise about a spline calls for.
+
+    A smoothing spline cannot supply this itself: its squared residuals sum
+    to whatever ``s`` it was given. So the noise is instead estimated from a
+    least squares fit with the same knots, which is under no such
+    constraint, as ``SSR / (m - p)`` for ``p`` coefficients. The smoothing
+    condition scipy recommends for that noise is then ``(m - sqrt(2 * m))``
+    times it.
+
+    Args:
+        knots:    The full knot vector of the smoothing fit, as returned by
+            :func:`scipy.interpolate.splrep`\\ .
+
+        fit_x, fit_y, fit_w:    The points to fit and their weights (or
+            ``None``).
+
+        spline_args:    The remaining arguments of the smoothing fit.
+
+    Returns:
+        float or None:    The smoothing condition, or ``None`` if there are
+            no more points than coefficients, leaving no noise to estimate.
+    """
+
+    degree = spline_args.get("k", 3)
+    num_points = fit_x.size
+    num_coefficients = knots.size - degree - 1
+    if num_points <= num_coefficients:
+        return None
+
+    fixed_knot_args = {
+        name: value for name, value in spline_args.items() if name != "s"
+    }
+    fixed_knot_args["t"] = knots[degree + 1 : -(degree + 1)]
+    residuals = fit_y - BSpline(
+        *splrep(fit_x, fit_y, w=fit_w, task=-1, **fixed_knot_args)
+    )(fit_x)
+    if fit_w is not None:
+        residuals = residuals * fit_w
+
+    return (
+        (num_points - numpy.sqrt(2.0 * num_points))
+        * numpy.sum(residuals**2)
+        / (num_points - num_coefficients)
+    )
+
+
+def iterative_rej_smoothing_spline(  # pylint: disable=too-many-locals
     x, y, outlier_threshold, max_iterations=numpy.inf, **spline_args
 ):
     r"""
@@ -307,18 +376,26 @@ def iterative_rej_smoothing_spline(
         y:    The y (dependenc variable) in the dependence.
 
         outlier_threshold:    See same name argument of
-            :func:`iterative_rej_linear_leastsq`\ . If two values are given, the
-            first indicates positive (i.e. rhs > matrix * coefficients) and the
-            second negative (rhs < matrix * coefficients) deviations.
+            :func:`iterative_rej_linear_leastsq`\ .
 
         max_iterations:    See same name argument of
             :func:`iterative_rej_linear_leastsq`\ .
 
         spline_args:    Keyword arguments passed directly to
-            :func:`scipy.interpolate.splrep`\ .
+            :func:`scipy.interpolate.splrep`\ . If the smoothing condition
+            ``s`` is given (without knots ``t``), it applies to the first fit
+            only, and should be loose enough for the spline not to bend
+            towards the outliers: a value suitable for the clean data would
+            leave nothing to reject. After each round of rejection, ``s`` is
+            re-estimated from the noise about a least squares fit with the
+            knots of the latest smoothing fit (see
+            :func:`_estimate_smoothing`), and the iterations stop once a
+            round rejects nothing and fails to shrink ``s``. If ``s`` is not
+            given, :func:`scipy.interpolate.splrep`\ 's own default applies
+            to every fit, and the iterations stop once nothing is rejected.
 
     Returns:
-        scipy.interpolate.UnivariateSpline:
+        scipy.interpolate.BSpline:
             The latest iteration of the smoothing spline fit, after either the
             outlier rejection/refitting iterations have converged or
             max_iterations was reached.
@@ -326,7 +403,6 @@ def iterative_rej_smoothing_spline(
 
     logger = logging.getLogger(__name__)
 
-    found_outliers = True
     iteration = 0
     fit_points = numpy.logical_and(numpy.isfinite(x), numpy.isfinite(y))
     fit_x = x[fit_points]
@@ -336,8 +412,13 @@ def iterative_rej_smoothing_spline(
         del spline_args["w"]
     else:
         fit_w = None
-    while found_outliers and iteration < max_iterations:
-        smooth_func = BSpline(*splrep(fit_x, fit_y, w=fit_w, **spline_args))
+    # With fixed knots scipy ignores s, so there is nothing to adapt.
+    adapt_smoothing = "s" in spline_args and "t" not in spline_args
+    while True:
+        knots, *spline = splrep(fit_x, fit_y, w=fit_w, **spline_args)
+        smooth_func = BSpline(knots, *spline)
+        if iteration == max_iterations:
+            break
 
         residuals = fit_y - smooth_func(fit_x)
         logger.debug("Residuals:\n%s", repr(residuals))
@@ -350,13 +431,29 @@ def iterative_rej_smoothing_spline(
             len(non_outliers) - non_outliers.sum(),
             len(non_outliers),
         )
+        found_outliers = not numpy.all(non_outliers)
+        if not (found_outliers or adapt_smoothing):
+            break
 
         fit_x = fit_x[non_outliers]
         fit_y = fit_y[non_outliers]
         if fit_w is not None:
             fit_w = fit_w[non_outliers]
-
-        found_outliers = not numpy.all(non_outliers)
+        if adapt_smoothing:
+            new_smoothing = _estimate_smoothing(
+                knots, fit_x, fit_y, fit_w, spline_args
+            )
+            logger.debug("Estimated smoothing: %s", repr(new_smoothing))
+            # Once converged, s alternates between nearly equal values of
+            # neighbouring knot sets rather than settling exactly, so stop at
+            # the first round that fails to shrink it.
+            if not found_outliers and (
+                new_smoothing is None or new_smoothing >= spline_args["s"]
+            ):
+                break
+            if new_smoothing is not None:
+                spline_args["s"] = new_smoothing
+        iteration += 1
 
     return smooth_func
 

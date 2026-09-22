@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.frozen_row module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,9 +172,9 @@
 <span id="autowisp-database-frozen-row-module"></span><h1>autowisp.database.frozen_row module<a class="headerlink" href="#module-autowisp.database.frozen_row" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-ed69d59b76bd1951232fa41fc9f397c8701ed755.png" alt="Inheritance diagram of FrozenRow" usemap="#inheritance1ab7f347e6" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b017a1a0f2b52a640ad006aa281698c5fdbeb592.png" alt="Inheritance diagram of FrozenRow" usemap="#inheritance1ab7f347e6" class="inheritance graphviz" /></div>
 <map id="inheritance1ab7f347e6" name="inheritance1ab7f347e6">
-<area shape="rect" id="node1" href="#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="5,5,274,32"/>
+<area shape="rect" id="node1" href="#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="5,5,300,31"/>
 </map><p>A dependency-free, picklable snapshot of a database row.</p>
 <p>This module intentionally imports nothing from SQLAlchemy (or anything
 else heavy), so that <a class="reference internal" href="#autowisp.database.frozen_row.FrozenRow" title="autowisp.database.frozen_row.FrozenRow"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrozenRow</span></code></a> can be referenced from the
@@ -184,17 +184,17 @@ SQLAlchemy – builds a <a class="reference internal" href="#autowisp.database.f
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.frozen_row.FrozenRow">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.frozen_row.</span></span><span class="sig-name descname"><span class="pre">FrozenRow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/frozen_row.html#FrozenRow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.frozen_row.FrozenRow" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.database.frozen_row.</span></span><span class="sig-name descname"><span class="pre">FrozenRow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/frozen_row.html#FrozenRow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.frozen_row.FrozenRow" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-0d8b8cb6fca6ad67ae8861a1996002e10b593303.png" alt="Inheritance diagram of autowisp.database.frozen_row.FrozenRow" usemap="#inheritance87220553de" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-52be284568b2c169ae0d05867df8800ac0f2db47.png" alt="Inheritance diagram of autowisp.database.frozen_row.FrozenRow" usemap="#inheritance87220553de" class="inheritance graphviz" /></div>
 <map id="inheritance87220553de" name="inheritance87220553de">
-<area shape="rect" id="node1" href="#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="5,5,274,32"/>
+<area shape="rect" id="node1" href="#autowisp.database.frozen_row.FrozenRow" target="_top" title="Immutable, picklable snapshot of an ORM row&#39;s column values." alt="" coords="5,5,300,31"/>
 </map><p>Immutable, picklable snapshot of an ORM row’s column values.</p>
 <p>Holds the column values of a SQLAlchemy row detached from any
 session, so it stays usable after the session that produced it is
 closed and survives pickling across process/host boundaries (where a
 live ORM instance would not). Column values are reached by attribute
-(<code class="docutils literal notranslate"><span class="pre">snapshot.host</span></code>) or via <a class="reference internal" href="#id0" title="autowisp.database.frozen_row.FrozenRow.columns"><code class="xref py py-attr docutils literal notranslate"><span class="pre">columns</span></code></a>.</p>
+(<code class="docutils literal notranslate"><span class="pre">snapshot.host</span></code>) or via <a class="reference internal" href="#autowisp.database.frozen_row.FrozenRow.columns" title="autowisp.database.frozen_row.FrozenRow.columns"><code class="xref py py-attr docutils literal notranslate"><span class="pre">columns</span></code></a>.</p>
 <p>Built from a live instance with
 <a class="reference internal" href="autowisp.database.interface.html#autowisp.database.interface.snapshot_row" title="autowisp.database.interface.snapshot_row"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.database.interface.snapshot_row()</span></code></a> (parent side, where
 the row exists) or directly from a dict (a worker, which only has
@@ -202,37 +202,23 @@ primitives threaded through its config).</p>
 <p>This is a <em>general</em> utility – not specific to errors. Any place that
 needs a durable, picklable copy of a row (related-artifact context,
 provenance, caching a row past its session) can use it.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.database.frozen_row.FrozenRow.table">
-<span class="sig-name descname"><span class="pre">table</span></span><a class="headerlink" href="#autowisp.database.frozen_row.FrozenRow.table" title="Link to this definition"></a></dt>
-<dd><p>Name of the source table, for display/debugging.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the source table, for display/debugging.</p></li>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{column_key:</span> <span class="pre">value}</span></code> for every mapped
+column captured. Treated as read-only.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.database.frozen_row.FrozenRow.columns">
-<span class="sig-name descname"><span class="pre">columns</span></span><a class="headerlink" href="#autowisp.database.frozen_row.FrozenRow.columns" title="Link to this definition"></a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">{column_key:</span> <span class="pre">value}</span></code> for every mapped
-column captured. Treated as read-only.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">columns</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="headerlink" href="#autowisp.database.frozen_row.FrozenRow.columns" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">table</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.database.frozen_row.FrozenRow.table">
+<span class="sig-name descname"><span class="pre">table</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#autowisp.database.frozen_row.FrozenRow.table" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

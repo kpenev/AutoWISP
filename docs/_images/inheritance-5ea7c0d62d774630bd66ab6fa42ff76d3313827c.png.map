@@ -1,0 +1,6 @@
+<map id="inheritance52c5ee0b09" name="inheritance52c5ee0b09">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="74,5,150,31"/>
+<area shape="rect" id="node2" href="#autowisp.image_calibration.overscan_methods.Base" target="_top" title="The minimal intefrace that must be provided by overscan methods." alt="" coords="13,79,379,104"/>
+<area shape="rect" id="node4" href="#autowisp.image_calibration.overscan_methods.Median" target="_top" title="Correction is median of all overscan pixels with iterative outlier reject." alt="" coords="5,152,387,177"/>
+<area shape="rect" id="node3" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="174,5,389,31"/>
+</map>

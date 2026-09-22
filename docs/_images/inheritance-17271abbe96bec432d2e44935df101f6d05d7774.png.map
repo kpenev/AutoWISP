@@ -1,0 +1,5 @@
+<map id="inheritance83e3303123" name="inheritance83e3303123">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.diagnostics.admin.DiagnosticExpressionAdmin" target="_top" title="Inspect and repair expressions without going through the app." alt="" coords="5,152,516,177"/>
+<area shape="rect" id="node2" title="Encapsulate all admin options and functionality for a given model." alt="" coords="111,79,410,104"/>
+<area shape="rect" id="node3" title="Functionality common to both ModelAdmin and InlineAdmin." alt="" coords="95,5,426,31"/>
+</map>

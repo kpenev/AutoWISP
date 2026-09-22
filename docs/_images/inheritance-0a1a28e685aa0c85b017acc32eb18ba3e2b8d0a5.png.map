@@ -1,0 +1,26 @@
+<map id="inheritance6ae437fc76" name="inheritance6ae437fc76">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="1581,299,1949,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
+<area shape="rect" id="node7" title="Base class for all per&#45;image diagnostics." alt="" coords="825,372,1323,397"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1755,372,2225,397"/>
+<area shape="rect" id="node11" title="The table describing the camera specified" alt="" coords="2249,372,2664,397"/>
+<area shape="rect" id="node12" title="The table describing each of the channels of a type of camera." alt="" coords="2689,372,3214,397"/>
+<area shape="rect" id="node13" title="The table describing the different &#160;camera types" alt="" coords="3238,372,3718,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1340,225,1760,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1785,225,2177,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="1833,152,2128,177"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="837,445,1311,471"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_channel_binding.TestAddedRow" target="_top" title="What a press of ``+`` earns: a copy of the row it was pressed in." alt="" coords="2152,152,2511,177"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_channel_binding.TwoChannelProject" target="_top" title="The fixture the classes below share, holding no tests of its own." alt="" coords="2741,79,3127,104"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_channel_binding.TestChannelColumns" target="_top" title="What each column of a row offers, given what the project records." alt="" coords="2535,152,2933,177"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_channel_binding.TestRebinding" target="_top" title="What the server answers when a row&#39;s binding changes." alt="" coords="2958,152,3313,177"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_channel_binding.TestSeriesValues" target="_top" title="Which of the posted rows are drawn, and what each one reads." alt="" coords="3337,152,3709,177"/>
+<area shape="rect" id="node19" title="A class whose instances are single test cases." alt="" coords="2850,5,3018,31"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="3166,5,3281,31"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="3151,79,3295,104"/>
+<area shape="rect" id="node22" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1367,152,1733,177"/>
+<area shape="rect" id="node23" title="define a class as inspectable." alt="" coords="1858,79,2103,104"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1922,5,2039,31"/>
+</map>

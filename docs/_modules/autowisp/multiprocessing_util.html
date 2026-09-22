@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.multiprocessing_util &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.multiprocessing_util</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Multiprocessing utilities for the pipeline.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Multiprocessing utilities for the pipeline."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
@@ -183,20 +183,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">WISPGaia</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ErrorContext</span><span class="p">,</span> <span class="n">set_error_context</span>
 
-<span class="c1"># Used by this module&#39;s ``__main__``; canonical home is</span>
+<span class="c1"># Used by this module's ``__main__``; canonical home is</span>
 <span class="c1"># ``autowisp.miscellaneous``.</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_code_version_str</span>
 
 
 <span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="s2">&quot;calculate&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fname_datetime_format&quot;</span><span class="p">:</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;std_out_err_fname&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{task}</span><span class="s2">_</span><span class="si">{now!s}</span><span class="s2">_</span><span class="si">{pid:d}</span><span class="s2">.outerr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;logging_fname&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{task}</span><span class="s2">_</span><span class="si">{now!s}</span><span class="s2">_</span><span class="si">{pid:d}</span><span class="s2">.log&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;logging_verbosity&quot;</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;logging_message_format&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(name)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2"> | &quot;</span>
-        <span class="s2">&quot;</span><span class="si">%(pathname)s</span><span class="s2">.</span><span class="si">%(funcName)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">&quot;</span>
+    <span class="s2">"task"</span><span class="p">:</span> <span class="s2">"calculate"</span><span class="p">,</span>
+    <span class="s2">"fname_datetime_format"</span><span class="p">:</span> <span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S"</span><span class="p">,</span>
+    <span class="s2">"std_out_err_fname"</span><span class="p">:</span> <span class="s2">"</span><span class="si">{task}</span><span class="s2">_</span><span class="si">{now!s}</span><span class="s2">_</span><span class="si">{pid:d}</span><span class="s2">.outerr"</span><span class="p">,</span>
+    <span class="s2">"logging_fname"</span><span class="p">:</span> <span class="s2">"</span><span class="si">{task}</span><span class="s2">_</span><span class="si">{now!s}</span><span class="s2">_</span><span class="si">{pid:d}</span><span class="s2">.log"</span><span class="p">,</span>
+    <span class="s2">"logging_verbosity"</span><span class="p">:</span> <span class="s2">"info"</span><span class="p">,</span>
+    <span class="s2">"logging_message_format"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"</span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(name)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2"> | "</span>
+        <span class="s2">"</span><span class="si">%(pathname)s</span><span class="s2">.</span><span class="si">%(funcName)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">"</span>
     <span class="p">),</span>
 <span class="p">}</span>
 
@@ -204,45 +204,45 @@
 <div class="viewcode-block" id="get_log_outerr_filenames">
 <a class="viewcode-back" href="../../implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.get_log_outerr_filenames">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_log_outerr_filenames</span><span class="p">(</span><span class="n">existing_pid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the filenames where `setup_process()` redirects log and output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the filenames where `setup_process()` redirects log and output."""</span>
 
     <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="n">now</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;*&quot;</span>
+            <span class="s2">"*"</span>
             <span class="k">if</span> <span class="n">existing_pid</span>
-            <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fname_datetime_format&quot;</span><span class="p">])</span>
+            <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"fname_datetime_format"</span><span class="p">])</span>
         <span class="p">),</span>
         <span class="n">pid</span><span class="o">=</span><span class="p">(</span><span class="n">existing_pid</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()),</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">existing_pid</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
-        <span class="n">pid_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\{pid[^}]*\}&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">existing_pid</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>
+        <span class="n">pid_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\{pid[^}]*\}"</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="n">format_str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;*&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pid_rex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">format_str</span><span class="p">))</span>
+            <span class="k">return</span> <span class="s2">"*"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pid_rex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">format_str</span><span class="p">))</span>
 
     <span class="k">else</span><span class="p">:</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="n">format_str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">format_str</span>
 
-    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;std_out_err_fname&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">"std_out_err_fname"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">std_out_err_fname</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">std_out_err_fname</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;std_out_err_fname&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+        <span class="n">std_out_err_fname</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"std_out_err_fname"</span><span class="p">])</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
             <span class="n">config</span>
         <span class="p">)</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">prepare</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;logging_fname&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+        <span class="n">prepare</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"logging_fname"</span><span class="p">])</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
         <span class="n">std_out_err_fname</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"parent_pid"</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">]),</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"parent_pid"</span><span class="p">]),</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">result</span>
@@ -258,13 +258,13 @@
 <div class="viewcode-block" id="_enable_faulthandler">
 <a class="viewcode-back" href="../../implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util._enable_faulthandler">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_enable_faulthandler</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Point ``faulthandler`` at ``stream`` so a fatal signal self-reports.</span>
+<span class="w">    </span><span class="sd">"""Point ``faulthandler`` at ``stream`` so a fatal signal self-reports.</span>
 
 <span class="sd">    A segfault / abort / FPE produces no Python exception, so a worker</span>
-<span class="sd">    that dies of one is &quot;silent&quot; and -- because the pool executor collapses</span>
+<span class="sd">    that dies of one is "silent" and -- because the pool executor collapses</span>
 <span class="sd">    every pending future to the same ``BrokenProcessPool`` and discards</span>
 <span class="sd">    which worker died -- otherwise unattributable. With ``faulthandler``</span>
-<span class="sd">    enabled against the worker&#39;s redirected stderr, the *faulting* worker</span>
+<span class="sd">    enabled against the worker's redirected stderr, the *faulting* worker</span>
 <span class="sd">    dumps a native traceback into its own log before dying; workers the</span>
 <span class="sd">    executor merely ``terminate()``s (``SIGTERM``) dump nothing, so the log</span>
 <span class="sd">    carrying a dump singles out the culprit. Also arms ``SIGUSR1`` (POSIX)</span>
@@ -278,13 +278,13 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">faulthandler</span><span class="o">.</span><span class="n">enable</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">all_threads</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>
         <span class="k">return</span>  <span class="c1"># e.g. stream has no real fileno -- nothing we can do</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="s2">&quot;SIGUSR1&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="s2">"SIGUSR1"</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">faulthandler</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
                 <span class="n">signal</span><span class="o">.</span><span class="n">SIGUSR1</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">all_threads</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="kc">True</span>
@@ -297,7 +297,7 @@
 <div class="viewcode-block" id="setup_process_map">
 <a class="viewcode-back" href="../../implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.setup_process_map">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">setup_process_map</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Logging and I/O setup for the current processes.</span>
 
 <span class="sd">    KWArgs:</span>
@@ -305,7 +305,7 @@
 <span class="sd">            file name with substitutions including any keyword arguments passed</span>
 <span class="sd">            to this function, ``now`` which gets replaced by current date/time,</span>
 <span class="sd">            ``pid`` which gets replaced by the process ID, ``task`` which</span>
-<span class="sd">            gets the value ``&#39;calculate&#39;`` by default but can be overwritten</span>
+<span class="sd">            gets the value ``'calculate'`` by default but can be overwritten</span>
 <span class="sd">            here.</span>
 
 <span class="sd">        logging_fname(str):    Format string for the logging file name (see</span>
@@ -325,10 +325,10 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">ensure_directory</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure the directory containing the given name exists.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Make sure the directory containing the given name exists."""</span>
         <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dirname</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -339,30 +339,30 @@
 
     <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">default_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="n">param</span> <span class="o">!=</span> <span class="s2">&quot;logging_verbosity&quot;</span> <span class="ow">or</span> <span class="s2">&quot;verbose&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span>
+            <span class="n">param</span> <span class="o">!=</span> <span class="s2">"logging_verbosity"</span> <span class="ow">or</span> <span class="s2">"verbose"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span>
         <span class="p">):</span>
             <span class="n">config</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="n">app_data_dir</span> <span class="o">=</span> <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;autowisp&quot;</span><span class="p">)</span>
+    <span class="n">app_data_dir</span> <span class="o">=</span> <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">"autowisp"</span><span class="p">)</span>
     <span class="n">logging_fname</span><span class="p">,</span> <span class="n">std_out_err_fname</span> <span class="o">=</span> <span class="n">get_log_outerr_filenames</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">app_data_dir</span><span class="p">):</span>  <span class="c1"># allow running on GitHub Actions</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app_data_dir</span><span class="p">,</span> <span class="s2">&quot;setup_process.outerr&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;a&quot;</span><span class="p">,</span>
-            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app_data_dir</span><span class="p">,</span> <span class="s2">"setup_process.outerr"</span><span class="p">),</span>
+            <span class="s2">"a"</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">info_file</span><span class="p">:</span>
             <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Setting up process with project home </span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;project_home&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;and configuration:</span><span class="se">\n\t</span><span class="s2">&quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="sa">f</span><span class="s2">"Setting up process with project home </span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">'project_home'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+                <span class="s2">"and configuration:</span><span class="se">\n\t</span><span class="s2">"</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                 <span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Logging to </span><span class="si">{</span><span class="n">logging_fname</span><span class="si">!r}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;stdout/stderr to </span><span class="si">{</span><span class="n">std_out_err_fname</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Logging to </span><span class="si">{</span><span class="n">logging_fname</span><span class="si">!r}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"stdout/stderr to </span><span class="si">{</span><span class="n">std_out_err_fname</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="p">)</span>
 
     <span class="n">all_loggers</span> <span class="o">=</span> <span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
@@ -382,38 +382,38 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">ensure_directory</span><span class="p">(</span><span class="n">std_out_err_fname</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span>  <span class="c1"># pylint: disable=consider-using-with</span>
-            <span class="n">std_out_err_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span>
+            <span class="n">std_out_err_fname</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
-    <span class="c1"># After the redirect, so a fatal-signal dump lands in the process&#39;s own</span>
+    <span class="c1"># After the redirect, so a fatal-signal dump lands in the process's own</span>
     <span class="c1"># (collectable) log rather than a lost stderr. Enabled unconditionally</span>
     <span class="c1"># -- for a non-redirected process it dumps to the inherited stderr.</span>
     <span class="n">_enable_faulthandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 
     <span class="n">ensure_directory</span><span class="p">(</span><span class="n">logging_fname</span><span class="p">)</span>
     <span class="n">logging_config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">logging_fname</span><span class="p">,</span>
-        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
+        <span class="s2">"filename"</span><span class="p">:</span> <span class="n">logging_fname</span><span class="p">,</span>
+        <span class="s2">"level"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
             <span class="n">logging</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logging_verbosity&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"logging_verbosity"</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"verbose"</span><span class="p">))</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
         <span class="p">),</span>
-        <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;logging_message_format&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;force&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"format"</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"logging_message_format"</span><span class="p">],</span>
+        <span class="s2">"force"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logging_datetime_format&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">logging_config</span><span class="p">[</span><span class="s2">&quot;datefmt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;logging_datetime_format&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"logging_datetime_format"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logging_config</span><span class="p">[</span><span class="s2">"datefmt"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"logging_datetime_format"</span><span class="p">]</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="o">**</span><span class="n">logging_config</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting process with configuration: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting process with configuration: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
 
-    <span class="n">set_project_home</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_home&quot;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="s2">&quot;data_reduction_fname&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-        <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gaia_user&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gaia_password&quot;</span><span class="p">):</span>
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"project_home"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"data_reduction_fname"</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"data_reduction_fname"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gaia_user"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gaia_password"</span><span class="p">):</span>
         <span class="n">WISPGaia</span><span class="o">.</span><span class="n">set_credentials</span><span class="p">(</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gaia_user&quot;</span><span class="p">],</span> <span class="n">password</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gaia_password&quot;</span><span class="p">]</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"gaia_user"</span><span class="p">],</span> <span class="n">password</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"gaia_password"</span><span class="p">]</span>
         <span class="p">)</span>
 
     <span class="c1"># Establish the ambient error context for this process (main process</span>
@@ -425,14 +425,14 @@
 <div class="viewcode-block" id="setup_process">
 <a class="viewcode-back" href="../../implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.setup_process">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">setup_process</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Like `setup_process_map`, but accepts keyword arguments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Like `setup_process_map`, but accepts keyword arguments."""</span>
 
     <span class="n">setup_process_map</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Code version: </span><span class="si">{</span><span class="n">get_code_version_str</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Code version: </span><span class="si">{</span><span class="n">get_code_version_str</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 
            </div>

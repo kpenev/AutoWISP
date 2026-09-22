@@ -135,7 +135,11 @@ input.param, select.param, input.lc-expression {
     background-color: #555
 }
 
-.dropdown:hover .dropdown-content {
+/* Open while the class is set, which handleDropdownClick does on a click
+ * and undoes on the next one anywhere. The diagnostics pages' marker
+ * menus work the same way, so choosing a marker means the same thing
+ * wherever it is done. */
+.dropdown.open .dropdown-content {
     display: block;
 }
 

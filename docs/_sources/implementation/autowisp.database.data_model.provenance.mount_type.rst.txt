@@ -1,7 +1,0 @@
-autowisp.database.data\_model.provenance.mount\_type module
-===========================================================
-
-.. automodule:: autowisp.database.data_model.provenance.mount_type
-   :members:
-   :undoc-members:
-   :show-inheritance:

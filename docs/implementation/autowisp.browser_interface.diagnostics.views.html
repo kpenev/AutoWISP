@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.views module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-diagnostics-views-module">
-<h1>autowisp.browser_interface.diagnostics.views module<a class="headerlink" href="#autowisp-browser-interface-diagnostics-views-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.diagnostics.views">
+<span id="autowisp-browser-interface-diagnostics-views-module"></span><h1>autowisp.browser_interface.diagnostics.views module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.views" title="Link to this heading"></a></h1>
+<p>Collect all views for the diagnostics app.</p>
+<p>Also where the stored expression library is fetched and handed to the
+plotting code.  That code takes it as an argument and never looks it up, so
+that it needs no browser-interface database – the same reason the tiers
+below it take one too – which leaves this module, already the app’s Django
+side, as the place the two meet.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.views.diagnostics_section">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.views.</span></span><span class="sig-name descname"><span class="pre">diagnostics_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/views.html#diagnostics_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.views.diagnostics_section" title="Link to this definition"></a></dt>
+<dd><p>Render one section, for the y selector to append to the page.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.views.display_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.views.</span></span><span class="sig-name descname"><span class="pre">display_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/views.html#display_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.views.display_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Show a section per y quantity, the library and its prose included.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.views.download_diagnostics_plot">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.views.</span></span><span class="sig-name descname"><span class="pre">download_diagnostics_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/views.html#download_diagnostics_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.views.download_diagnostics_plot" title="Link to this definition"></a></dt>
+<dd><p>Regenerate the last figure as a PDF, library and all.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.views.update_diagnostics_plot">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.views.</span></span><span class="sig-name descname"><span class="pre">update_diagnostics_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/views.html#update_diagnostics_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.views.update_diagnostics_plot" title="Link to this definition"></a></dt>
+<dd><p>Redraw the figure, with the library available to every row.</p>
+</dd></dl>
+
 </section>
 
 

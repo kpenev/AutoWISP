@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.run_pipeline &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.run_pipeline</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Run the image processing pipeline in a detached mode.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Run the image processing pipeline in a detached mode."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -201,46 +201,46 @@
 <div class="viewcode-block" id="parse_command_line">
 <a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline.parse_command_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the command line configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the command line configuration."""</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Manually invoke the fully automated processing&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Manually invoke the fully automated processing"</span><span class="p">,</span>
         <span class="n">default_config_files</span><span class="o">=</span><span class="p">[],</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
         <span class="n">ignore_unknown_config_file_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;project_home&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the project home directory.&quot;</span>
+        <span class="s2">"project_home"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to the project home directory."</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--add-raw-images&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="s2">"--add-raw-images"</span><span class="p">,</span>
+        <span class="s2">"-i"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Before processing add new raw images for processing. Can be &quot;</span>
-        <span class="s2">&quot;specified as a combination of image files and directories which will&quot;</span>
-        <span class="s2">&quot;be searched for FITS files.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Before processing add new raw images for processing. Can be "</span>
+        <span class="s2">"specified as a combination of image files and directories which will"</span>
+        <span class="s2">"be searched for FITS files."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--steps&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="s2">"--steps"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Process using only the specified steps. Leave empty for full &quot;</span>
-        <span class="s2">&quot;processing.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Process using only the specified steps. Leave empty for full "</span>
+        <span class="s2">"processing."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--step-imtypes&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="s2">"--step-imtypes"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Fine-grained filter as step:imagetype pairs &quot;</span>
-        <span class="s2">&quot;(e.g., calibrate:flat calibrate:science).&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Fine-grained filter as step:imagetype pairs "</span>
+        <span class="s2">"(e.g., calibrate:flat calibrate:science)."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--detached&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="s2">"--detached"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="n">SUPPRESS</span><span class="p">,</span>  <span class="c1"># Only used internally to detach in windows</span>
     <span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parsed arguments: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Parsed arguments: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
 
 
@@ -248,7 +248,7 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up the project and run the pipeline, recording any error.</span>
+<span class="w">    </span><span class="sd">"""Set up the project and run the pipeline, recording any error.</span>
 
 <span class="sd">    The top-level handler records *any* exception that escapes the run --</span>
 <span class="sd">    not just an :class:`AutoWISPError`. A plain exception from the</span>
@@ -260,7 +260,7 @@
 <span class="sd">    stderr (which, for a detached run, is ``run_pipeline.out``) -- and</span>
 <span class="sd">    re-raised. Reporting is best-effort and never masks the original</span>
 <span class="sd">    error.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Migrate here, in the one process that is definitely alone: workers</span>
     <span class="c1"># opening the project later only check the schema, since concurrent DDL</span>
@@ -292,7 +292,7 @@
 <div class="viewcode-block" id="_record_escaping_error">
 <a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline._record_escaping_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_record_escaping_error</span><span class="p">(</span><span class="n">exc</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stamp the pipeline-run snapshot (if missing) and report ``exc``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Stamp the pipeline-run snapshot (if missing) and report ``exc``."""</span>
 
     <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">exc</span><span class="o">.</span><span class="n">with_pipeline_run</span><span class="p">(</span><span class="n">get_error_context</span><span class="p">()</span><span class="o">.</span><span class="n">pipeline_run</span><span class="p">)</span>
@@ -303,7 +303,7 @@
 <div class="viewcode-block" id="_run_pipeline">
 <a class="viewcode-back" href="../../implementation/autowisp.run_pipeline.html#autowisp.run_pipeline._run_pipeline">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_run_pipeline</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the pipeline run and drive image + lightcurve processing.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create the pipeline run and drive image + lightcurve processing."""</span>
 
     <span class="c1"># old code</span>
     <span class="c1"># db_fname = os.path.abspath(config.processing_database)</span>
@@ -314,13 +314,13 @@
     <span class="c1">#    dummy_config = dummy_processing.get_config(</span>
     <span class="c1">#        dummy_processing.get_matched_expressions(Evaluator()),</span>
     <span class="c1">#        db_session,</span>
-    <span class="c1">#        step_name=&quot;add_images_to_db&quot;,</span>
+    <span class="c1">#        step_name="add_images_to_db",</span>
     <span class="c1">#    )[0]</span>
 
-    <span class="c1"># dummy_config[&quot;task&quot;] = &quot;run_pipeline&quot;</span>
-    <span class="c1"># dummy_config[&quot;parent_pid&quot;] = &quot;&quot;</span>
-    <span class="c1"># dummy_config[&quot;processing_step&quot;] = &quot;none&quot;</span>
-    <span class="c1"># dummy_config[&quot;image_type&quot;] = &quot;none&quot;</span>
+    <span class="c1"># dummy_config["task"] = "run_pipeline"</span>
+    <span class="c1"># dummy_config["parent_pid"] = ""</span>
+    <span class="c1"># dummy_config["processing_step"] = "none"</span>
+    <span class="c1"># dummy_config["image_type"] = "none"</span>
 
     <span class="c1"># setup_process_map(db_fname, dummy_config)</span>
 
@@ -343,12 +343,12 @@
         <span class="n">pipeline_run</span> <span class="o">=</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span>
 
     <span class="n">step_imtype_filter</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;step_imtypes&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">step_imtypes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"step_imtypes"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">step_imtypes</span><span class="p">:</span>
         <span class="n">per_step</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">step_imtypes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">":"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">step</span><span class="p">,</span> <span class="n">imt</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">step</span><span class="p">,</span> <span class="n">imt</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="n">imt</span> <span class="o">=</span> <span class="n">imt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">imt</span><span class="p">:</span>
@@ -357,18 +357,18 @@
         <span class="k">if</span> <span class="n">per_step</span><span class="p">:</span>
             <span class="n">step_imtype_filter</span> <span class="o">=</span> <span class="n">per_step</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Applied step-image-type filter: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">step_imtype_filter</span>
+                <span class="s2">"Applied step-image-type filter: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">step_imtype_filter</span>
             <span class="p">)</span>
 
     <span class="n">processing</span> <span class="o">=</span> <span class="n">ImageProcessingManager</span><span class="p">(</span><span class="n">pipeline_run_id</span><span class="o">=</span><span class="n">pipeline_run</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">img_to_add</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">add_raw_images</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding raw images from: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">img_to_add</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Adding raw images from: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">img_to_add</span><span class="p">)</span>
         <span class="n">processing</span><span class="o">.</span><span class="n">add_raw_images</span><span class="p">(</span><span class="n">find_fits_fnames</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">img_to_add</span><span class="p">)))</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">steps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Starting processing for project home </span><span class="si">%s</span><span class="s2">...&quot;</span><span class="p">,</span>
+            <span class="s2">"Starting processing for project home </span><span class="si">%s</span><span class="s2">..."</span><span class="p">,</span>
             <span class="n">get_project_home</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
@@ -378,7 +378,7 @@
             <span class="n">limit_to_steps</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span>
             <span class="n">step_imtype_filter</span><span class="o">=</span><span class="n">step_imtype_filter</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing completed.&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Processing completed."</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
@@ -393,23 +393,23 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;autowisp&quot;</span><span class="p">),</span> <span class="s2">&quot;run_pipeline.out&quot;</span>
+            <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">"autowisp"</span><span class="p">),</span> <span class="s2">"run_pipeline.out"</span>
         <span class="p">),</span>
-        <span class="s2">&quot;w&quot;</span><span class="p">,</span>
-        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"w"</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">outf</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">outf</span>
 
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">:</span>  <span class="c1"># Linux/macOS</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"posix"</span><span class="p">:</span>  <span class="c1"># Linux/macOS</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpgid</span><span class="p">,</span> <span class="n">setsid</span><span class="p">,</span> <span class="n">fork</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
 
-            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Darwin"</span><span class="p">:</span>
                 <span class="c1"># Double-fork is unsafe on macOS after Python runtime init.</span>
                 <span class="c1"># Zombie reaping is handled by views.py (daemon thread).</span>
                 <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>
@@ -418,14 +418,14 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">setsid</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">  pgid=</span><span class="si">{</span><span class="n">getpgid</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pid=</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">  pgid=</span><span class="si">{</span><span class="n">getpgid</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="n">pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">pid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ResourceError</span><span class="p">(</span>
-                    <span class="s2">&quot;Could not start the pipeline in the background: the &quot;</span>
-                    <span class="s2">&quot;operating system refused to create a new process &quot;</span>
-                    <span class="s2">&quot;(fork() failed).&quot;</span>
+                    <span class="s2">"Could not start the pipeline in the background: the "</span>
+                    <span class="s2">"operating system refused to create a new process "</span>
+                    <span class="s2">"(fork() failed)."</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">pid</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -433,14 +433,14 @@
             <span class="n">setsid</span><span class="p">()</span>
             <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>  <span class="c1"># Run main function in child process</span>
 
-        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>  <span class="c1"># Windows</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"nt"</span><span class="p">:</span>  <span class="c1"># Windows</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
-                    <span class="s2">&quot;detached_process_error.log&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+                    <span class="s2">"detached_process_error.log"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span>
                 <span class="p">)</span> <span class="k">as</span> <span class="n">error_log</span><span class="p">:</span>
-                    <span class="n">error_log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in main: </span><span class="si">{</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">error_log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error in main: </span><span class="si">{</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 
            </div>

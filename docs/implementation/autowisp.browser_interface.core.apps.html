@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.core.apps module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,43 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-core-apps-module">
-<h1>autowisp.browser_interface.core.apps module<a class="headerlink" href="#autowisp-browser-interface-core-apps-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.core.apps">
+<span id="autowisp-browser-interface-core-apps-module"></span><h1>autowisp.browser_interface.core.apps module<a class="headerlink" href="#module-autowisp.browser_interface.core.apps" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-510729a43cb740179ca58a2b5f21c38f81fc586c.png" alt="Inheritance diagram of AppConfig, CoreConfig" usemap="#inheritance77488ffa58" class="inheritance graphviz" /></div>
+<map id="inheritance77488ffa58" name="inheritance77488ffa58">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.core.apps.CoreConfig" target="_top" title="Machinery shared by every browser&#45;interface app." alt="" coords="5,79,349,104"/>
+</map><p>Application configuration for the shared browser-interface app.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.core.apps.CoreConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.core.apps.</span></span><span class="sig-name descname"><span class="pre">CoreConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/core/apps.html#CoreConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.core.apps.CoreConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-958c5dd33a22d4c106dd46c011b426efb98b1844.png" alt="Inheritance diagram of autowisp.browser_interface.core.apps.CoreConfig" usemap="#inheritance2749b77218" class="inheritance graphviz" /></div>
+<map id="inheritance2749b77218" name="inheritance2749b77218">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.core.apps.CoreConfig" target="_top" title="Machinery shared by every browser&#45;interface app." alt="" coords="5,79,349,104"/>
+</map><p>Machinery shared by every browser-interface app.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.core.apps.CoreConfig.default_auto_field">
+<span class="sig-name descname"><span class="pre">default_auto_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'django.db.models.BigAutoField'</span></span><a class="headerlink" href="#autowisp.browser_interface.core.apps.CoreConfig.default_auto_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.core.apps.CoreConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'autowisp.browser_interface.core'</span></span><a class="headerlink" href="#autowisp.browser_interface.core.apps.CoreConfig.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.core.apps.CoreConfig.ready">
+<span class="sig-name descname"><span class="pre">ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/core/apps.html#CoreConfig.ready"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.core.apps.CoreConfig.ready" title="Link to this definition"></a></dt>
+<dd><p>Arrange for the modified-timestamp triggers to be maintained.</p>
+<p>Dropped before migrations and recreated after, because SQLite
+refuses to alter a column a trigger names.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

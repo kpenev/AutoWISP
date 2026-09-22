@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.iterative_rejection_util module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -171,13 +171,50 @@
 <span id="autowisp-iterative-rejection-util-module"></span><h1>autowisp.iterative_rejection_util module<a class="headerlink" href="#module-autowisp.iterative_rejection_util" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-a090631f9783f05c1d53078d00cbf8c0ad870fb9.png" alt="Inheritance diagram of BSpline, ConvergenceError" usemap="#inheritance19bc1a258a" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-131d8117c423bb7932fc7ec21fa1c3f35b292ef9.png" alt="Inheritance diagram of BSpline, ConvergenceError" usemap="#inheritance19bc1a258a" class="inheritance graphviz" /></div>
 <map id="inheritance19bc1a258a" name="inheritance19bc1a258a">
-<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="13,5,247,32"/>
-<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="30,80,230,107"/>
-<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="5,155,255,181"/>
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="16,5,271,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="33,79,253,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="5,152,281,177"/>
 </map><p>A collection of general purpose statistical manipulations of scipy arrays.</p>
 </section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.iterative_rejection_util._estimate_smoothing">
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">_estimate_smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">knots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#_estimate_smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util._estimate_smoothing" title="Link to this definition"></a></dt>
+<dd><p>Return the smoothing condition the noise about a spline calls for.</p>
+<p>A smoothing spline cannot supply this itself: its squared residuals sum
+to whatever <code class="docutils literal notranslate"><span class="pre">s</span></code> it was given. So the noise is instead estimated from a
+least squares fit with the same knots, which is under no such
+constraint, as <code class="docutils literal notranslate"><span class="pre">SSR</span> <span class="pre">/</span> <span class="pre">(m</span> <span class="pre">-</span> <span class="pre">p)</span></code> for <code class="docutils literal notranslate"><span class="pre">p</span></code> coefficients. The smoothing
+condition scipy recommends for that noise is then <code class="docutils literal notranslate"><span class="pre">(m</span> <span class="pre">-</span> <span class="pre">sqrt(2</span> <span class="pre">*</span> <span class="pre">m))</span></code>
+times it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>knots</strong> – The full knot vector of the smoothing fit, as returned by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.interpolate.splrep()</span></code>.</p></li>
+<li><p><strong>fit_x</strong> – The points to fit and their weights (or
+<code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
+<li><p><strong>fit_y</strong> – The points to fit and their weights (or
+<code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
+<li><p><strong>fit_w</strong> – The points to fit and their weights (or
+<code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
+<li><p><strong>spline_args</strong> – The remaining arguments of the smoothing fit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The smoothing condition, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if there are</dt><dd><p>no more points than coefficients, leaving no noise to estimate.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.iterative_rejection_util.flag_outliers">
 <span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">flag_outliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">residuals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#flag_outliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.flag_outliers" title="Link to this definition"></a></dt>
@@ -195,18 +232,25 @@ entries which are too far from the fit.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>matrix</strong> – The matrix defining the linear least squares problem.</p></li>
-<li><p><strong>rhs</strong> – The RHS of the least squares problem.</p></li>
+<li><p><strong>rhs</strong> – The RHS of the least squares problem. Non-finite entries are
+always treated as outliers.</p></li>
 <li><p><strong>outlier_threshold</strong> – The RHS entries are considered outliers if they
 devite from the fit by more than this values times the root mean
-square of the fit residuals.</p></li>
+square of the fit residuals. Could also be a pair with one
+positive and one negative entry, in either order, specifying the
+thresholds above (rhs &gt; matrix * coefficients) and below the fit
+separately (see <a class="reference internal" href="#autowisp.iterative_rejection_util.split_threshold" title="autowisp.iterative_rejection_util.split_threshold"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_threshold()</span></code></a>).</p></li>
 <li><p><strong>max_iterations</strong> – The maximum number of rejection/re-fitting iterations
-allowed. Zero for simple fit with no rejections.</p></li>
+allowed. Zero for simple fit with no rejections (other than of
+non-finite RHS entries).</p></li>
 <li><p><strong>return_predicted</strong> – Should the best-fit values for the RHS be returned?</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>array:</dt><dd><p>The best fit coefficients.</p>
+<dt>array:</dt><dd><p>The best fit coefficients. All NaN, as are the other returned
+values, if fewer RHS entries survive than there are
+coefficients to fit.</p>
 </dd>
 <dt>float:</dt><dd><p>The root mean square residual of the latest fit iteration.</p>
 </dd>
@@ -255,13 +299,21 @@ polynomial expansion.</p></li>
 <li><p><strong>x</strong> – The x (independent variable) in the dependence.</p></li>
 <li><p><strong>y</strong> – The y (dependenc variable) in the dependence.</p></li>
 <li><p><strong>outlier_threshold</strong> – See same name argument of
-<a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>. If two values are given, the
-first indicates positive (i.e. rhs &gt; matrix * coefficients) and the
-second negative (rhs &lt; matrix * coefficients) deviations.</p></li>
+<a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>.</p></li>
 <li><p><strong>max_iterations</strong> – See same name argument of
 <a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>.</p></li>
 <li><p><strong>spline_args</strong> – Keyword arguments passed directly to
-<code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.interpolate.splrep()</span></code>.</p></li>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.interpolate.splrep()</span></code>. If the smoothing condition
+<code class="docutils literal notranslate"><span class="pre">s</span></code> is given (without knots <code class="docutils literal notranslate"><span class="pre">t</span></code>), it applies to the first fit
+only, and should be loose enough for the spline not to bend
+towards the outliers: a value suitable for the clean data would
+leave nothing to reject. After each round of rejection, <code class="docutils literal notranslate"><span class="pre">s</span></code> is
+re-estimated from the noise about a least squares fit with the
+knots of the latest smoothing fit (see
+<a class="reference internal" href="#autowisp.iterative_rejection_util._estimate_smoothing" title="autowisp.iterative_rejection_util._estimate_smoothing"><code class="xref py py-func docutils literal notranslate"><span class="pre">_estimate_smoothing()</span></code></a>), and the iterations stop once a
+round rejects nothing and fails to shrink <code class="docutils literal notranslate"><span class="pre">s</span></code>. If <code class="docutils literal notranslate"><span class="pre">s</span></code> is not
+given, <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.interpolate.splrep()</span></code>‘s own default applies
+to every fit, and the iterations stop once nothing is rejected.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -270,14 +322,14 @@ outlier rejection/refitting iterations have converged or
 max_iterations was reached.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>scipy.interpolate.UnivariateSpline</p>
+<dd class="field-odd"><p>scipy.interpolate.BSpline</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.iterative_rejection_util.iterative_rejection_average">
-<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">iterative_rejection_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deviation_average=&lt;function</span> <span class="pre">nanmean&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_convergence=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mangle_input=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keepdims=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#iterative_rejection_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.iterative_rejection_average" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">iterative_rejection_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deviation_average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;function</span> <span class="pre">nanmean&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_convergence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mangle_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keepdims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#iterative_rejection_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.iterative_rejection_average" title="Link to this definition"></a></dt>
 <dd><p>Avarage with iterative rejection of outliers along an axis.</p>
 <p class="rubric">Notes</p>
 <p>A more efficient implementation is possible for median.</p>
@@ -288,8 +340,9 @@ max_iterations was reached.</p>
 <li><p><strong>outlier_threshold</strong> – Outliers are defined as outlier_threshold * (root
 maen square deviation around the average). Non-finite values are
 always outliers. This value could also be a 2-tuple with one
-positive and one negative entry, specifying the thresholds in the
-positive and negative directions separately.</p></li>
+positive and one negative entry, in either order, specifying the
+thresholds in the positive and negative directions separately (see
+<a class="reference internal" href="#autowisp.iterative_rejection_util.split_threshold" title="autowisp.iterative_rejection_util.split_threshold"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_threshold()</span></code></a>).</p></li>
 <li><p><strong>average_func</strong> – A function which returns the average to compute (e.g.
 <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.nanmean()</span></code> or <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.nanmedian()</span></code>), must ignore nan
 values.</p></li>
@@ -327,6 +380,33 @@ average of each pixel. Same shape as above.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.iterative_rejection_util.split_threshold">
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">split_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#split_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.split_threshold" title="Link to this definition"></a></dt>
+<dd><p>Return the upper and lower outlier thresholds a user specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>threshold</strong> – Either a single positive value, applying in both
+directions, or a pair with one positive and one negative entry,
+in either order, applying above and below respectively.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The upper threshold (positive) and the lower one</dt><dd><p>(negative).</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a>)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a pair does not have entries of opposite signs, or
+    more than two values are given.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -3,8 +3,8 @@ autowisp.image\_calibration package
 
 .. automodule:: autowisp.image_calibration
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------

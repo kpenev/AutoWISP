@@ -1,0 +1,14 @@
+<map id="inheritancef74f3c0dbd" name="inheritancef74f3c0dbd">
+<area shape="rect" id="node1" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="30,5,225,31"/>
+<area shape="rect" id="node9" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="5,79,249,104"/>
+<area shape="rect" id="node2" title="The base class for all table classes." alt="" coords="471,299,839,324"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="259,372,641,397"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="666,372,1055,397"/>
+<area shape="rect" id="node3" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="231,225,651,251"/>
+<area shape="rect" id="node4" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="675,225,1067,251"/>
+<area shape="rect" id="node5" title="Base class used for declarative class definitions." alt="" coords="724,152,1019,177"/>
+<area shape="rect" id="node8" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="21,152,233,177"/>
+<area shape="rect" id="node10" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="257,152,624,177"/>
+<area shape="rect" id="node11" title="define a class as inspectable." alt="" coords="749,79,994,104"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="813,5,930,31"/>
+</map>
