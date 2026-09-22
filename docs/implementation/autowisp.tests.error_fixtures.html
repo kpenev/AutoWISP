@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.error_fixtures module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,16 +172,16 @@
 <span id="autowisp-tests-error-fixtures-module"></span><h1>autowisp.tests.error_fixtures module<a class="headerlink" href="#module-autowisp.tests.error_fixtures" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-6f7bb0aad484ecf54a16c424bdbba6493dae678a.png" alt="Inheritance diagram of FileKind, FindStarsError, Path, RelatedFile" usemap="#inheritance2399258ed0" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-26ac97c691a86c5dfba603f12eba821b0fe0afd8.png" alt="Inheritance diagram of FileKind, FindStarsError, Path, RelatedFile" usemap="#inheritance2399258ed0" class="inheritance graphviz" /></div>
 <map id="inheritance2399258ed0" name="inheritance2399258ed0">
-<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="5,5,240,32"/>
-<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="23,80,222,107"/>
-<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="247,80,438,107"/>
-<area shape="rect" id="node3" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="297,5,388,32"/>
-<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="8,155,237,181"/>
-<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="412,5,622,32"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="660,80,750,107"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="646,5,764,32"/>
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="5,5,260,31"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="23,79,243,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="267,79,479,104"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="323,5,423,31"/>
+<area shape="rect" id="node4" href="autowisp.exceptions.html#autowisp.exceptions.FindStarsError" target="_top" title="Failure in the find_stars step." alt="" coords="7,152,258,177"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="447,5,680,31"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="719,79,818,104"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="705,5,833,31"/>
 </map><p>Shared fixtures for the error-handling unit tests.</p>
 <p>Keeps the canonical “realistic” sample errors in one place so the
 hierarchy, persistence, and rendering tests all exercise the same shape.</p>
@@ -196,7 +196,7 @@ is the image’s DR file.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.tests.error_fixtures.make_find_stars_error">
-<span class="sig-prename descclassname"><span class="pre">autowisp.tests.error_fixtures.</span></span><span class="sig-name descname"><span class="pre">make_find_stars_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/error_fixtures.html#make_find_stars_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.error_fixtures.make_find_stars_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.tests.error_fixtures.</span></span><span class="sig-name descname"><span class="pre">make_find_stars_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/error_fixtures.html#make_find_stars_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.error_fixtures.make_find_stars_error" title="Link to this definition"></a></dt>
 <dd><p>Build a representative <code class="docutils literal notranslate"><span class="pre">FindStarsError</span></code> for the tests.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

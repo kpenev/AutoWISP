@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.error_capture_middleware &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.error_capture_middleware</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Django middleware recording errors that escape a BUI view.</span>
+<span></span><span class="sd">"""Django middleware recording errors that escape a BUI view.</span>
 
 <span class="sd">When a view raises, this captures a lightweight request snapshot onto the</span>
 <span class="sd">error and records it as a queryable ``Error`` row plus detail sidecar</span>
@@ -175,12 +175,12 @@
 <span class="sd">keeps the user *inside the BUI*: it queues a dismissible message and</span>
 <span class="sd">redirects back to where the user was, so a failure becomes something the</span>
 <span class="sd">user can read and act on (the full technical detail stays available on</span>
-<span class="sd">the error-detail page). Django&#39;s own ``Http404`` / ``PermissionDenied``</span>
+<span class="sd">the error-detail page). Django's own ``Http404`` / ``PermissionDenied``</span>
 <span class="sd">control-flow exceptions are deliberately left for Django to handle.</span>
 
 <span class="sd">The request snapshot records *keys only* -- never query/POST values -- to</span>
 <span class="sd">avoid persisting user-entered secrets.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
@@ -200,7 +200,7 @@
 <div class="viewcode-block" id="_request_snapshot">
 <a class="viewcode-back" href="../../../implementation/autowisp.browser_interface.error_capture_middleware.html#autowisp.browser_interface.error_capture_middleware._request_snapshot">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_request_snapshot</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture path / view / parameter *keys* (never values) from a request.</span>
+<span class="w">    </span><span class="sd">"""Capture path / view / parameter *keys* (never values) from a request.</span>
 
 <span class="sd">    Best-effort: any attribute that cannot be read is simply omitted, so</span>
 <span class="sd">    snapshotting a request can never itself raise.</span>
@@ -211,19 +211,19 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:    The request context to attach to the error.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">snapshot</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">getter</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"path"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"method"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">),</span>
         <span class="p">(</span>
-            <span class="s2">&quot;view_name&quot;</span><span class="p">,</span>
-            <span class="k">lambda</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">resolver_match</span><span class="p">,</span> <span class="s2">&quot;view_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">"view_name"</span><span class="p">,</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">resolver_match</span><span class="p">,</span> <span class="s2">"view_name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;query_keys&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
-        <span class="p">(</span><span class="s2">&quot;post_keys&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
-        <span class="p">(</span><span class="s2">&quot;session_key&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">session_key</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"query_keys"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+        <span class="p">(</span><span class="s2">"post_keys"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+        <span class="p">(</span><span class="s2">"session_key"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">session_key</span><span class="p">),</span>
     <span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">snapshot</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">getter</span><span class="p">()</span>
@@ -236,7 +236,7 @@
 <div class="viewcode-block" id="_safe_return_url">
 <a class="viewcode-back" href="../../../implementation/autowisp.browser_interface.error_capture_middleware.html#autowisp.browser_interface.error_capture_middleware._safe_return_url">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_safe_return_url</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pick an in-BUI URL to send the user back to after an error.</span>
+<span class="w">    </span><span class="sd">"""Pick an in-BUI URL to send the user back to after an error.</span>
 
 <span class="sd">    Prefers the page the request came from (``HTTP_REFERER``) so the user</span>
 <span class="sd">    stays where they were, but only when it is same-host and not a GET page</span>
@@ -248,27 +248,27 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str:    A URL safe to redirect to within the BUI.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">referer</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_REFERER&quot;</span><span class="p">)</span>
+    <span class="n">referer</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"HTTP_REFERER"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">referer</span><span class="p">:</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">referer</span><span class="p">)</span>
         <span class="n">same_host</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">or</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">get_host</span><span class="p">()</span>
-        <span class="n">self_loop</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GET&quot;</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">self_loop</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"GET"</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
         <span class="k">if</span> <span class="n">same_host</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">self_loop</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">referer</span>
-    <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;home:home&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">"home:home"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ErrorCaptureMiddleware">
 <a class="viewcode-back" href="../../../implementation/autowisp.browser_interface.error_capture_middleware.html#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ErrorCaptureMiddleware</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist an :class:`AutoWISPError` (or wrapped view error) on failure.</span>
+<span class="w">    </span><span class="sd">"""Persist an :class:`AutoWISPError` (or wrapped view error) on failure.</span>
 
-<span class="sd">    Uses Django&#39;s ``process_exception`` hook, which fires when a view</span>
+<span class="sd">    Uses Django's ``process_exception`` hook, which fires when a view</span>
 <span class="sd">    raises before the exception is converted to a 500 response.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_response</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_response</span> <span class="o">=</span> <span class="n">get_response</span>
@@ -279,13 +279,13 @@
 <div class="viewcode-block" id="ErrorCaptureMiddleware.process_exception">
 <a class="viewcode-back" href="../../../implementation/autowisp.browser_interface.error_capture_middleware.html#autowisp.browser_interface.error_capture_middleware.ErrorCaptureMiddleware.process_exception">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Record ``exception`` and keep the user inside the BUI.</span>
+<span class="w">        </span><span class="sd">"""Record ``exception`` and keep the user inside the BUI.</span>
 
 <span class="sd">        Records the (possibly wrapped) error with a request snapshot, then</span>
 <span class="sd">        -- instead of returning ``None`` and letting Django render its</span>
 <span class="sd">        technical exception page -- queues a dismissible message (linking</span>
 <span class="sd">        to the error-detail page) and redirects back to where the user</span>
-<span class="sd">        was. Django&#39;s ``Http404`` / ``PermissionDenied`` are passed through</span>
+<span class="sd">        was. Django's ``Http404`` / ``PermissionDenied`` are passed through</span>
 <span class="sd">        untouched so their normal 404/403 handling stands. Everything here</span>
 <span class="sd">        is best-effort: if recording or redirecting itself fails, fall back</span>
 <span class="sd">        to ``None`` so Django handles the original error.</span>
@@ -298,7 +298,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            HttpResponseRedirect to stay in the BUI, or ``None`` to defer</span>
 <span class="sd">            to Django (for 404/403 and on internal failure).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="p">(</span><span class="n">Http404</span><span class="p">,</span> <span class="n">PermissionDenied</span><span class="p">)):</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -311,7 +311,7 @@
                 <span class="n">error</span><span class="o">.</span><span class="n">__cause__</span> <span class="o">=</span> <span class="n">exception</span>
                 <span class="n">error</span><span class="o">.</span><span class="n">__traceback__</span> <span class="o">=</span> <span class="n">exception</span><span class="o">.</span><span class="n">__traceback__</span>
 
-            <span class="n">error</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;bui_request&quot;</span><span class="p">,</span> <span class="n">_request_snapshot</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+            <span class="n">error</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"bui_request"</span><span class="p">,</span> <span class="n">_request_snapshot</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">crashed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">error</span><span class="o">.</span><span class="n">crashed</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 
@@ -323,11 +323,11 @@
             <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="n">request</span><span class="p">,</span>
                 <span class="n">error</span><span class="o">.</span><span class="n">user_message</span><span class="p">,</span>
-                <span class="n">extra_tags</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">error_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">extra_tags</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">error_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">_safe_return_url</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to record/redirect BUI error.&quot;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"Failed to record/redirect BUI error."</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 </div>
 

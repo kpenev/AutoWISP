@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_bui_db_config module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,15 +172,13 @@
 <span id="autowisp-tests-test-bui-db-config-module"></span><h1>autowisp.tests.test_bui_db_config module<a class="headerlink" href="#module-autowisp.tests.test_bui_db_config" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-9db8075c75d0772d86a4c2f8be657fd61657c7fd.png" alt="Inheritance diagram of DbConfigTestCase, Path, TestDefaultDatabase, TestDiscovery, TestMysqlDriver, TestUrlTranslation" usemap="#inheritancee4304d8089" class="inheritance graphviz" /></div>
-<map id="inheritancee4304d8089" name="inheritancee4304d8089">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="530,80,864,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" target="_top" title="An unconfigured installation keeps working untouched." alt="" coords="5,155,352,181"/>
-<area shape="rect" id="node4" href="#autowisp.tests.test_bui_db_config.TestDiscovery" target="_top" title="Where the URL is looked for, and in what order." alt="" coords="376,155,683,181"/>
-<area shape="rect" id="node5" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" target="_top" title="Django&#39;s MySQL backend is made to work with the driver present." alt="" coords="707,155,1026,181"/>
-<area shape="rect" id="node6" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" target="_top" title="A URL becomes Django&#39;s DATABASES dictionary." alt="" coords="1050,155,1379,181"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="888,80,978,107"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="874,5,992,32"/>
+<div class="graphviz"><img src="../_images/inheritance-065fb77b1c3e84f33c2f837c1ebb6f23c19d8c83.png" alt="Inheritance diagram of DbConfigTestCase, TestDefaultDatabase, TestDiscovery, TestMysqlDriver, TestUrlTranslation" usemap="#inheritancef812a97079" class="inheritance graphviz" /></div>
+<map id="inheritancef812a97079" name="inheritancef812a97079">
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="583,79,946,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" target="_top" title="An unconfigured installation keeps working untouched." alt="" coords="5,152,388,177"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_bui_db_config.TestDiscovery" target="_top" title="Where the URL is looked for, and in what order." alt="" coords="412,152,749,177"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" target="_top" title="Django&#39;s MySQL backend is made to work with the driver present." alt="" coords="773,152,1124,177"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" target="_top" title="A URL becomes Django&#39;s DATABASES dictionary." alt="" coords="1149,152,1511,177"/>
 </map><p>Tests for resolving which database the browser interface uses.</p>
 <p>These exercise <code class="docutils literal notranslate"><span class="pre">django_project.db_config</span></code> directly rather than through
 <code class="docutils literal notranslate"><span class="pre">settings</span></code>, because the setting is read once at import time and cannot be
@@ -188,11 +186,11 @@ re-resolved afterwards.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.DbConfigTestCase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">DbConfigTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#DbConfigTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">DbConfigTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#DbConfigTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-c87c216141995ad306d11ca30c2914a2117318e9.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.DbConfigTestCase" usemap="#inheritance3972fb52b0" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-453c583762c72a10d7fa721dc51a5bc5791a7261.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.DbConfigTestCase" usemap="#inheritance3972fb52b0" class="inheritance graphviz" /></div>
 <map id="inheritance3972fb52b0" name="inheritance3972fb52b0">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,80,340,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,79,368,104"/>
 </map><p>Base giving each test an empty data directory and no environment.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.DbConfigTestCase._restore_env">
@@ -216,12 +214,12 @@ re-resolved afterwards.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestDefaultDatabase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestDefaultDatabase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestDefaultDatabase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestDefaultDatabase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestDefaultDatabase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" title="autowisp.tests.test_bui_db_config.DbConfigTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DbConfigTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-0f698349ceaf26189440908a61bedfe5c36465bd.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestDefaultDatabase" usemap="#inheritance7afe2feb87" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-9db5ff4ab7feac5114e379a630ccc612a0f9cfa9.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestDefaultDatabase" usemap="#inheritance7afe2feb87" class="inheritance graphviz" /></div>
 <map id="inheritance7afe2feb87" name="inheritance7afe2feb87">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="11,80,346,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" target="_top" title="An unconfigured installation keeps working untouched." alt="" coords="5,155,352,181"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="15,79,378,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" target="_top" title="An unconfigured installation keeps working untouched." alt="" coords="5,152,388,177"/>
 </map><p>An unconfigured installation keeps working untouched.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestDefaultDatabase.test_defaults_to_sqlite_in_the_data_directory">
@@ -233,12 +231,12 @@ re-resolved afterwards.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestDiscovery">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestDiscovery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestDiscovery"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestDiscovery" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestDiscovery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestDiscovery"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestDiscovery" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" title="autowisp.tests.test_bui_db_config.DbConfigTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DbConfigTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-2ae192c35aedc62dd0e8a19f5970b74409a64cc9.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestDiscovery" usemap="#inheritance0a8883b7cf" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-0900ad876ebbc3872c6c3fa4a542fb15bb7e0cb6.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestDiscovery" usemap="#inheritance0a8883b7cf" class="inheritance graphviz" /></div>
 <map id="inheritance0a8883b7cf" name="inheritance0a8883b7cf">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,80,340,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDiscovery" target="_top" title="Where the URL is looked for, and in what order." alt="" coords="19,155,326,181"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,79,368,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDiscovery" target="_top" title="Where the URL is looked for, and in what order." alt="" coords="18,152,355,177"/>
 </map><p>Where the URL is looked for, and in what order.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestDiscovery.test_empty_values_are_ignored">
@@ -268,12 +266,12 @@ re-resolved afterwards.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestMysqlDriver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestMysqlDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestMysqlDriver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestMysqlDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestMysqlDriver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" title="autowisp.tests.test_bui_db_config.DbConfigTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DbConfigTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-af7834ca25092bca1f5bf3db0837319c91365fc2.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestMysqlDriver" usemap="#inheritance9eb78dd302" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b37c196d85c72e833682d6bc553876f95ad6125a.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestMysqlDriver" usemap="#inheritance9eb78dd302" class="inheritance graphviz" /></div>
 <map id="inheritance9eb78dd302" name="inheritance9eb78dd302">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,80,340,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" target="_top" title="Django&#39;s MySQL backend is made to work with the driver present." alt="" coords="13,155,332,181"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,79,368,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestMysqlDriver" target="_top" title="Django&#39;s MySQL backend is made to work with the driver present." alt="" coords="11,152,362,177"/>
 </map><p>Django’s MySQL backend is made to work with the driver present.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestMysqlDriver.test_pymysql_is_accepted">
@@ -287,12 +285,12 @@ installed under that name; skipped where neither is present.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestUrlTranslation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestUrlTranslation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestUrlTranslation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_bui_db_config.</span></span><span class="sig-name descname"><span class="pre">TestUrlTranslation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_bui_db_config.html#TestUrlTranslation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" title="autowisp.tests.test_bui_db_config.DbConfigTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DbConfigTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-7386fdeb3b73129336ce38f4b3a2de45abb84128.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestUrlTranslation" usemap="#inheritance5bee70571b" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-6bb2ca532dbf227aab211d64ad1541263d906475.png" alt="Inheritance diagram of autowisp.tests.test_bui_db_config.TestUrlTranslation" usemap="#inheritance5bee70571b" class="inheritance graphviz" /></div>
 <map id="inheritance5bee70571b" name="inheritance5bee70571b">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,80,340,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" target="_top" title="A URL becomes Django&#39;s DATABASES dictionary." alt="" coords="8,155,337,181"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,79,368,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestUrlTranslation" target="_top" title="A URL becomes Django&#39;s DATABASES dictionary." alt="" coords="5,152,368,177"/>
 </map><p>A URL becomes Django’s DATABASES dictionary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_bui_db_config.TestUrlTranslation.test_mariadb_uses_the_same_backend">

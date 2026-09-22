@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.models module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,122 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-diagnostics-models-module">
-<h1>autowisp.browser_interface.diagnostics.models module<a class="headerlink" href="#autowisp-browser-interface-diagnostics-models-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.diagnostics.models">
+<span id="autowisp-browser-interface-diagnostics-models-module"></span><h1>autowisp.browser_interface.diagnostics.models module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.models" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-5ddd9fc57e8cbbe6daf994ad662d4d975a90d93d.png" alt="Inheritance diagram of BuiModelBase, DiagnosticExpression" usemap="#inheritance96dfc096df" class="inheritance graphviz" /></div>
+<map id="inheritance96dfc096df" name="inheritance96dfc096df">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="52,152,435,177"/>
+<area shape="rect" id="node3" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,225,481,251"/>
+</map><p>Models for user-defined diagnostic expressions.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.models.</span></span><span class="sig-name descname"><span class="pre">DiagnosticExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/models.html#DiagnosticExpression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" title="autowisp.browser_interface.core.models.BuiModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuiModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-b89ac1d4a7bce2a1f0f9044e31f013ea0188c44c.png" alt="Inheritance diagram of autowisp.browser_interface.diagnostics.models.DiagnosticExpression" usemap="#inheritancee102fff7ea" class="inheritance graphviz" /></div>
+<map id="inheritancee102fff7ea" name="inheritancee102fff7ea">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="52,152,435,177"/>
+<area shape="rect" id="node3" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,225,481,251"/>
+</map><p>A named expression over the per-image diagnostics.</p>
+<p>Expressions share a flat name space with the <code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> names of
+whichever project is open, and with <code class="docutils literal notranslate"><span class="pre">jd</span></code>, so that one can be selected
+for either axis exactly like a recorded diagnostic.  They live here, in
+the browser-interface database, rather than in a project database:
+an expression is a way of looking at data rather than data itself, and
+is worth having available in every project.</p>
+<p>A consequence of that reach is that an expression may name diagnostics
+the open project has never recorded.  That is not an error – it is
+simply not offered there – so nothing here constrains the names used;
+resolving them is the business of <code class="docutils literal notranslate"><span class="pre">expression_data</span></code>.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.NotUpdated">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NotUpdated</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.NotUpdated" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectNotUpdated</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseError</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.created">
+<span class="sig-name descname"><span class="pre">created</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.created" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.description" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.expression">
+<span class="sig-name descname"><span class="pre">expression</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.expression" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_next_by_created">
+<span class="sig-name descname"><span class="pre">get_next_by_created</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">created&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_next_by_created" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_next_by_modified">
+<span class="sig-name descname"><span class="pre">get_next_by_modified</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">modified&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_next_by_modified" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_previous_by_created">
+<span class="sig-name descname"><span class="pre">get_previous_by_created</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">created&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_previous_by_created" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_previous_by_modified">
+<span class="sig-name descname"><span class="pre">get_previous_by_modified</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">modified&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.get_previous_by_modified" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.modified">
+<span class="sig-name descname"><span class="pre">modified</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.modified" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.name" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.models.DiagnosticExpression.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.models.DiagnosticExpression.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 

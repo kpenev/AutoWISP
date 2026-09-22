@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.source_finder_util &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.source_finder_util</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Some general purpose low level tools for source extraction.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Some general purpose low level tools for source extraction."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">faulthandler</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -180,15 +180,15 @@
 <div class="viewcode-block" id="start_hatphot">
 <a class="viewcode-back" href="../../implementation/autowisp.source_finder_util.html#autowisp.source_finder_util.start_hatphot">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">start_hatphot</span><span class="p">(</span><span class="n">unpacked_fits_fname</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find sources in the given frame using hatphot.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Find sources in the given frame using hatphot."""</span>
 
     <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="s2">&quot;hatphot&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--thresh&quot;</span><span class="p">,</span>
+            <span class="s2">"hatphot"</span><span class="p">,</span>
+            <span class="s2">"--thresh"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">threshold</span><span class="p">),</span>
-            <span class="s2">&quot;--sort&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+            <span class="s2">"--sort"</span><span class="p">,</span>
+            <span class="s2">"0"</span><span class="p">,</span>
             <span class="n">unpacked_fits_fname</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span>
@@ -199,34 +199,34 @@
 <div class="viewcode-block" id="start_fistar">
 <a class="viewcode-back" href="../../implementation/autowisp.source_finder_util.html#autowisp.source_finder_util.start_fistar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">start_fistar</span><span class="p">(</span><span class="n">unpacked_fits_fname</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find sources in the given frame using fistar.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Find sources in the given frame using fistar."""</span>
 
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">fistar_path</span><span class="p">,</span>
         <span class="n">unpacked_fits_fname</span><span class="p">,</span>
-        <span class="s2">&quot;--sort&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;flux&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_srcextract_columns</span><span class="p">(</span><span class="s2">&quot;fistar&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;--algorithm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;uplink&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--flux-threshold&quot;</span><span class="p">,</span>
+        <span class="s2">"--sort"</span><span class="p">,</span>
+        <span class="s2">"flux"</span><span class="p">,</span>
+        <span class="s2">"--format"</span><span class="p">,</span>
+        <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_srcextract_columns</span><span class="p">(</span><span class="s2">"fistar"</span><span class="p">)),</span>
+        <span class="s2">"--algorithm"</span><span class="p">,</span>
+        <span class="s2">"uplink"</span><span class="p">,</span>
+        <span class="s2">"--flux-threshold"</span><span class="p">,</span>
         <span class="nb">repr</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">threshold</span><span class="p">)),</span>
     <span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="s2">&quot;Running: &quot;</span>
+        <span class="s2">"Running: "</span>
         <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-        <span class="o">+</span> <span class="s2">&quot;in environment</span><span class="se">\n\t</span><span class="s2">&quot;</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="o">+</span> <span class="s2">"in environment</span><span class="se">\n\t</span><span class="s2">"</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"nt"</span><span class="p">:</span>
         <span class="n">startupinfo</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">STARTUPINFO</span><span class="p">()</span>
         <span class="n">startupinfo</span><span class="o">.</span><span class="n">dwFlags</span> <span class="o">|=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">STARTF_USESHOWWINDOW</span>
         <span class="n">startupinfo</span><span class="o">.</span><span class="n">wShowWindow</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">SW_HIDE</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">startupinfo</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Starting fistar with stdout = </span><span class="si">{</span><span class="n">stdout</span><span class="si">!r}</span><span class="s2">, startupinfo=</span><span class="si">{</span><span class="n">startupinfo</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Starting fistar with stdout = </span><span class="si">{</span><span class="n">stdout</span><span class="si">!r}</span><span class="s2">, startupinfo=</span><span class="si">{</span><span class="n">startupinfo</span><span class="si">!r}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span> <span class="n">startupinfo</span><span class="o">=</span><span class="n">startupinfo</span><span class="p">)</span></div>
 
@@ -235,26 +235,26 @@
 <div class="viewcode-block" id="get_srcextract_columns">
 <a class="viewcode-back" href="../../implementation/autowisp.source_finder_util.html#autowisp.source_finder_util.get_srcextract_columns">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_srcextract_columns</span><span class="p">(</span><span class="n">tool</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a list of the columns in the output source extraction file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a list of the columns in the output source extraction file."""</span>
 
-    <span class="k">if</span> <span class="n">tool</span> <span class="o">==</span> <span class="s2">&quot;hatphot&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;peak&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="s2">&quot;fwhm&quot;</span><span class="p">,</span> <span class="s2">&quot;npix&quot;</span><span class="p">,</span> <span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="s2">&quot;pa&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">tool</span> <span class="o">==</span> <span class="s2">&quot;fistar&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">tool</span> <span class="o">==</span> <span class="s2">"hatphot"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"peak"</span><span class="p">,</span> <span class="s2">"flux"</span><span class="p">,</span> <span class="s2">"fwhm"</span><span class="p">,</span> <span class="s2">"npix"</span><span class="p">,</span> <span class="s2">"round"</span><span class="p">,</span> <span class="s2">"pa"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tool</span> <span class="o">==</span> <span class="s2">"fistar"</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;amp&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;d&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;k&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;flux&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;s/n&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;npix&quot;</span><span class="p">,</span>
+            <span class="s2">"id"</span><span class="p">,</span>
+            <span class="s2">"x"</span><span class="p">,</span>
+            <span class="s2">"y"</span><span class="p">,</span>
+            <span class="s2">"bg"</span><span class="p">,</span>
+            <span class="s2">"amp"</span><span class="p">,</span>
+            <span class="s2">"s"</span><span class="p">,</span>
+            <span class="s2">"d"</span><span class="p">,</span>
+            <span class="s2">"k"</span><span class="p">,</span>
+            <span class="s2">"flux"</span><span class="p">,</span>
+            <span class="s2">"s/n"</span><span class="p">,</span>
+            <span class="s2">"npix"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
-        <span class="s2">&quot;Unrecognized source extraction tool: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
+        <span class="s2">"Unrecognized source extraction tool: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
     <span class="p">)</span></div>
 
 </pre></div>

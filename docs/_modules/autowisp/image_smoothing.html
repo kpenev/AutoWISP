@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.image_smoothing &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.image_smoothing</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define classes for smoothing images.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define classes for smoothing images."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
@@ -175,26 +175,26 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.iterative_rejection_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterative_rej_linear_leastsq</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">zoom_image</span><span class="p">,</span> <span class="n">bin_image</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 130639b8eab47bc2470a43057c589053c29cc957 $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">"$Id: 91e977f237456d55b66e95ce7f32b022be17e8c4 $"</span>
 
 
 <div class="viewcode-block" id="ImageSmoother">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ImageSmoother</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Define the interface for applying smoothing algorithms to images.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        bin_factor:    See same name argument to :meth:`smooth`\ .</span>
 
 <span class="sd">        zoom_interp_order:    See same name argument to :meth:`smooth`\ .</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ImageSmoother._apply_smoothing">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother._apply_smoothing">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a smooth version of the given image (no pre-shrinking).</span>
 
 <span class="sd">        Args:</span>
@@ -207,13 +207,13 @@
 <span class="sd">            2-D array:</span>
 <span class="sd">                The smoothed version of the image per the currently defined</span>
 <span class="sd">                smoothing.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="ImageSmoother.__init__">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Set default pre-shrink/post-zoom bin factor and interpolation order.</span>
 
 <span class="sd">        Args:</span>
@@ -222,11 +222,11 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">bin_factor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bin_factor&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">zoom_interp_order</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;zoom_interp_order&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;padding_mode&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bin_factor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bin_factor"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zoom_interp_order</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"zoom_interp_order"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"padding_mode"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ImageSmoother.smooth">
@@ -237,10 +237,10 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">bin_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">zoom_interp_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span>
+        <span class="n">padding_mode</span><span class="o">=</span><span class="s2">"reflect"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Sandwich smoothing between initial binning and final zoom.</span>
 
 <span class="sd">        Args:</span>
@@ -267,7 +267,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            2-D array:</span>
 <span class="sd">                The smoothed version of the image.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">bin_factor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bin_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_factor</span>
@@ -310,7 +310,7 @@
 <div class="viewcode-block" id="ImageSmoother.detrend">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother.detrend">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">detrend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;De-trend the input image by its smooth version (see smooth).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""De-trend the input image by its smooth version (see smooth)."""</span>
 
         <span class="n">smooth_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">image</span> <span class="o">/</span> <span class="n">smooth_image</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">smooth_image</span><span class="p">)</span></div>
@@ -321,7 +321,7 @@
 <div class="viewcode-block" id="SeparableLinearImageSmoother">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.SeparableLinearImageSmoother">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SeparableLinearImageSmoother</span><span class="p">(</span><span class="n">ImageSmoother</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Handle smoothing function = product of linear functions in each dimension.</span>
 
 <span class="sd">    In more detail this is a base class that perform smoothing with a smoothing</span>
@@ -335,13 +335,13 @@
 
 <span class="sd">        num_y_terms:    The number of terms in the smoothing function in the y</span>
 <span class="sd">            direction.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="SeparableLinearImageSmoother.get_x_pixel_integrals">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_x_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">x_resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the x smoothing func. integral over pixels for 1 nonzero param.</span>
 
 <span class="sd">        Args:</span>
@@ -355,14 +355,14 @@
 <span class="sd">                Array with length equal to the x-resolution of the image with</span>
 <span class="sd">                the i-th entry being the integral of the x part of the smoothing</span>
 <span class="sd">                function over the i-th pixel.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="SeparableLinearImageSmoother.get_y_pixel_integrals">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_y_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">y_resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See get_x_pixel_integrals.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""See get_x_pixel_integrals."""</span></div>
 
 
 <div class="viewcode-block" id="SeparableLinearImageSmoother._get_smoothing_matrix">
@@ -370,7 +370,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_smoothing_matrix</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">num_x_terms</span><span class="p">,</span> <span class="n">num_y_terms</span><span class="p">,</span> <span class="n">y_resolution</span><span class="p">,</span> <span class="n">x_resolution</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Return matrix giving flattened smooth image when applied to fit params.</span>
 
 <span class="sd">        Args:</span>
@@ -389,7 +389,7 @@
 <span class="sd">                An (x_res * y_res) by (num_x_terms * num_y_terms) matrix</span>
 <span class="sd">                which when applied to a set of parameters returns the value of</span>
 <span class="sd">                each image pixel per the smoothing function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
             <span class="p">(</span><span class="n">x_resolution</span> <span class="o">*</span> <span class="n">y_resolution</span><span class="p">,</span> <span class="n">num_x_terms</span> <span class="o">*</span> <span class="n">num_y_terms</span><span class="p">)</span>
@@ -418,7 +418,7 @@
         <span class="n">max_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Define the default smoothing configuration (overwritable on use).</span>
 
 <span class="sd">        Args:</span>
@@ -434,11 +434,11 @@
 <span class="sd">            max_iterations:    See same name argument to</span>
 <span class="sd">                :meth:`_apply_smoothing`\ .</span>
 
-<span class="sd">            kwargs:    Any arguments to pass to parent&#39;s ``__init__``.</span>
+<span class="sd">            kwargs:    Any arguments to pass to parent's ``__init__``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_x_terms</span> <span class="o">=</span> <span class="n">num_x_terms</span>
@@ -461,7 +461,7 @@
     <span class="p">):</span>
         <span class="c1"># unavoidable</span>
         <span class="c1"># pylint: disable=line-too-long</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a smooth version of the given image.</span>
 
 <span class="sd">        Args:</span>
@@ -495,7 +495,7 @@
 <span class="sd">                    The root mean square residual returned by</span>
 <span class="sd">                    :func:`autowisp.iterative_rejection_util.iterative_rej_linear_leastsq`</span>
 <span class="sd">                    .</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># pylint: enable=line-too-long</span>
 
         <span class="k">if</span> <span class="n">outlier_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -525,15 +525,15 @@
 <div class="viewcode-block" id="PolynomialImageSmoother">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.PolynomialImageSmoother">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PolynomialImageSmoother</span><span class="p">(</span><span class="n">SeparableLinearImageSmoother</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Smooth image is modeled as a polynomial in x times another polynomial in y.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="PolynomialImageSmoother._get_powerlaw_pixel_integrals">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.PolynomialImageSmoother._get_powerlaw_pixel_integrals">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_powerlaw_pixel_integrals</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the integrals over one pixel dimension of x^power for each pixel.</span>
 
 <span class="sd">        Args:</span>
@@ -547,7 +547,7 @@
 <span class="sd">            1-D array:</span>
 <span class="sd">                An array with the i-th entry being the integral of the scaled x</span>
 <span class="sd">                coordinate to the given power over each pixel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">pix_left</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -564,7 +564,7 @@
 <div class="viewcode-block" id="SplineImageSmoother">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.SplineImageSmoother">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SplineImageSmoother</span><span class="p">(</span><span class="n">SeparableLinearImageSmoother</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth image is modeled as a product of cubic splines in x and y.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Smooth image is modeled as a product of cubic splines in x and y."""</span>
 
 <div class="viewcode-block" id="SplineImageSmoother.get_spline_pixel_integrals">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.SplineImageSmoother.get_spline_pixel_integrals">[docs]</a>
@@ -572,7 +572,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_spline_pixel_integrals</span><span class="p">(</span>
         <span class="n">node_index</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">spline_degree</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the integrals over one pixel dimension of a basis spline.</span>
 
 <span class="sd">        The spline basis functions are defined as an interpolating spline (i.e.</span>
@@ -596,7 +596,7 @@
 <span class="sd">             1-D array:</span>
 <span class="sd">                An array with the i-th entry being the integral of the spline</span>
 <span class="sd">                over the i-th pixel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">interp_y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">)</span>
         <span class="n">interp_y</span><span class="p">[</span><span class="n">node_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -612,7 +612,7 @@
 <div class="viewcode-block" id="SplineImageSmoother.get_x_pixel_integrals">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.SplineImageSmoother.get_x_pixel_integrals">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_x_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">x_resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Return integrals of the param_ind-th x direction spline basis function.</span>
 
 <span class="sd">        Args:</span>
@@ -621,7 +621,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            See :meth:`SeparableLinearImageSmoother.get_x_pixel_integrals`\ .</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spline_pixel_integrals</span><span class="p">(</span>
             <span class="n">param_ind</span><span class="p">,</span> <span class="n">x_resolution</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_x_nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline_degree</span>
@@ -631,7 +631,7 @@
 <div class="viewcode-block" id="SplineImageSmoother.get_y_pixel_integrals">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.SplineImageSmoother.get_y_pixel_integrals">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_y_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">y_resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Return integrals of the param_ind-th y direction spline basis function.</span>
 
 <span class="sd">        Args:</span>
@@ -640,7 +640,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            See :meth:`SeparableLinearImageSmoother.get_y_pixel_integrals`\ .</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spline_pixel_integrals</span><span class="p">(</span>
             <span class="n">param_ind</span><span class="p">,</span> <span class="n">y_resolution</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_y_nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline_degree</span>
@@ -652,7 +652,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">num_x_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_y_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spline_degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Set-up spline interpolation with the given number of nodes.</span>
 
 <span class="sd">        Args:</span>
@@ -667,7 +667,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">num_x_terms</span><span class="o">=</span><span class="n">num_x_nodes</span><span class="p">,</span> <span class="n">num_y_terms</span><span class="o">=</span><span class="n">num_y_nodes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
@@ -684,7 +684,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_apply_smoothing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">num_x_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_y_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Handle change in interpolation nodes needed by integrals functions.</span>
 
 <span class="sd">        Args:</span>
@@ -695,7 +695,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            See :meth:`SeparableLinearImageSmoother._apply_smoothing`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">num_x_nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_x_nodes</span> <span class="o">=</span> <span class="n">num_x_nodes</span>
@@ -714,7 +714,7 @@
 <div class="viewcode-block" id="WrapFilterAsSmoother">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.WrapFilterAsSmoother">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WrapFilterAsSmoother</span><span class="p">(</span><span class="n">ImageSmoother</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap one of the numpy or astropy image filters in a smoother.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Wrap one of the numpy or astropy image filters in a smoother."""</span>
 
 <div class="viewcode-block" id="WrapFilterAsSmoother.__init__">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.WrapFilterAsSmoother.__init__">[docs]</a>
@@ -726,7 +726,7 @@
         <span class="n">zoom_interp_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">filter_config</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Apply the given filter through the ImageSmoother interface.</span>
 
 <span class="sd">        Args:</span>
@@ -742,7 +742,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">bin_factor</span><span class="o">=</span><span class="n">bin_factor</span><span class="p">,</span> <span class="n">zoom_interp_order</span><span class="o">=</span><span class="n">zoom_interp_order</span>
@@ -754,7 +754,7 @@
 <div class="viewcode-block" id="WrapFilterAsSmoother._apply_smoothing">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.WrapFilterAsSmoother._apply_smoothing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Smooth the given image with the filter supplied on construction.</span>
 
 <span class="sd">        Args:</span>
@@ -762,7 +762,7 @@
 
 <span class="sd">            kwargs:    Additional or replacement arguments to pass to the filter</span>
 <span class="sd">                when applying.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">filter_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_config</span>
         <span class="n">filter_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
@@ -774,7 +774,7 @@
 <div class="viewcode-block" id="ChainSmoother">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ChainSmoother</span><span class="p">(</span><span class="n">ImageSmoother</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Combine more than one smoothers, each is applied sequentially.</span>
 
 <span class="sd">    Works much like a list of smoothers, except it adds smooth and detrend</span>
@@ -784,19 +784,19 @@
 <span class="sd">        smoothing_chain:    The current list of smoothers and the order in which</span>
 <span class="sd">            they are applied. The first will be applied to the input image, the</span>
 <span class="sd">            second will be applied to the result of the first etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ChainSmoother.__init__">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">smoothers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a chain combining the given smoothers in the given order.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            smoothers:    A list of the image smoothers to combine.</span>
 
 <span class="sd">            kwargs:    Any arguments to pass to parent constructor.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span> <span class="o">=</span> <span class="p">[]</span>
@@ -806,7 +806,7 @@
 <div class="viewcode-block" id="ChainSmoother.append">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.append">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a new smoother to the end of the sequence.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add a new smoother to the end of the sequence."""</span>
 
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smoother</span><span class="p">,</span> <span class="n">ImageSmoother</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smoother</span><span class="p">)</span></div>
@@ -815,7 +815,7 @@
 <div class="viewcode-block" id="ChainSmoother.extend">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.extend">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoothers</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add multiple smoothers to the end of the chain.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add multiple smoothers to the end of the chain."""</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smoothers</span><span class="p">,</span> <span class="n">ChainSmoother</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">smoothers</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">)</span>
@@ -828,7 +828,7 @@
 <div class="viewcode-block" id="ChainSmoother.insert">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.insert">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Like list insert.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Like list insert."""</span>
 
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smoother</span><span class="p">,</span> <span class="n">ImageSmoother</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">smoother</span><span class="p">)</span></div>
@@ -837,7 +837,7 @@
 <div class="viewcode-block" id="ChainSmoother.remove">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.remove">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Like list remove.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Like list remove."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">smoother</span><span class="p">)</span></div>
 
@@ -845,7 +845,7 @@
 <div class="viewcode-block" id="ChainSmoother.pop">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.pop">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Like list pop.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Like list pop."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">position</span><span class="p">)</span></div>
 
@@ -853,7 +853,7 @@
 <div class="viewcode-block" id="ChainSmoother.clear">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.clear">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Like list clear.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Like list clear."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
@@ -861,7 +861,7 @@
 <div class="viewcode-block" id="ChainSmoother.__delitem__">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.__delitem__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete smoothe at position.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Delete smoothe at position."""</span>
 
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">[</span><span class="n">position</span><span class="p">]</span></div>
 
@@ -869,7 +869,7 @@
 <div class="viewcode-block" id="ChainSmoother.__setitem__">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.__setitem__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace the smoother at position.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Replace the smoother at position."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">=</span> <span class="n">smoother</span></div>
 
@@ -879,7 +879,7 @@
 <div class="viewcode-block" id="ChainSmoother._apply_smoothing">
 <a class="viewcode-back" href="../../implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother._apply_smoothing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Smooth the given image using the current chain of smoothers.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Smooth the given image using the current chain of smoothers."""</span>
 
         <span class="n">smooth_image</span> <span class="o">=</span> <span class="n">image</span>
         <span class="k">for</span> <span class="n">smoother</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">:</span>

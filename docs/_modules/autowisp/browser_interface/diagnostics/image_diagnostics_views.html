@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.image_diagnostics_views &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,19 +164,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.diagnostics.image_diagnostics_views</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Views for displaying per-image diagnostics.</span>
+<span></span><span class="sd">"""Views for displaying per-image diagnostics.</span>
 
-<span class="sd">One quantity may be plotted against another, where a quantity is a</span>
-<span class="sd">``DiagnosticType`` name, the ``pixel_quantiles`` pseudo-name expanding to</span>
-<span class="sd">one series per ``pixel_q*``, or ``jd``.  Plotting against time is not a separate</span>
-<span class="sd">mode: it is ``x=&quot;jd&quot;``, which resolves through the same path as everything</span>
-<span class="sd">else because the canonical image list already carries the Julian dates.</span>
+<span class="sd">Quantities may be plotted against one another, where a quantity is a</span>
+<span class="sd">``DiagnosticType`` name, an expression over those, or ``jd``.  Plotting</span>
+<span class="sd">against time is not a separate mode: it is ``x="jd"``, which resolves</span>
+<span class="sd">through the same path as everything else because the canonical image list</span>
+<span class="sd">already carries the Julian dates.</span>
 
 <span class="sd">The figure half of the page: reading the values a row asks for, drawing</span>
 <span class="sd">them, and the Django views that serve it. What the *table* above the plot</span>
 <span class="sd">offers, and what a row binds, is :mod:`series_table` -- which never</span>
 <span class="sd">evaluates anything, where everything here does.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -188,10 +188,11 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">HttpResponse</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">reverse</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.core.plot_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">line_styles</span><span class="p">,</span>
     <span class="n">setup_svg_matplotlib</span><span class="p">,</span>
     <span class="n">figure_to_svg_response</span><span class="p">,</span>
 <span class="p">)</span>
@@ -202,21 +203,26 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_quantity_arity</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.series_table</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quantities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">describe_quantity</span><span class="p">,</span>
     <span class="n">get_available_diagnostics</span><span class="p">,</span>
-    <span class="n">get_available_series</span><span class="p">,</span>
+    <span class="n">get_diagnostic_descriptions</span><span class="p">,</span>
     <span class="n">get_recorded_diagnostics</span><span class="p">,</span>
+    <span class="n">next_section_marker</span><span class="p">,</span>
+    <span class="n">section_markers</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.series_table</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_available_series</span><span class="p">,</span>
     <span class="n">get_series_key</span><span class="p">,</span>
-    <span class="n">resolve_quantity</span><span class="p">,</span>
+    <span class="n">posted_rows</span><span class="p">,</span>
+    <span class="n">split_row_id</span><span class="p">,</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_series_data">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_series_data">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_series_data</span><span class="p">(</span>
-    <span class="n">series</span><span class="p">,</span> <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_series_data</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Query the paired x/y values for a single series.</span>
 
 <span class="sd">    Both axes are resolved in one call, which is what makes them share a</span>
@@ -227,11 +233,13 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        series(dict):    One row as the client posted it back, holding the</span>
-<span class="sd">            id it was rendered with and the channels its dropdowns say.</span>
+<span class="sd">            id it was rendered with, and the pair and channels its</span>
+<span class="sd">            dropdowns say.</span>
 
-<span class="sd">        x_diagnostic(str):    Quantity on the X axis.</span>
-
-<span class="sd">        y_diagnostic(str):    Quantity on the Y axis.</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis, which the page</span>
+<span class="sd">            supplies: it is the one thing a row does not choose.  The y</span>
+<span class="sd">            comes from the row's own id, which names the quantity it</span>
+<span class="sd">            draws.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``, passed in</span>
 <span class="sd">            rather than fetched so that nothing below the view has to know</span>
@@ -241,15 +249,13 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple:    ``(x_values, y_values, image_ids)``, all of equal length.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">series_key</span> <span class="o">=</span> <span class="n">get_series_key</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
-    <span class="n">quantities</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">resolve_quantity</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">quantile_name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">)</span>
-    <span class="p">]</span>
+    <span class="n">y_quantity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])</span>
+    <span class="n">quantities</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">]</span>
 
-    <span class="c1"># The row&#39;s channels are the two axes&#39; bindings laid end to end, in</span>
+    <span class="c1"># The row's channels are the two axes' bindings laid end to end, in</span>
     <span class="c1"># the order the columns are, so each axis takes as many as the</span>
     <span class="c1"># quantity it draws has parameters.</span>
     <span class="n">bindings</span> <span class="o">=</span> <span class="p">[]</span>
@@ -281,7 +287,7 @@
 <div class="viewcode-block" id="plot_image_diagnostic_series">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_image_diagnostic_series">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_image_diagnostic_series</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plot a single series on the given axes.</span>
 
 <span class="sd">    Args:</span>
@@ -296,8 +302,12 @@
 
 <span class="sd">        config(dict):    Configuration for the plotting, usually produced by</span>
 <span class="sd">            :func:`get_available_series`. Should contain keys ``channel``,</span>
-<span class="sd">            ``color``, ``marker``, ``scale``, and ``label``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            ``color``, ``marker``, ``scale``, and ``label``. A ``marker``</span>
+<span class="sd">            naming one of</span>
+<span class="sd">            :data:`~autowisp.browser_interface.core.plot_utils.line_styles`</span>
+<span class="sd">            draws a curve instead of points, reading the scale as the line</span>
+<span class="sd">            width where points read it as the marker size.</span>
+<span class="sd">    """</span>
 
     <span class="c1"># The arrays arrive NaN-padded to the canonical image list. Dropping the</span>
     <span class="c1"># non-finite entries here is what used to be an inner join between the</span>
@@ -309,21 +319,39 @@
     <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span> <span class="o">=</span> <span class="n">x_values</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">y_values</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
     <span class="n">image_ids</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image_ids</span><span class="p">)[</span><span class="n">keep</span><span class="p">]</span>
 
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">"marker"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">line_styles</span><span class="p">:</span>
+        <span class="c1"># A curve has to be walked in x order. Against jd the canonical</span>
+        <span class="c1"># image list already is ordered, but nothing orders an arbitrary</span>
+        <span class="c1"># quantity, and an unsorted line is a scribble rather than a curve.</span>
+        <span class="c1"># No per-point URLs either: a Line2D carries one for the whole</span>
+        <span class="c1"># artist, so clicking through to a frame stays the business of the</span>
+        <span class="c1"># series drawn as points beneath it.</span>
+        <span class="n">in_x_order</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"stable"</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">x_values</span><span class="p">[</span><span class="n">in_x_order</span><span class="p">],</span>
+            <span class="n">y_values</span><span class="p">[</span><span class="n">in_x_order</span><span class="p">],</span>
+            <span class="n">line_styles</span><span class="p">[</span><span class="n">config</span><span class="p">[</span><span class="s2">"marker"</span><span class="p">]],</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"scale"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)),</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"color"</span><span class="p">],</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"label"</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
     <span class="n">collection</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
         <span class="n">x_values</span><span class="p">,</span>
         <span class="n">y_values</span><span class="p">,</span>
-        <span class="n">marker</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;marker&quot;</span><span class="p">],</span>
-        <span class="n">s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span>
-        <span class="n">c</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">],</span>
-        <span class="n">label</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
+        <span class="n">marker</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"marker"</span><span class="p">],</span>
+        <span class="n">s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"scale"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"color"</span><span class="p">],</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"label"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="n">collection</span><span class="o">.</span><span class="n">set_urls</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">reverse</span><span class="p">(</span>
-                <span class="s2">&quot;diagnostics:preview_calibrated_image&quot;</span><span class="p">,</span>
+                <span class="s2">"diagnostics:preview_calibrated_image"</span><span class="p">,</span>
                 <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">img_id</span><span class="p">,</span>
-                    <span class="s2">&quot;color_channel&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">],</span>
+                    <span class="s2">"image_id"</span><span class="p">:</span> <span class="n">img_id</span><span class="p">,</span>
+                    <span class="s2">"color_channel"</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"channel"</span><span class="p">],</span>
                 <span class="p">},</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">img_id</span> <span class="ow">in</span> <span class="n">image_ids</span>
@@ -335,7 +363,7 @@
 <div class="viewcode-block" id="group_series_by_x_overlap">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">group_series_by_x_overlap</span><span class="p">(</span><span class="n">series_data</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Group series into sets whose x ranges overlap.</span>
 
 <span class="sd">    Series whose x ranges overlap share axes; disjoint ones get their own.</span>
@@ -349,7 +377,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list:    Lists of the entries that should share one set of axes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">group_ranges</span> <span class="o">=</span> <span class="p">[]</span>
@@ -388,7 +416,7 @@
 <div class="viewcode-block" id="create_figure">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_figure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_figure</span><span class="p">(</span><span class="n">num_plots</span><span class="p">,</span> <span class="n">plot_height_frac</span><span class="p">,</span> <span class="n">aspect_ratio</span><span class="p">,</span> <span class="n">num_columns</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the figure for the diagnostics plot per given configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create the figure for the diagnostics plot per given configuration."""</span>
 
     <span class="k">if</span> <span class="n">num_plots</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -396,9 +424,9 @@
         <span class="n">axes</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
             <span class="mf">0.5</span><span class="p">,</span>
             <span class="mf">0.5</span><span class="p">,</span>
-            <span class="s2">&quot;Select diagnostics to display&quot;</span><span class="p">,</span>
-            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">"Select diagnostics to display"</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">axes</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="kc">None</span>
@@ -427,23 +455,21 @@
 
 <div class="viewcode-block" id="collect_series_data">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">collect_series_data</span><span class="p">(</span>
-    <span class="n">series_list</span><span class="p">,</span> <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_series_data</span><span class="p">(</span><span class="n">series_list</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read the selected series, dropping those with nothing to draw.</span>
 
 <span class="sd">    Every row of the table is posted rather than only the drawn ones, so</span>
-<span class="sd">    that the server can see what the whole table binds.  Three of them are</span>
+<span class="sd">    that the server can see what the whole table binds.  Four of them are</span>
 <span class="sd">    skipped here: one the user has not selected, one whose marker is</span>
-<span class="sd">    blank, and one still missing a channel, which names no data to read.</span>
+<span class="sd">    blank, one still missing a channel, and one naming no session and</span>
+<span class="sd">    image type -- the last two naming no data to read.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        series_list(list):    Every row as the client posted it back.</span>
 
-<span class="sd">        x_diagnostic(str):    Quantity on the X axis.</span>
-
-<span class="sd">        y_diagnostic(str):    Quantity on the Y axis.</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis, shared by the whole</span>
+<span class="sd">            figure.  Each row names its own y through its id.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
@@ -452,93 +478,114 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        list:    ``(series, x_values, y_values, image_ids)`` tuples for the</span>
 <span class="sd">            series having at least one point where both axes are finite.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">series_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">series_list</span><span class="p">:</span>
         <span class="c1"># Defaulting to selected, so that a payload from before the table</span>
         <span class="c1"># posted every row still draws what it was asked to.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;selected&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"selected"</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;marker&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"marker"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
             <span class="k">continue</span>
         <span class="c1"># ``not channels`` as well as ``all``, which an empty list passes:</span>
         <span class="c1"># a page whose script predates the channel columns posts none at</span>
-        <span class="c1"># all, and binding nothing is not a binding.</span>
-        <span class="n">channels</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="p">())</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">channels</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+        <span class="c1"># all, and binding nothing is not a binding.  A payload predating</span>
+        <span class="c1"># the chosen pair names no population either.  Both are skipped</span>
+        <span class="c1"># rather than refused -- a stale page should draw nothing, not</span>
+        <span class="c1"># turn the response into an error page.</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"channels"</span><span class="p">,</span> <span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">channels</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pair"</span><span class="p">):</span>
             <span class="k">continue</span>
         <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="o">=</span> <span class="n">get_series_data</span><span class="p">(</span>
-            <span class="n">series</span><span class="p">,</span> <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="n">series</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
         <span class="p">)</span>
         <span class="n">x_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">x_values</span><span class="p">)</span>
         <span class="n">y_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">y_values</span><span class="p">)</span>
         <span class="c1"># A padded array is full length even when every value is NaN, so</span>
         <span class="c1"># its size no longer tells us whether anything will be drawn.</span>
         <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x_values</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_values</span><span class="p">)):</span>
-            <span class="c1"># The channel a click on a point opens the frame in, taken</span>
-            <span class="c1"># from the binding rather than echoed by the client, and the</span>
-            <span class="c1"># first of them for want of a better answer once a series can</span>
-            <span class="c1"># bind several.</span>
-            <span class="n">drawn</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;channel&quot;</span><span class="p">:</span> <span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">channels</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+            <span class="c1"># Two things the figure reads off the binding rather than off</span>
+            <span class="c1"># the client: the channel a click on a point opens the frame</span>
+            <span class="c1"># in -- the first of them, for want of a better answer once a</span>
+            <span class="c1"># series can bind several -- and the quantity the row draws,</span>
+            <span class="c1"># which its y axis is labelled for.</span>
+            <span class="n">drawn</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="o">**</span><span class="n">series</span><span class="p">,</span>
+                <span class="s2">"channel"</span><span class="p">:</span> <span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">channels</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
+                <span class="s2">"quantity"</span><span class="p">:</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">}</span>
             <span class="n">series_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">drawn</span><span class="p">,</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">series_data</span></div>
 
 
 
-<div class="viewcode-block" id="draw_series_group">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_series_group">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">draw_series_group</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">x_offset</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot every series sharing one set of axes.</span>
+<div class="viewcode-block" id="assign_y_axes">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assign_y_axes</span><span class="p">(</span><span class="n">drawn</span><span class="p">,</span> <span class="n">requested</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the quantities to put on each y axis, in the order drawn.</span>
+
+<span class="sd">    Sharing an axis is the safe default and the usual answer: two</span>
+<span class="sd">    quantities wrongly sharing one show it at once, since one of them is</span>
+<span class="sd">    flattened, where two wrongly given separate axes are rescaled to fill</span>
+<span class="sd">    the same height and invite a reader to compare what cannot be</span>
+<span class="sd">    compared.</span>
+
+<span class="sd">    What a user asks for is an axis *number* per quantity, which is easier</span>
+<span class="sd">    to say than an ordering. Turning numbers into axes is what happens</span>
+<span class="sd">    here: numbers nothing drawn uses are skipped, so asking for 1 and 3</span>
+<span class="sd">    draws two axes rather than three with an empty one between them, and</span>
+<span class="sd">    the number is only ever a way of grouping and ordering.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        axes:    The matplotlib Axes the group was assigned.</span>
+<span class="sd">        drawn(iterable):    The quantities actually drawn, in section</span>
+<span class="sd">            order. Repeats are ignored: a quantity is on one axis however</span>
+<span class="sd">            many rows draw it.</span>
 
-<span class="sd">        group(list):    ``(series, x_values, y_values, image_ids)`` tuples,</span>
-<span class="sd">            as grouped by :func:`group_series_by_x_overlap`.</span>
-
-<span class="sd">        x_offset(float):    Subtracted from every x value.  Shared by the</span>
-<span class="sd">            whole figure so the series keep their spacing relative to each</span>
-<span class="sd">            other.</span>
+<span class="sd">        requested(dict):    ``{quantity: axis number}``, as the client</span>
+<span class="sd">            posts it. A quantity missing from it, or carrying something</span>
+<span class="sd">            that is not a number, falls to the first axis -- an</span>
+<span class="sd">            unanswered question is not worth failing a plot over.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        list:    One list of quantity names per axis, the first being the</span>
+<span class="sd">            host. Each list is in section order, and the axes are ordered</span>
+<span class="sd">            by the number asked for. Empty when nothing is drawn.</span>
+<span class="sd">    """</span>
 
-    <span class="k">for</span> <span class="n">series</span><span class="p">,</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
-        <span class="n">plot_image_diagnostic_series</span><span class="p">(</span>
-            <span class="n">axes</span><span class="p">,</span> <span class="n">x_values</span> <span class="o">-</span> <span class="n">x_offset</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span><span class="p">,</span> <span class="n">series</span>
-        <span class="p">)</span></div>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">drawn</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">requested</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">wanted</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">wanted</span><span class="p">[</span><span class="n">number</span><span class="p">]</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">wanted</span><span class="p">)]</span></div>
 
 
 
-<span class="c1"># All but the first are keyword-only, and each names one thing the figure</span>
-<span class="c1"># cannot be drawn without.  Grouping them into an object would hide what the</span>
-<span class="c1"># URL layer has to supply rather than simplify it.</span>
-<span class="c1"># pylint: disable=too-many-arguments</span>
 <div class="viewcode-block" id="create_diagnostics_figure">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_diagnostics_figure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_diagnostics_figure</span><span class="p">(</span>
     <span class="n">series_list</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">x_diagnostic</span><span class="p">,</span>
-    <span class="n">y_diagnostic</span><span class="p">,</span>
+    <span class="n">x_quantity</span><span class="p">,</span>
     <span class="n">expressions</span><span class="p">,</span>
     <span class="n">db_session</span><span class="p">,</span>
     <span class="n">figure_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create the figure for the selected series of an axis pair.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Create the figure for the selected series, against one x quantity.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        series_list(list):    Entries from :func:`get_available_series`.</span>
+<span class="sd">        series_list(list):    Every row as the client posted it back.</span>
 <span class="sd">            Only those with a non-empty ``marker`` are plotted.</span>
 
-<span class="sd">        x_diagnostic(str):    Quantity on the X axis.</span>
-
-<span class="sd">        y_diagnostic(str):    Quantity on the Y axis.</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis, which every series</span>
+<span class="sd">            shares.  What each draws against it comes from its own id.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
@@ -549,13 +596,13 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        matplotlib.figure.Figure:    The completed figure.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">figure_config</span> <span class="o">=</span> <span class="n">figure_config</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">against_time</span> <span class="o">=</span> <span class="n">x_diagnostic</span> <span class="o">==</span> <span class="n">time_quantity</span>
+    <span class="n">against_time</span> <span class="o">=</span> <span class="n">x_quantity</span> <span class="o">==</span> <span class="n">time_quantity</span>
 
     <span class="n">series_data</span> <span class="o">=</span> <span class="n">collect_series_data</span><span class="p">(</span>
-        <span class="n">series_list</span><span class="p">,</span> <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="n">series_list</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
     <span class="p">)</span>
 
     <span class="c1"># Julian dates are large numbers spanning a tiny range, so the axis is</span>
@@ -568,29 +615,126 @@
     <span class="n">groups</span> <span class="o">=</span> <span class="n">group_series_by_x_overlap</span><span class="p">(</span><span class="n">series_data</span><span class="p">)</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">all_axes</span> <span class="o">=</span> <span class="n">create_figure</span><span class="p">(</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">),</span>
-        <span class="n">plot_height_frac</span><span class="o">=</span><span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_height_frac&quot;</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">),</span>
+        <span class="n">plot_height_frac</span><span class="o">=</span><span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_height_frac"</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">),</span>
         <span class="n">aspect_ratio</span><span class="o">=</span><span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;aspect_ratio&quot;</span><span class="p">,</span> <span class="mf">3.0</span> <span class="k">if</span> <span class="n">against_time</span> <span class="k">else</span> <span class="mf">1.0</span>
+            <span class="s2">"aspect_ratio"</span><span class="p">,</span> <span class="mf">3.0</span> <span class="k">if</span> <span class="n">against_time</span> <span class="k">else</span> <span class="mf">1.0</span>
         <span class="p">),</span>
-        <span class="n">num_columns</span><span class="o">=</span><span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_columns&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">num_columns</span><span class="o">=</span><span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"num_columns"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">all_axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fig</span>
 
-    <span class="k">for</span> <span class="n">axes</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_axes</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">groups</span><span class="p">):</span>
-        <span class="n">draw_series_group</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">x_offset</span><span class="p">)</span>
-        <span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;JD - </span><span class="si">{</span><span class="n">x_offset</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">against_time</span> <span class="k">else</span> <span class="n">x_diagnostic</span><span class="p">)</span>
-        <span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_diagnostic</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;show_legend&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="n">axes</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">axes</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+    <span class="c1"># Decided from everything drawn rather than per subplot, so that a</span>
+    <span class="c1"># quantity keeps the same axis, the same side and the same label in</span>
+    <span class="c1"># every night. Built per subplot, a night drawing only the second</span>
+    <span class="c1"># quantity would put it on the host, its label crossing to the other</span>
+    <span class="c1"># side of the plot from where the night above has it. The scales still</span>
+    <span class="c1"># differ between nights -- each subplot autoscales to what it holds,</span>
+    <span class="c1"># which is deliberate -- so what this keeps steady is where to look,</span>
+    <span class="c1"># not what the heights mean.</span>
+    <span class="n">per_axis</span> <span class="o">=</span> <span class="n">assign_y_axes</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"quantity"</span><span class="p">]</span> <span class="k">for</span> <span class="n">series</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="ow">in</span> <span class="n">series_data</span><span class="p">),</span>
+        <span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"y_axes"</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">host</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_axes</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">groups</span><span class="p">):</span>
+        <span class="n">draw_group_on_axes</span><span class="p">(</span>
+            <span class="n">host</span><span class="p">,</span>
+            <span class="n">group</span><span class="p">,</span>
+            <span class="n">per_axis</span><span class="p">,</span>
+            <span class="n">x_offset</span><span class="p">,</span>
+            <span class="n">figure_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"show_legend"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"JD - </span><span class="si">{</span><span class="n">x_offset</span><span class="si">!r}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">against_time</span> <span class="k">else</span> <span class="n">x_quantity</span><span class="p">)</span>
+        <span class="c1"># The host alone: twin grids interleave into a mesh that says</span>
+        <span class="c1"># nothing about either scale.</span>
+        <span class="n">host</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 
     <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 
 
 
-<span class="c1"># pylint: enable=too-many-arguments</span>
+<div class="viewcode-block" id="draw_group_on_axes">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_group_on_axes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_group_on_axes</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">per_axis</span><span class="p">,</span> <span class="n">x_offset</span><span class="p">,</span> <span class="n">show_legend</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Draw one night's series, each on the axis its quantity was given.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        host:    The subplot this night was assigned, which carries the</span>
+<span class="sd">            first y axis, the x axis and the grid.</span>
+
+<span class="sd">        group(list):    ``(series, x_values, y_values, image_ids)`` tuples</span>
+<span class="sd">            for this night.</span>
+
+<span class="sd">        per_axis(list):    What :func:`assign_y_axes` returned: the</span>
+<span class="sd">            quantities on each axis, the first being the host's.</span>
+
+<span class="sd">        x_offset(float):    Subtracted from every x value.</span>
+
+<span class="sd">        show_legend(bool):    Whether to draw the merged legend.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    """</span>
+
+    <span class="n">axes_for</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">quantities</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">per_axis</span><span class="p">):</span>
+        <span class="c1"># A twin shares the x axis and brings a y scale of its own. From</span>
+        <span class="c1"># the third onwards its spine is pushed outwards, so that the</span>
+        <span class="c1"># scales stand side by side instead of on top of one another.</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">host</span> <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">host</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">this</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="s2">"axes"</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">0.12</span> <span class="o">*</span> <span class="p">(</span><span class="n">number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">quantities</span><span class="p">))</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+            <span class="n">axes_for</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">this</span>
+
+    <span class="k">for</span> <span class="n">series</span><span class="p">,</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">image_ids</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
+        <span class="n">plot_image_diagnostic_series</span><span class="p">(</span>
+            <span class="n">axes_for</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"quantity"</span><span class="p">],</span> <span class="n">host</span><span class="p">),</span>
+            <span class="n">x_values</span> <span class="o">-</span> <span class="n">x_offset</span><span class="p">,</span>
+            <span class="n">y_values</span><span class="p">,</span>
+            <span class="n">image_ids</span><span class="p">,</span>
+            <span class="n">series</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+        <span class="n">draw_merged_legend</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="draw_merged_legend">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_merged_legend">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_merged_legend</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Draw one legend for a subplot, naming what every one of its axes drew.</span>
+
+<span class="sd">    On the topmost axis rather than the host, and gathering the handles by</span>
+<span class="sd">    hand, because neither happens by itself: each axis offers only the</span>
+<span class="sd">    series drawn on it, and a legend belonging to the host is painted</span>
+<span class="sd">    underneath the twins that sit above it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        axes(list):    The subplot's axes, host first, as</span>
+<span class="sd">            :func:`draw_group_on_axes` built them.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    """</span>
+
+    <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+        <span class="n">each_handles</span><span class="p">,</span> <span class="n">each_labels</span> <span class="o">=</span> <span class="n">each</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+        <span class="n">handles</span> <span class="o">+=</span> <span class="n">each_handles</span>
+        <span class="n">labels</span> <span class="o">+=</span> <span class="n">each_labels</span>
+
+    <span class="k">if</span> <span class="n">handles</span><span class="p">:</span>
+        <span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="update_plot_view">
@@ -598,7 +742,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">update_plot_view</span><span class="p">(</span>
     <span class="n">request</span><span class="p">,</span> <span class="n">figure_factory</span><span class="p">,</span> <span class="n">session_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">url_kwargs</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Common handler for diagnostics AJAX plot-update views.</span>
+<span class="w">    </span><span class="sd">"""Common handler for diagnostics AJAX plot-update views.</span>
 
 <span class="sd">    Parses the JSON POST body, calls ``figure_factory`` to produce the figure,</span>
 <span class="sd">    and returns an SVG ``JsonResponse``.</span>
@@ -610,41 +754,60 @@
 <span class="sd">        figure_factory: Callable accepting ``series_list``, ``db_session``,</span>
 <span class="sd">                        ``figure_config``, plus any URL kwargs as keyword</span>
 <span class="sd">                        arguments.</span>
-<span class="sd">        session_key:    If given, the raw POST data is stored in the session</span>
-<span class="sd">                        under this key so a download view can retrieve it.</span>
+<span class="sd">        session_key:    If given, the posted plot configuration is stored in</span>
+<span class="sd">                        the session under this key so a download view can</span>
+<span class="sd">                        retrieve it.</span>
 <span class="sd">        extra:          Optional callable given the whole POST, the database</span>
-<span class="sd">                        session and the URL kwargs, returning a dict merged</span>
-<span class="sd">                        into the response.  What a redraw answers *besides*</span>
-<span class="sd">                        the figure -- a newly bound row&#39;s count and its</span>
-<span class="sd">                        spare -- rides along here, so that one action costs</span>
-<span class="sd">                        one round trip.</span>
+<span class="sd">                        session and the URL kwargs, returning ``(rows,</span>
+<span class="sd">                        fields)``: the rows to draw, and what a redraw</span>
+<span class="sd">                        answers *besides* the figure -- a rebound row's</span>
+<span class="sd">                        count and cells -- which rides along in the</span>
+<span class="sd">                        response so that one action costs one round trip.</span>
+<span class="sd">                        It decides what is drawn as well as what is said,</span>
+<span class="sd">                        because a row whose binding has just changed has to</span>
+<span class="sd">                        be drawn with the colour and label of the binding</span>
+<span class="sd">                        it now has.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        JsonResponse with ``plot_data`` containing the SVG string.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">post_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-    <span class="k">if</span> <span class="n">session_key</span><span class="p">:</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="n">session_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">post_data</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">series_list</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">series_id</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">}</span>
-        <span class="k">for</span> <span class="n">series_id</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;datasets&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">figure_config</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;figure_config&quot;</span><span class="p">)</span>
+    <span class="n">figure_config</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"figure_config"</span><span class="p">)</span>
 
     <span class="n">setup_svg_matplotlib</span><span class="p">()</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="c1"># Before the figure, because the rows it returns are the ones</span>
+        <span class="c1"># drawn: a row whose binding has just changed has to reach the</span>
+        <span class="c1"># figure with the colour and label of the binding it now has,</span>
+        <span class="c1"># rather than the ones the client posted with it.</span>
+        <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">series_list</span><span class="p">,</span> <span class="n">alongside</span> <span class="o">=</span> <span class="n">posted_rows</span><span class="p">(</span><span class="n">post_data</span><span class="p">),</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">series_list</span><span class="p">,</span> <span class="n">alongside</span> <span class="o">=</span> <span class="n">extra</span><span class="p">(</span>
+                <span class="n">post_data</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span> <span class="o">**</span><span class="n">url_kwargs</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">session_key</span><span class="p">:</span>
+            <span class="c1"># Stored after ``extra`` and from what it returned, so that</span>
+            <span class="c1"># Download Figure straight after a rebinding regenerates what</span>
+            <span class="c1"># is on the screen rather than what the client had posted.</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="n">session_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="o">**</span><span class="n">post_data</span><span class="p">,</span>
+                <span class="s2">"datasets"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]:</span> <span class="p">{</span>
+                        <span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">"id"</span>
+                    <span class="p">}</span>
+                    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">series_list</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="n">fig</span> <span class="o">=</span> <span class="n">figure_factory</span><span class="p">(</span>
             <span class="n">series_list</span><span class="p">,</span>
             <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
             <span class="n">figure_config</span><span class="o">=</span><span class="n">figure_config</span><span class="p">,</span>
             <span class="o">**</span><span class="n">url_kwargs</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">alongside</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{}</span>
-            <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="n">extra</span><span class="p">(</span><span class="n">post_data</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span> <span class="o">**</span><span class="n">url_kwargs</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">figure_to_svg_response</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">alongside</span><span class="p">)</span></div>
@@ -654,7 +817,7 @@
 <div class="viewcode-block" id="download_plot_view">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.download_plot_view">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download_plot_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">figure_factory</span><span class="p">,</span> <span class="n">session_key</span><span class="p">,</span> <span class="o">**</span><span class="n">url_kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the last-plotted figure as a PDF download.</span>
+<span class="w">    </span><span class="sd">"""Return the last-plotted figure as a PDF download.</span>
 
 <span class="sd">    Reads the plot configuration stored in the session by a previous call to</span>
 <span class="sd">    :func:`update_plot_view` and regenerates the figure in PDF format.</span>
@@ -667,16 +830,13 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        HttpResponse with PDF content.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">post_data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">session_key</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">series_list</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">series_id</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">}</span>
-        <span class="k">for</span> <span class="n">series_id</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;datasets&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">figure_config</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;figure_config&quot;</span><span class="p">)</span>
+    <span class="n">series_list</span> <span class="o">=</span> <span class="n">posted_rows</span><span class="p">(</span><span class="n">post_data</span><span class="p">)</span>
+    <span class="n">figure_config</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"figure_config"</span><span class="p">)</span>
 
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
-    <span class="n">pyplot</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">"pdf"</span><span class="p">)</span>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">"default"</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">figure_factory</span><span class="p">(</span>
@@ -687,13 +847,13 @@
         <span class="p">)</span>
 
     <span class="k">with</span> <span class="n">BytesIO</span><span class="p">()</span> <span class="k">as</span> <span class="n">pdf_stream</span><span class="p">:</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">pdf_stream</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">pdf_stream</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">"tight"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"pdf"</span><span class="p">)</span>
         <span class="n">pyplot</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
             <span class="n">pdf_stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span>
             <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Content-Disposition&quot;</span><span class="p">:</span> <span class="s1">&#39;attachment; filename=&quot;diagnostics.pdf&quot;&#39;</span><span class="p">,</span>
+                <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/pdf"</span><span class="p">,</span>
+                <span class="s2">"Content-Disposition"</span><span class="p">:</span> <span class="s1">'attachment; filename="diagnostics.pdf"'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span></div>
 
@@ -701,67 +861,175 @@
 
 <span class="c1">#: Where the last posted plot configuration is kept, so that the download</span>
 <span class="c1">#: view can regenerate exactly what was on screen.</span>
-<span class="n">plot_session_key</span> <span class="o">=</span> <span class="s2">&quot;diagnostics_last&quot;</span>
+<span class="n">plot_session_key</span> <span class="o">=</span> <span class="s2">"diagnostics_last"</span>
+
+
+<span class="c1"># Each names one thing a section cannot be built without, and the caller</span>
+<span class="c1"># holds all of them.</span>
+<span class="c1"># pylint: disable=too-many-arguments</span>
+<div class="viewcode-block" id="build_section">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.build_section">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_section</span><span class="p">(</span>
+    <span class="n">section_y</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">descriptions</span><span class="p">,</span> <span class="n">marker</span><span class="p">,</span> <span class="n">db_session</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return everything one section of the page is rendered from.</span>
+
+<span class="sd">    A section is the table for the pair ``(x, section_y)``, headed by what</span>
+<span class="sd">    that quantity is. Its channel columns depend on the quantity it draws,</span>
+<span class="sd">    which is what a section is *for*: quantities binding different numbers</span>
+<span class="sd">    of channels cannot share one table, so each gets its own.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        section_y(str):    The quantity this section draws.</span>
+
+<span class="sd">        x_quantity(str):    Quantity on the X axis, shared by the page.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">        descriptions(dict):    What each quantity means, the recorded</span>
+<span class="sd">            diagnostics' and the expressions' together.</span>
+
+<span class="sd">        marker(str):    What this section's rows start out drawn with.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    The section, as ``_series_section.html`` renders it.</span>
+<span class="sd">    """</span>
+
+    <span class="n">section</span> <span class="o">=</span> <span class="n">get_available_series</span><span class="p">(</span>
+        <span class="n">x_quantity</span><span class="p">,</span> <span class="n">section_y</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker</span>
+    <span class="p">)</span>
+    <span class="n">section</span><span class="p">[</span><span class="s2">"quantity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">describe_quantity</span><span class="p">(</span>
+        <span class="n">section_y</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">descriptions</span>
+    <span class="p">)</span>
+    <span class="n">section</span><span class="p">[</span><span class="s2">"marker"</span><span class="p">]</span> <span class="o">=</span> <span class="n">marker</span>
+
+    <span class="k">return</span> <span class="n">section</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-many-arguments</span>
 
 
 <div class="viewcode-block" id="display_diagnostics">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">display_diagnostics</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;View displaying the table of available series for an axis pair.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">display_diagnostics</span><span class="p">(</span>
+    <span class="n">request</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantities</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">expression_descriptions</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""View displaying a section per y quantity, all against one x.</span>
 
-<span class="sd">    The library arrives as an argument rather than being fetched here: it</span>
-<span class="sd">    is the one thing on this page that comes from the browser-interface</span>
-<span class="sd">    database, and keeping it out means everything in this module can be</span>
-<span class="sd">    tested against a project database alone.  ``views.py`` supplies it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        request:    The Django request.</span>
+
+<span class="sd">        x_quantity(str):    Quantity on the X axis. The page has one, and</span>
+<span class="sd">            a user wanting a second opens another tab: everything drawn</span>
+<span class="sd">            here shares it.</span>
+
+<span class="sd">        y_quantities(list):    What the sections draw, in the order the</span>
+<span class="sd">            URL names them, which is the order they appear in and the</span>
+<span class="sd">            order they take their markers in.</span>
+
+<span class="sd">        expressions(dict):    The library.  It arrives as an argument</span>
+<span class="sd">            rather than being fetched here because it comes from the</span>
+<span class="sd">            browser-interface database, and keeping that out means</span>
+<span class="sd">            everything in this module can be tested against a project</span>
+<span class="sd">            database alone.  ``views.py`` supplies it.</span>
+
+<span class="sd">        expression_descriptions(dict):    What each expression is for,</span>
+<span class="sd">            from the same database and passed in for the same reason. The</span>
+<span class="sd">            recorded diagnostics describe themselves in the project one,</span>
+<span class="sd">            and the two are merged here.</span>
+<span class="sd">    """</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">get_available_series</span><span class="p">(</span>
-            <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="n">recorded</span> <span class="o">=</span> <span class="n">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+        <span class="c1"># An expression may not take a recorded diagnostic's name, so</span>
+        <span class="c1"># neither can shadow the other and the merge is unambiguous.</span>
+        <span class="n">descriptions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">get_diagnostic_descriptions</span><span class="p">(</span><span class="n">db_session</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">expression_descriptions</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">sections</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">build_section</span><span class="p">(</span>
+                <span class="n">section_y</span><span class="p">,</span>
+                <span class="n">x_quantity</span><span class="o">=</span><span class="n">x_quantity</span><span class="p">,</span>
+                <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span>
+                <span class="n">descriptions</span><span class="o">=</span><span class="n">descriptions</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">section_y</span><span class="p">,</span> <span class="n">marker</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">y_quantities</span><span class="p">,</span> <span class="n">section_markers</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">available</span> <span class="o">=</span> <span class="n">get_available_diagnostics</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"sections"</span><span class="p">:</span> <span class="n">sections</span><span class="p">,</span>
+        <span class="s2">"available_diagnostics"</span><span class="p">:</span> <span class="n">available</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"x_quantity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_quantity</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"y_quantities"</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_quantities</span>
+    <span class="c1"># Named for the x alone. The sections come and go without the page</span>
+    <span class="c1"># being reloaded, so a title naming them would be wrong as soon as one</span>
+    <span class="c1"># was added.</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"diagnostics_title"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"Diagnostics"</span>
+        <span class="k">if</span> <span class="n">x_quantity</span> <span class="o">==</span> <span class="n">time_quantity</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">"Diagnostics against </span><span class="si">{</span><span class="n">x_quantity</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="c1"># No y in either: every posted row names the quantity it draws, so</span>
+    <span class="c1"># redrawing and downloading ask only for the x they share.</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"update_plot_url"</span><span class="p">]</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span>
+        <span class="s2">"diagnostics:update_diagnostics_plot"</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"x_quantity"</span><span class="p">:</span> <span class="n">x_quantity</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"download_pdf_url"</span><span class="p">]</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span>
+        <span class="s2">"diagnostics:download_diagnostics_plot"</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"x_quantity"</span><span class="p">:</span> <span class="n">x_quantity</span><span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"diagnostics/diagnostics_app.html"</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="diagnostics_section">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.diagnostics_section">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">diagnostics_section</span><span class="p">(</span>
+    <span class="n">request</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">expression_descriptions</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return one rendered section, for adding one without a reload.</span>
+
+<span class="sd">    A request of its own rather than something a redraw carries, unlike</span>
+<span class="sd">    the row ``+`` adds: a new section's row is bound only where each of</span>
+<span class="sd">    its channel columns has a single channel recorded, so on a colour</span>
+<span class="sd">    camera it arrives unbound, draws nothing, and the figure is unchanged.</span>
+<span class="sd">    Asking for the section alone leaves that figure alone; folding this</span>
+<span class="sd">    into a redraw would rebuild it to look exactly as it already does.</span>
+
+<span class="sd">    The markers the page's sections already start with arrive as</span>
+<span class="sd">    ``taken``, comma separated, since sections have come and gone in the</span>
+<span class="sd">    browser since the page was built and the server cannot know otherwise</span>
+<span class="sd">    which markers are still spoken for.</span>
+<span class="sd">    """</span>
+
+    <span class="n">taken</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taken"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">build_section</span><span class="p">(</span>
+            <span class="n">y_quantity</span><span class="p">,</span>
+            <span class="n">x_quantity</span><span class="o">=</span><span class="n">x_quantity</span><span class="p">,</span>
+            <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span>
+            <span class="n">descriptions</span><span class="o">=</span><span class="p">{</span>
+                <span class="o">**</span><span class="n">get_diagnostic_descriptions</span><span class="p">(</span><span class="n">db_session</span><span class="p">),</span>
+                <span class="o">**</span><span class="n">expression_descriptions</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">marker</span><span class="o">=</span><span class="n">next_section_marker</span><span class="p">(</span><span class="n">taken</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span> <span class="k">if</span> <span class="n">taken</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">context</span><span class="p">[</span><span class="s2">&quot;available_diagnostics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_available_diagnostics</span><span class="p">(</span>
-            <span class="n">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">),</span> <span class="n">expressions</span>
-        <span class="p">)</span>
 
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;x_diagnostic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_diagnostic</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;y_diagnostic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_diagnostic</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;diagnostics_title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">y_diagnostic</span>
-        <span class="k">if</span> <span class="n">x_diagnostic</span> <span class="o">==</span> <span class="n">time_quantity</span>
-        <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x_diagnostic</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">y_diagnostic</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;update_plot_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span>
-        <span class="s2">&quot;diagnostics:update_diagnostics_plot&quot;</span><span class="p">,</span>
-        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;x_diagnostic&quot;</span><span class="p">:</span> <span class="n">x_diagnostic</span><span class="p">,</span>
-            <span class="s2">&quot;y_diagnostic&quot;</span><span class="p">:</span> <span class="n">y_diagnostic</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">)</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;download_pdf_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span>
-        <span class="s2">&quot;diagnostics:download_diagnostics_plot&quot;</span><span class="p">,</span>
-        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;x_diagnostic&quot;</span><span class="p">:</span> <span class="n">x_diagnostic</span><span class="p">,</span>
-            <span class="s2">&quot;y_diagnostic&quot;</span><span class="p">:</span> <span class="n">y_diagnostic</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;diagnostics/diagnostics_app.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="display_image_diagnostics">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.image_diagnostics_views.html#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_image_diagnostics">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">display_image_diagnostics</span><span class="p">(</span><span class="n">_request</span><span class="p">,</span> <span class="n">diagnostic_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Redirect the pre-merge time-series URL onto the merged view.</span>
-
-<span class="sd">    Kept so that links built before the merge keep working, including the</span>
-<span class="sd">    six ``{% url %}`` tags in ``processing/progress.html``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span>
-        <span class="s2">&quot;diagnostics:display_diagnostics&quot;</span><span class="p">,</span>
-        <span class="n">x_diagnostic</span><span class="o">=</span><span class="n">time_quantity</span><span class="p">,</span>
-        <span class="n">y_diagnostic</span><span class="o">=</span><span class="n">diagnostic_name</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span> <span class="s2">"diagnostics/_series_section.html"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"section"</span><span class="p">:</span> <span class="n">section</span><span class="p">}</span>
     <span class="p">)</span></div>
 
 </pre></div>

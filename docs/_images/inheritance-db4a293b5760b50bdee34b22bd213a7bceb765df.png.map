@@ -1,5 +1,0 @@
-<map id="inheritance963efc103a" name="inheritance963efc103a">
-<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="14,80,418,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostics_views.TestQuantileSeriesExpansion" target="_top" title="``pixel_quantiles`` expands to one series per ``pixel_q*``." alt="" coords="5,155,427,181"/>
-<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="138,5,294,32"/>
-</map>

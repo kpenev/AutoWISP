@@ -1,5 +1,0 @@
-<map id="inheritance1fd592598b" name="inheritance1fd592598b">
-<area shape="rect" id="node1" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="5,5,344,32"/>
-<area shape="rect" id="node2" href="#autowisp.tests.test_database_migration.TestTimestampTriggers" target="_top" title="Every table carrying ``timestamp`` keeps a trigger maintaining it." alt="" coords="114,80,507,107"/>
-<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="368,5,525,32"/>
-</map>

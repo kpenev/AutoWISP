@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.hdf5_datasets &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.hdf5_datasets</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define the hdf5_datasets table.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define the hdf5_datasets table."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Column</span><span class="p">,</span>
@@ -180,118 +180,118 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HDF5DataSet&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"HDF5DataSet"</span><span class="p">]</span>
 
 
 <span class="c1"># The standard use of SQLAlchemy ORM requires classes with no public methods.</span>
 <span class="c1"># pylint: disable=too-few-public-methods</span>
 <div class="viewcode-block" id="HDF5DataSet">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.hdf5_datasets.html#autowisp.database.data_model.HDF5DataSet">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HDF5DataSet</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The table describing how to include datasets in HDF5 files.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The table describing how to include datasets in HDF5 files."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;hdf5_datasets&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"hdf5_datasets"</span>
 
     <span class="n">hdf5_structure_version_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="n">ForeignKey</span><span class="p">(</span>
-            <span class="s2">&quot;hdf5_structure_versions.id&quot;</span><span class="p">,</span>
-            <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span>
-            <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">,</span>
+            <span class="s2">"hdf5_structure_versions.id"</span><span class="p">,</span>
+            <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span>
+            <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Which structure version of which pipeline product is this &quot;</span>
-        <span class="s2">&quot;element configuration for.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Which structure version of which pipeline product is this "</span>
+        <span class="s2">"element configuration for."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">pipeline_key</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;How is this dataset referred to by the pipeline.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"How is this dataset referred to by the pipeline."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">abspath</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The full absolute path to the dataset within the HDF5 file.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The full absolute path to the dataset within the HDF5 file."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">dtype</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The data type to use for this dataset. See h5py for possible &quot;</span>
-        <span class="s2">&quot;values and their meanings.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The data type to use for this dataset. See h5py for possible "</span>
+        <span class="s2">"values and their meanings."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">compression</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;NULL&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;If not NULL, which compression filter to use when creating the &quot;</span>
-        <span class="s2">&quot;dataset.&quot;</span><span class="p">,</span>
+        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">"NULL"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"If not NULL, which compression filter to use when creating the "</span>
+        <span class="s2">"dataset."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">compression_options</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;NULL&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Any options to pass to the compression filter. For gzip, this is &quot;</span>
-        <span class="s2">&quot;passed as int(compression_options).&quot;</span><span class="p">,</span>
+        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">"NULL"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Any options to pass to the compression filter. For gzip, this is "</span>
+        <span class="s2">"passed as int(compression_options)."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">scaleoffset</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;NULL&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;If not null, enable the scale/offset filter for this dataset with &quot;</span>
-        <span class="s2">&quot;the specified precision.&quot;</span><span class="p">,</span>
+        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">"NULL"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"If not null, enable the scale/offset filter for this dataset with "</span>
+        <span class="s2">"the specified precision."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">shuffle</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Boolean</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">server_default</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Should the shuffle filter be enabled?&quot;</span><span class="p">,</span>
+        <span class="n">server_default</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Should the shuffle filter be enabled?"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">replace_nonfinite</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Double</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;NULL&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;For numeric datasets, if this is not NULL, any non-finite &quot;</span>
-        <span class="s2">&quot;values are replaced by this value.&quot;</span><span class="p">,</span>
+        <span class="n">server_default</span><span class="o">=</span><span class="n">text</span><span class="p">(</span><span class="s2">"NULL"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"For numeric datasets, if this is not NULL, any non-finite "</span>
+        <span class="s2">"values are replaced by this value."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;A brief description of what this attribute tracks.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"A brief description of what this attribute tracks."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">__table_args__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">Index</span><span class="p">(</span>
-            <span class="s2">&quot;version_dataset&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hdf5_structure_version_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pipeline_key&quot;</span><span class="p">,</span>
+            <span class="s2">"version_dataset"</span><span class="p">,</span>
+            <span class="s2">"hdf5_structure_version_id"</span><span class="p">,</span>
+            <span class="s2">"pipeline_key"</span><span class="p">,</span>
             <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span>
 
     <span class="n">structure_version</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;HDF5StructureVersion&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;datasets&quot;</span>
+        <span class="s2">"HDF5StructureVersion"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"datasets"</span>
     <span class="p">)</span>
 
 <div class="viewcode-block" id="HDF5DataSet.__str__">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.hdf5_datasets.html#autowisp.database.data_model.HDF5DataSet.__str__">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.__str__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Human readable description.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Human readable description."""</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-            <span class="o">+</span> <span class="s2">&quot;:</span><span class="se">\n\t</span><span class="s2">&quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="o">+</span> <span class="s2">":</span><span class="se">\n\t</span><span class="s2">"</span>
+            <span class="o">+</span> <span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="s2">&quot;structure version ID = &quot;</span>
+                    <span class="s2">"structure version ID = "</span>
                     <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdf5_structure_version_id</span><span class="p">),</span>
-                    <span class="s2">&quot;pipeline key = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_key</span><span class="p">),</span>
-                    <span class="s2">&quot;|path| = &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abspath</span><span class="p">),</span>
-                    <span class="s2">&quot;dtype = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
-                    <span class="s2">&quot;compression = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">),</span>
-                    <span class="s2">&quot;compression options = &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compression_options</span><span class="p">),</span>
-                    <span class="s2">&quot;scale-offset = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaleoffset</span><span class="p">),</span>
-                    <span class="s2">&quot;shuffle = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">),</span>
-                    <span class="s2">&quot;replace non-finite = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replace_nonfinite</span><span class="p">),</span>
-                    <span class="s2">&quot;timestamp = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">),</span>
+                    <span class="s2">"pipeline key = "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_key</span><span class="p">),</span>
+                    <span class="s2">"|path| = "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abspath</span><span class="p">),</span>
+                    <span class="s2">"dtype = "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+                    <span class="s2">"compression = "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">),</span>
+                    <span class="s2">"compression options = "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compression_options</span><span class="p">),</span>
+                    <span class="s2">"scale-offset = "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaleoffset</span><span class="p">),</span>
+                    <span class="s2">"shuffle = "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">),</span>
+                    <span class="s2">"replace non-finite = "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replace_nonfinite</span><span class="p">),</span>
+                    <span class="s2">"timestamp = "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
         <span class="p">)</span></div>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.error_persistence &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.error_persistence</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Persist AutoWISP errors as a queryable row plus a JSON sidecar.</span>
+<span></span><span class="sd">"""Persist AutoWISP errors as a queryable row plus a JSON sidecar.</span>
 
 <span class="sd">Each persisted error becomes a small, queryable</span>
 <span class="sd">:class:`~autowisp.database.data_model.error.Error` row (the fields list</span>
@@ -175,9 +175,9 @@
 
 <span class="sd">Two hard rules: persisting an error **never raises** (recording a</span>
 <span class="sd">failure must not cause a second one), and **only the main process**</span>
-<span class="sd">writes -- a worker&#39;s exception is already marshalled back to the main</span>
+<span class="sd">writes -- a worker's exception is already marshalled back to the main</span>
 <span class="sd">process before the top-level handler calls :func:`persist_error`.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
@@ -205,7 +205,7 @@
     <span class="n">sanitize_for_json</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 2f01f813ce11ec013c45e40941b006cd265e55b6 $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">"$Id: 2f01f813ce11ec013c45e40941b006cd265e55b6 $"</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -213,17 +213,17 @@
 <div class="viewcode-block" id="_resolve_artifact_fks">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence._resolve_artifact_fks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_artifact_fks</span><span class="p">(</span><span class="n">related_files</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map related files to known artifact rows (best-effort).</span>
+<span class="w">    </span><span class="sd">"""Map related files to known artifact rows (best-effort).</span>
 
 <span class="sd">    Resolves only artifacts that are genuine database rows with a stored</span>
 <span class="sd">    path: a related file whose path matches ``Image.raw_fname`` gives the</span>
 <span class="sd">    image, one matching ``MasterFile.filename`` gives the master. DR</span>
 <span class="sd">    files, calibrated images, and lightcurves are HDF5 files with no row,</span>
-<span class="sd">    so they are not linked here -- they remain in the sidecar&#39;s</span>
+<span class="sd">    so they are not linked here -- they remain in the sidecar's</span>
 <span class="sd">    related-file list by path.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        related_files(Sequence[RelatedFile]):    The error&#39;s related</span>
+<span class="sd">        related_files(Sequence[RelatedFile]):    The error's related</span>
 <span class="sd">            files.</span>
 
 <span class="sd">        db_session:    Active database session.</span>
@@ -231,9 +231,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple:    ``(image_id, master_file_id)``, each ``None`` if no</span>
 <span class="sd">            related file maps to such a row.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="c1"># as_posix() so matching against the DB&#39;s forward-slash paths works on</span>
+    <span class="c1"># as_posix() so matching against the DB's forward-slash paths works on</span>
     <span class="c1"># Windows too (str() would emit backslashes). RelatedFile coerces path to</span>
     <span class="c1"># a Path in its constructor, so this is safe.</span>
     <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">related</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">related</span> <span class="ow">in</span> <span class="n">related_files</span><span class="p">]</span>
@@ -254,25 +254,25 @@
 <div class="viewcode-block" id="_error_bucket">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence._error_bucket">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_error_bucket</span><span class="p">(</span><span class="n">exc</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the sidecar sub-directory name for ``exc``.</span>
+<span class="w">    </span><span class="sd">"""Return the sidecar sub-directory name for ``exc``.</span>
 
-<span class="sd">    Bucketing by run keeps directories small and makes &quot;drop everything</span>
-<span class="sd">    from run 88&quot; a single ``rmtree``. Errors with no run go to ``bui`` or</span>
+<span class="sd">    Bucketing by run keeps directories small and makes "drop everything</span>
+<span class="sd">    from run 88" a single ``rmtree``. Errors with no run go to ``bui`` or</span>
 <span class="sd">    ``cli`` by component.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">component</span> <span class="ow">is</span> <span class="n">Component</span><span class="o">.</span><span class="n">BUI</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;bui&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;cli&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"bui"</span>
+    <span class="k">return</span> <span class="s2">"cli"</span></div>
 
 
 
 <div class="viewcode-block" id="_build_error_row">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence._build_error_row">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_error_row</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the inline ``Error`` row (without ``sidecar_path``).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build the inline ``Error`` row (without ``sidecar_path``)."""</span>
 
     <span class="n">image_id</span><span class="p">,</span> <span class="n">master_file_id</span> <span class="o">=</span> <span class="n">_resolve_artifact_fks</span><span class="p">(</span>
         <span class="n">exc</span><span class="o">.</span><span class="n">related_files</span><span class="p">,</span> <span class="n">db_session</span>
@@ -282,7 +282,7 @@
             <span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">pipeline_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="p">),</span>
         <span class="n">component</span><span class="o">=</span><span class="n">exc</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-        <span class="n">step_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="s2">&quot;step_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">step_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="s2">"step_name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="n">exception_class</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
         <span class="n">image_id</span><span class="o">=</span><span class="n">image_id</span><span class="p">,</span>
         <span class="n">master_file_id</span><span class="o">=</span><span class="n">master_file_id</span><span class="p">,</span>
@@ -296,7 +296,7 @@
 <div class="viewcode-block" id="_write_sidecar">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence._write_sidecar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_sidecar</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">error_id</span><span class="p">,</span> <span class="n">bucket</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">gzip_threshold</span><span class="o">=</span><span class="mi">64</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Atomically write the sidecar JSON and return its relative path.</span>
+<span class="w">    </span><span class="sd">"""Atomically write the sidecar JSON and return its relative path.</span>
 
 <span class="sd">    The payload is written to a ``.tmp`` file and then ``os.replace``d</span>
 <span class="sd">    into place, so a reader never sees a half-written file. Payloads above</span>
@@ -315,10 +315,10 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str:    The sidecar path relative to the project home.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">project_home</span> <span class="o">=</span> <span class="n">get_project_home</span><span class="p">()</span>
-    <span class="n">relative_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="n">bucket</span><span class="p">)</span>
+    <span class="n">relative_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"errors"</span><span class="p">,</span> <span class="n">bucket</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">relative_dir</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># The environment is captured *here* -- in the process that hit the</span>
@@ -326,18 +326,18 @@
     <span class="c1"># that actually produced the failure, not whatever is installed when</span>
     <span class="c1"># the report is built later (see ``collect_environment``).</span>
     <span class="n">detail</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">to_detail_dict</span><span class="p">()</span>
-    <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;environment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collect_environment</span><span class="p">()</span>
+    <span class="n">detail</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span> <span class="o">=</span> <span class="n">collect_environment</span><span class="p">()</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">detail</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">sanitize_for_json</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
-        <span class="s2">&quot;utf-8&quot;</span>
+        <span class="s2">"utf-8"</span>
     <span class="p">)</span>
 
-    <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;.json.gz&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">gzip_threshold</span> <span class="k">else</span> <span class="s2">&quot;.json&quot;</span>
-    <span class="n">relative_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relative_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">error_id</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s2">".json.gz"</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">gzip_threshold</span> <span class="k">else</span> <span class="s2">".json"</span>
+    <span class="n">relative_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relative_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">error_id</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">absolute_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">relative_path</span><span class="p">)</span>
-    <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">absolute_path</span> <span class="o">+</span> <span class="s2">&quot;.tmp&quot;</span>
+    <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">absolute_path</span> <span class="o">+</span> <span class="s2">".tmp"</span>
 
-    <span class="n">opener</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="k">if</span> <span class="n">suffix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">open</span>
-    <span class="k">with</span> <span class="n">opener</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">sidecar</span><span class="p">:</span>
+    <span class="n">opener</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="k">if</span> <span class="n">suffix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".gz"</span><span class="p">)</span> <span class="k">else</span> <span class="nb">open</span>
+    <span class="k">with</span> <span class="n">opener</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">sidecar</span><span class="p">:</span>
         <span class="n">sidecar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">absolute_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">relative_path</span></div>
@@ -347,11 +347,11 @@
 <div class="viewcode-block" id="persist_error">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence.persist_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">persist_error</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sidecar_gzip_threshold</span><span class="o">=</span><span class="mi">64</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist ``exc`` as an ``Error`` row plus a JSON sidecar.</span>
+<span class="w">    </span><span class="sd">"""Persist ``exc`` as an ``Error`` row plus a JSON sidecar.</span>
 
 <span class="sd">    Best-effort and never raises. The row is committed first, so it</span>
 <span class="sd">    survives even if the sidecar write later fails (its ``sidecar_path``</span>
-<span class="sd">    then stays NULL and readers treat it as &quot;inline fields only&quot;). Only</span>
+<span class="sd">    then stays NULL and readers treat it as "inline fields only"). Only</span>
 <span class="sd">    the parent process should call this.</span>
 
 <span class="sd">    Args:</span>
@@ -363,7 +363,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        int or None:    The new ``Error.id``, or ``None`` if even the row</span>
 <span class="sd">            insert failed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">error_id</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
@@ -373,7 +373,7 @@
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">error_id</span> <span class="o">=</span> <span class="n">error_row</span><span class="o">.</span><span class="n">id</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to record error row for </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"Failed to record error row for </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -391,7 +391,7 @@
             <span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-            <span class="s2">&quot;Failed to write error sidecar for error </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_id</span>
+            <span class="s2">"Failed to write error sidecar for error </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">error_id</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">error_id</span></div>
@@ -401,25 +401,25 @@
 <div class="viewcode-block" id="load_sidecar">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence.load_sidecar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_sidecar</span><span class="p">(</span><span class="n">error_row</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed sidecar detail for an ``Error`` row, or ``None``.</span>
+<span class="w">    </span><span class="sd">"""Return the parsed sidecar detail for an ``Error`` row, or ``None``.</span>
 
 <span class="sd">    The lazy read path: list views use only the inline columns; this is</span>
 <span class="sd">    called only when drilling into one error. A missing or unreadable</span>
-<span class="sd">    sidecar degrades to ``None`` (&quot;detail unavailable&quot;), never raises.</span>
+<span class="sd">    sidecar degrades to ``None`` ("detail unavailable"), never raises.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        error_row(Error):    The row whose sidecar to load.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict or None:    The parsed sidecar payload, or ``None``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">error_row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">absolute_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_project_home</span><span class="p">(),</span> <span class="n">error_row</span><span class="o">.</span><span class="n">sidecar_path</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">opener</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="k">if</span> <span class="n">absolute_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">open</span>
-        <span class="k">with</span> <span class="n">opener</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">sidecar</span><span class="p">:</span>
+        <span class="n">opener</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="k">if</span> <span class="n">absolute_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".gz"</span><span class="p">)</span> <span class="k">else</span> <span class="nb">open</span>
+        <span class="k">with</span> <span class="n">opener</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="s2">"rt"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">sidecar</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">sidecar</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span></div>
@@ -429,7 +429,7 @@
 <div class="viewcode-block" id="delete_error">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence.delete_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">delete_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete an error record entirely: its row and its sidecar file.</span>
+<span class="w">    </span><span class="sd">"""Delete an error record entirely: its row and its sidecar file.</span>
 
 <span class="sd">    A no-op if the row does not exist. Safe to call from a user action.</span>
 
@@ -440,7 +440,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool:    True if a row was deleted, False if none was found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
@@ -459,19 +459,19 @@
 <div class="viewcode-block" id="delete_all_error_sidecars">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence.delete_all_error_sidecars">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">delete_all_error_sidecars</span><span class="p">(</span><span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete the sidecar file of every recorded error.</span>
+<span class="w">    </span><span class="sd">"""Delete the sidecar file of every recorded error.</span>
 
 <span class="sd">    Used when a project is deleted: removes exactly the files error</span>
 <span class="sd">    persistence wrote (one per ``Error`` row), leaving any unrelated files</span>
 <span class="sd">    under the ``errors`` directory untouched. The emptied directories are</span>
-<span class="sd">    cleaned up by the caller&#39;s directory pruning.</span>
+<span class="sd">    cleaned up by the caller's directory pruning.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        db_session:    Optional active session; one is opened if omitted.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">own_session</span><span class="p">:</span>
@@ -494,7 +494,7 @@
 <div class="viewcode-block" id="parse_duration">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence.parse_duration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_duration</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a compact duration like ``30d`` / ``12h`` / ``2w`` to timedelta.</span>
+<span class="w">    </span><span class="sd">"""Parse a compact duration like ``30d`` / ``12h`` / ``2w`` to timedelta.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        text(str):    An integer followed by a unit (``s``/``m``/``h``/</span>
@@ -505,13 +505,13 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError:    If ``text`` is not a recognized duration.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">unit_seconds</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">604800</span><span class="p">}</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*(\d+)\s*([smhdw])\s*&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">unit_seconds</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"s"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"m"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">:</span> <span class="mi">604800</span><span class="p">}</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s*(\d+)\s*([smhdw])\s*"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid duration </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">; expected e.g. &#39;30d&#39;, &#39;12h&#39;, &#39;2w&#39;.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Invalid duration </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">; expected e.g. '30d', '12h', '2w'."</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">unit_seconds</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span></div>
 
@@ -520,7 +520,7 @@
 <div class="viewcode-block" id="_safe_unlink">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence._safe_unlink">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_safe_unlink</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove ``path`` if present, swallowing OS errors. Returns success.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Remove ``path`` if present, swallowing OS errors. Returns success."""</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -528,7 +528,7 @@
     <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not remove </span><span class="si">%r</span><span class="s2"> during cleanup.&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Could not remove </span><span class="si">%r</span><span class="s2"> during cleanup."</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
@@ -536,7 +536,7 @@
 <div class="viewcode-block" id="_row_age">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence._row_age">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_row_age</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The time an error row is dated by: its crash time, else write time.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The time an error row is dated by: its crash time, else write time."""</span>
 
     <span class="n">when</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">created</span> <span class="ow">or</span> <span class="n">row</span><span class="o">.</span><span class="n">timestamp</span>
     <span class="k">if</span> <span class="n">when</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">when</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -548,7 +548,7 @@
 <div class="viewcode-block" id="_iter_sidecar_files">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence._iter_sidecar_files">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_sidecar_files</span><span class="p">(</span><span class="n">errors_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield ``(absolute_path, basename)`` for every file under errors_dir.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Yield ``(absolute_path, basename)`` for every file under errors_dir."""</span>
 
     <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">errors_dir</span><span class="p">):</span>
         <span class="n">bucket_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors_dir</span><span class="p">,</span> <span class="n">bucket</span><span class="p">)</span>
@@ -562,7 +562,7 @@
 <div class="viewcode-block" id="cleanup_errors">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence.cleanup_errors">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_errors</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">older_than</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prune persisted errors: aged rows, orphan files, dangling rows.</span>
+<span class="w">    </span><span class="sd">"""Prune persisted errors: aged rows, orphan files, dangling rows.</span>
 
 <span class="sd">    Three passes, all best-effort:</span>
 
@@ -581,12 +581,12 @@
 <span class="sd">            the aged-row pass and only sweeps orphans/dangling rows.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    Counts ``{&quot;removed_rows&quot;, &quot;removed_files&quot;,</span>
-<span class="sd">            &quot;cleared_dangling&quot;}``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        dict:    Counts under the keys ``removed_rows``,</span>
+<span class="sd">            ``removed_files`` and ``cleared_dangling``.</span>
+<span class="sd">    """</span>
 
     <span class="n">project_home</span> <span class="o">=</span> <span class="n">get_project_home</span><span class="p">()</span>
-    <span class="n">errors_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="s2">&quot;errors&quot;</span><span class="p">)</span>
+    <span class="n">errors_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="s2">"errors"</span><span class="p">)</span>
     <span class="n">removed_rows</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">removed_files</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">cleared_dangling</span> <span class="o">=</span> <span class="mi">0</span>
@@ -627,9 +627,9 @@
                     <span class="n">removed_files</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;removed_rows&quot;</span><span class="p">:</span> <span class="n">removed_rows</span><span class="p">,</span>
-        <span class="s2">&quot;removed_files&quot;</span><span class="p">:</span> <span class="n">removed_files</span><span class="p">,</span>
-        <span class="s2">&quot;cleared_dangling&quot;</span><span class="p">:</span> <span class="n">cleared_dangling</span><span class="p">,</span>
+        <span class="s2">"removed_rows"</span><span class="p">:</span> <span class="n">removed_rows</span><span class="p">,</span>
+        <span class="s2">"removed_files"</span><span class="p">:</span> <span class="n">removed_files</span><span class="p">,</span>
+        <span class="s2">"cleared_dangling"</span><span class="p">:</span> <span class="n">cleared_dangling</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -637,33 +637,33 @@
 <div class="viewcode-block" id="cleanup_main">
 <a class="viewcode-back" href="../../implementation/autowisp.error_persistence.html#autowisp.error_persistence.cleanup_main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI entry point for ``wisp-cleanup-errors``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""CLI entry point for ``wisp-cleanup-errors``."""</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;wisp-cleanup-errors&quot;</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"wisp-cleanup-errors"</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;Prune persisted pipeline errors: delete error records older &quot;</span>
-            <span class="s2">&quot;than a cutoff and clean up orphaned sidecar files.&quot;</span>
+            <span class="s2">"Prune persisted pipeline errors: delete error records older "</span>
+            <span class="s2">"than a cutoff and clean up orphaned sidecar files."</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;project_home&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the project home directory.&quot;</span>
+        <span class="s2">"project_home"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to the project home directory."</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--older-than&quot;</span><span class="p">,</span>
+        <span class="s2">"--older-than"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">parse_duration</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Delete errors older than this (e.g. &#39;30d&#39;, &#39;12h&#39;, &#39;2w&#39;). &quot;</span>
-        <span class="s2">&quot;Omit to only sweep orphan files and dangling rows.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Delete errors older than this (e.g. '30d', '12h', '2w'). "</span>
+        <span class="s2">"Omit to only sweep orphan files and dangling rows."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="n">set_project_home</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_home</span><span class="p">)</span>
     <span class="n">summary</span> <span class="o">=</span> <span class="n">cleanup_errors</span><span class="p">(</span><span class="n">older_than</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">older_than</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="s2">&quot;Removed </span><span class="si">{removed_rows}</span><span class="s2"> error row(s), </span><span class="si">{removed_files}</span><span class="s2"> orphan &quot;</span>
-        <span class="s2">&quot;file(s); cleared </span><span class="si">{cleared_dangling}</span><span class="s2"> dangling sidecar &quot;</span>
-        <span class="s2">&quot;reference(s).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">summary</span><span class="p">)</span>
+        <span class="s2">"Removed </span><span class="si">{removed_rows}</span><span class="s2"> error row(s), </span><span class="si">{removed_files}</span><span class="s2"> orphan "</span>
+        <span class="s2">"file(s); cleared </span><span class="si">{cleared_dangling}</span><span class="s2"> dangling sidecar "</span>
+        <span class="s2">"reference(s)."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">summary</span><span class="p">)</span>
     <span class="p">)</span></div>
 
 </pre></div>

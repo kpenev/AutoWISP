@@ -3,5 +3,5 @@ autowisp.browser\_interface.diagnostics.expression\_data module
 
 .. automodule:: autowisp.browser_interface.diagnostics.expression_data
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

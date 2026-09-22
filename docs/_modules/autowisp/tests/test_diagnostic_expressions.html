@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_diagnostic_expressions &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,24 +165,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_diagnostic_expressions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tests for stored diagnostic expressions.</span>
+<span></span><span class="sd">"""Tests for stored diagnostic expressions.</span>
 
 <span class="sd">Only what is specific to the model lives here.  That it carries ``created``</span>
 <span class="sd">and ``modified``, and that they are maintained however the row is written,</span>
 <span class="sd">is covered once for every browser-interface model by ``test_bui_models``.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">django</span>
 
-<span class="n">_browser_interface</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;browser_interface&quot;</span>
-<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">_browser_interface</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_browser_interface</span><span class="p">))</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;DJANGO_SETTINGS_MODULE&quot;</span><span class="p">,</span> <span class="s2">&quot;django_project.settings&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+    <span class="s2">"DJANGO_SETTINGS_MODULE"</span><span class="p">,</span>
+    <span class="s2">"autowisp.browser_interface.django_project.settings"</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">django</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
 <span class="c1"># pylint: disable=wrong-import-position</span>
@@ -191,8 +189,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.core.management</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_command</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegrityError</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">diagnostics.expression_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_expressions</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">diagnostics.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.expression_data</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_expressions</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.diagnostics.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpression</span>
 
 <span class="c1"># pylint: enable=wrong-import-position</span>
 
@@ -200,16 +200,16 @@
 <div class="viewcode-block" id="DiagnosticExpressionTestCase">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DiagnosticExpressionTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base migrating the throwaway browser-interface database.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base migrating the throwaway browser-interface database."""</span>
 
 <div class="viewcode-block" id="DiagnosticExpressionTestCase.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase.setUpClass">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="s2">&quot;autowisp_tests_&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;NAME&quot;</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;refusing to run against a real browser-interface database&quot;</span>
-        <span class="n">call_command</span><span class="p">(</span><span class="s2">&quot;migrate&quot;</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="s2">"autowisp_tests_"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span><span class="p">[</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"NAME"</span><span class="p">]</span>
+        <span class="p">),</span> <span class="s2">"refusing to run against a real browser-interface database"</span>
+        <span class="n">call_command</span><span class="p">(</span><span class="s2">"migrate"</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DiagnosticExpressionTestCase.setUp">
@@ -221,8 +221,8 @@
 
 <div class="viewcode-block" id="DiagnosticExpressionTestCase.make">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.DiagnosticExpressionTestCase.make">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;astrom_residual / diagonal_fov&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store one expression.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">"astrom_residual / diagonal_fov"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Store one expression."""</span>
 
         <span class="c1"># pylint: disable=no-member</span>
         <span class="k">return</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
@@ -235,34 +235,34 @@
 <div class="viewcode-block" id="TestNameSpace">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestNameSpace</span><span class="p">(</span><span class="n">DiagnosticExpressionTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Names have to behave like the diagnostic names they sit beside.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Names have to behave like the diagnostic names they sit beside."""</span>
 
 <div class="viewcode-block" id="TestNameSpace.test_name_is_unique">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_name_is_unique">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_name_is_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Two expressions cannot share a name.</span>
+<span class="w">        </span><span class="sd">"""Two expressions cannot share a name.</span>
 
 <span class="sd">        The name is what a selector and a URL carry, and what other</span>
 <span class="sd">        expressions reference, so a duplicate would be ambiguous in three</span>
 <span class="sd">        places at once.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;rel_astrom_residual&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"rel_astrom_residual"</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">IntegrityError</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;rel_astrom_residual&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_center&quot;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"rel_astrom_residual"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestNameSpace.test_name_must_survive_a_url">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_name_must_survive_a_url">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_name_must_survive_a_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rejected unless it is a slug.</span>
+<span class="w">        </span><span class="sd">"""Rejected unless it is a slug.</span>
 
 <span class="sd">        Expressions are selected through ``image/&lt;slug:x&gt;/vs/&lt;slug:y&gt;``, so</span>
 <span class="sd">        a name outside the slug charset could be stored but never plotted.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">expression</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;not a slug!&quot;</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;bg_center&quot;</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"not a slug!"</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">"bg_center"</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">ValidationError</span><span class="p">):</span>
             <span class="n">expression</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span></div>
@@ -271,12 +271,12 @@
 <div class="viewcode-block" id="TestNameSpace.test_a_slug_name_is_accepted">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestNameSpace.test_a_slug_name_is_accepted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_a_slug_name_is_accepted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The names the documentation suggests actually validate.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The names the documentation suggests actually validate."""</span>
 
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rel_astrom_residual&quot;</span><span class="p">,</span> <span class="s2">&quot;bg-relative&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q999_ratio&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"rel_astrom_residual"</span><span class="p">,</span> <span class="s2">"bg-relative"</span><span class="p">,</span> <span class="s2">"pixel_q999_ratio"</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
                 <span class="n">DiagnosticExpression</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;bg_center&quot;</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="s2">"bg_center"</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span></div>
 </div>
 
@@ -285,57 +285,57 @@
 <div class="viewcode-block" id="TestStoredFields">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestStoredFields</span><span class="p">(</span><span class="n">DiagnosticExpressionTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;What the model keeps, and what it deliberately does not check.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""What the model keeps, and what it deliberately does not check."""</span>
 
 <div class="viewcode-block" id="TestStoredFields.test_description_is_optional">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_description_is_optional">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_description_is_optional</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Most expressions are self-explanatory from their text.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Most expressions are self-explanatory from their text."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;terse&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"terse"</span><span class="p">)</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="TestStoredFields.test_unknown_names_are_not_rejected_here">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_unknown_names_are_not_rejected_here">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_names_are_not_rejected_here</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The model stores text; resolving names is not its job.</span>
+<span class="w">        </span><span class="sd">"""The model stores text; resolving names is not its job.</span>
 
 <span class="sd">        An expression may legitimately reference diagnostics the open</span>
 <span class="sd">        project has never recorded -- it is then simply not offered there --</span>
 <span class="sd">        so validating against a project database at this level would be</span>
 <span class="sd">        wrong.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;references_nothing_real&quot;</span><span class="p">,</span> <span class="s2">&quot;no_such_diagnostic * 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"references_nothing_real"</span><span class="p">,</span> <span class="s2">"no_such_diagnostic * 2"</span><span class="p">)</span>
         <span class="c1"># pylint: disable=no-member</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;references_nothing_real&quot;</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"references_nothing_real"</span>
             <span class="p">)</span><span class="o">.</span><span class="n">expression</span><span class="p">,</span>
-            <span class="s2">&quot;no_such_diagnostic * 2&quot;</span><span class="p">,</span>
+            <span class="s2">"no_such_diagnostic * 2"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestStoredFields.test_ordering_is_by_name">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_ordering_is_by_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_ordering_is_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The management page lists them alphabetically.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The management page lists them alphabetically."""</span>
 
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;zeta&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;mu&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"zeta"</span><span class="p">,</span> <span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"mu"</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="c1"># pylint: disable=no-member</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">DiagnosticExpression</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()],</span>
-            <span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;zeta&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"mu"</span><span class="p">,</span> <span class="s2">"zeta"</span><span class="p">],</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestStoredFields.test_str_is_the_name">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestStoredFields.test_str_is_the_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_str_is_the_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;What the admin and any error message will show.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""What the admin and any error message will show."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;readable&quot;</span><span class="p">)),</span> <span class="s2">&quot;readable&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"readable"</span><span class="p">)),</span> <span class="s2">"readable"</span><span class="p">)</span></div>
 </div>
 
 
@@ -343,17 +343,17 @@
 <div class="viewcode-block" id="TestLibraryAccess">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestLibraryAccess</span><span class="p">(</span><span class="n">DiagnosticExpressionTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``get_expressions`` -- the whole of tier 3.</span>
+<span class="w">    </span><span class="sd">"""``get_expressions`` -- the whole of tier 3.</span>
 
 <span class="sd">    What it produces is the ``{name: expression}`` dictionary tiers 1 and 2</span>
 <span class="sd">    take as an argument, so these assert the *shape* of that hand-off rather</span>
 <span class="sd">    than anything about expressions, which is tested where the rules live.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestLibraryAccess.test_empty_library_is_a_dictionary">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_empty_library_is_a_dictionary">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_library_is_a_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not ``None``: the tiers below iterate it without checking.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Not ``None``: the tiers below iterate it without checking."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">get_expressions</span><span class="p">(),</span> <span class="p">{})</span></div>
 
@@ -361,16 +361,16 @@
 <div class="viewcode-block" id="TestLibraryAccess.test_names_map_to_their_text">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_names_map_to_their_text">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_names_map_to_their_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape tiers 1 and 2 expect, and nothing more.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The shape tiers 1 and 2 expect, and nothing more."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;rel_bg&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_center - nanmedian(bg_center)&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;twice_bg&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_center * 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"rel_bg"</span><span class="p">,</span> <span class="s2">"bg_center - nanmedian(bg_center)"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"twice_bg"</span><span class="p">,</span> <span class="s2">"bg_center * 2"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">get_expressions</span><span class="p">(),</span>
             <span class="p">{</span>
-                <span class="s2">&quot;rel_bg&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center - nanmedian(bg_center)&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;twice_bg&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_center * 2&quot;</span><span class="p">,</span>
+                <span class="s2">"rel_bg"</span><span class="p">:</span> <span class="s2">"bg_center - nanmedian(bg_center)"</span><span class="p">,</span>
+                <span class="s2">"twice_bg"</span><span class="p">:</span> <span class="s2">"bg_center * 2"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span></div>
 
@@ -378,21 +378,21 @@
 <div class="viewcode-block" id="TestLibraryAccess.test_the_whole_library_regardless_of_what_resolves">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_expressions.html#autowisp.tests.test_diagnostic_expressions.TestLibraryAccess.test_the_whole_library_regardless_of_what_resolves">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_the_whole_library_regardless_of_what_resolves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filtering by project would need a project, which tier 3 lacks.</span>
+<span class="w">        </span><span class="sd">"""Filtering by project would need a project, which tier 3 lacks.</span>
 
 <span class="sd">        An expression naming a diagnostic nothing has recorded is not an</span>
 <span class="sd">        error; it is simply not offered where it cannot be drawn, and</span>
-<span class="sd">        deciding that belongs to whoever holds the project&#39;s names.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        deciding that belongs to whoever holds the project's names.</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;references_nothing_real&quot;</span><span class="p">,</span> <span class="s2">&quot;no_such_diagnostic * 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"references_nothing_real"</span><span class="p">,</span> <span class="s2">"no_such_diagnostic * 2"</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;references_nothing_real&quot;</span><span class="p">,</span> <span class="n">get_expressions</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"references_nothing_real"</span><span class="p">,</span> <span class="n">get_expressions</span><span class="p">())</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

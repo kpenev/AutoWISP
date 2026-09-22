@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.FitTermsLexer module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,109 +172,109 @@
 <span id="autowisp-fit-expression-fittermslexer-module"></span><h1>autowisp.fit_expression.FitTermsLexer module<a class="headerlink" href="#module-autowisp.fit_expression.FitTermsLexer" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-31daa7e7a7367dc95c73d95c8408c095c5cd9bd8.png" alt="Inheritance diagram of ATN, ATNDeserializer, BailErrorStrategy, CommonTokenStream, DFA, DiagnosticErrorListener, ErrorNode, FileStream, FitTermsLexer, IllegalStateException, InputStream, Lexer, LexerATNSimulator, NoViableAltException, ParseTreeListener, ParseTreeVisitor, ParseTreeWalker, Parser, ParserATNSimulator, ParserRuleContext, PredictionContextCache, PredictionMode, RecognitionException, RuleContext, RuleNode, StdinStream, StringIO, TerminalNode, TextIO, Token, TokenStream" usemap="#inheritancea62cae5faf" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-8b63d4032501937a8d4e47ffc39dfc28add2270b.png" alt="Inheritance diagram of ATN, ATNDeserializer, BailErrorStrategy, CommonTokenStream, DFA, DiagnosticErrorListener, ErrorNode, FileStream, FitTermsLexer, IllegalStateException, InputStream, Lexer, LexerATNSimulator, NoViableAltException, ParseTreeListener, ParseTreeVisitor, ParseTreeWalker, Parser, ParserATNSimulator, ParserRuleContext, PredictionContextCache, PredictionMode, RecognitionException, RuleContext, RuleNode, StdinStream, StringIO, TerminalNode, TextIO, Token, TokenStream" usemap="#inheritancea62cae5faf" class="inheritance graphviz" /></div>
 <map id="inheritancea62cae5faf" name="inheritancea62cae5faf">
-<area shape="rect" id="node41" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer" target="_top" title="autowisp.fit_expression.FitTermsLexer.FitTermsLexer" alt="" coords="768,155,1101,181"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="2906,5,2998,32"/>
-<area shape="rect" id="node42" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="5063,5,5168,32"/>
-<area shape="rect" id="node43" href="https://docs.python.org/3/library/typing.html#typing.IO" target="_top" title="Generic base class for TextIO and BinaryIO." alt="" coords="5079,80,5153,107"/>
-<area shape="rect" id="node44" href="https://docs.python.org/3/library/typing.html#typing.TextIO" target="_top" title="Typed version of the return of open() in text mode." alt="" coords="5066,155,5166,181"/>
+<area shape="rect" id="node41" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer" target="_top" title="autowisp.fit_expression.FitTermsLexer.FitTermsLexer" alt="" coords="842,152,1205,177"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="3163,5,3263,31"/>
+<area shape="rect" id="node42" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="5515,5,5633,31"/>
+<area shape="rect" id="node43" href="https://docs.python.org/3/library/typing.html#typing.IO" target="_top" title="Generic base class for TextIO and BinaryIO." alt="" coords="5533,79,5615,104"/>
+<area shape="rect" id="node44" href="https://docs.python.org/3/library/typing.html#typing.TextIO" target="_top" title="Typed approximation of the return of open() in text mode." alt="" coords="5520,152,5628,177"/>
 </map></section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.fit_expression.FitTermsLexer.</span></span><span class="sig-name descname"><span class="pre">FitTermsLexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output:</span> <span class="pre">~typing.TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/fit_expression/FitTermsLexer.html#FitTermsLexer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.fit_expression.FitTermsLexer.</span></span><span class="sig-name descname"><span class="pre">FitTermsLexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.TextIO" title="(in Python v3.14)"><span class="pre">TextIO</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/fit_expression/FitTermsLexer.html#FitTermsLexer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Lexer</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-50968488b0ab2c816f0a30c836a840ab24ee56bb.png" alt="Inheritance diagram of autowisp.fit_expression.FitTermsLexer.FitTermsLexer" usemap="#inheritance3841ec6afc" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-638555c338aeb0dbcbcd5a7df146aa9c471b3caa.png" alt="Inheritance diagram of autowisp.fit_expression.FitTermsLexer.FitTermsLexer" usemap="#inheritance3841ec6afc" class="inheritance graphviz" /></div>
 <map id="inheritance3841ec6afc" name="inheritance3841ec6afc">
-<area shape="rect" id="node4" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer" target="_top" title="autowisp.fit_expression.FitTermsLexer.FitTermsLexer" alt="" coords="38,155,371,181"/>
+<area shape="rect" id="node4" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer" target="_top" title="autowisp.fit_expression.FitTermsLexer.FitTermsLexer" alt="" coords="40,152,403,177"/>
 </map><dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.CROSSPRODUCT">
-<span class="sig-name descname"><span class="pre">CROSSPRODUCT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.CROSSPRODUCT" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">CROSSPRODUCT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.CROSSPRODUCT" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.POLY_START">
-<span class="sig-name descname"><span class="pre">POLY_START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.POLY_START" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">POLY_START</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.POLY_START" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM">
-<span class="sig-name descname"><span class="pre">TERM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TERM</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST">
-<span class="sig-name descname"><span class="pre">TERM_LIST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TERM_LIST</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_END">
-<span class="sig-name descname"><span class="pre">TERM_LIST_END</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_END" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TERM_LIST_END</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_END" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_START">
-<span class="sig-name descname"><span class="pre">TERM_LIST_START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_START" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TERM_LIST_START</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_START" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_SEP">
-<span class="sig-name descname"><span class="pre">TERM_SEP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_SEP" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TERM_SEP</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_SEP" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UINT">
-<span class="sig-name descname"><span class="pre">UINT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UINT" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">UINT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UINT" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UNION">
-<span class="sig-name descname"><span class="pre">UNION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UNION" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">UNION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UNION" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.WS">
-<span class="sig-name descname"><span class="pre">WS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.WS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">WS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.WS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.atn">
-<span class="sig-name descname"><span class="pre">atn</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;antlr4.atn.ATN.ATN</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.atn" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">atn</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;antlr4.atn.ATN.ATN</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.atn" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.channelNames">
-<span class="sig-name descname"><span class="pre">channelNames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['DEFAULT_TOKEN_CHANNEL',</span> <span class="pre">'HIDDEN']</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.channelNames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">channelNames</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['DEFAULT_TOKEN_CHANNEL',</span> <span class="pre">'HIDDEN']</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.channelNames" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.decisionsToDFA">
-<span class="sig-name descname"><span class="pre">decisionsToDFA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;,</span> <span class="pre">&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;,</span> <span class="pre">&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;,</span> <span class="pre">&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;]</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.decisionsToDFA" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">decisionsToDFA</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;,</span> <span class="pre">&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;,</span> <span class="pre">&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;,</span> <span class="pre">&lt;antlr4.dfa.DFA.DFA</span> <span class="pre">object&gt;]</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.decisionsToDFA" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.grammarFileName">
-<span class="sig-name descname"><span class="pre">grammarFileName</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FitTermsLexer.g4'</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.grammarFileName" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">grammarFileName</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FitTermsLexer.g4'</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.grammarFileName" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.literalNames">
-<span class="sig-name descname"><span class="pre">literalNames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['&lt;INVALID&gt;',</span> <span class="pre">&quot;'{'&quot;,</span> <span class="pre">&quot;'O'&quot;,</span> <span class="pre">&quot;'*'&quot;,</span> <span class="pre">&quot;'+'&quot;,</span> <span class="pre">&quot;'}'&quot;,</span> <span class="pre">&quot;','&quot;]</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.literalNames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">literalNames</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['&lt;INVALID&gt;',</span> <span class="pre">&quot;'{'&quot;,</span> <span class="pre">&quot;'O'&quot;,</span> <span class="pre">&quot;'*'&quot;,</span> <span class="pre">&quot;'+'&quot;,</span> <span class="pre">&quot;'}'&quot;,</span> <span class="pre">&quot;','&quot;]</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.literalNames" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.modeNames">
-<span class="sig-name descname"><span class="pre">modeNames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['DEFAULT_MODE',</span> <span class="pre">'TERM_LIST']</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.modeNames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">modeNames</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['DEFAULT_MODE',</span> <span class="pre">'TERM_LIST']</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.modeNames" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.ruleNames">
-<span class="sig-name descname"><span class="pre">ruleNames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['TERM_LIST_START',</span> <span class="pre">'UINT',</span> <span class="pre">'POLY_START',</span> <span class="pre">'CROSSPRODUCT',</span> <span class="pre">'UNION',</span> <span class="pre">'WS',</span> <span class="pre">'TERM_LIST_END',</span> <span class="pre">'TERM_SEP',</span> <span class="pre">'TERM',</span> <span class="pre">'TERMCHAR']</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.ruleNames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ruleNames</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['TERM_LIST_START',</span> <span class="pre">'UINT',</span> <span class="pre">'POLY_START',</span> <span class="pre">'CROSSPRODUCT',</span> <span class="pre">'UNION',</span> <span class="pre">'WS',</span> <span class="pre">'TERM_LIST_END',</span> <span class="pre">'TERM_SEP',</span> <span class="pre">'TERM',</span> <span class="pre">'TERMCHAR']</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.ruleNames" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.fit_expression.FitTermsLexer.FitTermsLexer.symbolicNames">
-<span class="sig-name descname"><span class="pre">symbolicNames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['&lt;INVALID&gt;',</span> <span class="pre">'TERM_LIST_START',</span> <span class="pre">'UINT',</span> <span class="pre">'POLY_START',</span> <span class="pre">'CROSSPRODUCT',</span> <span class="pre">'UNION',</span> <span class="pre">'WS',</span> <span class="pre">'TERM_LIST_END',</span> <span class="pre">'TERM_SEP',</span> <span class="pre">'TERM']</span></em><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.symbolicNames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">symbolicNames</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['&lt;INVALID&gt;',</span> <span class="pre">'TERM_LIST_START',</span> <span class="pre">'UINT',</span> <span class="pre">'POLY_START',</span> <span class="pre">'CROSSPRODUCT',</span> <span class="pre">'UNION',</span> <span class="pre">'WS',</span> <span class="pre">'TERM_LIST_END',</span> <span class="pre">'TERM_SEP',</span> <span class="pre">'TERM']</span></span><a class="headerlink" href="#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.symbolicNames" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

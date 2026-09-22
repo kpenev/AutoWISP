@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.browser_interface.diagnostics.quantities &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.browser_interface.diagnostics.quantities</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.browser_interface.diagnostics.quantities</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Which quantities this project can draw, and what each one is.</span>
+
+<span class="sd">An axis, a row and a section all name a *quantity*: a recorded</span>
+<span class="sd">``DiagnosticType``, an expression built on top of one, or ``jd``. What</span>
+<span class="sd">exists to be named is a question about the open project rather than about</span>
+<span class="sd">any row, and it is asked once per page rather than once per row, which is</span>
+<span class="sd">why it is answered here and not in :mod:`series_table` -- that module is</span>
+<span class="sd">about what a row of the table means.</span>
+
+<span class="sd">Nothing here evaluates a quantity or knows what one is worth: reading</span>
+<span class="sd">values belongs to :mod:`autowisp.diagnostics.expression_series`, and what</span>
+<span class="sd">an expression *means* to :mod:`autowisp.diagnostics.expressions`. What is</span>
+<span class="sd">asked here is only which names are on offer.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_quantity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">order_expressions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span>
+
+<span class="c1"># False positive due to unusual importing</span>
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticType</span><span class="p">,</span> <span class="n">ImageDiagnostics</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+
+
+<div class="viewcode-block" id="get_recorded_diagnostics">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_recorded_diagnostics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the ``DiagnosticType`` names anything has recorded in this project.</span>
+
+<span class="sd">    A per-type ``EXISTS`` probe rather than a ``GROUP BY`` over the whole of</span>
+<span class="sd">    ``image_diagnostics``: the question is only which names are in use, and</span>
+<span class="sd">    the grouped form has to walk every row to answer it.</span>
+
+<span class="sd">    The names come back raw, individual ``pixel_q*`` entries included --</span>
+<span class="sd">    before :func:`get_available_diagnostics` collapses them into the family</span>
+<span class="sd">    name.  That is what an expression has to be judged against, since one</span>
+<span class="sd">    may reference a concrete quantile.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The names in use, in ``DiagnosticType`` order.</span>
+<span class="sd">    """</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">type_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>
+            <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span>
+        <span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">in_use</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">diagnostic_id</span> <span class="o">==</span> <span class="n">type_id</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">in_use</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">names</span></div>
+
+
+
+<div class="viewcode-block" id="get_available_diagnostics">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_available_diagnostics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_available_diagnostics</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return every quantity an axis may be set to.</span>
+
+<span class="sd">    One flat list rather than diagnostics and expressions kept apart: an</span>
+<span class="sd">    axis reads a name, and a recorded diagnostic is simply an expression of</span>
+<span class="sd">    itself as far as anything downstream is concerned.  Sharing one name</span>
+<span class="sd">    space is what lets the selectors, the URL and the series table treat</span>
+<span class="sd">    all of them alike, and it is why an expression may not take a</span>
+<span class="sd">    diagnostic's name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        recorded(list):    What :func:`get_recorded_diagnostics` found.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    ``jd``, then every recorded diagnostic, then the</span>
+<span class="sd">            expressions this project has the data to draw.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">[</span><span class="n">time_quantity</span><span class="p">]</span>
+        <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">recorded</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">recorded</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_available_expressions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_available_expressions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_available_expressions</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">recorded</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the expressions this project has the data to draw.</span>
+
+<span class="sd">    Availability, not validity.  Every stored expression is valid in every</span>
+<span class="sd">    project -- the vocabulary is the same everywhere, see</span>
+<span class="sd">    :mod:`autowisp.diagnostics.diagnostic_types` -- so filtering by</span>
+<span class="sd">    :func:`~autowisp.diagnostics.expressions.check_expression` would filter</span>
+<span class="sd">    nothing and offer all of them everywhere.  What decides whether one is</span>
+<span class="sd">    offered *here* is whether the diagnostics it reaches, transitively, have</span>
+<span class="sd">    actually been recorded.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">        recorded(list):    What :func:`get_recorded_diagnostics` found.</span>
+<span class="sd">            The raw names, since an expression may reference a concrete</span>
+<span class="sd">            ``pixel_q*`` rather than the family.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    The names whose every diagnostic is recorded here,</span>
+<span class="sd">            alphabetically.</span>
+<span class="sd">    """</span>
+
+    <span class="n">recorded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">recorded</span><span class="p">)</span>
+
+    <span class="n">available</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">expressions</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="n">name</span><span class="p">],</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">PipelineError</span><span class="p">:</span>
+            <span class="c1"># A stored cycle, or a name no version of AutoWISP defines.</span>
+            <span class="c1"># Saying so is the management page's business; here it is</span>
+            <span class="c1"># merely not offered, so that one broken expression cannot stop</span>
+            <span class="c1"># the plot page rendering.</span>
+            <span class="k">continue</span>
+        <span class="c1"># jd is known for every image of the canonical list, so it never</span>
+        <span class="c1"># counts against availability.</span>
+        <span class="k">if</span> <span class="n">needed</span> <span class="o">-</span> <span class="p">{</span><span class="n">time_quantity</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">recorded</span><span class="p">:</span>
+            <span class="n">available</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">available</span></div>
+
+
+
+<div class="viewcode-block" id="get_diagnostic_descriptions">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_diagnostic_descriptions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_diagnostic_descriptions</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return ``{name: description}`` for every recorded diagnostic type.</span>
+
+<span class="sd">    One query for the whole table rather than one per section: a page may</span>
+<span class="sd">    show any number of sections, and the table is small enough that asking</span>
+<span class="sd">    for all of it costs less than asking repeatedly.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    The descriptions, with the empty string where a type</span>
+<span class="sd">            records none.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">description</span> <span class="ow">or</span> <span class="s2">""</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="describe_quantity">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.describe_quantity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">describe_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">descriptions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what a section header says about the quantity it draws.</span>
+
+<span class="sd">    A collapsed section still has to say what is plotted in it, so that</span>
+<span class="sd">    the answer can be read rather than guessed from a name -- which for an</span>
+<span class="sd">    expression is whatever its author called it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name(str):    The quantity, as the selectors and the URL name it.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">        descriptions(dict):    What each name means: the recorded</span>
+<span class="sd">            diagnostics' descriptions and the expressions' together, as</span>
+<span class="sd">            :func:`get_diagnostic_descriptions` and</span>
+<span class="sd">            ``expression_data.get_expression_descriptions`` return them.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    ``name``, ``expression`` and ``description``. The</span>
+<span class="sd">            expression is empty for anything not built from one -- a</span>
+<span class="sd">            recorded diagnostic is a measurement rather than a formula,</span>
+<span class="sd">            and has none to show.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="s2">"expression"</span><span class="p">:</span> <span class="n">expressions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="s2">"Julian date of the exposure."</span> <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">time_quantity</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="c1">#: The markers a section's rows start with, in the order sections take</span>
+<span class="c1">#: them.  Points first and in falling order of how readily one is told</span>
+<span class="c1">#: from another at a glance, so that the commonest case -- two or three</span>
+<span class="c1">#: sections -- gets the clearest pairs.</span>
+<span class="n">section_markers</span> <span class="o">=</span> <span class="s2">"os^v&lt;&gt;x+"</span>
+
+
+<div class="viewcode-block" id="next_section_marker">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.next_section_marker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">next_section_marker</span><span class="p">(</span><span class="n">taken</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the marker a new section's rows should start with.</span>
+
+<span class="sd">    Telling quantities apart by shape and channels apart by colour is only</span>
+<span class="sd">    a starting point: every row's marker stays editable, so a user who</span>
+<span class="sd">    would rather tell them apart some other way sets it. What this decides</span>
+<span class="sd">    is what a section looks like before anyone touches it.</span>
+
+<span class="sd">    The first marker no section is using, so that one freed by a removed</span>
+<span class="sd">    section is taken up again rather than left idle while a later section</span>
+<span class="sd">    doubles up on one still in use. Once every marker is spoken for, they</span>
+<span class="sd">    cycle by the number of sections -- the ninth section repeating the</span>
+<span class="sd">    first marker, the tenth the second -- rather than piling every further</span>
+<span class="sd">    section onto the same one.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        taken(iterable):    The markers the sections already on the page</span>
+<span class="sd">            start with, one per section. Counted rather than deduplicated,</span>
+<span class="sd">            since the count is what the cycle turns on.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str:    The marker to start with.</span>
+<span class="sd">    """</span>
+
+    <span class="n">taken</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">taken</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">section_markers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">marker</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">taken</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">marker</span>
+
+    <span class="k">return</span> <span class="n">section_markers</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">taken</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">section_markers</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="get_quantile_names">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.quantities.html#autowisp.browser_interface.diagnostics.quantities.get_quantile_names">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_quantile_names</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the ``pixel_q*`` diagnostic names in use, quantile order."""</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="s2">"pixel_q%"</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

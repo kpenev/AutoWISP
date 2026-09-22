@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.diagnostics.diagnostic_types &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,13 +164,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.diagnostics.diagnostic_types</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;The catalogue of per-image diagnostics AutoWISP defines.</span>
+<span></span><span class="sd">"""The catalogue of per-image diagnostics AutoWISP defines.</span>
 
 <span class="sd">The vocabulary of diagnostic names, kept apart from the database that</span>
 <span class="sd">stores values against them.  Two quite different things want it:</span>
 
 <span class="sd">* :func:`autowisp.database.initialize_database._init_diagnostic_types`</span>
-<span class="sd">  seeds a new project&#39;s ``diagnostic_type`` table from it, which is why</span>
+<span class="sd">  seeds a new project's ``diagnostic_type`` table from it, which is why</span>
 <span class="sd">  the descriptions live here too rather than only the names.</span>
 <span class="sd">* :func:`autowisp.diagnostics.expressions.check_expression` needs to know</span>
 <span class="sd">  what a name in an expression may mean -- and needs to know it *without*</span>
@@ -192,7 +192,7 @@
 <span class="sd">Everything here is exposed as a cached function returning an immutable</span>
 <span class="sd">value rather than as a module-level constant, so that a caller cannot</span>
 <span class="sd">mutate the catalogue out from under every other caller in the process.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -203,7 +203,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.standard_diagnostic_types">[docs]</a>
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">standard_diagnostic_types</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return every diagnostic seeded into a new project.</span>
 
 <span class="sd">    A mapping rather than a sequence of pairs because that is what the</span>
@@ -213,76 +213,76 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        MappingProxyType:    Diagnostic name to its description. Read-only,</span>
 <span class="sd">            so it is safe to hand the same object to every caller.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="n">MappingProxyType</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;num_extracted_src&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;The number of extracted stars in the image&quot;</span><span class="p">),</span>
+            <span class="s2">"num_extracted_src"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"The number of extracted stars in the image"</span><span class="p">),</span>
             <span class="o">**</span><span class="p">{</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The smoothed source extraction </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;parameter at the center of the image&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"The smoothed source extraction </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="s2">"parameter at the center of the image"</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"s"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">,</span> <span class="s2">"k"</span><span class="p">)</span>
             <span class="p">},</span>
             <span class="o">**</span><span class="p">{</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_map_residual&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;RMS difference between source extraction &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> and smoothed </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> map&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_map_residual"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"RMS difference between source extraction "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> and smoothed </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> map"</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"s"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">,</span> <span class="s2">"k"</span><span class="p">)</span>
             <span class="p">},</span>
-            <span class="s2">&quot;bg_center&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The smoothed background level at the center of the image&quot;</span>
+            <span class="s2">"bg_center"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The smoothed background level at the center of the image"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;bg_map_residual&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;RMS difference between background and smoothed background &quot;</span>
-                <span class="s2">&quot;map&quot;</span>
+            <span class="s2">"bg_map_residual"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"RMS difference between background and smoothed background "</span>
+                <span class="s2">"map"</span>
             <span class="p">),</span>
             <span class="o">**</span><span class="p">{</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">descr</span><span class="si">}</span><span class="s2"> the center of the image according &quot;</span>
-                    <span class="s2">&quot;to the astrometric solution&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"The </span><span class="si">{</span><span class="n">descr</span><span class="si">}</span><span class="s2"> the center of the image according "</span>
+                    <span class="s2">"to the astrometric solution"</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">descr</span> <span class="ow">in</span> <span class="p">(</span>
-                    <span class="p">(</span><span class="s2">&quot;ra&quot;</span><span class="p">,</span> <span class="s2">&quot;right ascension of&quot;</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;dec&quot;</span><span class="p">,</span> <span class="s2">&quot;declination of&quot;</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="s2">&quot;zenith distance of&quot;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"ra"</span><span class="p">,</span> <span class="s2">"right ascension of"</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"dec"</span><span class="p">,</span> <span class="s2">"declination of"</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"z"</span><span class="p">,</span> <span class="s2">"zenith distance of"</span><span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">},</span>
-            <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The mean angular distance from the image center to its &quot;</span>
-                <span class="s2">&quot;four corners on the sky, used as a scale-independent &quot;</span>
-                <span class="s2">&quot;measure of the field of view&quot;</span>
+            <span class="s2">"diagonal_fov"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The mean angular distance from the image center to its "</span>
+                <span class="s2">"four corners on the sky, used as a scale-independent "</span>
+                <span class="s2">"measure of the field of view"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;pointing_offset&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The angular distance between the target and the center of &quot;</span>
-                <span class="s2">&quot;the image according to the astrometric solution&quot;</span>
+            <span class="s2">"pointing_offset"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The angular distance between the target and the center of "</span>
+                <span class="s2">"the image according to the astrometric solution"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;matched_fraction&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The fraction of extracted sources that were matched to &quot;</span>
-                <span class="s2">&quot;the reference catalog&quot;</span>
+            <span class="s2">"matched_fraction"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The fraction of extracted sources that were matched to "</span>
+                <span class="s2">"the reference catalog"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;astrom_residual&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The RMS distance between matched extracted sources and &quot;</span>
-                <span class="s2">&quot;their projected positions&quot;</span>
+            <span class="s2">"astrom_residual"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The RMS distance between matched extracted sources and "</span>
+                <span class="s2">"their projected positions"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;srcextract_mag_zeropt&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The zeropoint of the transformation between source &quot;</span>
-                <span class="s2">&quot;extraction flux and catalog magnitude (the magnitude &quot;</span>
-                <span class="s2">&quot;corresponding to a flux of 1 ADU)&quot;</span>
+            <span class="s2">"srcextract_mag_zeropt"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The zeropoint of the transformation between source "</span>
+                <span class="s2">"extraction flux and catalog magnitude (the magnitude "</span>
+                <span class="s2">"corresponding to a flux of 1 ADU)"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;magfit_residual&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The RMS difference between best fit correction using the &quot;</span>
-                <span class="s2">&quot;final master photometric reference.&quot;</span>
+            <span class="s2">"magfit_residual"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The RMS difference between best fit correction using the "</span>
+                <span class="s2">"final master photometric reference."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;photometry_mag_offset&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The best-fit offset between the image magnitude and &quot;</span>
-                <span class="s2">&quot;the reference magnitude in magnitude fit.&quot;</span>
+            <span class="s2">"photometry_mag_offset"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The best-fit offset between the image magnitude and "</span>
+                <span class="s2">"the reference magnitude in magnitude fit."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;mag_fit_num_stars&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The number of stars used in the last magnitude fit &quot;</span>
-                <span class="s2">&quot;iteration for this image&quot;</span>
+            <span class="s2">"mag_fit_num_stars"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The number of stars used in the last magnitude fit "</span>
+                <span class="s2">"iteration for this image"</span>
             <span class="p">),</span>
         <span class="p">}</span>
     <span class="p">)</span></div>
@@ -293,12 +293,12 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.standard_diagnostic_names">[docs]</a>
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">standard_diagnostic_names</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return just the names, which is all validating an expression needs.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        frozenset:    The seeded diagnostic names.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">standard_diagnostic_types</span><span class="p">())</span></div>
 
@@ -310,13 +310,13 @@
 <span class="c1">#: time. Digits are required and the match anchored, so ``pixel_q999`` is</span>
 <span class="c1">#: recognised while a plausible future diagnostic such as ``pixel_quality``</span>
 <span class="c1">#: is not swallowed.</span>
-<span class="n">_quantile_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;pixel_q\d+\Z&quot;</span><span class="p">)</span>
+<span class="n">_quantile_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"pixel_q\d+\Z"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="is_quantile_diagnostic">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.is_quantile_diagnostic">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_quantile_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Whether *name* is one of the run-time quantile diagnostics.</span>
 
 <span class="sd">    The single definition of what a quantile diagnostic is called. Both</span>
@@ -328,7 +328,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool:    Whether ``calibrate`` would record under this name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="n">_quantile_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
@@ -337,7 +337,7 @@
 <div class="viewcode-block" id="is_diagnostic">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.is_diagnostic">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Whether *name* is a diagnostic AutoWISP can record, in any project.</span>
 
 <span class="sd">    The complete vocabulary, and knowable without opening a database: a</span>
@@ -355,7 +355,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool:    Whether the name refers to a diagnostic.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">standard_diagnostic_names</span><span class="p">()</span> <span class="ow">or</span> <span class="n">is_quantile_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
@@ -367,13 +367,13 @@
 <span class="c1">#: one that is never NaN, since the canonical image list is defined by</span>
 <span class="c1">#: ``jd IS NOT NULL``. Lives here rather than in ``expression_series`` so</span>
 <span class="c1">#: that validating an expression needs nothing from the database tier.</span>
-<span class="n">time_quantity</span> <span class="o">=</span> <span class="s2">&quot;jd&quot;</span>
+<span class="n">time_quantity</span> <span class="o">=</span> <span class="s2">"jd"</span>
 
 
 <div class="viewcode-block" id="is_known_quantity">
 <a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.is_known_quantity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_known_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Whether *name* resolves to data an expression may read.</span>
 
 <span class="sd">    The whole readable vocabulary: every diagnostic, plus the time. This is</span>
@@ -384,42 +384,9 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool:    Whether the name refers to something readable.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="n">name</span> <span class="o">==</span> <span class="n">time_quantity</span> <span class="ow">or</span> <span class="n">is_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
-
-
-
-<span class="c1">#: The pseudo-quantity offered in place of the individual quantiles, which</span>
-<span class="c1">#: expands to one plotted series per ``pixel_q*`` rather than standing for</span>
-<span class="c1">#: values of its own. Deliberately spelled without digits, so that it does</span>
-<span class="c1">#: not match :func:`is_quantile_diagnostic` -- it names the family, and is</span>
-<span class="c1">#: never one of its members.</span>
-<span class="n">quantiles_quantity</span> <span class="o">=</span> <span class="s2">&quot;pixel_quantiles&quot;</span>
-
-
-<div class="viewcode-block" id="is_reserved_name">
-<a class="viewcode-back" href="../../../implementation/autowisp.diagnostics.diagnostic_types.html#autowisp.diagnostics.diagnostic_types.is_reserved_name">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">is_reserved_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Whether something already answers to *name*, so an expression may not.</span>
-
-<span class="sd">    Wider than :func:`is_known_quantity` by exactly one entry, and the</span>
-<span class="sd">    asymmetry is the point: :data:`quantiles_quantity` cannot be *read* by</span>
-<span class="sd">    an expression, since it stands for a family rather than for values, but</span>
-<span class="sd">    neither may it be shadowed by one. Expressions, diagnostics and the</span>
-<span class="sd">    family name share one flat name space -- it is what lets a selector and</span>
-<span class="sd">    a URL treat them alike -- so a name meaning one thing to the selector</span>
-<span class="sd">    and another inside an expression would be ambiguous in both.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        name(str):    The proposed expression name.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        bool:    Whether the name is taken.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="n">name</span> <span class="o">==</span> <span class="n">quantiles_quantity</span> <span class="ow">or</span> <span class="n">is_known_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 </pre></div>
 

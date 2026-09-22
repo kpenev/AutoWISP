@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processing_steps.epd module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,20 +172,20 @@
 <span id="autowisp-processing-steps-epd-module"></span><h1>autowisp.processing_steps.epd module<a class="headerlink" href="#module-autowisp.processing_steps.epd" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-72d2dafa0b705365cadad3651dabfe9414144fce.png" alt="Inheritance diagram of Component, EPDCorrection, LCDetrendingArgumentParser" usemap="#inheritance59e954c3b4" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-e181c701838f0ad2c4b00aeb0145bfd3a42c54b0.png" alt="Inheritance diagram of Component, EPDCorrection, LCDetrendingArgumentParser" usemap="#inheritance59e954c3b4" class="inheritance graphviz" /></div>
 <map id="inheritance59e954c3b4" name="inheritance59e954c3b4">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="192,5,361,32"/>
-<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="403,80,614,107"/>
-<area shape="rect" id="node3" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="463,5,554,32"/>
-<area shape="rect" id="node4" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="666,5,938,32"/>
-<area shape="rect" id="node5" href="autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="638,80,966,107"/>
-<area shape="rect" id="node6" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" target="_top" title="Boiler plate handling of LC detrending command line arguments." alt="" coords="5,229,548,256"/>
-<area shape="rect" id="node7" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="68,155,485,181"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="213,5,400,31"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="444,79,679,104"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="511,5,611,31"/>
+<area shape="rect" id="node4" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="732,5,1036,31"/>
+<area shape="rect" id="node5" href="autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="703,79,1065,104"/>
+<area shape="rect" id="node6" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" target="_top" title="Boiler plate handling of LC detrending command line arguments." alt="" coords="5,225,608,251"/>
+<area shape="rect" id="node7" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="75,152,538,177"/>
 </map><p>Apply EPD correction to lightcurves.</p>
 </section>
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.processing_steps.epd.allowed_start_status_values">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.epd.</span></span><span class="sig-name descname"><span class="pre">allowed_start_status_values</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,)</span></em><a class="headerlink" href="#autowisp.processing_steps.epd.allowed_start_status_values" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.epd.</span></span><span class="sig-name descname"><span class="pre">allowed_start_status_values</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,)</span></span><a class="headerlink" href="#autowisp.processing_steps.epd.allowed_start_status_values" title="Link to this definition"></a></dt>
 <dd><p>the manager hands them every LC to
 correct from the start.</p>
 <dl class="field-list simple">

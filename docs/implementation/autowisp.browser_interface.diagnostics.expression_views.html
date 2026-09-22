@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.expression_views module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,283 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-diagnostics-expression-views-module">
-<h1>autowisp.browser_interface.diagnostics.expression_views module<a class="headerlink" href="#autowisp-browser-interface-diagnostics-expression-views-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.diagnostics.expression_views">
+<span id="autowisp-browser-interface-diagnostics-expression-views-module"></span><h1>autowisp.browser_interface.diagnostics.expression_views module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.expression_views" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-3a7ee0216d0c988cd544c197963008563b7c721e.png" alt="Inheritance diagram of DiagnosticExpression, DiagnosticExpressionForm, HttpResponse, StringIO" usemap="#inheritance613fa816a4" class="inheritance graphviz" /></div>
+<map id="inheritance613fa816a4" name="inheritance613fa816a4">
+<area shape="rect" id="node2" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="140,299,523,324"/>
+<area shape="rect" id="node6" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,372,481,397"/>
+<area shape="rect" id="node4" href="autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" target="_top" title="Validate one proposed expression against the library it would join." alt="" coords="506,372,1005,397"/>
+</map><p>Views for defining, listing and moving diagnostic expressions.</p>
+<p>The library is global – one set of expressions shared by every project –
+because an expression is a way of <em>looking</em> at data rather than data
+itself.  That is also why this page works with no project open: validity
+does not depend on one (see
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#module-autowisp.diagnostics.diagnostic_types" title="autowisp.diagnostics.diagnostic_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.diagnostic_types</span></code></a>), and the only thing that
+does – whether the diagnostics an expression needs are recorded here –
+is reported as availability rather than as brokenness.  Today’s single
+status conflates “meaningless” with “nothing recorded yet”; these are not
+the same complaint and do not read as one here.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._carry_dependents_through_rename">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_carry_dependents_through_rename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#_carry_dependents_through_rename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._carry_dependents_through_rename" title="Link to this definition"></a></dt>
+<dd><p>Rewrite everything referencing <em>old_name</em> to reference <em>new_name</em>.</p>
+<p>A rename would otherwise orphan its dependents – the delete guard’s
+hazard reached from the other side – and refusing it, as deletion is
+refused, is not a workable answer: unlike a delete there is no gesture
+that makes it legal, because pointing a dependent at the new name will
+not validate while that name does not yet exist.  So the rename carries
+them with it, and the caller says which ones moved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>old_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name as it was.</p></li>
+<li><p><strong>new_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name as it now is.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library as it was <em>before</em> the rename,
+which is what the dependents are read from.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The names updated, alphabetically; empty if nothing</dt><dd><p>referenced <em>old_name</em>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._format_key">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_format_key</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'autowisp_diagnostic_expressions'</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._format_key" title="Link to this definition"></a></dt>
+<dd><p>Marks an export file as ours and says which shape it is in.  A file
+without the key, or carrying a version this code does not know, is
+refused rather than guessed at.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._format_version">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_format_version</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._format_version" title="Link to this definition"></a></dt>
+<dd><p>The only export shape there has been so far.  It is meant to become the
+configuration format a command-line run is pointed at, which is why it
+is versioned and why a subset export pulls in what it depends on.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._reachable">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_reachable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#_reachable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._reachable" title="Link to this definition"></a></dt>
+<dd><p>Return <em>names</em> and every expression they reach, transitively.</p>
+<p>Deliberately not <code class="xref py py-func docutils literal notranslate"><span class="pre">order_expressions()</span></code>, which refuses a library
+with a cycle or an unresolvable name in it: exporting is one way a user
+moves expressions somewhere they can be repaired, so it has to work on
+a library that does not validate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> (<em>iterable</em>) – The selected expression names.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The closure, alphabetically.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._references">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._references" title="Link to this definition"></a></dt>
+<dd><p>Return the library entries one expression names directly.</p>
+<p>Tolerates an unparseable expression by reporting no references: what is
+wrong with it is <code class="xref py py-func docutils literal notranslate"><span class="pre">check_expression()</span></code>’s to say, and a page listing
+expressions must not fail to render because one of them is broken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression to look at.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The names of the expressions it references.  Diagnostics</dt><dd><p>and functions are left out; they are not links to follow.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)">set</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._render_list">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_render_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edit_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#_render_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._render_list" title="Link to this definition"></a></dt>
+<dd><p>Render the management page around <em>form</em>, bound or blank.</p>
+<p>The library comes from the form rather than being fetched again: the
+form was built with the library this request is about, and on a failed
+save the table must show what is stored rather than what was typed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – The Django request.</p></li>
+<li><p><strong>form</strong> (<a class="reference internal" href="autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm" title="autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm"><em>DiagnosticExpressionForm</em></a>) – The form to render above the
+table, blank when adding and filled when editing.</p></li>
+<li><p><strong>edit_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the row being replaced, which the
+template posts back so a rename stays an edit.  Empty when
+adding.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._staged_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_staged_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#_staged_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._staged_expressions" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">fields}</span></code> for the entries of an import file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>entries</strong> – Whatever the file’s <code class="docutils literal notranslate"><span class="pre">expressions</span></code> key held, which is
+not to be trusted to be a list of anything in particular.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{&quot;expression&quot;:</span> <span class="pre">…,</span> <span class="pre">&quot;description&quot;:</span> <span class="pre">…}}</span></code>, ready to</dt><dd><p>be laid over the stored library.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the entries are not objects carrying a name and
+    an expression.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views._write_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">_write_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#_write_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views._write_expressions" title="Link to this definition"></a></dt>
+<dd><p>Store <em>entries</em>, returning how many were new and how many replaced.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views.confirm_import_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">confirm_import_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#confirm_import_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views.confirm_import_expressions" title="Link to this definition"></a></dt>
+<dd><p>Replace the stored expressions an import was asked about.</p>
+<p>Reached only from <a class="reference internal" href="#autowisp.browser_interface.diagnostics.expression_views.import_expressions" title="autowisp.browser_interface.diagnostics.expression_views.import_expressions"><code class="xref py py-func docutils literal notranslate"><span class="pre">import_expressions()</span></code></a>’ question, and only by
+the answer that changes something – keeping the stored versions is a
+link back to the list, there being nothing to do.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views.delete_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">delete_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#delete_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views.delete_expressions" title="Link to this definition"></a></dt>
+<dd><p>Delete the checked expressions, unless something still needs them.</p>
+<p>Dependents are judged against what will <em>remain</em>, so a whole chain may
+be deleted together while the bottom of it may not be deleted alone.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views.describe_expression">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">describe_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorded</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#describe_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views.describe_expression" title="Link to this definition"></a></dt>
+<dd><p>Return one row of the management table.</p>
+<p>The two columns that can complain say different things, and the
+distinction is the point of the page.  <em>Problems</em> is whether the
+expression means anything, which is the same answer in every project,
+while <em>missing</em> is whether this one has recorded what it needs, which
+is not.  An expression naming a diagnostic this project never produced
+is unavailable here and perfectly sound; only a typo is broken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression to describe.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>recorded</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)"><em>set</em></a>) – The diagnostic names in use in the open project,
+or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no project is open.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The fields <code class="docutils literal notranslate"><span class="pre">diagnostic_expressions.html</span></code> renders.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views.export_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">export_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#export_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views.export_expressions" title="Link to this definition"></a></dt>
+<dd><p>Download the library, or a selection of it, as JSON.</p>
+<p>A selection is extended with everything it depends on, since a file
+naming an expression it does not carry cannot be imported anywhere
+else – nor read by a command-line run, which is what this format is
+ultimately for.</p>
+<p>A POST rather than a link, because the selection is the same set of
+checkboxes the delete button reads: one form serves both, with
+<code class="docutils literal notranslate"><span class="pre">formaction</span></code> sending each button here or there.  Nothing is lost by
+it – the URL of a download whose content depends on what is ticked is
+not worth bookmarking.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views.import_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">import_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#import_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views.import_expressions" title="Link to this definition"></a></dt>
+<dd><p>Add expressions from a JSON file written by <a class="reference internal" href="#autowisp.browser_interface.diagnostics.expression_views.export_expressions" title="autowisp.browser_interface.diagnostics.expression_views.export_expressions"><code class="xref py py-func docutils literal notranslate"><span class="pre">export_expressions()</span></code></a>.</p>
+<p>The whole file is staged over the stored library before anything is
+checked, so that expressions referencing each other validate whatever
+order they appear in.  Entries are then written one at a time, and one
+that does not validate is reported rather than aborting the rest.</p>
+<p>A file naming an expression that already exists is the one thing this
+cannot decide alone, so it asks: everything uncontested is written,
+and the clashes go to <a class="reference internal" href="#autowisp.browser_interface.diagnostics.expression_views.confirm_import_expressions" title="autowisp.browser_interface.diagnostics.expression_views.confirm_import_expressions"><code class="xref py py-func docutils literal notranslate"><span class="pre">confirm_import_expressions()</span></code></a> with both
+versions shown.  Asking only when it happens is why there is no
+setting to get wrong beforehand – one that is read once in a hundred
+imports would be forgotten in the other ninety-nine.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views.list_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">list_expressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#list_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views.list_expressions" title="Link to this definition"></a></dt>
+<dd><p>Show the library, with a form for adding to it or editing one row.</p>
+<p>Editing is a URL rather than a click that fills the form in place, so
+that it needs no JavaScript, survives a refresh, and can be linked to.
+<code class="docutils literal notranslate"><span class="pre">Http404</span></code> for a name that is not there is the right answer to a stale
+link, and Django’s own – the error middleware deliberately leaves it
+alone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – The Django request.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The expression to open for editing, or <code class="docutils literal notranslate"><span class="pre">None</span></code> to
+show the blank form.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_views.save_expression">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_views.</span></span><span class="sig-name descname"><span class="pre">save_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_views.html#save_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_views.save_expression" title="Link to this definition"></a></dt>
+<dd><p>Create or update one expression.</p>
+<p>Editing is keyed by <code class="docutils literal notranslate"><span class="pre">edit_name</span></code> rather than by primary key, so that
+the page is driven entirely by the names it displays and a rename is an
+edit rather than a delete followed by a create.</p>
+</dd></dl>
+
 </section>
 
 

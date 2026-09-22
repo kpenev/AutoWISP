@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_templates &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,43 +165,43 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_templates</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Checks over the browser interface&#39;s templates, as plain text.</span>
+<span></span><span class="sd">"""Checks over the browser interface's templates, as plain text.</span>
 
 <span class="sd">No Django, no database and no rendering: these read the template files</span>
 <span class="sd">and look for mistakes that Django does not report. That is the whole</span>
 <span class="sd">reason they exist -- a template error that raises is found the first time</span>
 <span class="sd">the page is opened, but the ones below fail *silently*, by putting</span>
 <span class="sd">something on the page that was never meant to be seen.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="c1">#: Every template shipped with the browser interface.</span>
 <span class="n">_templates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-    <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;browser_interface&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.html&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">"browser_interface"</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">"*.html"</span><span class="p">)</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="TestTemplateComments">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_templates.html#autowisp.tests.test_templates.TestTemplateComments">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestTemplateComments</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Comments have to be written in a form Django actually strips.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Comments have to be written in a form Django actually strips."""</span>
 
 <div class="viewcode-block" id="TestTemplateComments.test_templates_were_found">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_templates.html#autowisp.tests.test_templates.TestTemplateComments.test_templates_were_found">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_templates_were_found</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Guards the guard: an empty sweep would pass everything.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Guards the guard: an empty sweep would pass everything."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">_templates</span><span class="p">,</span> <span class="s2">&quot;no templates found to check&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">_templates</span><span class="p">,</span> <span class="s2">"no templates found to check"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestTemplateComments.test_no_multiline_hash_comments">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_templates.html#autowisp.tests.test_templates.TestTemplateComments.test_no_multiline_hash_comments">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_no_multiline_hash_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``{# ... #}`` must open and close on one line.</span>
+<span class="w">        </span><span class="sd">"""``{# ... #}`` must open and close on one line.</span>
 
-<span class="sd">        Django&#39;s short comment syntax does not span lines: the parser</span>
+<span class="sd">        Django's short comment syntax does not span lines: the parser</span>
 <span class="sd">        looks for the closing ``#}`` in the same token, so a comment</span>
 <span class="sd">        written across several lines is not a comment at all and is</span>
 <span class="sd">        rendered to the page as ordinary text. It raises nothing, so it</span>
@@ -209,28 +209,28 @@
 <span class="sd">        what happened, above a banner on the processing progress page.</span>
 
 <span class="sd">        ``{% comment %} ... {% endcomment %}`` is the multi-line form.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">leaked</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">_templates</span>
             <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span> <span class="mi">1</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span> <span class="mi">1</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;{#&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="s2">&quot;#}&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span>
+            <span class="k">if</span> <span class="s2">"{#"</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="s2">"#}"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span>
         <span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">leaked</span><span class="p">,</span>
             <span class="p">[],</span>
-            <span class="s2">&quot;these {# #} comments do not close on their own line, so Django &quot;</span>
-            <span class="s2">&quot;renders them as text; use {</span><span class="si">% c</span><span class="s2">omment %} ... {</span><span class="si">% e</span><span class="s2">ndcomment %}&quot;</span><span class="p">,</span>
+            <span class="s2">"these {# #} comments do not close on their own line, so Django "</span>
+            <span class="s2">"renders them as text; use {</span><span class="si">% c</span><span class="s2">omment %} ... {</span><span class="si">% e</span><span class="s2">ndcomment %}"</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

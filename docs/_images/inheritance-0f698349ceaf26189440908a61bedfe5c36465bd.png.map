@@ -1,5 +1,0 @@
-<map id="inheritance7afe2feb87" name="inheritance7afe2feb87">
-<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="11,80,346,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDefaultDatabase" target="_top" title="An unconfigured installation keeps working untouched." alt="" coords="5,155,352,181"/>
-<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="100,5,257,32"/>
-</map>

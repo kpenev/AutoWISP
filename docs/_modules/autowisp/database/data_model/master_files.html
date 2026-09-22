@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.master_files &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.master_files</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define the MasterFiles table for the pipeline.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define the MasterFiles table for the pipeline."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
@@ -179,59 +179,59 @@
 <span class="p">)</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MasterType&quot;</span><span class="p">,</span> <span class="s2">&quot;MasterFile&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"MasterType"</span><span class="p">,</span> <span class="s2">"MasterFile"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="MasterType">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.master_files.html#autowisp.database.data_model.MasterType">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.MasterType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MasterType</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The table tracking the types of master files used by the pipeline.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The table tracking the types of master files used by the pipeline."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;master_type&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"master_type"</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span>
         <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The name of the master file type.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The name of the master file type."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">condition_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="c1"># Not a ForeignKey: condition.id names a set of expressions, not a</span>
         <span class="c1"># row, so it is not unique. See Configuration.condition_id.</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The collection of expression involving header keywords that must &quot;</span>
-        <span class="s2">&quot;match between an image and a master for a master to be useable for &quot;</span>
-        <span class="s2">&quot;calibrating that image.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The collection of expression involving header keywords that must "</span>
+        <span class="s2">"match between an image and a master for a master to be useable for "</span>
+        <span class="s2">"calibrating that image."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">maker_step_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;step.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"step.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The step which produces this type of master frames.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The step which produces this type of master frames."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">maker_image_type_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;image_type.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"image_type.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The image type to which the maker step is applied when creating &quot;</span>
-        <span class="s2">&quot;masters of this type.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The image type to which the maker step is applied when creating "</span>
+        <span class="s2">"masters of this type."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">maker_image_split_condition_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="c1"># Not a ForeignKey, for the same reason as condition_id above.</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The collection of expression involving header keywords that must &quot;</span>
-        <span class="s2">&quot;match between all images that are combined into a master in addition &quot;</span>
-        <span class="s2">&quot;to the expressions specified by ``condition_id``.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The collection of expression involving header keywords that must "</span>
+        <span class="s2">"match between all images that are combined into a master in addition "</span>
+        <span class="s2">"to the expressions specified by ``condition_id``."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;A description of the master file type.&quot;</span>
+        <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"A description of the master file type."</span>
     <span class="p">)</span>
 
-    <span class="n">Index</span><span class="p">(</span><span class="s2">&quot;maker&quot;</span><span class="p">,</span> <span class="s2">&quot;maker_step_id&quot;</span><span class="p">,</span> <span class="s2">&quot;maker_image_type_id&quot;</span><span class="p">)</span>
+    <span class="n">Index</span><span class="p">(</span><span class="s2">"maker"</span><span class="p">,</span> <span class="s2">"maker_step_id"</span><span class="p">,</span> <span class="s2">"maker_image_type_id"</span><span class="p">)</span>
 
-    <span class="n">master_files</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;MasterFile&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;master_type&quot;</span><span class="p">)</span>
+    <span class="n">master_files</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"MasterFile"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"master_type"</span><span class="p">)</span>
     <span class="c1"># Both joins are spelled out because these condition columns are</span>
     <span class="c1"># deliberately not foreign keys -- condition.id names a group of rows</span>
     <span class="c1"># rather than one row -- so nothing is left for SQLAlchemy to infer</span>
@@ -239,69 +239,69 @@
     <span class="c1"># constraint.</span>
     <span class="n">match_expressions</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ConditionExpression</span><span class="p">]]</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
         <span class="n">secondary</span><span class="o">=</span><span class="n">Condition</span><span class="o">.</span><span class="n">__table__</span><span class="p">,</span>
-        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;MasterType.condition_id == foreign(Condition.id)&quot;</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">"MasterType.condition_id == foreign(Condition.id)"</span><span class="p">,</span>
         <span class="n">secondaryjoin</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;foreign(Condition.expression_id) == ConditionExpression.id&quot;</span>
+            <span class="s2">"foreign(Condition.expression_id) == ConditionExpression.id"</span>
         <span class="p">),</span>
         <span class="n">viewonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">split_expressions</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ConditionExpression</span><span class="p">]]</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
         <span class="n">secondary</span><span class="o">=</span><span class="n">Condition</span><span class="o">.</span><span class="n">__table__</span><span class="p">,</span>
         <span class="n">primaryjoin</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;MasterType.maker_image_split_condition_id&quot;</span>
-            <span class="s2">&quot; == foreign(Condition.id)&quot;</span>
+            <span class="s2">"MasterType.maker_image_split_condition_id"</span>
+            <span class="s2">" == foreign(Condition.id)"</span>
         <span class="p">),</span>
         <span class="n">secondaryjoin</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;foreign(Condition.expression_id) == ConditionExpression.id&quot;</span>
+            <span class="s2">"foreign(Condition.expression_id) == ConditionExpression.id"</span>
         <span class="p">),</span>
         <span class="n">viewonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">)"</span></div>
 
 
 
 <div class="viewcode-block" id="MasterFile">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.master_files.html#autowisp.database.data_model.MasterFile">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.MasterFile">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MasterFile</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The table tracking master files generated and used by the pipeline.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The table tracking master files generated and used by the pipeline."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;master_file&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"master_file"</span>
 
     <span class="n">type_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;master_type.id&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"master_type.id"</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The type of master file.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The type of master file."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">progress_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The ImageProcessingProgress or LightCurveProcessingProgress that &quot;</span>
-        <span class="s2">&quot;generated this master, if any.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The ImageProcessingProgress or LightCurveProcessingProgress that "</span>
+        <span class="s2">"generated this master, if any."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The full path of the master file.&quot;</span>
+        <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"The full path of the master file."</span>
     <span class="p">)</span>
     <span class="n">enabled</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Boolean</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Can this master be used for calibrations?&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Can this master be used for calibrations?"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">use_smallest</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Use the master of this type for which this expression evaluated &quot;</span>
-        <span class="s2">&quot;against image header gives the smallest value&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Use the master of this type for which this expression evaluated "</span>
+        <span class="s2">"against image header gives the smallest value"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">master_type</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;MasterType&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;master_files&quot;</span><span class="p">)</span>
+    <span class="n">master_type</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"MasterType"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"master_files"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;minimize </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">use_smallest</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: "</span>
+            <span class="sa">f</span><span class="s2">"minimize </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">use_smallest</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">)"</span>
         <span class="p">)</span></div>
 
 </pre></div>

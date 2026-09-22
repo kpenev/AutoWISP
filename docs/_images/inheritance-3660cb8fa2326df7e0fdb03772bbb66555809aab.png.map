@@ -1,0 +1,5 @@
+<map id="inheritanceb2b108ef9b" name="inheritanceb2b108ef9b">
+<area shape="rect" id="node1" href="#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,79,448,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_diagnostics_views.TestImageTypeSplit" target="_top" title="A session holding several image types yields a series per type." alt="" coords="25,152,428,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="143,5,311,31"/>
+</map>

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.magnitude_fitting.linear module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,23 +172,23 @@
 <span id="autowisp-magnitude-fitting-linear-module"></span><h1>autowisp.magnitude_fitting.linear module<a class="headerlink" href="#module-autowisp.magnitude_fitting.linear" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-e0f18eb5e40f7f1dc72be44a0c81d84e977f1786.png" alt="Inheritance diagram of FitTermsInterface, LinearMagnitudeFit, MagnitudeFit" usemap="#inheritanceda3848f997" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-c6f5be98bd4667a85f627169b1833046779cae5c.png" alt="Inheritance diagram of FitTermsInterface, LinearMagnitudeFit, MagnitudeFit" usemap="#inheritanceda3848f997" class="inheritance graphviz" /></div>
 <map id="inheritanceda3848f997" name="inheritanceda3848f997">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,5,205,32"/>
-<area shape="rect" id="node3" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="24,80,312,107"/>
-<area shape="rect" id="node2" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="229,5,496,32"/>
-<area shape="rect" id="node4" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="5,155,331,181"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="152,5,228,31"/>
+<area shape="rect" id="node3" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="28,79,352,104"/>
+<area shape="rect" id="node2" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="252,5,552,31"/>
+<area shape="rect" id="node4" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="5,152,375,177"/>
 </map><p>Implement magnitude fitting using linear regression.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.linear.LinearMagnitudeFit">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.linear.</span></span><span class="sig-name descname"><span class="pre">LinearMagnitudeFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/linear.html#LinearMagnitudeFit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.linear.</span></span><span class="sig-name descname"><span class="pre">LinearMagnitudeFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/linear.html#LinearMagnitudeFit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" title="autowisp.magnitude_fitting.base.MagnitudeFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">MagnitudeFit</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-f774f18c44ab4482feee7f1a1d94a561b5e205e8.png" alt="Inheritance diagram of autowisp.magnitude_fitting.linear.LinearMagnitudeFit" usemap="#inheritance476878c2d0" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-f70de29c9bac6fcbd142d294f8a9909dbbb08fd2.png" alt="Inheritance diagram of autowisp.magnitude_fitting.linear.LinearMagnitudeFit" usemap="#inheritance476878c2d0" class="inheritance graphviz" /></div>
 <map id="inheritance476878c2d0" name="inheritance476878c2d0">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,5,205,32"/>
-<area shape="rect" id="node2" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="24,80,312,107"/>
-<area shape="rect" id="node3" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="5,155,331,181"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="152,5,228,31"/>
+<area shape="rect" id="node2" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="28,79,352,104"/>
+<area shape="rect" id="node3" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="5,152,375,177"/>
 </map><p>Differential photometry correction using linear regression.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.linear.LinearMagnitudeFit.__call__">
@@ -198,7 +198,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.linear.LinearMagnitudeFit.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/linear.html#LinearMagnitudeFit.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/linear.html#LinearMagnitudeFit.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize a magnitude fitting object using linear least squares.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

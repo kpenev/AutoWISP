@@ -1,0 +1,6 @@
+<map id="inheritance19bc1a258a" name="inheritance19bc1a258a">
+<area shape="rect" id="node1" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="16,5,271,31"/>
+<area shape="rect" id="node3" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="33,79,253,104"/>
+<area shape="rect" id="node2" href="autowisp.exceptions.html#autowisp.exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="5,152,281,177"/>
+<area shape="rect" id="node4" title="Univariate spline in the B&#45;spline basis." alt="" coords="295,5,541,31"/>
+</map>

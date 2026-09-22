@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.expression_data module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,70 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-diagnostics-expression-data-module">
-<h1>autowisp.browser_interface.diagnostics.expression_data module<a class="headerlink" href="#autowisp-browser-interface-diagnostics-expression-data-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.diagnostics.expression_data">
+<span id="autowisp-browser-interface-diagnostics-expression-data-module"></span><h1>autowisp.browser_interface.diagnostics.expression_data module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.expression_data" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-e6d07612104c7de28dbf8756f28795e60327531c.png" alt="Inheritance diagram of DiagnosticExpression" usemap="#inheritance39c047c0ed" class="inheritance graphviz" /></div>
+<map id="inheritance39c047c0ed" name="inheritance39c047c0ed">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="52,152,435,177"/>
+<area shape="rect" id="node3" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,225,481,251"/>
+</map><p>Where the expression library comes from, when it comes from the BUI.</p>
+<p>Tier 3 of the expression layer, and the only place outside the views that
+knows Django. Tiers 1 and 2 take the library as an argument – a plain
+<code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code> dictionary – precisely so that they need not know
+whether it was stored by the browser interface, read out of an exported
+file by <code class="docutils literal notranslate"><span class="pre">run_pipeline</span></code>, or written down in a test. This module is the
+first of those sources.</p>
+<p>It is deliberately thin. Everything one might be tempted to put here –
+what an expression means, which order to evaluate a library in, what is
+wrong with a proposed one – belongs to
+<a class="reference internal" href="autowisp.diagnostics.expressions.html#module-autowisp.diagnostics.expressions" title="autowisp.diagnostics.expressions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.expressions</span></code></a>, where it can be tested without a
+database of either kind, and is reached from here only by callers that
+already have both.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_data.get_expression_descriptions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_data.</span></span><span class="sig-name descname"><span class="pre">get_expression_descriptions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_data.html#get_expression_descriptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_data.get_expression_descriptions" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">description}</span></code> for the stored expressions.</p>
+<p>Kept apart from <a class="reference internal" href="#autowisp.browser_interface.diagnostics.expression_data.get_expressions" title="autowisp.browser_interface.diagnostics.expression_data.get_expressions"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_expressions()</span></code></a>, which everything that
+<em>evaluates</em> an expression consumes: what a quantity is for is of no
+interest to the evaluator, and a dictionary carrying both would have
+to be taken apart again by every caller of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Every stored expression’s description, the empty string</dt><dd><p>where one was left blank.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.expression_data.get_expressions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.expression_data.</span></span><span class="sig-name descname"><span class="pre">get_expressions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/expression_data.html#get_expressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.expression_data.get_expressions" title="Link to this definition"></a></dt>
+<dd><p>Return the stored library as <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p>
+<p>The whole library, not the part that is usable in the open project: an
+expression naming a diagnostic this project never recorded is not an
+error but a thing to leave unoffered. Every expression is <em>valid</em>
+everywhere – the vocabulary is the same in all projects, see
+<a class="reference internal" href="autowisp.diagnostics.diagnostic_types.html#module-autowisp.diagnostics.diagnostic_types" title="autowisp.diagnostics.diagnostic_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.diagnostics.diagnostic_types</span></code></a> – so what varies is only
+whether rows exist, which callers that care establish by counting them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Every stored expression, keyed by name.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

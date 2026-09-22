@@ -3,8 +3,8 @@ autowisp package
 
 .. automodule:: autowisp
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------
@@ -17,7 +17,6 @@ Subpackages
    autowisp.data_reduction
    autowisp.database
    autowisp.diagnostics
-   autowisp.fake_image
    autowisp.fit_expression
    autowisp.image_calibration
    autowisp.light_curves

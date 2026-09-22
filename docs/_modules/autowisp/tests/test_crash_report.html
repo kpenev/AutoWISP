@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_crash_report &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_crash_report</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the crash-report builder and its scrubbing helpers.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Unit tests for the crash-report builder and its scrubbing helpers."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
@@ -214,63 +214,63 @@
 <div class="viewcode-block" id="TestScrubText">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubText">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestScrubText</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;scrub_text redacts secret values, leaves everything else intact.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""scrub_text redacts secret values, leaves everything else intact."""</span>
 
 <div class="viewcode-block" id="TestScrubText.test_dict_repr_line">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubText.test_dict_repr_line">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_dict_repr_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Quoted secret values in a dict repr are redacted, others kept.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Quoted secret values in a dict repr are redacted, others kept."""</span>
 
         <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;{&#39;gaia_user&#39;: &#39;kpenev&#39;, &#39;gaia_password&#39;: &#39;hunter2&#39;, &quot;</span>
-            <span class="s2">&quot;&#39;project_home&#39;: &#39;/data/proj&#39;}&quot;</span>
+            <span class="s2">"{'gaia_user': 'kpenev', 'gaia_password': 'hunter2', "</span>
+            <span class="s2">"'project_home': '/data/proj'}"</span>
         <span class="p">)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">scrub_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;hunter2&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;kpenev&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"hunter2"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"kpenev"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">REDACTED</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="c1"># Non-secret values survive.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;/data/proj&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;gaia_password&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>  <span class="c1"># the key stays</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"/data/proj"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"gaia_password"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>  <span class="c1"># the key stays</span></div>
 
 
 <div class="viewcode-block" id="TestScrubText.test_ini_assignment">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubText.test_ini_assignment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_ini_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An ini-style `key = value` secret is redacted to end of line.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An ini-style `key = value` secret is redacted to end of line."""</span>
 
-        <span class="n">out</span> <span class="o">=</span> <span class="n">scrub_text</span><span class="p">(</span><span class="s2">&quot;gaia-password = my secret phrase</span><span class="se">\n</span><span class="s2">gain = 1.0&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;my secret phrase&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;gaia-password = &quot;</span> <span class="o">+</span> <span class="n">REDACTED</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">scrub_text</span><span class="p">(</span><span class="s2">"gaia-password = my secret phrase</span><span class="se">\n</span><span class="s2">gain = 1.0"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"my secret phrase"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"gaia-password = "</span> <span class="o">+</span> <span class="n">REDACTED</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="c1"># An unrelated key on the next line is untouched.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;gain = 1.0&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"gain = 1.0"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestScrubText.test_json_assignment">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubText.test_json_assignment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_json_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A JSON-style secret value is redacted.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A JSON-style secret value is redacted."""</span>
 
-        <span class="n">out</span> <span class="o">=</span> <span class="n">scrub_text</span><span class="p">(</span><span class="s1">&#39;&quot;api_key&quot;: &quot;abcd1234&quot;&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;abcd1234&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">scrub_text</span><span class="p">(</span><span class="s1">'"api_key": "abcd1234"'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"abcd1234"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">REDACTED</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestScrubText.test_non_secret_untouched">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubText.test_non_secret_untouched">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_non_secret_untouched</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A non-secret key (even one containing &#39;pass&#39; fragments) stays.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A non-secret key (even one containing 'pass' fragments) stays."""</span>
 
-        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;password_hint = enabled</span><span class="se">\n</span><span class="s2">username = kpenev&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">"password_hint = enabled</span><span class="se">\n</span><span class="s2">username = kpenev"</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">scrub_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="c1"># &#39;password_hint&#39; is not the secret word &#39;password&#39; (no boundary).</span>
+        <span class="c1"># 'password_hint' is not the secret word 'password' (no boundary).</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestScrubText.test_empty_input">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubText.test_empty_input">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrub_text</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrub_text</span><span class="p">(</span><span class="s2">""</span><span class="p">),</span> <span class="s2">""</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">scrub_text</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span></div>
 </div>
 
@@ -279,50 +279,50 @@
 <div class="viewcode-block" id="TestScrubMapping">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubMapping">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestScrubMapping</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;scrub_mapping redacts values whose key names a secret.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""scrub_mapping redacts values whose key names a secret."""</span>
 
 <div class="viewcode-block" id="TestScrubMapping.test_redacts_secret_keys">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubMapping.test_redacts_secret_keys">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_redacts_secret_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">scrubbed</span> <span class="o">=</span> <span class="n">scrub_mapping</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;gaia_user&quot;</span><span class="p">:</span> <span class="s2">&quot;kpenev&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;gaia_password&quot;</span><span class="p">:</span> <span class="s2">&quot;hunter2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;project_home&quot;</span><span class="p">:</span> <span class="s2">&quot;/data/proj&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                <span class="s2">"gaia_user"</span><span class="p">:</span> <span class="s2">"kpenev"</span><span class="p">,</span>
+                <span class="s2">"gaia_password"</span><span class="p">:</span> <span class="s2">"hunter2"</span><span class="p">,</span>
+                <span class="s2">"project_home"</span><span class="p">:</span> <span class="s2">"/data/proj"</span><span class="p">,</span>
+                <span class="s2">"num_parallel_processes"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">&quot;gaia_user&quot;</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">&quot;gaia_password&quot;</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">&quot;project_home&quot;</span><span class="p">],</span> <span class="s2">&quot;/data/proj&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">"gaia_user"</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">"gaia_password"</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">"project_home"</span><span class="p">],</span> <span class="s2">"/data/proj"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">"num_parallel_processes"</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestScrubMapping.test_recurses_into_nested">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubMapping.test_recurses_into_nested">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_recurses_into_nested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">scrubbed</span> <span class="o">=</span> <span class="n">scrub_mapping</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;credentials&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;t0 ken&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;kpenev&quot;</span><span class="p">}}</span>
+            <span class="p">{</span><span class="s2">"credentials"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"token"</span><span class="p">:</span> <span class="s2">"t0 ken"</span><span class="p">,</span> <span class="s2">"user"</span><span class="p">:</span> <span class="s2">"kpenev"</span><span class="p">}}</span>
         <span class="p">)</span>
-        <span class="c1"># The &#39;credentials&#39; key itself is a secret name -&gt; whole value</span>
+        <span class="c1"># The 'credentials' key itself is a secret name -&gt; whole value</span>
         <span class="c1"># redacted.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">&quot;credentials&quot;</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">"credentials"</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestScrubMapping.test_nested_non_secret_parent">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubMapping.test_nested_non_secret_parent">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_nested_non_secret_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">scrubbed</span> <span class="o">=</span> <span class="n">scrub_mapping</span><span class="p">({</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;abcd&quot;</span><span class="p">,</span> <span class="s2">&quot;gain&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;api_key&quot;</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;gain&quot;</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">)</span></div>
+        <span class="n">scrubbed</span> <span class="o">=</span> <span class="n">scrub_mapping</span><span class="p">({</span><span class="s2">"config"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"api_key"</span><span class="p">:</span> <span class="s2">"abcd"</span><span class="p">,</span> <span class="s2">"gain"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">"config"</span><span class="p">][</span><span class="s2">"api_key"</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">[</span><span class="s2">"config"</span><span class="p">][</span><span class="s2">"gain"</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestScrubMapping.test_original_not_mutated">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubMapping.test_original_not_mutated">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_original_not_mutated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">original</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gaia_password&quot;</span><span class="p">:</span> <span class="s2">&quot;hunter2&quot;</span><span class="p">}</span>
+        <span class="n">original</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"gaia_password"</span><span class="p">:</span> <span class="s2">"hunter2"</span><span class="p">}</span>
         <span class="n">scrub_mapping</span><span class="p">(</span><span class="n">original</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">original</span><span class="p">[</span><span class="s2">&quot;gaia_password&quot;</span><span class="p">],</span> <span class="s2">&quot;hunter2&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">original</span><span class="p">[</span><span class="s2">"gaia_password"</span><span class="p">],</span> <span class="s2">"hunter2"</span><span class="p">)</span></div>
 </div>
 
 
@@ -330,7 +330,7 @@
 <div class="viewcode-block" id="TestScrubConfigValues">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubConfigValues">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestScrubConfigValues</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;scrub_config_values redacts secret configuration values in the DB.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""scrub_config_values redacts secret configuration values in the DB."""</span>
 
 <div class="viewcode-block" id="TestScrubConfigValues.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubConfigValues.setUpClass">[docs]</a>
@@ -350,20 +350,20 @@
 <div class="viewcode-block" id="TestScrubConfigValues.test_redacts_secret_config_only">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestScrubConfigValues.test_redacts_secret_config_only">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_redacts_secret_config_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Secret-named config values are redacted; others are kept.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Secret-named config values are redacted; others are kept."""</span>
 
         <span class="c1"># pylint: disable=not-callable</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="n">gaia_pw</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gaia-password&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;creds&quot;</span><span class="p">)</span>
-            <span class="n">gain</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gain&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;detector gain&quot;</span><span class="p">)</span>
+            <span class="n">gaia_pw</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"gaia-password"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"creds"</span><span class="p">)</span>
+            <span class="n">gain</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"gain"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"detector gain"</span><span class="p">)</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add_all</span><span class="p">([</span><span class="n">gaia_pw</span><span class="p">,</span> <span class="n">gain</span><span class="p">])</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add_all</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">Configuration</span><span class="p">(</span>
-                        <span class="n">parameter_id</span><span class="o">=</span><span class="n">gaia_pw</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;Secret123&quot;</span>
+                        <span class="n">parameter_id</span><span class="o">=</span><span class="n">gaia_pw</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">"Secret123"</span>
                     <span class="p">),</span>
-                    <span class="n">Configuration</span><span class="p">(</span><span class="n">parameter_id</span><span class="o">=</span><span class="n">gain</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">),</span>
+                    <span class="n">Configuration</span><span class="p">(</span><span class="n">parameter_id</span><span class="o">=</span><span class="n">gain</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">"1.0"</span><span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
@@ -382,7 +382,7 @@
                 <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">gaia_param_id</span><span class="p">],</span> <span class="n">REDACTED</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">gain_param_id</span><span class="p">],</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">gain_param_id</span><span class="p">],</span> <span class="s2">"1.0"</span><span class="p">)</span></div>
 </div>
 
 
@@ -390,7 +390,7 @@
 <div class="viewcode-block" id="TestFindErrorProgress">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestFindErrorProgress">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestFindErrorProgress</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;find_error_progress resolves a step error to its processing record.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""find_error_progress resolves a step error to its processing record."""</span>
 
 <div class="viewcode-block" id="TestFindErrorProgress.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestFindErrorProgress.setUp">[docs]</a>
@@ -405,7 +405,7 @@
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">step_name</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">step</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">step_name</span> <span class="o">+</span> <span class="s2">&quot; step&quot;</span><span class="p">)</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">step_name</span> <span class="o">+</span> <span class="s2">" step"</span><span class="p">)</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">progress</span> <span class="o">=</span> <span class="n">ImageProcessingProgress</span><span class="p">(</span>
@@ -424,7 +424,7 @@
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">step_name</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">step</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">step_name</span> <span class="o">+</span> <span class="s2">&quot; step&quot;</span><span class="p">)</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="n">Step</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">step_name</span> <span class="o">+</span> <span class="s2">" step"</span><span class="p">)</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">progress</span> <span class="o">=</span> <span class="n">LightCurveProcessingProgress</span><span class="p">(</span>
@@ -441,11 +441,11 @@
 <div class="viewcode-block" id="TestFindErrorProgress.test_resolves_by_run_and_step">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestFindErrorProgress.test_resolves_by_run_and_step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolves_by_run_and_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An error&#39;s run + step pick out the matching progress.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An error's run + step pick out the matching progress."""</span>
 
-        <span class="n">progress_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">progress_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">"calibrate"</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">error</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
-            <span class="n">pipeline_run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span>
+            <span class="n">pipeline_run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"calibrate"</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span>
         <span class="n">progress</span> <span class="o">=</span> <span class="n">find_error_progress</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
@@ -455,17 +455,17 @@
 <div class="viewcode-block" id="TestFindErrorProgress.test_resolves_lightcurve_step">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestFindErrorProgress.test_resolves_lightcurve_step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolves_lightcurve_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A lightcurve-step error resolves via the LC progress table.</span>
+<span class="w">        </span><span class="sd">"""A lightcurve-step error resolves via the LC progress table.</span>
 
 <span class="sd">        Regression for the crash-report gap where LC steps (tfa/epd/...)</span>
 <span class="sd">        recorded in ``light_curve_processing_progress`` -- a different</span>
 <span class="sd">        table than image steps -- could never resolve, so their logs were</span>
 <span class="sd">        never collected.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">progress_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_lc_progress</span><span class="p">(</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+        <span class="n">progress_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_lc_progress</span><span class="p">(</span><span class="s2">"tfa"</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
         <span class="n">error</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
-            <span class="n">pipeline_run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span>
+            <span class="n">pipeline_run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"tfa"</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span>
         <span class="n">progress</span> <span class="o">=</span> <span class="n">find_error_progress</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">LightCurveProcessingProgress</span><span class="p">)</span>
@@ -475,9 +475,9 @@
 <div class="viewcode-block" id="TestFindErrorProgress.test_none_for_stepless_or_runless">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestFindErrorProgress.test_none_for_stepless_or_runless">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_none_for_stepless_or_runless</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A pipeline/BUI error (no step or run) resolves to nothing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A pipeline/BUI error (no step or run) resolves to nothing."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">"calibrate"</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span>
             <span class="n">find_error_progress</span><span class="p">(</span>
                 <span class="n">SimpleNamespace</span><span class="p">(</span>
@@ -488,7 +488,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span>
             <span class="n">find_error_progress</span><span class="p">(</span>
                 <span class="n">SimpleNamespace</span><span class="p">(</span>
-                    <span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span>
+                    <span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"calibrate"</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
@@ -497,14 +497,14 @@
 <div class="viewcode-block" id="TestFindErrorProgress.test_filters_by_image_type_when_image_known">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestFindErrorProgress.test_filters_by_image_type_when_image_known">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_filters_by_image_type_when_image_known</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;When the error names an image, the image&#39;s type disambiguates.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""When the error names an image, the image's type disambiguates."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">"calibrate"</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_progress</span><span class="p">(</span><span class="s2">"calibrate"</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">image_type_id</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="c1"># pylint: disable=not-callable</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
-                <span class="n">raw_fname</span><span class="o">=</span><span class="s2">&quot;/data/raw/x.fits&quot;</span><span class="p">,</span>
+                <span class="n">raw_fname</span><span class="o">=</span><span class="s2">"/data/raw/x.fits"</span><span class="p">,</span>
                 <span class="n">image_type_id</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                 <span class="n">observing_session_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
@@ -515,7 +515,7 @@
 
         <span class="n">progress</span> <span class="o">=</span> <span class="n">find_error_progress</span><span class="p">(</span>
             <span class="n">SimpleNamespace</span><span class="p">(</span>
-                <span class="n">pipeline_run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="n">image_id</span>
+                <span class="n">pipeline_run_id</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">"calibrate"</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="n">image_id</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">image_type_id</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span></div>
@@ -524,7 +524,7 @@
 <div class="viewcode-block" id="TestFindErrorProgress.test_select_logs_empty_without_progress">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestFindErrorProgress.test_select_logs_empty_without_progress">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_select_logs_empty_without_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A stepless error selects no logs (and does not raise).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A stepless error selects no logs (and does not raise)."""</span>
 
         <span class="n">error</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
             <span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span>
@@ -537,29 +537,29 @@
 <div class="viewcode-block" id="TestCollectProvenance">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCollectProvenance">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCollectProvenance</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;collect_provenance captures the current environment, JSON-safe.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""collect_provenance captures the current environment, JSON-safe."""</span>
 
 <div class="viewcode-block" id="TestCollectProvenance.test_fields_present_and_serializable">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCollectProvenance.test_fields_present_and_serializable">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_fields_present_and_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The provenance dict has the expected fields and serializes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The provenance dict has the expected fields and serializes."""</span>
 
         <span class="n">provenance</span> <span class="o">=</span> <span class="n">collect_provenance</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;report_generated&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hostname&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;platform&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;python_version&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;code_version&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resources&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;packages&quot;</span><span class="p">,</span>
+            <span class="s2">"report_generated"</span><span class="p">,</span>
+            <span class="s2">"hostname"</span><span class="p">,</span>
+            <span class="s2">"platform"</span><span class="p">,</span>
+            <span class="s2">"python_version"</span><span class="p">,</span>
+            <span class="s2">"code_version"</span><span class="p">,</span>
+            <span class="s2">"resources"</span><span class="p">,</span>
+            <span class="s2">"packages"</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">provenance</span><span class="p">)</span>
         <span class="c1"># numpy is a hard dependency, so its version is always recorded.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">provenance</span><span class="p">[</span><span class="s2">&quot;packages&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">provenance</span><span class="p">[</span><span class="s2">&quot;packages&quot;</span><span class="p">][</span><span class="s2">&quot;numpy&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"numpy"</span><span class="p">,</span> <span class="n">provenance</span><span class="p">[</span><span class="s2">"packages"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">provenance</span><span class="p">[</span><span class="s2">"packages"</span><span class="p">][</span><span class="s2">"numpy"</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
         <span class="c1"># psutil is a hard dependency, so the RAM ceiling is recorded.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">provenance</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">][</span><span class="s2">&quot;ram_total&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">provenance</span><span class="p">[</span><span class="s2">"resources"</span><span class="p">][</span><span class="s2">"ram_total"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
         <span class="c1"># Everything must be JSON-serializable for the manifest.</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">provenance</span><span class="p">)</span></div>
 
@@ -567,11 +567,11 @@
 <div class="viewcode-block" id="TestCollectProvenance.test_unknown_package_omitted">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCollectProvenance.test_unknown_package_omitted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_package_omitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A package that is not installed is simply absent (no error).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A package that is not installed is simply absent (no error)."""</span>
 
         <span class="n">provenance</span> <span class="o">=</span> <span class="n">collect_provenance</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span>
-            <span class="s2">&quot;definitely-not-a-real-package&quot;</span><span class="p">,</span> <span class="n">provenance</span><span class="p">[</span><span class="s2">&quot;packages&quot;</span><span class="p">]</span>
+            <span class="s2">"definitely-not-a-real-package"</span><span class="p">,</span> <span class="n">provenance</span><span class="p">[</span><span class="s2">"packages"</span><span class="p">]</span>
         <span class="p">)</span></div>
 </div>
 
@@ -580,18 +580,18 @@
 <div class="viewcode-block" id="TestCollectEnvironment">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCollectEnvironment">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCollectEnvironment</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;collect_environment records platform + requested package versions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""collect_environment records platform + requested package versions."""</span>
 
 <div class="viewcode-block" id="TestCollectEnvironment.test_fields_and_requested_packages">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCollectEnvironment.test_fields_and_requested_packages">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_fields_and_requested_packages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Only the requested (installed) packages are reported.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Only the requested (installed) packages are reported."""</span>
 
-        <span class="n">env</span> <span class="o">=</span> <span class="n">collect_environment</span><span class="p">(</span><span class="n">packages</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="s2">&quot;not-a-real-pkg-xyz&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;platform&quot;</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;python_version&quot;</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;packages&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;not-a-real-pkg-xyz&quot;</span><span class="p">,</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;packages&quot;</span><span class="p">])</span></div>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">collect_environment</span><span class="p">(</span><span class="n">packages</span><span class="o">=</span><span class="p">(</span><span class="s2">"numpy"</span><span class="p">,</span> <span class="s2">"not-a-real-pkg-xyz"</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"python_version"</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"numpy"</span><span class="p">,</span> <span class="n">env</span><span class="p">[</span><span class="s2">"packages"</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"not-a-real-pkg-xyz"</span><span class="p">,</span> <span class="n">env</span><span class="p">[</span><span class="s2">"packages"</span><span class="p">])</span></div>
 </div>
 
 
@@ -599,7 +599,7 @@
 <div class="viewcode-block" id="TestBuildCrashReport">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestBuildCrashReport">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestBuildCrashReport</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;build_crash_report assembles a scrubbed, best-effort zip.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""build_crash_report assembles a scrubbed, best-effort zip."""</span>
 
 <div class="viewcode-block" id="TestBuildCrashReport.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestBuildCrashReport.setUp">[docs]</a>
@@ -607,18 +607,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
         <span class="n">set_project_home</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;report.zip&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"report.zip"</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_secret_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># pylint: disable=not-callable</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="n">secret</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gaia-password&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;creds&quot;</span><span class="p">)</span>
+            <span class="n">secret</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"gaia-password"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"creds"</span><span class="p">)</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                 <span class="n">Configuration</span><span class="p">(</span>
-                    <span class="n">parameter_id</span><span class="o">=</span><span class="n">secret</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;Secret123&quot;</span>
+                    <span class="n">parameter_id</span><span class="o">=</span><span class="n">secret</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">"Secret123"</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="c1"># pylint: enable=not-callable</span>
@@ -626,7 +626,7 @@
 <div class="viewcode-block" id="TestBuildCrashReport.test_report_contents_and_scrubbing">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestBuildCrashReport.test_report_contents_and_scrubbing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_report_contents_and_scrubbing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The zip holds the expected members; the DB copy is scrubbed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The zip holds the expected members; the DB copy is scrubbed."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_secret_config</span><span class="p">()</span>
         <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
@@ -635,24 +635,24 @@
 
         <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">report</span><span class="p">:</span>
             <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">namelist</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;error.json&quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;sidecar.json&quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;provenance.json&quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;database/autowisp.db&quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"error.json"</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"sidecar.json"</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"provenance.json"</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"manifest.json"</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"database/autowisp.db"</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
 
-            <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;manifest.json&quot;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;error_id&quot;</span><span class="p">],</span> <span class="n">error_id</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;error.json&quot;</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;collected&quot;</span><span class="p">])</span>
+            <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">"manifest.json"</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">"error_id"</span><span class="p">],</span> <span class="n">error_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"error.json"</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">"collected"</span><span class="p">])</span>
 
             <span class="c1"># The live secret is redacted in the bundled database copy.</span>
-            <span class="n">db_copy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;from_zip.db&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">db_copy</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_db</span><span class="p">:</span>
-                <span class="n">out_db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;database/autowisp.db&quot;</span><span class="p">))</span>
+            <span class="n">db_copy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"from_zip.db"</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">db_copy</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_db</span><span class="p">:</span>
+                <span class="n">out_db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">"database/autowisp.db"</span><span class="p">))</span>
         <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_copy</span><span class="p">)</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT c.value FROM configuration c JOIN parameter p &quot;</span>
-            <span class="s2">&quot;ON c.parameter_id = p.id WHERE p.name = &#39;gaia-password&#39;&quot;</span>
+            <span class="s2">"SELECT c.value FROM configuration c JOIN parameter p "</span>
+            <span class="s2">"ON c.parameter_id = p.id WHERE p.name = 'gaia-password'"</span>
         <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">REDACTED</span><span class="p">)</span>
@@ -662,15 +662,15 @@
             <span class="n">live</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
                 <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;gaia-password&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"gaia-password"</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">live</span><span class="p">,</span> <span class="s2">&quot;Secret123&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">live</span><span class="p">,</span> <span class="s2">"Secret123"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestBuildCrashReport.test_missing_sidecar_is_a_gap">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestBuildCrashReport.test_missing_sidecar_is_a_gap">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_sidecar_is_a_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A sidecar-less error still builds, with the gap recorded.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A sidecar-less error still builds, with the gap recorded."""</span>
 
         <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
@@ -679,16 +679,16 @@
         <span class="n">path</span> <span class="o">=</span> <span class="n">build_crash_report</span><span class="p">(</span><span class="n">error_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">report</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;sidecar.json&quot;</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">namelist</span><span class="p">())</span>
-            <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;manifest.json&quot;</span><span class="p">))</span>
-        <span class="n">gaps</span> <span class="o">=</span> <span class="p">{</span><span class="n">gap</span><span class="p">[</span><span class="s2">&quot;artifact&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">gap</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;gaps&quot;</span><span class="p">]}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;sidecar.json&quot;</span><span class="p">,</span> <span class="n">gaps</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"sidecar.json"</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">namelist</span><span class="p">())</span>
+            <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">"manifest.json"</span><span class="p">))</span>
+        <span class="n">gaps</span> <span class="o">=</span> <span class="p">{</span><span class="n">gap</span><span class="p">[</span><span class="s2">"artifact"</span><span class="p">]</span> <span class="k">for</span> <span class="n">gap</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">"gaps"</span><span class="p">]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"sidecar.json"</span><span class="p">,</span> <span class="n">gaps</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestBuildCrashReport.test_unknown_error_raises">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestBuildCrashReport.test_unknown_error_raises">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_error_raises</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An unknown error id raises ValueError.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An unknown error id raises ValueError."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
             <span class="n">build_crash_report</span><span class="p">(</span><span class="mi">999999</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out</span><span class="p">)</span></div>
@@ -699,7 +699,7 @@
 <div class="viewcode-block" id="TestCrashReportCli">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCrashReportCli">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCrashReportCli</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The wisp-crash-report CLI: latest-error lookup and the entry point.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The wisp-crash-report CLI: latest-error lookup and the entry point."""</span>
 
 <div class="viewcode-block" id="TestCrashReportCli.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCrashReportCli.setUp">[docs]</a>
@@ -710,8 +710,8 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_cli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;wisp-crash-report&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">]</span>
-        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">&quot;sys.argv&quot;</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"wisp-crash-report"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">"sys.argv"</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stdout</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">())</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
                 <span class="n">crash_report_main</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
@@ -719,7 +719,7 @@
 <div class="viewcode-block" id="TestCrashReportCli.test_latest_error_id">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCrashReportCli.test_latest_error_id">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_latest_error_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;latest_error_id returns the most recent error, None when empty.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""latest_error_id returns the most recent error, None when empty."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">latest_error_id</span><span class="p">())</span>
         <span class="n">first</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
@@ -730,27 +730,27 @@
 <div class="viewcode-block" id="TestCrashReportCli.test_cli_writes_report_for_id">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCrashReportCli.test_cli_writes_report_for_id">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_cli_writes_report_for_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Passing an id builds the report and prints where it went.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Passing an id builds the report and prints where it went."""</span>
 
         <span class="n">error_id</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;report.zip&quot;</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_cli</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error_id</span><span class="p">),</span> <span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"report.zip"</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_cli</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error_id</span><span class="p">),</span> <span class="s2">"--out"</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_path</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error_id</span><span class="p">),</span> <span class="n">output</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">report</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">namelist</span><span class="p">())</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"manifest.json"</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">namelist</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="TestCrashReportCli.test_cli_last_resolves_most_recent">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCrashReportCli.test_cli_last_resolves_most_recent">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_cli_last_resolves_most_recent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;--last targets the most recently recorded error.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""--last targets the most recently recorded error."""</span>
 
         <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
         <span class="n">latest</span> <span class="o">=</span> <span class="n">persist_error</span><span class="p">(</span><span class="n">make_find_stars_error</span><span class="p">())</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;last.zip&quot;</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_cli</span><span class="p">(</span><span class="s2">&quot;--last&quot;</span><span class="p">,</span> <span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"last.zip"</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_cli</span><span class="p">(</span><span class="s2">"--last"</span><span class="p">,</span> <span class="s2">"--out"</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_path</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">latest</span><span class="p">),</span> <span class="n">output</span><span class="p">)</span></div>
@@ -759,7 +759,7 @@
 <div class="viewcode-block" id="TestCrashReportCli.test_cli_errors_without_id_or_last">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCrashReportCli.test_cli_errors_without_id_or_last">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_cli_errors_without_id_or_last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Omitting both an id and --last exits with an argparse error.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Omitting both an id and --last exits with an argparse error."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
@@ -769,16 +769,16 @@
 <div class="viewcode-block" id="TestCrashReportCli.test_cli_last_with_no_errors_exits">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_crash_report.html#autowisp.tests.test_crash_report.TestCrashReportCli.test_cli_last_with_no_errors_exits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_cli_last_with_no_errors_exits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;--last with no recorded errors exits with an error.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""--last with no recorded errors exits with an error."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_run_cli</span><span class="p">(</span><span class="s2">&quot;--last&quot;</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_cli</span><span class="p">(</span><span class="s2">"--last"</span><span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

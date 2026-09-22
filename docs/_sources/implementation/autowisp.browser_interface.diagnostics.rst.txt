@@ -3,8 +3,8 @@ autowisp.browser\_interface.diagnostics package
 
 .. automodule:: autowisp.browser_interface.diagnostics
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------
@@ -29,6 +29,7 @@ Submodules
    autowisp.browser_interface.diagnostics.image_diagnostics_views
    autowisp.browser_interface.diagnostics.models
    autowisp.browser_interface.diagnostics.preview_calibrated
+   autowisp.browser_interface.diagnostics.quantities
    autowisp.browser_interface.diagnostics.series_table
    autowisp.browser_interface.diagnostics.tests
    autowisp.browser_interface.diagnostics.urls

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.data_reduction.data_reduction_file &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.data_reduction.data_reduction_file</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define a class for working with data reduction files.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define a class for working with data reduction files."""</span>
 
 <span class="c1"># pylint: disable=too-many-lines</span>
 
@@ -181,7 +181,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.hdf5_file_structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDF5FileDatabaseStructure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileKind</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 74fd49cde5cfce617ede935b69454be145acd10c $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">"$Id: 59d6eb7f4282d8ae49834bcffbd437a1a561df5a $"</span>
 
 <span class="c1"># TODO: Add missed attributes: bg.cfg.annulus, bg.cfg.zero.</span>
 
@@ -195,12 +195,12 @@
 <div class="viewcode-block" id="DataReductionFile">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DataReductionFile</span><span class="p">(</span><span class="n">HDF5FileDatabaseStructure</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Interface for working with the pipeline data reduction (DR) files.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        _product(str):    The pipeline key of the HDF5 product. In this case:</span>
-<span class="sd">            `&#39;data_reduction&#39;`</span>
+<span class="sd">            `'data_reduction'`</span>
 
 <span class="sd">        _key_io_tree_to_dr (dict):    A dictionary specifying the correspondence</span>
 <span class="sd">            between the keys used in astrowisp.IOTree to store quantities and</span>
@@ -209,26 +209,23 @@
 <span class="sd">        _dtype_dr_to_io_tree (dict):    A dictionary specifying the</span>
 <span class="sd">            correspondence between data types for entries in DR files and data</span>
 <span class="sd">            types in astrowisp.IOTree.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="n">fname_template</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">related_file_kind</span> <span class="o">=</span> <span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span>
 
-<div class="viewcode-block" id="DataReductionFile._product">
-<a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._product">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_product</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;data_reduction&quot;</span></div>
-
+        <span class="k">return</span> <span class="s2">"data_reduction"</span>
 
 <div class="viewcode-block" id="DataReductionFile._get_root_tag_name">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._get_root_tag_name">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_root_tag_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The name of the root tag in the layout configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The name of the root tag in the layout configuration."""</span>
 
-        <span class="k">return</span> <span class="s2">&quot;DataReduction&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"DataReduction"</span></div>
 
 
 <div class="viewcode-block" id="DataReductionFile._prepare_source_iter">
@@ -236,7 +233,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_source_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">column_substitution_name</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return required head and tail of paths identifying source collection.</span>
 
 <span class="sd">        Args:</span>
@@ -250,19 +247,19 @@
 
 <span class="sd">            str:    The string that must be in the end of each path for it to be</span>
 <span class="sd">                considered part of the source collection.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">path_substitutions</span><span class="p">[</span><span class="n">column_substitution_name</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{column}</span><span class="s2">&quot;</span>
+        <span class="n">path_substitutions</span><span class="p">[</span><span class="n">column_substitution_name</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{column}</span><span class="s2">"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Parsing source path: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Parsing source path: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">parsed_path</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Formatter</span><span class="p">()</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">path_substitutions</span>
         <span class="p">)</span>
         <span class="n">pre_column</span><span class="p">,</span> <span class="n">verify</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">parsed_path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Pre_column: </span><span class="si">%s</span><span class="s2">, verify: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pre_column</span><span class="p">,</span> <span class="n">verify</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">verify</span> <span class="o">==</span> <span class="s2">&quot;column&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Pre_column: </span><span class="si">%s</span><span class="s2">, verify: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">pre_column</span><span class="p">,</span> <span class="n">verify</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">verify</span> <span class="o">==</span> <span class="s2">"column"</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">name_tail</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">parsed_path</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
@@ -274,8 +271,8 @@
             <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
-            <span class="n">name_tail</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">parent</span><span class="p">,</span> <span class="n">name_head</span> <span class="o">=</span> <span class="n">pre_column</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">name_tail</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="n">parent</span><span class="p">,</span> <span class="n">name_head</span> <span class="o">=</span> <span class="n">pre_column</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name_head</span><span class="p">,</span> <span class="n">name_tail</span></div>
 
 
@@ -283,7 +280,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_fname_from_header">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_fname_from_header</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the filename of the DR file for the given header.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the filename of the DR file for the given header."""</span>
 
         <span class="c1"># TODO: implement filename template from DB ofter DB has been designed.</span>
         <span class="c1"># pylint: disable=no-member</span>
@@ -294,20 +291,20 @@
 <div class="viewcode-block" id="DataReductionFile.get_dataset_creation_args">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_dataset_creation_args">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_creation_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See HDF5File.get_dataset_creation_args(), but handle srcextract.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""See HDF5File.get_dataset_creation_args(), but handle srcextract."""</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_dataset_creation_args</span><span class="p">(</span>
             <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">dataset_key</span> <span class="o">==</span> <span class="s2">&quot;srcextract.sources&quot;</span><span class="p">:</span>
-            <span class="n">column</span> <span class="o">=</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;srcextract_column_name&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;numberpixels&quot;</span><span class="p">,</span> <span class="s2">&quot;npix&quot;</span><span class="p">,</span> <span class="s2">&quot;nsatpix&quot;</span><span class="p">]:</span>
-                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gzip&quot;</span>
-                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression_opts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9</span>
+        <span class="k">if</span> <span class="n">dataset_key</span> <span class="o">==</span> <span class="s2">"srcextract.sources"</span><span class="p">:</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"srcextract_column_name"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"numberpixels"</span><span class="p">,</span> <span class="s2">"npix"</span><span class="p">,</span> <span class="s2">"nsatpix"</span><span class="p">]:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"compression"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"gzip"</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"compression_opts"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span>
-                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">"compression"</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"scaleoffset"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -324,7 +321,7 @@
         <span class="n">ascii_columns</span><span class="o">=</span><span class="p">(),</span>
         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Creates datasets out of the fields in an array of sources.</span>
 
 <span class="sd">        Args:</span>
@@ -344,12 +341,12 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">iter_data</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Iterate over (column name, values) of the input data.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Iterate over (column name, values) of the input data."""</span>
 
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -358,27 +355,27 @@
                     <span class="k">yield</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">series</span><span class="o">.</span><span class="n">array</span>
 
         <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_data</span> <span class="ow">in</span> <span class="n">iter_data</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">ascii_columns</span> <span class="ow">or</span> <span class="n">column_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s2">&quot;SUO&quot;</span><span class="p">:</span>
-                <span class="n">column_data</span> <span class="o">=</span> <span class="n">column_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">parse_ids</span> <span class="ow">and</span> <span class="n">column_name</span> <span class="o">==</span> <span class="s2">&quot;ID&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">ascii_columns</span> <span class="ow">or</span> <span class="n">column_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s2">"SUO"</span><span class="p">:</span>
+                <span class="n">column_data</span> <span class="o">=</span> <span class="n">column_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"S"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parse_ids</span> <span class="ow">and</span> <span class="n">column_name</span> <span class="o">==</span> <span class="s2">"ID"</span><span class="p">:</span>
                 <span class="n">id_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_hat_source_id</span><span class="p">(</span><span class="n">column_data</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">id_part</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">id_part</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"prefix"</span><span class="p">,</span> <span class="s2">"field"</span><span class="p">,</span> <span class="s2">"source"</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
                         <span class="n">dataset_key</span><span class="o">=</span><span class="n">dataset_key</span><span class="p">,</span>
                         <span class="n">data</span><span class="o">=</span><span class="n">id_data</span><span class="p">[</span><span class="n">id_part</span><span class="p">],</span>
-                        <span class="o">**</span><span class="p">{</span><span class="n">column_substitution_name</span><span class="p">:</span> <span class="s2">&quot;hat_id_&quot;</span> <span class="o">+</span> <span class="n">id_part</span><span class="p">},</span>
+                        <span class="o">**</span><span class="p">{</span><span class="n">column_substitution_name</span><span class="p">:</span> <span class="s2">"hat_id_"</span> <span class="o">+</span> <span class="n">id_part</span><span class="p">},</span>
                         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Saving </span><span class="si">%s</span><span class="s2"> dataset of type: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Saving </span><span class="si">%s</span><span class="s2"> dataset of type: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">column_name</span><span class="p">),</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">column_data</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
                     <span class="n">dataset_key</span><span class="o">=</span><span class="n">dataset_key</span><span class="p">,</span>
                     <span class="n">data</span><span class="o">=</span><span class="n">column_data</span><span class="p">,</span>
-                    <span class="o">**</span><span class="p">{</span><span class="n">column_substitution_name</span><span class="p">:</span> <span class="n">column_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)},</span>
+                    <span class="o">**</span><span class="p">{</span><span class="n">column_substitution_name</span><span class="p">:</span> <span class="n">column_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)},</span>
                     <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                 <span class="p">)</span></div>
 
@@ -388,7 +385,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">delete_sources</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">column_substitution_name</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all columns of a given source collection.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Delete all columns of a given source collection."""</span>
 
         <span class="n">parent</span><span class="p">,</span> <span class="n">name_head</span><span class="p">,</span> <span class="n">name_tail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_source_iter</span><span class="p">(</span>
             <span class="n">dataset_key</span><span class="p">,</span> <span class="n">column_substitution_name</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
@@ -406,7 +403,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_sources</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">column_substitution_name</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a collection of sources previously stored in the DR file.</span>
 
 <span class="sd">        Args:</span>
@@ -419,15 +416,15 @@
 <span class="sd">            dict:</span>
 <span class="sd">                The keys are the columns of the sources stored and the values</span>
 <span class="sd">                are 1-D numpy arrays containing the data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">parent</span><span class="p">,</span> <span class="n">name_head</span><span class="p">,</span> <span class="n">name_tail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_source_iter</span><span class="p">(</span>
             <span class="n">dataset_key</span><span class="p">,</span> <span class="n">column_substitution_name</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
         <span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Collecting columns frcom </span><span class="si">%s</span><span class="s2"> under </span><span class="si">%s</span><span class="s2">, starting with </span><span class="si">%s</span><span class="s2"> and ending &quot;</span>
-            <span class="s2">&quot;with </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Collecting columns frcom </span><span class="si">%s</span><span class="s2"> under </span><span class="si">%s</span><span class="s2">, starting with </span><span class="si">%s</span><span class="s2"> and ending "</span>
+            <span class="s2">"with </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">parent</span><span class="p">,</span>
             <span class="n">name_head</span><span class="p">,</span>
@@ -437,7 +434,7 @@
             <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collect_columns</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">name_head</span><span class="p">,</span> <span class="n">name_tail</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">id_colname</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;source_id&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">id_colname</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"source_id"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">id_colname</span> <span class="ow">in</span> <span class="n">column_names</span><span class="p">:</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">id_colname</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
@@ -446,33 +443,33 @@
 <div class="viewcode-block" id="DataReductionFile.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open or create a data reduction file.</span>
+<span class="w">        </span><span class="sd">"""Open or create a data reduction file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            See HDF5File.__init__() for description of arguments, however</span>
 <span class="sd">            instead of fname, a DataReductionFile can be specified by the header</span>
 <span class="sd">            of the frame it corresponds to (or at least a dict-like object</span>
 <span class="sd">            defining the header keywords required by the DR filename template).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="s2">&quot;header&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fname_from_header</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">])</span>
-            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"header"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"fname"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fname_from_header</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"header"</span><span class="p">])</span>
+            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"header"</span><span class="p">]</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_hat_id_prefixes</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="n">RECOGNIZED_HAT_ID_PREFIXES</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="s2">&quot;srcproj.recognized_hat_id_prefixes&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="s2">"srcproj.recognized_hat_id_prefixes"</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DataReductionFile.get_dtype">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_dtype">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_key</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return numpy data type for the element with by the given key.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return numpy data type for the element with by the given key."""</span>
 
-        <span class="k">if</span> <span class="n">element_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.hat_id_prefix&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">element_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".hat_id_prefix"</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">h5py</span><span class="o">.</span><span class="n">special_dtype</span><span class="p">(</span>
                 <span class="n">enum</span><span class="o">=</span><span class="p">(</span>
                     <span class="n">numpy</span><span class="o">.</span><span class="n">ubyte</span><span class="p">,</span>
@@ -491,35 +488,35 @@
 <div class="viewcode-block" id="DataReductionFile.parse_hat_source_id">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.parse_hat_source_id">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_hat_source_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_id</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the prefix ID, field number, and source number.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the prefix ID, field number, and source number."""</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">source_id</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">source_id</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
             <span class="n">id_data</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">id_part</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">source_id</span><span class="p">),),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">id_dtype</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">id_part</span><span class="p">,</span> <span class="n">id_dtype</span> <span class="ow">in</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="s2">&quot;.hat_id_prefix&quot;</span><span class="p">)),</span>
-                    <span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint16</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"prefix"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="s2">".hat_id_prefix"</span><span class="p">)),</span>
+                    <span class="p">(</span><span class="s2">"field"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint16</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"source"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">}</span>
 
             <span class="k">for</span> <span class="n">source_index</span><span class="p">,</span> <span class="n">this_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">source_id</span><span class="p">):</span>
                 <span class="p">(</span>
-                    <span class="n">id_data</span><span class="p">[</span><span class="s2">&quot;prefix&quot;</span><span class="p">][</span><span class="n">source_index</span><span class="p">],</span>
-                    <span class="n">id_data</span><span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">][</span><span class="n">source_index</span><span class="p">],</span>
-                    <span class="n">id_data</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="n">source_index</span><span class="p">],</span>
+                    <span class="n">id_data</span><span class="p">[</span><span class="s2">"prefix"</span><span class="p">][</span><span class="n">source_index</span><span class="p">],</span>
+                    <span class="n">id_data</span><span class="p">[</span><span class="s2">"field"</span><span class="p">][</span><span class="n">source_index</span><span class="p">],</span>
+                    <span class="n">id_data</span><span class="p">[</span><span class="s2">"source"</span><span class="p">][</span><span class="n">source_index</span><span class="p">],</span>
                 <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_hat_source_id</span><span class="p">(</span><span class="n">this_id</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">id_data</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">c_style_end</span> <span class="o">=</span> <span class="n">source_id</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">c_style_end</span> <span class="o">=</span> <span class="n">source_id</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\0</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">c_style_end</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">source_id</span> <span class="o">=</span> <span class="n">source_id</span><span class="p">[:</span><span class="n">c_style_end</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">source_id</span> <span class="o">=</span> <span class="n">source_id</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="n">prefix_str</span><span class="p">,</span> <span class="n">field_str</span><span class="p">,</span> <span class="n">source_str</span> <span class="o">=</span> <span class="n">source_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">prefix_str</span><span class="p">,</span> <span class="n">field_str</span><span class="p">,</span> <span class="n">source_str</span> <span class="o">=</span> <span class="n">source_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hat_id_prefixes</span> <span class="o">==</span> <span class="n">prefix_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hat_id_prefixes</span> <span class="o">==</span> <span class="n">prefix_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span>
                 <span class="mi">0</span>
             <span class="p">],</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">field_str</span><span class="p">),</span>
@@ -530,7 +527,7 @@
 <div class="viewcode-block" id="DataReductionFile.get_source_count">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_source_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the number of sources for the given tool versions.</span>
 
 <span class="sd">        Args:</span>
@@ -542,18 +539,18 @@
 <span class="sd">            int:</span>
 <span class="sd">                The number of projected sources in the databasets reached by the</span>
 <span class="sd">                given substitutions.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;srcproj_column_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hat_id_prefix&quot;</span>
+        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"srcproj_column_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"hat_id_prefix"</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="s2">&quot;srcproj.columns&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">path_substitutions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="s2">"srcproj.columns"</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">path_substitutions</span>
         <span class="p">]</span><span class="o">.</span><span class="n">len</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DataReductionFile.initialize">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">observing_session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the FITS header and (optionally) provenance to the DR file.</span>
+<span class="w">        </span><span class="sd">"""Write the FITS header and (optionally) provenance to the DR file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            header:                The FITS primary header to embed.</span>
@@ -563,9 +560,9 @@
 <span class="sd">                is left untouched.</span>
 <span class="sd">            **substitutions:       Path substitutions forwarded to</span>
 <span class="sd">                :meth:`write_fitsheader_to_dataset`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_fitsheader_to_dataset</span><span class="p">(</span><span class="s2">&quot;fitsheader&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_fitsheader_to_dataset</span><span class="p">(</span><span class="s2">"fitsheader"</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">observing_session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_provenance</span><span class="p">(</span><span class="n">observing_session</span><span class="p">)</span></div>
 
@@ -573,15 +570,15 @@
 <div class="viewcode-block" id="DataReductionFile.get_frame_header">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_frame_header">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_frame_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the header of the corresponding FITS frame.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the header of the corresponding FITS frame."""</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fitsheader_from_dataset</span><span class="p">(</span><span class="s2">&quot;fitsheader&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fitsheader_from_dataset</span><span class="p">(</span><span class="s2">"fitsheader"</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DataReductionFile.add_provenance">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_provenance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_provenance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observing_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write instrument and observer provenance attributes to the DR file.</span>
+<span class="w">        </span><span class="sd">"""Write instrument and observer provenance attributes to the DR file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            observing_session:    The ORM ObservingSession linked to the image</span>
@@ -589,7 +586,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">cam</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">camera</span>
         <span class="n">tel</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">telescope</span>
@@ -600,38 +597,38 @@
         <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">cam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.camera.serial&quot;</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.camera.make&quot;</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.camera.model&quot;</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.camera.serial"</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.camera.make"</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.camera.model"</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="k">if</span> <span class="n">tel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.telescope.serial&quot;</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.telescope.make&quot;</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.telescope.model&quot;</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.telescope.serial"</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.telescope.make"</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.telescope.model"</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="k">if</span> <span class="n">mnt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.mount.serial&quot;</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.mount.make&quot;</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">mount_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.mount.model&quot;</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">mount_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.mount.serial"</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.mount.make"</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">mount_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.mount.model"</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">mount_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observatory.latitude&quot;</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observatory.longitude&quot;</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observatory.altitude&quot;</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">altitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.observatory.latitude"</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.observatory.longitude"</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.observatory.altitude"</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">altitude</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="k">if</span> <span class="n">who</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observer.name&quot;</span><span class="p">,</span> <span class="n">who</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.observer.name"</span><span class="p">,</span> <span class="n">who</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="n">tgt</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">target</span>
         <span class="k">if</span> <span class="n">tgt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.target.name&quot;</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.target.ra&quot;</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">ra</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;provenance.cfg.target.dec&quot;</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">dec</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.target.name"</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.target.ra"</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">ra</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"provenance.cfg.target.dec"</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">dec</span><span class="p">),</span>
             <span class="p">]</span>
 
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
@@ -642,13 +639,13 @@
 <div class="viewcode-block" id="DataReductionFile.get_num_apertures">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_num_apertures">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_num_apertures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of apertures used for aperture photometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of apertures used for aperture photometry."""</span>
 
         <span class="n">num_apertures</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span>
-                    <span class="s2">&quot;apphot.magnitude&quot;</span><span class="p">,</span>
+                    <span class="s2">"apphot.magnitude"</span><span class="p">,</span>
                     <span class="n">aperture_index</span><span class="o">=</span><span class="n">num_apertures</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -662,7 +659,7 @@
 <div class="viewcode-block" id="DataReductionFile.get_num_magfit_iterations">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_num_magfit_iterations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_num_magfit_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return how many magnitude fitting iterations are in the file.</span>
 
 <span class="sd">        Args:</span>
@@ -673,46 +670,46 @@
 <span class="sd">                The number of magnitude fitting iterations performed on the</span>
 <span class="sd">                set of photometry measurements identified by the</span>
 <span class="sd">                path_substitutions argument.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">photometry_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;shapefit&quot;</span><span class="p">,</span> <span class="s2">&quot;apphot&quot;</span><span class="p">]:</span>
+        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"aperture_index"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">photometry_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"shapefit"</span><span class="p">,</span> <span class="s2">"apphot"</span><span class="p">]:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span>
-                    <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">&quot;.magfit.magnitude&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
+                    <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">".magfit.magnitude"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
                 <span class="k">continue</span>
 
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span>
-                        <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">&quot;.magfit.magnitude&quot;</span><span class="p">,</span>
+                        <span class="n">photometry_mode</span> <span class="o">+</span> <span class="s2">".magfit.magnitude"</span><span class="p">,</span>
                         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
                     <span class="k">break</span>
 
-        <span class="k">return</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="DataReductionFile.has_shape_fit">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.has_shape_fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_shape_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accept_zeropsf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;True iff shape fitting photometry exists for path_substitutions.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""True iff shape fitting photometry exists for path_substitutions."""</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span><span class="s2">&quot;shapefit.magnitude&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span><span class="s2">"shapefit.magnitude"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span>
                 <span class="n">accept_zeropsf</span>
                 <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
-                        <span class="s2">&quot;shapefit.cfg.psf.bicubic.grid.x&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
+                        <span class="s2">"shapefit.cfg.psf.bicubic.grid.x"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
-                        <span class="s2">&quot;shapefit.cfg.psf.bicubic.grid.y&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
+                        <span class="s2">"shapefit.cfg.psf.bicubic.grid.y"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="o">&gt;</span> <span class="mi">2</span>
@@ -729,7 +726,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_source_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">magfit_iterations</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="n">magfit_iterations</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>
         <span class="n">shape_fit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">apphot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">string_source_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -737,14 +734,14 @@
         <span class="n">background</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Extract available photometry from the data reduction file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            magfit_iterations(iterable):    The set of magnitude fitting</span>
 <span class="sd">                iterations to include in the result. ``0`` is the raw photometry</span>
 <span class="sd">                (i.e. no magnitude fitting), 1 is  single reference frame fit, 1</span>
-<span class="sd">                is the first re-fit etc. Use ``&#39;all&#39;`` to get all iterations.</span>
+<span class="sd">                is the first re-fit etc. Use ``'all'`` to get all iterations.</span>
 <span class="sd">                Negative numbers have the same interpretation as python list</span>
 <span class="sd">                indices. For example ``-1`` is the final iteration.</span>
 
@@ -785,7 +782,7 @@
 <span class="sd">                    * bg (numpy.float64): The background estimates for the</span>
 <span class="sd">                      sources</span>
 
-<span class="sd">                    * bg_err (numpy.float64): Error estimate for &#39;bg&#39;</span>
+<span class="sd">                    * bg_err (numpy.float64): Error estimate for 'bg'</span>
 
 <span class="sd">                    * bg_npix (numpy.uint): The number of pixel background</span>
 <span class="sd">                      extraction was based on.</span>
@@ -803,64 +800,64 @@
 
 <span class="sd">                    * phot_flag: The quality flag for the photometry. Same</span>
 <span class="sd">                      shape and order as ``mag``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">assemble_hat_id</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
 
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">field</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">source</span><span class="si">:</span><span class="s2">07d</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">field</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">source</span><span class="si">:</span><span class="s2">07d</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">initialize_result</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create the part of the result always included.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create the part of the result always included."""</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sources</span><span class="p">(</span>
-                <span class="s2">&quot;srcproj.columns&quot;</span><span class="p">,</span> <span class="s2">&quot;srcproj_column_name&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
+                <span class="s2">"srcproj.columns"</span><span class="p">,</span> <span class="s2">"srcproj_column_name"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Initial source data columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+                <span class="s2">"Initial source data columns: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">hat_id_components</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;hat_id_prefix&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;hat_id_field&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;hat_id_source&quot;</span><span class="p">,</span>
+                <span class="s2">"hat_id_prefix"</span><span class="p">,</span>
+                <span class="s2">"hat_id_field"</span><span class="p">,</span>
+                <span class="s2">"hat_id_source"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="k">if</span> <span class="n">string_source_ids</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;source_id&quot;</span><span class="p">:</span>
-                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span>
-                        <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span> <span class="n">otypes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"source_id"</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">"ID"</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">),</span> <span class="n">otypes</span><span class="o">=</span><span class="p">[</span><span class="s2">"O"</span><span class="p">]</span>
                     <span class="p">)(</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">assemble_hat_id</span><span class="p">)(</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">"ID"</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">assemble_hat_id</span><span class="p">)(</span>
                         <span class="o">*</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">hat_id_components</span><span class="p">],</span>
-                        <span class="n">otypes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">],</span>
+                        <span class="n">otypes</span><span class="o">=</span><span class="p">[</span><span class="s2">"O"</span><span class="p">],</span>
                     <span class="p">)</span>
                     <span class="k">for</span> <span class="n">id_component</span> <span class="ow">in</span> <span class="n">hat_id_components</span><span class="p">:</span>
                         <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="n">id_component</span><span class="p">]</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"ID"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">set</span><span class="p">(</span><span class="n">hat_id_components</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">set</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">all_numeric_source_ids</span><span class="p">:</span>
                     <span class="n">result</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
-                        <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;hat_id_prefnum&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hat_id_prefixes</span><span class="p">)</span>
+                        <span class="mi">0</span><span class="p">,</span> <span class="s2">"hat_id_prefnum"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hat_id_prefixes</span><span class="p">)</span>
                     <span class="p">)</span>
                     <span class="k">for</span> <span class="n">new_id</span><span class="p">,</span> <span class="n">old_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hat_id_prefixes</span><span class="p">):</span>
                         <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;hat_id_prefix&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">old_id</span><span class="p">,</span> <span class="s2">&quot;hat_id_prefnum&quot;</span>
+                            <span class="n">result</span><span class="p">[</span><span class="s2">"hat_id_prefix"</span><span class="p">]</span> <span class="o">==</span> <span class="n">old_id</span><span class="p">,</span> <span class="s2">"hat_id_prefnum"</span>
                         <span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
-                    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;hat_id_prefnum&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span>
+                    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">"hat_id_prefnum"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_hat_id_prefixes</span>
                     <span class="p">)</span>
-                    <span class="n">hat_id_components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hat_id_prefnum&quot;</span>
+                    <span class="n">hat_id_components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"hat_id_prefnum"</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">hat_id_components</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Source data after formatting ID:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="s2">"Source data after formatting ID:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
             <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">result</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">normalize_magfit_iterations</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Make sure ``magfit_iterations`` is a list of positive indices.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Make sure ``magfit_iterations`` is a list of positive indices."""</span>
 
-            <span class="k">if</span> <span class="n">magfit_iterations</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="k">if</span> <span class="n">magfit_iterations</span> <span class="o">!=</span> <span class="s2">"all"</span> <span class="ow">and</span> <span class="p">(</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">magfit_iterations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span><span class="n">magfit_iterations</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
             <span class="p">):</span>
                 <span class="k">return</span> <span class="n">magfit_iterations</span>
@@ -876,18 +873,18 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">magfit_iterations</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">magfit_iterations</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">all_magfit_indices</span>
 
             <span class="k">return</span> <span class="n">all_magfit_indices</span><span class="p">[</span><span class="n">magfit_iterations</span><span class="p">]</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">fill_background</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill the background entries in the result.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Fill the background entries in the result."""</span>
 
             <span class="k">for</span> <span class="n">result_key</span><span class="p">,</span> <span class="n">dataset_key</span> <span class="ow">in</span> <span class="p">(</span>
-                <span class="p">(</span><span class="s2">&quot;bg&quot;</span><span class="p">,</span> <span class="s2">&quot;bg.value&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;bg_err&quot;</span><span class="p">,</span> <span class="s2">&quot;bg.error&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;bg_npix&quot;</span><span class="p">,</span> <span class="s2">&quot;bg.npix&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"bg"</span><span class="p">,</span> <span class="s2">"bg.value"</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"bg_err"</span><span class="p">,</span> <span class="s2">"bg.error"</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"bg_npix"</span><span class="p">,</span> <span class="s2">"bg.npix"</span><span class="p">),</span>
             <span class="p">):</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">result_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
                     <span class="n">dataset_key</span><span class="p">,</span>
@@ -896,25 +893,25 @@
                 <span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">fill_photometry</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill the photomtric measurements entries in result.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Fill the photomtric measurements entries in result."""</span>
 
             <span class="k">for</span> <span class="n">result_key</span><span class="p">,</span> <span class="n">dataset_key_tail</span> <span class="ow">in</span> <span class="p">(</span>
-                <span class="p">(</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;mag_err&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude_error&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;phot_flag&quot;</span><span class="p">,</span> <span class="s2">&quot;quality_flag&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"mag"</span><span class="p">,</span> <span class="s2">"magnitude"</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"mag_err"</span><span class="p">,</span> <span class="s2">"magnitude_error"</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"phot_flag"</span><span class="p">,</span> <span class="s2">"quality_flag"</span><span class="p">),</span>
             <span class="p">):</span>
                 <span class="k">for</span> <span class="n">magfit_iter</span> <span class="ow">in</span> <span class="n">magfit_iterations</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">magfit_iter</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">result_key</span> <span class="o">!=</span> <span class="s2">&quot;mag&quot;</span><span class="p">:</span>
-                        <span class="n">dataset_key_middle</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="k">if</span> <span class="n">magfit_iter</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">result_key</span> <span class="o">!=</span> <span class="s2">"mag"</span><span class="p">:</span>
+                        <span class="n">dataset_key_middle</span> <span class="o">=</span> <span class="s2">""</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">dataset_key_middle</span> <span class="o">=</span> <span class="s2">&quot;magfit.&quot;</span>
-                    <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">magfit_iter</span> <span class="o">-</span> <span class="mi">1</span>
-                    <span class="n">column_tail</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_mfit</span><span class="si">{</span><span class="n">magfit_iter</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">dataset_key_middle</span> <span class="o">=</span> <span class="s2">"magfit."</span>
+                    <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">=</span> <span class="n">magfit_iter</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="n">column_tail</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"_mfit</span><span class="si">{</span><span class="n">magfit_iter</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">"</span>
                     <span class="k">if</span> <span class="n">shape_fit</span><span class="p">:</span>
-                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;shapefit_&quot;</span> <span class="o">+</span> <span class="n">result_key</span> <span class="o">+</span> <span class="n">column_tail</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">"shapefit_"</span> <span class="o">+</span> <span class="n">result_key</span> <span class="o">+</span> <span class="n">column_tail</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
                                 <span class="p">(</span>
-                                    <span class="s2">&quot;shapefit.&quot;</span>
+                                    <span class="s2">"shapefit."</span>
                                     <span class="o">+</span> <span class="n">dataset_key_middle</span>
                                     <span class="o">+</span> <span class="n">dataset_key_tail</span>
                                 <span class="p">),</span>
@@ -928,12 +925,12 @@
                         <span class="p">)</span>
                         <span class="k">for</span> <span class="n">aperture_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_apertures</span><span class="p">):</span>
                             <span class="n">result</span><span class="p">[</span>
-                                <span class="sa">f</span><span class="s2">&quot;ap</span><span class="si">{</span><span class="n">aperture_index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">_&quot;</span>
+                                <span class="sa">f</span><span class="s2">"ap</span><span class="si">{</span><span class="n">aperture_index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">_"</span>
                                 <span class="o">+</span> <span class="n">result_key</span>
                                 <span class="o">+</span> <span class="n">column_tail</span>
                             <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
                                 <span class="p">(</span>
-                                    <span class="s2">&quot;apphot.&quot;</span>
+                                    <span class="s2">"apphot."</span>
                                     <span class="o">+</span> <span class="n">dataset_key_middle</span>
                                     <span class="o">+</span> <span class="n">dataset_key_tail</span>
                                 <span class="p">),</span>
@@ -956,7 +953,7 @@
 <div class="viewcode-block" id="DataReductionFile.get_source_ids">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_ids">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_source_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string_source_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the IDs of the sources in the given DR file.</span>
+<span class="w">        </span><span class="sd">"""Return the IDs of the sources in the given DR file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            string_source_ids:    Should source IDs be formatted as strings</span>
@@ -967,7 +964,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            numpy.array:</span>
 <span class="sd">                See ID field of result in get_source_data().</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_data</span><span class="p">(</span>
             <span class="n">string_source_ids</span><span class="o">=</span><span class="n">string_source_ids</span><span class="p">,</span>
@@ -992,7 +989,7 @@
         <span class="n">missing_indices</span><span class="p">,</span>
         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a magnitude fitting iteration to the DR file.</span>
 
 <span class="sd">        Args:</span>
@@ -1011,10 +1008,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">pad_missing_magnitudes</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return fitted magnitudes with nans added at missing_indices.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return fitted magnitudes with nans added at missing_indices."""</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">missing_indices</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">fitted_magnitudes</span>
@@ -1034,26 +1031,26 @@
             <span class="k">return</span> <span class="n">padded_fitted_magnitudes</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">add_magfit_datasets</span><span class="p">(</span><span class="n">fitted_magnitudes</span><span class="p">,</span> <span class="n">include_shape_fit</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create the datasets holding the newly fitted magnitudes.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Create the datasets holding the newly fitted magnitudes."""</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">add_dataset</span><span class="p">(</span><span class="n">dset_key</span><span class="p">,</span> <span class="n">dset_data</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
 
                 <span class="n">orig_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
                     <span class="n">dset_key</span><span class="p">,</span>
                     <span class="n">dset_data</span><span class="p">,</span>
-                    <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                    <span class="n">if_exists</span><span class="o">=</span><span class="s2">"error"</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">path_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span>
                 <span class="k">for</span> <span class="n">magfit_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
                     <span class="n">num_magfit_iterations</span><span class="p">,</span>
-                    <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">],</span>
+                    <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">],</span>
                 <span class="p">):</span>
                     <span class="bp">self</span><span class="p">[</span>
                         <span class="n">path_template</span>
                         <span class="o">%</span> <span class="p">{</span>
                             <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
-                            <span class="s2">&quot;magfit_iteration&quot;</span><span class="p">:</span> <span class="n">magfit_iter</span><span class="p">,</span>
+                            <span class="s2">"magfit_iteration"</span><span class="p">:</span> <span class="n">magfit_iter</span><span class="p">,</span>
                         <span class="p">}</span>
                     <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">orig_path</span><span class="p">]</span>
 
@@ -1063,91 +1060,91 @@
                 <span class="n">num_apertures</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="n">apphot_start</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="n">add_dataset</span><span class="p">(</span>
-                    <span class="s2">&quot;shapefit.magfit.magnitude&quot;</span><span class="p">,</span>
+                    <span class="s2">"shapefit.magfit.magnitude"</span><span class="p">,</span>
                     <span class="n">fitted_magnitudes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
                     <span class="n">path_substitutions</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">for</span> <span class="n">aperture_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_apertures</span><span class="p">):</span>
                 <span class="n">add_dataset</span><span class="p">(</span>
-                    <span class="s2">&quot;apphot.magfit.magnitude&quot;</span><span class="p">,</span>
+                    <span class="s2">"apphot.magfit.magnitude"</span><span class="p">,</span>
                     <span class="n">fitted_magnitudes</span><span class="p">[:,</span> <span class="n">aperture_index</span> <span class="o">+</span> <span class="n">apphot_start</span><span class="p">],</span>
-                    <span class="p">{</span><span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span> <span class="s2">&quot;aperture_index&quot;</span><span class="p">:</span> <span class="n">aperture_index</span><span class="p">},</span>
+                    <span class="p">{</span><span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span> <span class="s2">"aperture_index"</span><span class="p">:</span> <span class="n">aperture_index</span><span class="p">},</span>
                 <span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">add_attributes</span><span class="p">(</span><span class="n">include_shape_fit</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add attributes with the magfit configuration.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Add attributes with the magfit configuration."""</span>
 
             <span class="k">for</span> <span class="n">phot_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fitted_magnitudes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
 
                 <span class="n">phot_method</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">&quot;shapefit&quot;</span>
+                    <span class="s2">"shapefit"</span>
                     <span class="k">if</span> <span class="n">include_shape_fit</span> <span class="ow">and</span> <span class="n">phot_index</span> <span class="o">==</span> <span class="mi">0</span>
-                    <span class="k">else</span> <span class="s2">&quot;apphot&quot;</span>
+                    <span class="k">else</span> <span class="s2">"apphot"</span>
                 <span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">phot_method</span> <span class="o">==</span> <span class="s2">&quot;apphot&quot;</span><span class="p">:</span>
-                    <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">path_substitutions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">phot_method</span> <span class="o">==</span> <span class="s2">"apphot"</span><span class="p">:</span>
+                    <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"aperture_index"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">path_substitutions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"aperture_index"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
                     <span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">num_magfit_iterations</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
-                        <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">&quot;.magfit.cfg.correction_type&quot;</span><span class="p">,</span>
-                        <span class="sa">b</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-                        <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                        <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">".magfit.cfg.correction_type"</span><span class="p">,</span>
+                        <span class="sa">b</span><span class="s2">"linear"</span><span class="p">,</span>
+                        <span class="n">if_exists</span><span class="o">=</span><span class="s2">"error"</span><span class="p">,</span>
                         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                     <span class="p">)</span>
 
                     <span class="k">for</span> <span class="n">pipeline_key_end</span><span class="p">,</span> <span class="n">config_attribute</span> <span class="ow">in</span> <span class="p">[</span>
-                        <span class="p">(</span><span class="s2">&quot;correction&quot;</span><span class="p">,</span> <span class="s2">&quot;correction_parametrization&quot;</span><span class="p">),</span>
-                        <span class="p">(</span><span class="s2">&quot;require&quot;</span><span class="p">,</span> <span class="s2">&quot;fit_source_condition&quot;</span><span class="p">),</span>
-                        <span class="p">(</span><span class="s2">&quot;single_photref&quot;</span><span class="p">,</span> <span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">"correction"</span><span class="p">,</span> <span class="s2">"correction_parametrization"</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">"require"</span><span class="p">,</span> <span class="s2">"fit_source_condition"</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">"single_photref"</span><span class="p">,</span> <span class="s2">"single_photref_dr_fname"</span><span class="p">),</span>
                     <span class="p">]:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
-                            <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">&quot;.magfit.cfg.&quot;</span> <span class="o">+</span> <span class="n">pipeline_key_end</span><span class="p">,</span>
+                            <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">".magfit.cfg."</span> <span class="o">+</span> <span class="n">pipeline_key_end</span><span class="p">,</span>
                             <span class="nb">getattr</span><span class="p">(</span><span class="n">magfit_configuration</span><span class="p">,</span> <span class="n">config_attribute</span><span class="p">),</span>
-                            <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                            <span class="n">if_exists</span><span class="o">=</span><span class="s2">"error"</span><span class="p">,</span>
                             <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                         <span class="p">)</span>
 
                     <span class="k">for</span> <span class="n">config_param</span> <span class="ow">in</span> <span class="p">[</span>
-                        <span class="s2">&quot;noise_offset&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;max_mag_err&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;rej_level&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;max_rej_iter&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;error_avg&quot;</span><span class="p">,</span>
+                        <span class="s2">"noise_offset"</span><span class="p">,</span>
+                        <span class="s2">"max_mag_err"</span><span class="p">,</span>
+                        <span class="s2">"rej_level"</span><span class="p">,</span>
+                        <span class="s2">"max_rej_iter"</span><span class="p">,</span>
+                        <span class="s2">"error_avg"</span><span class="p">,</span>
                     <span class="p">]:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
-                            <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">&quot;.magfit.cfg.&quot;</span> <span class="o">+</span> <span class="n">config_param</span><span class="p">,</span>
+                            <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">".magfit.cfg."</span> <span class="o">+</span> <span class="n">config_param</span><span class="p">,</span>
                             <span class="nb">getattr</span><span class="p">(</span><span class="n">magfit_configuration</span><span class="p">,</span> <span class="n">config_param</span><span class="p">),</span>
-                            <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                            <span class="n">if_exists</span><span class="o">=</span><span class="s2">"error"</span><span class="p">,</span>
                             <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                         <span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">pipeline_key_end</span><span class="p">,</span> <span class="n">statistics_key</span> <span class="ow">in</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="s2">&quot;num_input_src&quot;</span><span class="p">,</span> <span class="s2">&quot;initial_src_count&quot;</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;num_fit_src&quot;</span><span class="p">,</span> <span class="s2">&quot;final_src_count&quot;</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;fit_residual&quot;</span><span class="p">,</span> <span class="s2">&quot;residual&quot;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"num_input_src"</span><span class="p">,</span> <span class="s2">"initial_src_count"</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"num_fit_src"</span><span class="p">,</span> <span class="s2">"final_src_count"</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"fit_residual"</span><span class="p">,</span> <span class="s2">"residual"</span><span class="p">),</span>
                 <span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
-                        <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">&quot;.magfit.&quot;</span> <span class="o">+</span> <span class="n">pipeline_key_end</span><span class="p">,</span>
+                        <span class="n">phot_method</span> <span class="o">+</span> <span class="s2">".magfit."</span> <span class="o">+</span> <span class="n">pipeline_key_end</span><span class="p">,</span>
                         <span class="n">fit_statistics</span><span class="p">[</span><span class="n">statistics_key</span><span class="p">][</span><span class="n">phot_index</span><span class="p">],</span>
-                        <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                        <span class="n">if_exists</span><span class="o">=</span><span class="s2">"error"</span><span class="p">,</span>
                         <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
                     <span class="p">)</span>
 
         <span class="n">num_magfit_iterations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_num_magfit_iterations</span><span class="p">(</span>
             <span class="o">**</span><span class="n">path_substitutions</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;magfit_iteration&quot;</span> <span class="ow">in</span> <span class="n">path_substitutions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"magfit_iteration"</span> <span class="ow">in</span> <span class="n">path_substitutions</span><span class="p">:</span>
             <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">num_magfit_iterations</span>
+                <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">num_magfit_iterations</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_magfit_iterations</span>
+            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_magfit_iterations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Adding magfit iteration </span><span class="si">%d</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> containing </span><span class="si">%d</span><span class="s2"> prior iterations&quot;</span><span class="p">,</span>
-            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">],</span>
+            <span class="s2">"Adding magfit iteration </span><span class="si">%d</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> containing </span><span class="si">%d</span><span class="s2"> prior iterations"</span><span class="p">,</span>
+            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">"magfit_iteration"</span><span class="p">],</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">num_magfit_iterations</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1162,16 +1159,16 @@
 <div class="viewcode-block" id="DataReductionFile.get_matched_sources">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_matched_sources">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_matched_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get combined catalogue and extracted matched sources.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get combined catalogue and extracted matched sources."""</span>
 
         <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
-            <span class="n">dataset_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.matched&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
+            <span class="n">dataset_key</span><span class="o">=</span><span class="s2">"skytoframe.matched"</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
         <span class="p">)</span>
 
         <span class="n">catalogue</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_sources</span><span class="p">(</span>
-                <span class="s2">&quot;catalogue.columns&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;catalogue_column_name&quot;</span><span class="p">,</span>
+                <span class="s2">"catalogue.columns"</span><span class="p">,</span>
+                <span class="s2">"catalogue_column_name"</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">match</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>
@@ -1179,8 +1176,8 @@
         <span class="p">)</span>
         <span class="n">extracted_sources</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_sources</span><span class="p">(</span>
-                <span class="s2">&quot;srcextract.sources&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcextract_column_name&quot;</span><span class="p">,</span>
+                <span class="s2">"srcextract.sources"</span><span class="p">,</span>
+                <span class="s2">"srcextract_column_name"</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">match</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
@@ -1194,23 +1191,23 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">save_source_extracted_psf_map</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">fit_results</span><span class="p">,</span> <span class="n">fit_configuration</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the datasets and attributes holding the fit results.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create the datasets and attributes holding the fit results."""</span>
 
-        <span class="n">psf_parameters</span> <span class="o">=</span> <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">psf_parameters</span> <span class="o">=</span> <span class="n">fit_results</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Writing the following data to srcextract.psf_map dataset: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Writing the following data to srcextract.psf_map dataset: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
+                    <span class="n">fit_results</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">psf_parameters</span>
                 <span class="p">]</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
-            <span class="s2">&quot;srcextract.psf_map&quot;</span><span class="p">,</span>
+            <span class="s2">"srcextract.psf_map"</span><span class="p">,</span>
             <span class="n">numpy</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;coefficients&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
+                    <span class="n">fit_results</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">psf_parameters</span>
                 <span class="p">]</span>
             <span class="p">),</span>
@@ -1219,45 +1216,45 @@
 
         <span class="k">for</span> <span class="n">param_key</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="p">(</span>
-                <span class="s2">&quot;cfg.psf_params&quot;</span><span class="p">,</span>
-                <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">psf_parameters</span><span class="p">]),</span>
+                <span class="s2">"cfg.psf_params"</span><span class="p">,</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">psf_parameters</span><span class="p">]),</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;cfg.terms&quot;</span><span class="p">,</span>
-                <span class="n">fit_configuration</span><span class="o">.</span><span class="n">fit_terms_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+                <span class="s2">"cfg.terms"</span><span class="p">,</span>
+                <span class="n">fit_configuration</span><span class="o">.</span><span class="n">fit_terms_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;cfg.weights&quot;</span><span class="p">,</span>
+                <span class="s2">"cfg.weights"</span><span class="p">,</span>
                 <span class="p">(</span>
-                    <span class="sa">b</span><span class="s2">&quot;none&quot;</span>
+                    <span class="sa">b</span><span class="s2">"none"</span>
                     <span class="k">if</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">weights_expression</span> <span class="ow">is</span> <span class="kc">None</span>
-                    <span class="k">else</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">weights_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">weights_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;cfg.error_avg&quot;</span><span class="p">,</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">error_avg</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s2">&quot;cfg.rej_level&quot;</span><span class="p">,</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">rej_level</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;cfg.max_rej_iter&quot;</span><span class="p">,</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">max_rej_iter</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"cfg.error_avg"</span><span class="p">,</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">error_avg</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">"cfg.rej_level"</span><span class="p">,</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">rej_level</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"cfg.max_rej_iter"</span><span class="p">,</span> <span class="n">fit_configuration</span><span class="o">.</span><span class="n">max_rej_iter</span><span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;residual&quot;</span><span class="p">,</span>
+                <span class="s2">"residual"</span><span class="p">,</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                     <span class="p">[</span>
-                        <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;fit_res2&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span>
+                        <span class="n">fit_results</span><span class="p">[</span><span class="s2">"fit_res2"</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span>
                         <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">psf_parameters</span>
                     <span class="p">]</span>
                 <span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;num_fit_src&quot;</span><span class="p">,</span>
+                <span class="s2">"num_fit_src"</span><span class="p">,</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                     <span class="p">[</span>
-                        <span class="n">fit_results</span><span class="p">[</span><span class="s2">&quot;num_fit_src&quot;</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
+                        <span class="n">fit_results</span><span class="p">[</span><span class="s2">"num_fit_src"</span><span class="p">][</span><span class="n">param_name</span><span class="p">]</span>
                         <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">psf_parameters</span>
                     <span class="p">]</span>
                 <span class="p">),</span>
             <span class="p">),</span>
         <span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
-                <span class="s2">&quot;srcextract.psf_map.&quot;</span> <span class="o">+</span> <span class="n">param_key</span><span class="p">,</span>
+                <span class="s2">"srcextract.psf_map."</span> <span class="o">+</span> <span class="n">param_key</span><span class="p">,</span>
                 <span class="n">param_value</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
             <span class="p">)</span></div>

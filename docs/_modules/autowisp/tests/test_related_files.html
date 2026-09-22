@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_related_files &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_related_files</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the per-step ``related_files`` classifiers (item 9).</span>
+<span></span><span class="sd">"""Unit tests for the per-step ``related_files`` classifiers (item 9).</span>
 
 <span class="sd">Each parallel/step site turns its work item (plus any batch-constant</span>
 <span class="sd">auxiliary inputs) into :class:`RelatedFile` entries, so an error carries</span>
@@ -184,7 +184,7 @@
 
 <span class="sd">The generic scoping machinery (worker transport, crash promotion, dedup)</span>
 <span class="sd">is covered in ``test_error_context.py``.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
@@ -214,17 +214,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.light_curves</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_correction</span> <span class="k">as</span> <span class="n">apply_correction_step</span>
 
 <span class="c1"># ``magnitude_fitting/__init__`` re-exports the ``iterative_refit``</span>
-<span class="c1"># *function* under the submodule&#39;s own name, so a plain import binds the</span>
+<span class="c1"># *function* under the submodule's own name, so a plain import binds the</span>
 <span class="c1"># function and cannot be patched against.</span>
 <span class="n">iterative_refit_step</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span>
-    <span class="s2">&quot;autowisp.magnitude_fitting.iterative_refit&quot;</span>
+    <span class="s2">"autowisp.magnitude_fitting.iterative_refit"</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="_pairs">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files._pairs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_pairs</span><span class="p">(</span><span class="n">related</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The ``(kind, posix path)`` entries, for comparison in a test.</span>
+<span class="w">    </span><span class="sd">"""The ``(kind, posix path)`` entries, for comparison in a test.</span>
 
 <span class="sd">    Always compared with ``assertCountEqual``: the order in which related</span>
 <span class="sd">    files appear carries no meaning (nothing downstream depends on it --</span>
@@ -232,7 +232,7 @@
 <span class="sd">    ``IN``), so pinning it would over-constrain the implementation.</span>
 <span class="sd">    Counting rather than a set still catches a missing entry, an</span>
 <span class="sd">    unexpected extra one, and an accidental duplicate.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="p">[(</span><span class="n">rf</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">rf</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span> <span class="k">for</span> <span class="n">rf</span> <span class="ow">in</span> <span class="n">related</span><span class="p">]</span></div>
 
@@ -241,7 +241,7 @@
 <div class="viewcode-block" id="_StubRaise">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files._StubRaise">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_StubRaise</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised by a stubbed per-item call to stop the step right there.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Raised by a stubbed per-item call to stop the step right there."""</span></div>
 
 
 
@@ -251,21 +251,21 @@
 <div class="viewcode-block" id="_StampedFilesMixin">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files._StampedFilesMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_StampedFilesMixin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run something behind a capture boundary and inspect the error.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run something behind a capture boundary and inspect the error."""</span>
 
 <div class="viewcode-block" id="_StampedFilesMixin._stamped_files">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files._StampedFilesMixin._stamped_files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_stamped_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the related files on the error escaping ``run``.</span>
+<span class="w">        </span><span class="sd">"""Return the related files on the error escaping ``run``.</span>
 
 <span class="sd">        Wraps ``run`` in the same capture boundary the manager applies to</span>
 <span class="sd">        a step, so this reproduces the real path: the code raises, its</span>
 <span class="sd">        scopes unwind, and the boundary stamps whatever survived.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nd">@capture_errors</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">boundary</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Stand in for ``ProcessingManager._run_step``.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Stand in for ``ProcessingManager._run_step``."""</span>
 
             <span class="n">run</span><span class="p">()</span>
 
@@ -278,7 +278,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files._StampedFilesMixin._raise_stub">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_raise_stub</span><span class="p">(</span><span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stand in for the first call inside a scope; always raises.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Stand in for the first call inside a scope; always raises."""</span>
 
         <span class="k">raise</span> <span class="n">_StubRaise</span></div>
 
@@ -286,9 +286,9 @@
 <div class="viewcode-block" id="_StampedFilesMixin._stamped_step_files">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files._StampedFilesMixin._stamped_step_files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_stamped_step_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">patches</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fail ``step`` inside its scope; return the files it reports.</span>
+<span class="w">        </span><span class="sd">"""Fail ``step`` inside its scope; return the files it reports.</span>
 
-<span class="sd">        Covers the steps sharing the manager&#39;s calling convention</span>
+<span class="sd">        Covers the steps sharing the manager's calling convention</span>
 <span class="sd">        ``(collection, start_status, configuration, mark_start, mark_end)``:</span>
 <span class="sd">        ``mark_start`` is the first call inside the scope, so passing the</span>
 <span class="sd">        raising stub for it fails the step exactly there, with no need to</span>
@@ -301,14 +301,14 @@
 
 <span class="sd">            config(dict or None):    Its configuration; empty if omitted.</span>
 
-<span class="sd">            patches:    Attributes of the step&#39;s *own* module to replace</span>
+<span class="sd">            patches:    Attributes of the step's *own* module to replace</span>
 <span class="sd">                for the duration -- the objects built before the loop that</span>
 <span class="sd">                would otherwise reach real files (a ``Calibrator``, a</span>
 <span class="sd">                master-filename resolver).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list:    ``(kind, path)`` pairs from the stamped error.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="vm">__module__</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">patched</span><span class="p">:</span>
@@ -331,7 +331,7 @@
 <div class="viewcode-block" id="TestMainProcessScopes">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestMainProcessScopes">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestMainProcessScopes</span><span class="p">(</span><span class="n">_StampedFilesMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The main-process steps, exercised through their real dispatch.</span>
+<span class="w">    </span><span class="sd">"""The main-process steps, exercised through their real dispatch.</span>
 
 <span class="sd">    These build their ``RelatedFile`` entries at the scope rather than in a</span>
 <span class="sd">    classifier, so each test runs the actual step with the first call</span>
@@ -339,32 +339,32 @@
 <span class="sd">    it reaches any database, FITS or HDF5 access.</span>
 
 <span class="sd">    The assertion is on the **stamped exception**, not on the live ambient</span>
-<span class="sd">    context. That distinction is the whole point: the scope&#39;s ``with``</span>
+<span class="sd">    context. That distinction is the whole point: the scope's ``with``</span>
 <span class="sd">    unwinds (resetting the ContextVar) before any enclosing ``except``</span>
 <span class="sd">    runs, so a test that reads the context from inside the scope passes</span>
 <span class="sd">    even when nothing ever reaches the error. What the pipeline actually</span>
 <span class="sd">    depends on is what ``capture_errors`` -- the boundary at</span>
 <span class="sd">    ``ProcessingManager._run_step`` -- ends up putting on the error.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestMainProcessScopes.test_calibrate_scopes_the_raw_image_and_masters">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestMainProcessScopes.test_calibrate_scopes_the_raw_image_and_masters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_calibrate_scopes_the_raw_image_and_masters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Channel-keyed master dicts contribute one entry per channel.</span>
+<span class="w">        </span><span class="sd">"""Channel-keyed master dicts contribute one entry per channel.</span>
 
 <span class="sd">        ``Calibrator`` is built before the loop and its constructor opens</span>
 <span class="sd">        the masters, so it is stubbed out; everything from the scope down</span>
 <span class="sd">        is the real step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;master_bias&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="s2">&quot;/M/bias_R.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">:</span> <span class="s2">&quot;/M/bias_G.fits&quot;</span><span class="p">},</span>
-            <span class="s2">&quot;master_dark&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># not applied -&gt; skipped</span>
-            <span class="s2">&quot;master_flat&quot;</span><span class="p">:</span> <span class="s2">&quot;/M/flat.fits&quot;</span><span class="p">,</span>  <span class="c1"># bare filename also accepted</span>
+            <span class="s2">"master_bias"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"R"</span><span class="p">:</span> <span class="s2">"/M/bias_R.fits"</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">:</span> <span class="s2">"/M/bias_G.fits"</span><span class="p">},</span>
+            <span class="s2">"master_dark"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># not applied -&gt; skipped</span>
+            <span class="s2">"master_flat"</span><span class="p">:</span> <span class="s2">"/M/flat.fits"</span><span class="p">,</span>  <span class="c1"># bare filename also accepted</span>
         <span class="p">}</span>
         <span class="n">pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stamped_step_files</span><span class="p">(</span>
             <span class="n">calibrate_step</span><span class="o">.</span><span class="n">calibrate</span><span class="p">,</span>
-            <span class="p">[</span><span class="s2">&quot;/RAW/img.fits&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"/RAW/img.fits"</span><span class="p">],</span>
             <span class="n">config</span><span class="p">,</span>
             <span class="n">Calibrator</span><span class="o">=</span><span class="k">lambda</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
@@ -374,10 +374,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
             <span class="n">pairs</span><span class="p">,</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/RAW/img.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_BIAS</span><span class="p">,</span> <span class="s2">&quot;/M/bias_R.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_BIAS</span><span class="p">,</span> <span class="s2">&quot;/M/bias_G.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_FLAT</span><span class="p">,</span> <span class="s2">&quot;/M/flat.fits&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">"/RAW/img.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_BIAS</span><span class="p">,</span> <span class="s2">"/M/bias_R.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_BIAS</span><span class="p">,</span> <span class="s2">"/M/bias_G.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_FLAT</span><span class="p">,</span> <span class="s2">"/M/flat.fits"</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
 
@@ -385,62 +385,62 @@
 <div class="viewcode-block" id="TestMainProcessScopes.test_calibrate_without_masters_scopes_only_the_image">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestMainProcessScopes.test_calibrate_without_masters_scopes_only_the_image">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_calibrate_without_masters_scopes_only_the_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;With no masters configured, only the raw image is attached.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""With no masters configured, only the raw image is attached."""</span>
 
         <span class="n">pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stamped_step_files</span><span class="p">(</span>
             <span class="n">calibrate_step</span><span class="o">.</span><span class="n">calibrate</span><span class="p">,</span>
-            <span class="p">[</span><span class="s2">&quot;/RAW/img.fits&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"/RAW/img.fits"</span><span class="p">],</span>
             <span class="n">Calibrator</span><span class="o">=</span><span class="k">lambda</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/RAW/img.fits&quot;</span><span class="p">)])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">"/RAW/img.fits"</span><span class="p">)])</span></div>
 
 
 <div class="viewcode-block" id="TestMainProcessScopes.test_add_images_to_db_scopes_the_raw_image">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestMainProcessScopes.test_add_images_to_db_scopes_the_raw_image">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_add_images_to_db_scopes_the_raw_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The raw image is in scope before any DB work begins.</span>
+<span class="w">        </span><span class="sd">"""The raw image is in scope before any DB work begins.</span>
 
 <span class="sd">        The odd one out: this step takes no progress callbacks, so it</span>
 <span class="sd">        cannot use ``_stamped_step_files`` and fails through a patch</span>
 <span class="sd">        instead. ``Evaluator`` is the first call inside the scope and runs</span>
 <span class="sd">        *before* ``start_db_session``, so stubbing it also keeps the test</span>
 <span class="sd">        away from the database entirely.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">add_images_to_db_step</span><span class="p">,</span> <span class="s2">&quot;Evaluator&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raise_stub</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">add_images_to_db_step</span><span class="p">,</span> <span class="s2">"Evaluator"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raise_stub</span><span class="p">):</span>
             <span class="n">pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stamped_files</span><span class="p">(</span>
                 <span class="k">lambda</span><span class="p">:</span> <span class="n">add_images_to_db_step</span><span class="o">.</span><span class="n">add_images_to_db</span><span class="p">(</span>
-                    <span class="p">[</span><span class="s2">&quot;/RAW/a.fits&quot;</span><span class="p">],</span> <span class="p">{}</span>
+                    <span class="p">[</span><span class="s2">"/RAW/a.fits"</span><span class="p">],</span> <span class="p">{}</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/RAW/a.fits&quot;</span><span class="p">)])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="s2">"/RAW/a.fits"</span><span class="p">)])</span></div>
 
 
 <div class="viewcode-block" id="TestMainProcessScopes.test_stack_to_master_scopes_frames_and_master">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestMainProcessScopes.test_stack_to_master_scopes_frames_and_master">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_stack_to_master_scopes_frames_and_master</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stacking scopes every input frame plus the master it writes.</span>
+<span class="w">        </span><span class="sd">"""Stacking scopes every input frame plus the master it writes.</span>
 
 <span class="sd">        ``mark_start`` is injected by the manager and is the first call</span>
 <span class="sd">        inside the scope, so failing through it needs no patching of the</span>
 <span class="sd">        step itself -- only ``get_master_fname``, which would otherwise</span>
 <span class="sd">        open the first frame to build the name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stamped_step_files</span><span class="p">(</span>
             <span class="n">stack_step</span><span class="o">.</span><span class="n">stack_to_master</span><span class="p">,</span>
-            <span class="p">[</span><span class="s2">&quot;/CAL/a.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;/CAL/b.fits&quot;</span><span class="p">],</span>
-            <span class="n">get_master_fname</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s2">&quot;/M/master.fits&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">"/CAL/a.fits"</span><span class="p">,</span> <span class="s2">"/CAL/b.fits"</span><span class="p">],</span>
+            <span class="n">get_master_fname</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="s2">"/M/master.fits"</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
             <span class="n">pairs</span><span class="p">,</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/CAL/a.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/CAL/b.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="s2">&quot;/M/master.fits&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">"/CAL/a.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">"/CAL/b.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="s2">"/M/master.fits"</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
 
@@ -448,16 +448,16 @@
 <div class="viewcode-block" id="TestMainProcessScopes.test_stack_to_master_flat_scopes_both_masters">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestMainProcessScopes.test_stack_to_master_flat_scopes_both_masters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_stack_to_master_flat_scopes_both_masters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The flat stacker attaches the high *and* low masters it writes.</span>
+<span class="w">        </span><span class="sd">"""The flat stacker attaches the high *and* low masters it writes.</span>
 
 <span class="sd">        The step consumes a large, interdependent configuration, so this</span>
-<span class="sd">        uses the step&#39;s own parser defaults rather than a hand-built dict.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        uses the step's own parser defaults rather than a hand-built dict.</span>
+<span class="sd">        """</span>
 
-        <span class="n">masters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="s2">&quot;/M/high.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="s2">&quot;/M/low.fits&quot;</span><span class="p">}</span>
+        <span class="n">masters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"high"</span><span class="p">:</span> <span class="s2">"/M/high.fits"</span><span class="p">,</span> <span class="s2">"low"</span><span class="p">:</span> <span class="s2">"/M/low.fits"</span><span class="p">}</span>
         <span class="n">pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stamped_step_files</span><span class="p">(</span>
             <span class="n">flat_step</span><span class="o">.</span><span class="n">stack_to_master_flat</span><span class="p">,</span>
-            <span class="p">[</span><span class="s2">&quot;/CAL/f.fits&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"/CAL/f.fits"</span><span class="p">],</span>
             <span class="n">flat_step</span><span class="o">.</span><span class="n">parse_command_line</span><span class="p">([]),</span>
             <span class="n">get_master_fnames</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">masters</span><span class="p">,</span>
         <span class="p">)</span>
@@ -465,9 +465,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
             <span class="n">pairs</span><span class="p">,</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/CAL/f.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="s2">&quot;/M/high.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="s2">&quot;/M/low.fits&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">"/CAL/f.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="s2">"/M/high.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="s2">"/M/low.fits"</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
 </div>
@@ -477,7 +477,7 @@
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestHDF5ProductsAttachThemselves</span><span class="p">(</span><span class="n">_StampedFilesMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;DR and lightcurve files scope themselves while open.</span>
+<span class="w">    </span><span class="sd">"""DR and lightcurve files scope themselves while open.</span>
 
 <span class="sd">    This is what replaced the per-step DR/LC scopes: every pipeline HDF5</span>
 <span class="sd">    product opened through a ``with`` block attaches itself, so a step that</span>
@@ -485,13 +485,13 @@
 
 <span class="sd">    Unlike the rest of the module these use real products, which needs a</span>
 <span class="sd">    throwaway project home for the layout lookup.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves.setUpClass">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.setUpClass">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a project home holding one (empty) DR file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a project home holding one (empty) DR file."""</span>
 
         <span class="c1"># Lives for the whole class and is released in tearDownClass, so a</span>
         <span class="c1"># ``with`` is not an option here.</span>
@@ -499,8 +499,8 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">_home</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
         <span class="c1"># pylint: enable=consider-using-with</span>
         <span class="n">set_project_home</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_home</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">dr_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_home</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;frame.h5&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">dr_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_home</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"frame.h5"</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">):</span>
             <span class="k">pass</span></div>
 
 
@@ -508,7 +508,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.tearDownClass">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove the throwaway project home.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Remove the throwaway project home."""</span>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">_home</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 
@@ -516,7 +516,7 @@
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves._dr_pair">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves._dr_pair">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_dr_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The expected entry for the fixture DR file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The expected entry for the fixture DR file."""</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
 
@@ -524,12 +524,12 @@
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves.test_open_for_reading_attaches_as_input">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_open_for_reading_attaches_as_input">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_open_for_reading_attaches_as_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A DR opened ``&quot;r&quot;`` is reported, as an input.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A DR opened ``"r"`` is reported, as an input."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">read_and_fail</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fail with the DR file open.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Fail with the DR file open."""</span>
 
-            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">_StubRaise</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
@@ -540,16 +540,16 @@
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves.test_nested_products_all_attach">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_nested_products_all_attach">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_nested_products_all_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A lightcurve opened inside a DR block adds to it, not replaces.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A lightcurve opened inside a DR block adds to it, not replaces."""</span>
 
-        <span class="n">lc_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_home</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;src.h5&quot;</span><span class="p">)</span>
+        <span class="n">lc_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_home</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"src.h5"</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">write_and_fail</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fail with both a DR and a lightcurve open.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Fail with both a DR and a lightcurve open."""</span>
 
             <span class="k">with</span> <span class="p">(</span>
-                <span class="n">DataReductionFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">),</span>
-                <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">source_ids</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Gaia DR3&quot;</span><span class="p">:</span> <span class="s2">&quot;123&quot;</span><span class="p">}),</span>
+                <span class="n">DataReductionFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">),</span>
+                <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="n">source_ids</span><span class="o">=</span><span class="p">{</span><span class="s2">"Gaia DR3"</span><span class="p">:</span> <span class="s2">"123"</span><span class="p">}),</span>
             <span class="p">):</span>
                 <span class="k">raise</span> <span class="n">_StubRaise</span>
 
@@ -565,10 +565,10 @@
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves.test_in_memory_product_attaches_nothing">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_in_memory_product_attaches_nothing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_in_memory_product_attaches_nothing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The nameless in-memory products have no file to report.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The nameless in-memory products have no file to report."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">fail_in_memory</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fail with only an in-memory product open.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Fail with only an in-memory product open."""</span>
 
             <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">():</span>
                 <span class="k">raise</span> <span class="n">_StubRaise</span>
@@ -579,28 +579,28 @@
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves.test_psf_map_step_names_the_dr_it_failed_on">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_psf_map_step_names_the_dr_it_failed_on">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_psf_map_step_names_the_dr_it_failed_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``fit_source_extracted_psf_map`` reports the DR it was reading.</span>
+<span class="w">        </span><span class="sd">"""``fit_source_extracted_psf_map`` reports the DR it was reading.</span>
 
 <span class="sd">        Nothing is stubbed: the step is handed a DR that lacks the</span>
 <span class="sd">        datasets it needs and fails on its own *inside* the block that</span>
 <span class="sd">        opened it. That is what makes this catch a later refactor which</span>
 <span class="sd">        narrows the ``with`` so the work no longer happens while the file</span>
-<span class="sd">        is open -- a regression the hook&#39;s own tests cannot see.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        is open -- a regression the hook's own tests cannot see.</span>
+<span class="sd">        """</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="s2">&quot;srcextract_psf_params&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcextract_psfmap_terms&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcextract_psfmap_weights&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcextract_psfmap_error_avg&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcextract_psfmap_rej_level&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcextract_psfmap_max_rej_iter&quot;</span><span class="p">,</span>
+                <span class="s2">"srcextract_psf_params"</span><span class="p">,</span>
+                <span class="s2">"srcextract_psfmap_terms"</span><span class="p">,</span>
+                <span class="s2">"srcextract_psfmap_weights"</span><span class="p">,</span>
+                <span class="s2">"srcextract_psfmap_error_avg"</span><span class="p">,</span>
+                <span class="s2">"srcextract_psfmap_rej_level"</span><span class="p">,</span>
+                <span class="s2">"srcextract_psfmap_max_rej_iter"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">,</span> <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span> <span class="s2">&quot;skytoframe&quot;</span><span class="p">]</span>
+            <span class="p">(</span><span class="n">component</span> <span class="o">+</span> <span class="s2">"_version"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"srcextract"</span><span class="p">,</span> <span class="s2">"catalogue"</span><span class="p">,</span> <span class="s2">"skytoframe"</span><span class="p">]</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
@@ -616,16 +616,16 @@
 <div class="viewcode-block" id="TestHDF5ProductsAttachThemselves.test_merit_step_names_the_dr_it_failed_on">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.test_merit_step_names_the_dr_it_failed_on">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_merit_step_names_the_dr_it_failed_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``calculate_photref_merit`` reports the DR it was scoring.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``calculate_photref_merit`` reports the DR it was scoring."""</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="n">component</span> <span class="o">+</span> <span class="s2">"_version"</span><span class="p">:</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span>
-                <span class="s2">&quot;srcextract&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;skytoframe&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;background&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span>
+                <span class="s2">"srcextract"</span><span class="p">,</span>
+                <span class="s2">"catalogue"</span><span class="p">,</span>
+                <span class="s2">"skytoframe"</span><span class="p">,</span>
+                <span class="s2">"background"</span><span class="p">,</span>
+                <span class="s2">"srcproj"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">}</span>
 
@@ -644,21 +644,21 @@
 <div class="viewcode-block" id="TestCatalogScopes">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestCatalogScopes">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCatalogScopes</span><span class="p">(</span><span class="n">_StampedFilesMixin</span><span class="p">,</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The catalog is named by the step that *uses* it, not by the query.</span>
+<span class="w">    </span><span class="sd">"""The catalog is named by the step that *uses* it, not by the query.</span>
 
 <span class="sd">    ``ensure_catalog`` resolves the ``{checksum}`` filename and returns,</span>
 <span class="sd">    long before its caller is done with it, so each consumer scopes the</span>
 <span class="sd">    returned name around its own work. These stub the query and fail the</span>
 <span class="sd">    work below it, which is what would break if a scope were ever moved</span>
 <span class="sd">    back down into ``ensure_catalog``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">catalog_fname</span> <span class="o">=</span> <span class="s2">&quot;/MASTERS/Gaia/abc123.fits&quot;</span>
+    <span class="n">catalog_fname</span> <span class="o">=</span> <span class="s2">"/MASTERS/Gaia/abc123.fits"</span>
 
 <div class="viewcode-block" id="TestCatalogScopes._catalog_pair">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestCatalogScopes._catalog_pair">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_catalog_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The expected entry for the stubbed catalog.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The expected entry for the stubbed catalog."""</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CATALOG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalog_fname</span><span class="p">)</span></div>
 
@@ -666,39 +666,39 @@
 <div class="viewcode-block" id="TestCatalogScopes.test_fit_star_shape_names_the_catalog_it_fits_against">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestCatalogScopes.test_fit_star_shape_names_the_catalog_it_fits_against">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_fit_star_shape_names_the_catalog_it_fits_against</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The catalog covers the whole frame-set fit, not just the query.</span>
+<span class="w">        </span><span class="sd">"""The catalog covers the whole frame-set fit, not just the query.</span>
 
 <span class="sd">        ``fit_frame_set`` takes its own argument list rather than the</span>
-<span class="sd">        manager&#39;s, and derives DR names from real FITS headers before it</span>
+<span class="sd">        manager's, and derives DR names from real FITS headers before it</span>
 <span class="sd">        reaches the catalog, so those two steps are stubbed out. The</span>
 <span class="sd">        failure is injected *after* the source-list creator is built,</span>
 <span class="sd">        which is exactly what a scope left inside ``ensure_catalog`` (or</span>
 <span class="sd">        inside ``create_source_list_creator``) would fail to report.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="p">(</span>
             <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
                 <span class="n">fit_star_shape_step</span><span class="p">,</span>
-                <span class="s2">&quot;create_source_list_creator&quot;</span><span class="p">,</span>
+                <span class="s2">"create_source_list_creator"</span><span class="p">,</span>
                 <span class="k">lambda</span> <span class="o">*</span><span class="n">_args</span><span class="p">:</span> <span class="p">(</span><span class="n">MagicMock</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalog_fname</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
-                <span class="n">fit_star_shape_step</span><span class="p">,</span> <span class="s2">&quot;get_primary_header&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">_fname</span><span class="p">:</span> <span class="p">{}</span>
+                <span class="n">fit_star_shape_step</span><span class="p">,</span> <span class="s2">"get_primary_header"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">_fname</span><span class="p">:</span> <span class="p">{}</span>
             <span class="p">),</span>
             <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
                 <span class="n">fit_star_shape_step</span><span class="o">.</span><span class="n">DataReductionFile</span><span class="p">,</span>
-                <span class="s2">&quot;fname_template&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;/DR/a.h5&quot;</span><span class="p">,</span>
+                <span class="s2">"fname_template"</span><span class="p">,</span>
+                <span class="s2">"/DR/a.h5"</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
                 <span class="n">fit_star_shape_step</span><span class="p">,</span>
-                <span class="s2">&quot;get_shape_fitter_config&quot;</span><span class="p">,</span>
+                <span class="s2">"get_shape_fitter_config"</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_raise_stub</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">):</span>
             <span class="n">pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stamped_files</span><span class="p">(</span>
                 <span class="k">lambda</span><span class="p">:</span> <span class="n">fit_star_shape_step</span><span class="o">.</span><span class="n">fit_frame_set</span><span class="p">(</span>
-                    <span class="p">[</span><span class="s2">&quot;/CAL/a.fits&quot;</span><span class="p">],</span> <span class="p">{},</span> <span class="n">MagicMock</span><span class="p">(),</span> <span class="n">MagicMock</span><span class="p">()</span>
+                    <span class="p">[</span><span class="s2">"/CAL/a.fits"</span><span class="p">],</span> <span class="p">{},</span> <span class="n">MagicMock</span><span class="p">(),</span> <span class="n">MagicMock</span><span class="p">()</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
@@ -710,7 +710,7 @@
 <div class="viewcode-block" id="TestWorkerPoolClassifiers">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestWorkerPoolClassifiers</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The ``run_pool`` sites, checked through the call that wires them up.</span>
+<span class="w">    </span><span class="sd">"""The ``run_pool`` sites, checked through the call that wires them up.</span>
 
 <span class="sd">    These steps do not scope the context themselves: they hand ``run_pool``</span>
 <span class="sd">    a classifier and ``_WorkerEntry`` applies it inside each worker. That</span>
@@ -720,48 +720,48 @@
 <span class="sd">    classifier makes of an item. Each test therefore runs the real call</span>
 <span class="sd">    site with ``run_pool`` intercepted, then applies the classifier it was</span>
 <span class="sd">    handed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestWorkerPoolClassifiers._captured_classifier">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers._captured_classifier">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_captured_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">pool_result</span><span class="o">=</span><span class="p">()):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run ``run``, returning the ``related_files`` its pool was given.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run ``run``, returning the ``related_files`` its pool was given."""</span>
 
         <span class="n">captured</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">fake_run_pool</span><span class="p">(</span><span class="n">_worker</span><span class="p">,</span> <span class="n">_items</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Stand in for ``run_pool``, recording the classifier.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Stand in for ``run_pool``, recording the classifier."""</span>
 
-            <span class="n">captured</span><span class="p">[</span><span class="s2">&quot;related_files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;related_files&quot;</span><span class="p">)</span>
+            <span class="n">captured</span><span class="p">[</span><span class="s2">"related_files"</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"related_files"</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">pool_result</span>
 
-        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;run_pool&quot;</span><span class="p">,</span> <span class="n">fake_run_pool</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">"run_pool"</span><span class="p">,</span> <span class="n">fake_run_pool</span><span class="p">):</span>
             <span class="n">run</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">captured</span><span class="p">[</span><span class="s2">&quot;related_files&quot;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">captured</span><span class="p">[</span><span class="s2">"related_files"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="TestWorkerPoolClassifiers.test_fit_star_shape_passes_the_frame_set">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_fit_star_shape_passes_the_frame_set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_fit_star_shape_passes_the_frame_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Every frame of a simultaneous-fit set is attached, not just one.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Every frame of a simultaneous-fit set is attached, not just one."""</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{RAWFNAME}</span><span class="s2">.h5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;num_simultaneous&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">"data_reduction_fname"</span><span class="p">:</span> <span class="s2">"</span><span class="si">{RAWFNAME}</span><span class="s2">.h5"</span><span class="p">,</span>
+            <span class="s2">"num_simultaneous"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">"num_parallel_processes"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">classifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_captured_classifier</span><span class="p">(</span>
             <span class="n">fit_star_shape_step</span><span class="p">,</span>
             <span class="k">lambda</span><span class="p">:</span> <span class="n">fit_star_shape_step</span><span class="o">.</span><span class="n">fit_star_shape</span><span class="p">(</span>
-                <span class="p">[</span><span class="s2">&quot;/CAL/a.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;/CAL/b.fits&quot;</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+                <span class="p">[</span><span class="s2">"/CAL/a.fits"</span><span class="p">,</span> <span class="s2">"/CAL/b.fits"</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
             <span class="p">),</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
-            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">([</span><span class="s2">&quot;/CAL/a.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;/CAL/b.fits&quot;</span><span class="p">])),</span>
+            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">([</span><span class="s2">"/CAL/a.fits"</span><span class="p">,</span> <span class="s2">"/CAL/b.fits"</span><span class="p">])),</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/CAL/a.fits&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">&quot;/CAL/b.fits&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">"/CAL/a.fits"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span> <span class="s2">"/CAL/b.fits"</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
 
@@ -769,12 +769,12 @@
 <div class="viewcode-block" id="TestWorkerPoolClassifiers._detrending_classifier">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers._detrending_classifier">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_detrending_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The classifier ``apply_parallel_correction`` passes for a run.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The classifier ``apply_parallel_correction`` passes for a run."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_captured_classifier</span><span class="p">(</span>
             <span class="n">apply_correction_step</span><span class="p">,</span>
             <span class="k">lambda</span><span class="p">:</span> <span class="n">apply_correction_step</span><span class="o">.</span><span class="n">apply_parallel_correction</span><span class="p">(</span>
-                <span class="p">[</span><span class="s2">&quot;/LC/src.h5&quot;</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span>
+                <span class="p">[</span><span class="s2">"/LC/src.h5"</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span>
             <span class="p">),</span>
             <span class="c1"># The real return is concatenated, so hand back something empty</span>
             <span class="c1"># rather than a bare list.</span>
@@ -785,18 +785,18 @@
 <div class="viewcode-block" id="TestWorkerPoolClassifiers.test_detrending_passes_lightcurve_and_photref">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_detrending_passes_lightcurve_and_photref">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_detrending_passes_lightcurve_and_photref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;epd/tfa attach the light curve plus the single photref.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""epd/tfa attach the light curve plus the single photref."""</span>
 
-        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">apply_correction_step</span><span class="p">,</span> <span class="s2">&quot;get_db_engine&quot;</span><span class="p">,</span> <span class="n">MagicMock</span><span class="p">()):</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">apply_correction_step</span><span class="p">,</span> <span class="s2">"get_db_engine"</span><span class="p">,</span> <span class="n">MagicMock</span><span class="p">()):</span>
             <span class="n">classifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detrending_classifier</span><span class="p">(</span>
-                <span class="n">single_photref_dr_fname</span><span class="o">=</span><span class="s2">&quot;/DR/sp.h5&quot;</span>
+                <span class="n">single_photref_dr_fname</span><span class="o">=</span><span class="s2">"/DR/sp.h5"</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
-            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">&quot;/LC/src.h5&quot;</span><span class="p">)),</span>
+            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">"/LC/src.h5"</span><span class="p">)),</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">&quot;/LC/src.h5&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/DR/sp.h5&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">"/LC/src.h5"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">"/DR/sp.h5"</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
 
@@ -804,38 +804,38 @@
 <div class="viewcode-block" id="TestWorkerPoolClassifiers.test_detrending_without_photref_passes_only_the_lightcurve">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_detrending_without_photref_passes_only_the_lightcurve">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_detrending_without_photref_passes_only_the_lightcurve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;With no single photref configured, only the LC is attached.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""With no single photref configured, only the LC is attached."""</span>
 
-        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">apply_correction_step</span><span class="p">,</span> <span class="s2">&quot;get_db_engine&quot;</span><span class="p">,</span> <span class="n">MagicMock</span><span class="p">()):</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">apply_correction_step</span><span class="p">,</span> <span class="s2">"get_db_engine"</span><span class="p">,</span> <span class="n">MagicMock</span><span class="p">()):</span>
             <span class="n">classifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detrending_classifier</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
-            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">&quot;/LC/src.h5&quot;</span><span class="p">)),</span>
-            <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">&quot;/LC/src.h5&quot;</span><span class="p">)],</span>
+            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">"/LC/src.h5"</span><span class="p">)),</span>
+            <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">LIGHTCURVE</span><span class="p">,</span> <span class="s2">"/LC/src.h5"</span><span class="p">)],</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestWorkerPoolClassifiers._magfit_classifier">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers._magfit_classifier">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_magfit_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_photref_fname</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The classifier ``single_iteration`` passes for a magfit run.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The classifier ``single_iteration`` passes for a magfit run."""</span>
 
         <span class="n">configuration</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
-            <span class="n">source_name_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">source_name_format</span><span class="o">=</span><span class="s2">"</span><span class="si">{0:d}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">master_photref_fname</span><span class="o">=</span><span class="n">master_photref_fname</span><span class="p">,</span>
-            <span class="n">single_photref_dr_fname</span><span class="o">=</span><span class="s2">&quot;/DR/sp.h5&quot;</span><span class="p">,</span>
+            <span class="n">single_photref_dr_fname</span><span class="o">=</span><span class="s2">"/DR/sp.h5"</span><span class="p">,</span>
             <span class="n">num_parallel_processes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
-            <span class="n">iterative_refit_step</span><span class="p">,</span> <span class="s2">&quot;LinearMagnitudeFit&quot;</span><span class="p">,</span> <span class="n">MagicMock</span><span class="p">()</span>
+            <span class="n">iterative_refit_step</span><span class="p">,</span> <span class="s2">"LinearMagnitudeFit"</span><span class="p">,</span> <span class="n">MagicMock</span><span class="p">()</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_captured_classifier</span><span class="p">(</span>
                 <span class="n">iterative_refit_step</span><span class="p">,</span>
                 <span class="k">lambda</span><span class="p">:</span> <span class="n">iterative_refit_step</span><span class="o">.</span><span class="n">single_iteration</span><span class="p">(</span>
-                    <span class="p">[</span><span class="s2">&quot;/DR/x.h5&quot;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"/DR/x.h5"</span><span class="p">],</span>
                     <span class="n">photref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
-                    <span class="n">path_substitutions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                    <span class="n">path_substitutions</span><span class="o">=</span><span class="p">{</span><span class="s2">"magfit_iteration"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
                     <span class="c1"># Never called, but the step wraps both in</span>
                     <span class="c1"># ``functools.partial``, which rejects ``None``.</span>
                     <span class="n">mark_start</span><span class="o">=</span><span class="n">MagicMock</span><span class="p">(),</span>
@@ -847,16 +847,16 @@
 <div class="viewcode-block" id="TestWorkerPoolClassifiers.test_magfit_passes_dr_and_both_photrefs">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_magfit_passes_dr_and_both_photrefs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_magfit_passes_dr_and_both_photrefs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;fit_magnitudes attaches the DR plus the single/master photref.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""fit_magnitudes attaches the DR plus the single/master photref."""</span>
 
-        <span class="n">classifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_classifier</span><span class="p">(</span><span class="s2">&quot;/M/mp.fits&quot;</span><span class="p">)</span>
+        <span class="n">classifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_classifier</span><span class="p">(</span><span class="s2">"/M/mp.fits"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
-            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">&quot;/DR/x.h5&quot;</span><span class="p">)),</span>
+            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">"/DR/x.h5"</span><span class="p">)),</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/DR/x.h5&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/DR/sp.h5&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_PHOTREF</span><span class="p">,</span> <span class="s2">&quot;/M/mp.fits&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">"/DR/x.h5"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">"/DR/sp.h5"</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_PHOTREF</span><span class="p">,</span> <span class="s2">"/M/mp.fits"</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span></div>
 
@@ -864,19 +864,19 @@
 <div class="viewcode-block" id="TestWorkerPoolClassifiers.test_magfit_without_master_photref">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_related_files.html#autowisp.tests.test_related_files.TestWorkerPoolClassifiers.test_magfit_without_master_photref">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_magfit_without_master_photref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Before a master photref exists it is simply omitted.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Before a master photref exists it is simply omitted."""</span>
 
         <span class="n">classifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_classifier</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertCountEqual</span><span class="p">(</span>
-            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">&quot;/DR/x.h5&quot;</span><span class="p">)),</span>
-            <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/DR/x.h5&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">&quot;/DR/sp.h5&quot;</span><span class="p">)],</span>
+            <span class="n">_pairs</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span><span class="s2">"/DR/x.h5"</span><span class="p">)),</span>
+            <span class="p">[(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">"/DR/x.h5"</span><span class="p">),</span> <span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="s2">"/DR/sp.h5"</span><span class="p">)],</span>
         <span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

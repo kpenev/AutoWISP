@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.magnitude_fitting.base &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.magnitude_fitting.base</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Magnitude fitting interface.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Magnitude fitting interface."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -187,7 +187,7 @@
 <div class="viewcode-block" id="MagnitudeFit">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MagnitudeFit</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A base class for all classes doing magnitude fitting.</span>
 
 <span class="sd">    Takes care of adding fitted magnitudes to data reduction files and updating</span>
@@ -209,13 +209,13 @@
 <span class="sd">        _catalogue:    See `master_catalogue` argument to __init__().</span>
 
 <span class="sd">        _source_name_format:    See `source_name_format` argument to __init__().</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># TODO: revive once database design is complete</span>
 <div class="viewcode-block" id="MagnitudeFit._add_fit_to_db">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_fit_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_diagnostics</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Record the given best fit coefficient and diagnostics in the database.</span>
 
 <span class="sd">        Args:</span>
@@ -241,11 +241,11 @@
 <span class="sd">                           final_src_count):</span>
 
 <span class="sd">                if self.database is None : return</span>
-<span class="sd">                args=((self._header[&#39;STID&#39;],</span>
-<span class="sd">                       self._header[&#39;FNUM&#39;],</span>
-<span class="sd">                       self._header[&#39;CMPOS&#39;],</span>
-<span class="sd">                       self._header[&#39;PROJID&#39;],</span>
-<span class="sd">                       self._header[&#39;SPRID&#39;],</span>
+<span class="sd">                args=((self._header['STID'],</span>
+<span class="sd">                       self._header['FNUM'],</span>
+<span class="sd">                       self._header['CMPOS'],</span>
+<span class="sd">                       self._header['PROJID'],</span>
+<span class="sd">                       self._header['SPRID'],</span>
 <span class="sd">                       apind,</span>
 <span class="sd">                       self.config.version,</span>
 <span class="sd">                       start_src_count,</span>
@@ -253,30 +253,30 @@
 <span class="sd">                       (None if fit_res is None else float(fit_res)))</span>
 <span class="sd">                      +</span>
 <span class="sd">                      tuple((None if v is None else float(v)) for v in values))</span>
-<span class="sd">                statement=(&#39;REPLACE INTO `&#39;+self.config.dest_table+</span>
-<span class="sd">                           &#39;` (`station_id`, `fnum`, `cmpos`, `project_id`, &#39;</span>
-<span class="sd">                           &#39;`sphotref_id`, `aperture`, `magfit_version`, &#39;</span>
-<span class="sd">                           &#39;`input_src`, `non_rej_src`, `rms_residuals`, `&#39;+</span>
-<span class="sd">                           &#39;`, `&#39;.join(self._db_columns)+&#39;`) VALUES (%s&#39;+</span>
-<span class="sd">                           &#39;, %s&#39;*(len(args)-1)+&#39;)&#39;)</span>
+<span class="sd">                statement=('REPLACE INTO `'+self.config.dest_table+</span>
+<span class="sd">                           '` (`station_id`, `fnum`, `cmpos`, `project_id`, '</span>
+<span class="sd">                           '`sphotref_id`, `aperture`, `magfit_version`, '</span>
+<span class="sd">                           '`input_src`, `non_rej_src`, `rms_residuals`, `'+</span>
+<span class="sd">                           '`, `'.join(self._db_columns)+'`) VALUES (%s'+</span>
+<span class="sd">                           ', %s'*(len(args)-1)+')')</span>
 <span class="sd">                self._log_to_file(</span>
-<span class="sd">                    &#39;Inserting into DB:\n&#39;</span>
+<span class="sd">                    'Inserting into DB:\n'</span>
 <span class="sd">                    +</span>
-<span class="sd">                    &#39;\t&#39; + statement + &#39;\n&#39;</span>
+<span class="sd">                    '\t' + statement + '\n'</span>
 <span class="sd">                    +</span>
-<span class="sd">                    &#39;\targs: &#39; + repr(args) + &#39;\n&#39;</span>
+<span class="sd">                    '\targs: ' + repr(args) + '\n'</span>
 <span class="sd">                    +</span>
-<span class="sd">                    &#39;\targ types: &#39; + repr([type(v) for v in args]) + &#39;\n&#39;</span>
+<span class="sd">                    '\targ types: ' + repr([type(v) for v in args]) + '\n'</span>
 <span class="sd">                )</span>
 <span class="sd">                self.database(statement, args)</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="MagnitudeFit._compute_mag_offset">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._compute_mag_offset">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_compute_mag_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phot_fit_results</span><span class="p">,</span> <span class="n">fit_base</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the photometry_mag_offset diagnostic value, or None.</span>
+<span class="w">        </span><span class="sd">"""Return the photometry_mag_offset diagnostic value, or None.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            phot_fit_results:    Per-group fit results for a single</span>
@@ -291,14 +291,14 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            float or None:   The diagnostic value, or ``None`` if it cannot</span>
 <span class="sd">                be computed.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="MagnitudeFit._fit">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._fit">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Perform a fit for the magfit correction.</span>
 
 <span class="sd">        Args:</span>
@@ -326,14 +326,14 @@
 <span class="sd">                                      the final rejection iteration,</span>
 <span class="sd">                    :group_id: The ID of the group of sources this fit result</span>
 <span class="sd">                               corresponds to.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="MagnitudeFit._apply_fit">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._apply_fit">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_apply_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phot</span><span class="p">,</span> <span class="n">fit_results</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return corrected magnitudes using best fit magfit coefficients.</span>
 
 <span class="sd">        Args:</span>
@@ -345,7 +345,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            numpy.array (number sources x number photometry methods):</span>
 <span class="sd">                The magnitude fit corrected magnitudes.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="MagnitudeFit._solved">
@@ -359,7 +359,7 @@
         <span class="n">num_sources</span><span class="p">,</span>
         <span class="n">dr_path_substitutions</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fitted mags if fit is already in DR, None otherwise.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return fitted mags if fit is already in DR, None otherwise."""</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">fitted</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">num_sources</span><span class="p">,</span> <span class="n">num_phot</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -368,14 +368,14 @@
                 <span class="n">accept_zeropsf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
             <span class="p">):</span>
                 <span class="n">fitted</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
-                    <span class="s2">&quot;shapefit.magfit.magnitude&quot;</span><span class="p">,</span>
+                    <span class="s2">"shapefit.magfit.magnitude"</span><span class="p">,</span>
                     <span class="n">expected_shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_sources</span><span class="p">,),</span>
                     <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">phot_ind</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">while</span> <span class="n">phot_ind</span> <span class="o">&lt;</span> <span class="n">num_phot</span><span class="p">:</span>
                 <span class="n">fitted</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
-                    <span class="s2">&quot;apphot.magfit.magnitude&quot;</span><span class="p">,</span>
+                    <span class="s2">"apphot.magfit.magnitude"</span><span class="p">,</span>
                     <span class="n">expected_shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_sources</span><span class="p">,),</span>
                     <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -389,25 +389,25 @@
 <div class="viewcode-block" id="MagnitudeFit._set_group">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._set_group">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the fit_group column in result per grouping configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the fit_group column in result per grouping configuration."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Grouping expression: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">grouping</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Grouping expression: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">grouping</span><span class="p">))</span>
         <span class="n">conditions</span> <span class="o">=</span> <span class="n">evaluator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">grouping</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Grouping conditions: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">conditions</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Grouping conditions: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">conditions</span><span class="p">))</span>
         <span class="n">groups</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">conditions</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Groups: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Groups: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">group_condition</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
             <span class="n">in_group</span> <span class="o">=</span> <span class="n">conditions</span> <span class="o">==</span> <span class="n">group_condition</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Group </span><span class="si">%d</span><span class="s2"> contains </span><span class="si">%d</span><span class="s2"> entries&quot;</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">in_group</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="s2">"Group </span><span class="si">%d</span><span class="s2"> contains </span><span class="si">%d</span><span class="s2"> entries"</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">in_group</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;fit_group&quot;</span><span class="p">][</span><span class="n">in_group</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_id</span></div>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"fit_group"</span><span class="p">][</span><span class="n">in_group</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_id</span></div>
 
 
 <div class="viewcode-block" id="MagnitudeFit._get_fit_indices">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._get_fit_indices">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_fit_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phot</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">,</span> <span class="n">no_catalogue</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a list of the indices within phot of sources to use for mag fit.</span>
 
 <span class="sd">        Exclude sources based on their catalague information.</span>
@@ -432,17 +432,17 @@
 <span class="sd">            tuple:</span>
 <span class="sd">                The ID of one of the sources dropped, None if no sources were</span>
 <span class="sd">                dropped.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">include_flag</span> <span class="o">=</span> <span class="n">evaluator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fit_source_condition</span><span class="p">)</span>
         <span class="n">include_flag</span><span class="p">[</span><span class="n">no_catalogue</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">include_flag</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">num_skipped</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">num_skipped</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">"source_id"</span><span class="p">])</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span>
         <span class="k">if</span> <span class="n">num_skipped</span><span class="p">:</span>
             <span class="n">first_skipped</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">include_flag</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">skipped_example</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="n">first_skipped</span><span class="p">]</span>
+            <span class="n">skipped_example</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"source_id"</span><span class="p">][</span><span class="n">first_skipped</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">skipped_example</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -452,7 +452,7 @@
 <div class="viewcode-block" id="MagnitudeFit._match_to_reference">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._match_to_reference">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_match_to_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phot</span><span class="p">,</span> <span class="n">no_catalogue</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add photometric reference information, and filter per self.config.</span>
 
 <span class="sd">        Args:</span>
@@ -466,30 +466,30 @@
 <span class="sd">                expressions involving photometry and catalogue columns.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            a photometry structure like phot but for each aperture &#39;ref mag&#39; is</span>
+<span class="sd">            a photometry structure like phot but for each aperture 'ref mag' is</span>
 <span class="sd">            added - the magnitude the source has in the reference - and sources</span>
 <span class="sd">            that should not be used in the fit because they are not in the</span>
 <span class="sd">            reference or do not satisfy the criteria based on catalogue</span>
 <span class="sd">            quantities are removed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">initialize_result</span><span class="p">():</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return an empty result structure.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return an empty result structure."""</span>
 
             <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">field</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">field</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">phot</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">reference_subpix</span><span class="p">:</span>
                 <span class="n">dtype</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                    <span class="p">[(</span><span class="s2">&quot;x_ref&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;y_ref&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span>
+                    <span class="p">[(</span><span class="s2">"x_ref"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="p">(</span><span class="s2">"y_ref"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span>
                 <span class="p">)</span>
             <span class="n">dtype</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="p">(</span><span class="s2">&quot;ref_mag&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
-                    <span class="p">(</span><span class="s2">&quot;ref_mag_err&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"ref_mag"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">"ref_mag_err"</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"mag_err"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Result dtype: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Result dtype: "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">phot</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">initialize_result</span><span class="p">()</span>
@@ -499,13 +499,13 @@
         <span class="p">)</span>
         <span class="n">result_ind</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">phot_ind</span> <span class="ow">in</span> <span class="n">fit_indices</span><span class="p">:</span>
-            <span class="n">source_id</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span>
+            <span class="n">source_id</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">"source_id"</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">source_id</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">():</span>
                 <span class="n">source_id</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
             <span class="n">ref_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ref_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">not_in_ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">not_in_ref</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span>
+                    <span class="n">not_in_ref</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"source_id"</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span>
                 <span class="n">not_in_ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">continue</span>
 
@@ -513,34 +513,34 @@
                 <span class="n">result</span><span class="p">[</span><span class="n">colname</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="n">colname</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">reference_subpix</span><span class="p">:</span>
-                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;x_ref&quot;</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
-                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;y_ref&quot;</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ref_mag&quot;</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ref_mag_err&quot;</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"x_ref"</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"y_ref"</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"ref_mag"</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"ref_mag_err"</span><span class="p">][</span><span class="n">result_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_info</span><span class="p">[</span><span class="s2">"mag_err"</span><span class="p">]</span>
             <span class="n">result_ind</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="n">result_ind</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">not_in_ref</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="p">(</span>
-                    <span class="s2">&quot;All </span><span class="si">%d</span><span class="s2"> sources discarded from </span><span class="si">%s</span><span class="s2">: </span><span class="si">%d</span><span class="s2"> skipped &quot;</span>
-                    <span class="s2">&quot;(example </span><span class="si">%s</span><span class="s2">), </span><span class="si">%d</span><span class="s2"> not in the </span><span class="si">%d</span><span class="s2"> sources of the reference &quot;</span>
-                    <span class="s2">&quot;(example </span><span class="si">%s</span><span class="s2">.), fit source condition: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="s2">"All </span><span class="si">%d</span><span class="s2"> sources discarded from </span><span class="si">%s</span><span class="s2">: </span><span class="si">%d</span><span class="s2"> skipped "</span>
+                    <span class="s2">"(example </span><span class="si">%s</span><span class="s2">), </span><span class="si">%d</span><span class="s2"> not in the </span><span class="si">%d</span><span class="s2"> sources of the reference "</span>
+                    <span class="s2">"(example </span><span class="si">%s</span><span class="s2">.), fit source condition: </span><span class="si">%s</span><span class="s2">"</span>
                 <span class="p">),</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]),</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">"source_id"</span><span class="p">]),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dr_fname</span><span class="p">,</span>
                 <span class="n">num_skipped</span><span class="p">,</span>
                 <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_source_name_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">skipped_example</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">skipped_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                    <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
+                    <span class="k">else</span> <span class="s2">"-"</span>
                 <span class="p">),</span>
                 <span class="n">not_in_ref</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reference</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
                 <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_source_name_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">not_in_ref</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">not_in_ref</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                    <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
+                    <span class="k">else</span> <span class="s2">"-"</span>
                 <span class="p">),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fit_source_condition</span><span class="p">,</span>
             <span class="p">)</span>
@@ -551,7 +551,7 @@
 <div class="viewcode-block" id="MagnitudeFit._update_calib_status">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._update_calib_status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_calib_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Record in the database that the current header has been magfitted.</span>
 
 <span class="sd">        For now disabled.</span>
@@ -559,25 +559,25 @@
 <span class="sd">        Code from HATpipe::</span>
 
 <span class="sd">            self.database(</span>
-<span class="sd">                &#39;UPDATE `&#39; + raw_db_table(self._header[&#39;IMAGETYP&#39;])</span>
-<span class="sd">                + &#39;` SET `calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s &#39;</span>
-<span class="sd">                &#39;AND `cmpos`=%s&#39;,</span>
+<span class="sd">                'UPDATE `' + raw_db_table(self._header['IMAGETYP'])</span>
+<span class="sd">                + '` SET `calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s '</span>
+<span class="sd">                'AND `cmpos`=%s',</span>
 <span class="sd">                (</span>
 <span class="sd">                    self.config.calib_status,</span>
-<span class="sd">                    self._header[&#39;STID&#39;],</span>
-<span class="sd">                    self._header[&#39;FNUM&#39;],</span>
-<span class="sd">                    self._header[&#39;CMPOS&#39;]</span>
+<span class="sd">                    self._header['STID'],</span>
+<span class="sd">                    self._header['FNUM'],</span>
+<span class="sd">                    self._header['CMPOS']</span>
 <span class="sd">                )</span>
 <span class="sd">            )</span>
 
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
     <span class="c1"># TODO: Is this necessary?</span>
 <div class="viewcode-block" id="MagnitudeFit._downgrade_calib_status">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._downgrade_calib_status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_downgrade_calib_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Deal with bad photometry for a frame.</span>
 
 <span class="sd">        Decrements the calibration status of the given file to astrometry</span>
@@ -588,30 +588,30 @@
 <span class="sd">        Code from HATpipe::</span>
 
 <span class="sd">            sys.stderr.write(</span>
-<span class="sd">                &#39;bad photometry encountered: &#39; + str(self._header) + &#39;\n&#39;</span>
+<span class="sd">                'bad photometry encountered: ' + str(self._header) + '\n'</span>
 <span class="sd">            )</span>
 <span class="sd">            if(self.database is None):</span>
 <span class="sd">                return</span>
 <span class="sd">            self._log_to_file(</span>
-<span class="sd">                &#39;Downgrading status of header: &#39; + str(self._header) + &#39;\n&#39;</span>
+<span class="sd">                'Downgrading status of header: ' + str(self._header) + '\n'</span>
 <span class="sd">            )</span>
 <span class="sd">            sys.stderr.write(</span>
-<span class="sd">                &#39;downgrading calibration status of &#39; + str(self._header) + &#39;\n&#39;</span>
+<span class="sd">                'downgrading calibration status of ' + str(self._header) + '\n'</span>
 <span class="sd">            )</span>
 <span class="sd">            self.database(</span>
-<span class="sd">                &#39;UPDATE `&#39;+raw_db_table(self._header[&#39;IMAGETYP&#39;])+&#39;` SET &#39;</span>
-<span class="sd">                &#39;`calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s AND &#39;</span>
-<span class="sd">                &#39;`cmpos`=%s&#39;,</span>
+<span class="sd">                'UPDATE `'+raw_db_table(self._header['IMAGETYP'])+'` SET '</span>
+<span class="sd">                '`calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s AND '</span>
+<span class="sd">                '`cmpos`=%s',</span>
 <span class="sd">                (</span>
-<span class="sd">                    object_status[&#39;good_astrometry&#39;],</span>
-<span class="sd">                    self._header[&#39;STID&#39;], self._header[&#39;FNUM&#39;],</span>
-<span class="sd">                    self._header[&#39;CMPOS&#39;]</span>
+<span class="sd">                    object_status['good_astrometry'],</span>
+<span class="sd">                    self._header['STID'], self._header['FNUM'],</span>
+<span class="sd">                    self._header['CMPOS']</span>
 <span class="sd">                )</span>
 <span class="sd">            )</span>
-<span class="sd">            sys.stderr.write(&#39;removing:&#39;+self._fit_file+&#39;\n&#39;)</span>
+<span class="sd">            sys.stderr.write('removing:'+self._fit_file+'\n')</span>
 <span class="sd">            os.remove(self._fit_file)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="MagnitudeFit._build_magfit_diagnostics">
@@ -619,7 +619,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_build_magfit_diagnostics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">fit_results</span><span class="p">,</span> <span class="n">fit_statistics</span><span class="p">,</span> <span class="n">fit_base</span><span class="p">,</span> <span class="n">header</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build per-photometry diagnostic tuples from magnitude fitting.</span>
+<span class="w">        </span><span class="sd">"""Build per-photometry diagnostic tuples from magnitude fitting.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_results:    The per-photometry, per-group fit results from</span>
@@ -638,19 +638,19 @@
 <span class="sd">            list or None:</span>
 <span class="sd">                A list of ``(name, value, photometry_id)`` tuples, or None</span>
 <span class="sd">                if no diagnostics could be computed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">diagnostics</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">phot_fit_results</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fit_results</span><span class="p">):</span>
-            <span class="n">residual</span> <span class="o">=</span> <span class="n">fit_statistics</span><span class="p">[</span><span class="s2">&quot;residual&quot;</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">fit_statistics</span><span class="p">[</span><span class="s2">"residual"</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">residual</span><span class="p">):</span>
                 <span class="n">diagnostics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">(</span><span class="s2">&quot;magfit_residual&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">residual</span><span class="p">),</span> <span class="n">phot_ind</span><span class="p">)</span>
+                    <span class="p">(</span><span class="s2">"magfit_residual"</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">residual</span><span class="p">),</span> <span class="n">phot_ind</span><span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="n">num_stars</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fit_statistics</span><span class="p">[</span><span class="s2">&quot;final_src_count&quot;</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">])</span>
+            <span class="n">num_stars</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fit_statistics</span><span class="p">[</span><span class="s2">"final_src_count"</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">])</span>
             <span class="n">diagnostics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">(</span><span class="s2">&quot;mag_fit_num_stars&quot;</span><span class="p">,</span> <span class="n">num_stars</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">)</span>
+                <span class="p">(</span><span class="s2">"mag_fit_num_stars"</span><span class="p">,</span> <span class="n">num_stars</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">)</span>
             <span class="p">)</span>
 
             <span class="n">mag_offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_mag_offset</span><span class="p">(</span>
@@ -658,7 +658,7 @@
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">mag_offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">mag_offset</span><span class="p">):</span>
                 <span class="n">diagnostics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">(</span><span class="s2">&quot;photometry_mag_offset&quot;</span><span class="p">,</span> <span class="n">mag_offset</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">)</span>
+                    <span class="p">(</span><span class="s2">"photometry_mag_offset"</span><span class="p">,</span> <span class="n">mag_offset</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">)</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">diagnostics</span> <span class="ow">or</span> <span class="kc">None</span></div>
 
@@ -667,7 +667,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._combine_fit_statistics">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_combine_fit_statistics</span><span class="p">(</span><span class="n">fit_results</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Combine the statistics summarizing how the fit went from all groups.</span>
 
 <span class="sd">        Properly combines values from the individual group fits into single</span>
@@ -682,22 +682,22 @@
 <span class="sd">                The derived fit statistics. Keys are residual,</span>
 <span class="sd">                initial_src_count, and final_src_count, with one entry for</span>
 <span class="sd">                each input photometry method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">num_photometries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit_results</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;residual&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
-            <span class="s2">&quot;initial_src_count&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">),</span>
-            <span class="s2">&quot;final_src_count&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">),</span>
+            <span class="s2">"residual"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="s2">"initial_src_count"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">),</span>
+            <span class="s2">"final_src_count"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">),</span>
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">phot_ind</span><span class="p">,</span> <span class="n">phot_result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fit_results</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">group_result</span> <span class="ow">in</span> <span class="n">phot_result</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;initial_src_count&quot;</span><span class="p">,</span> <span class="s2">&quot;final_src_count&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"initial_src_count"</span><span class="p">,</span> <span class="s2">"final_src_count"</span><span class="p">]:</span>
                     <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span> <span class="o">+=</span> <span class="n">group_result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;residual&quot;</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"residual"</span><span class="p">][</span><span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">group_result</span><span class="p">[</span><span class="s2">&quot;residual&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="n">group_result</span><span class="p">[</span><span class="s2">"residual"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
                     <span class="k">for</span> <span class="n">group_result</span> <span class="ow">in</span> <span class="n">phot_result</span>
                 <span class="p">]</span>
             <span class="p">)</span>
@@ -716,14 +716,14 @@
         <span class="n">magfit_collector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">source_name_format</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initializes a magnditude fitting object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reference(dict):    the reference against which fitting is done.</span>
 <span class="sd">                Should be indexed by source and contain entries implementing</span>
-<span class="sd">                the dict interface with keys &#39;mag&#39;, &#39;mag_err&#39; and optionally</span>
-<span class="sd">                &#39;x&#39; and &#39;y&#39; if the sub-pixel position of the source in the</span>
+<span class="sd">                the dict interface with keys 'mag', 'mag_err' and optionally</span>
+<span class="sd">                'x' and 'y' if the sub-pixel position of the source in the</span>
 <span class="sd">                reference is to be used in magnitude fitting.</span>
 
 <span class="sd">            #master_catalogue(pandas.DataFrame):    should be indexed by source</span>
@@ -753,7 +753,7 @@
 <span class="sd">            magfit_collector(MasterPhotrefCollector):    Object collecting</span>
 <span class="sd">                fitted magnitedes for generating statistics of the scatter after</span>
 <span class="sd">                magnitude fitting.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dr_fname</span> <span class="o">=</span> <span class="kc">None</span>
@@ -767,7 +767,7 @@
 <div class="viewcode-block" id="MagnitudeFit.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Performs the fit for the latest magfit iteration for a single frame.</span>
 
 <span class="sd">        Args:</span>
@@ -782,55 +782,55 @@
 
 <span class="sd">            array:</span>
 <span class="sd">                The magfit corrected non-rejected photometry for the frame.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Process </span><span class="si">%d</span><span class="s2"> fitting: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">current_process</span><span class="p">()</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">dr_fname</span>
+                <span class="s2">"Process </span><span class="si">%d</span><span class="s2"> fitting: </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span> <span class="n">current_process</span><span class="p">()</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">dr_fname</span>
             <span class="p">)</span>
-            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_reduction</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_reduction</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dr_fname</span> <span class="o">=</span> <span class="n">dr_fname</span>
                 <span class="n">phot</span> <span class="o">=</span> <span class="n">get_magfit_sources</span><span class="p">(</span>
                     <span class="n">data_reduction</span><span class="p">,</span>
                     <span class="n">magfit_iterations</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
                     <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting photometry: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Starting photometry: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot</span><span class="p">))</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Starting photometry columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+                    <span class="s2">"Starting photometry columns: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
                 <span class="p">)</span>
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">phot</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Downgrading calib status.&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Downgrading calib status."</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_downgrade_calib_status</span><span class="p">()</span>
                     <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
                 <span class="c1"># TODO: revive filtering by catalogue</span>
                 <span class="n">no_catalogue</span><span class="p">,</span> <span class="n">deleted_phot_indices</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;grouping&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">"grouping"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">phot</span> <span class="o">=</span> <span class="n">recfunctions</span><span class="o">.</span><span class="n">append_fields</span><span class="p">(</span>
-                        <span class="n">phot</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;fit_group&quot;</span><span class="p">],</span> <span class="p">[[]],</span> <span class="n">usemask</span><span class="o">=</span><span class="kc">False</span>
+                        <span class="n">phot</span><span class="p">,</span> <span class="p">[</span><span class="s2">"fit_group"</span><span class="p">],</span> <span class="p">[[]],</span> <span class="n">usemask</span><span class="o">=</span><span class="kc">False</span>
                     <span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Photometry columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+                    <span class="s2">"Photometry columns: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">phot</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">grouping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_set_group</span><span class="p">(</span><span class="n">evaluator</span><span class="p">,</span> <span class="n">phot</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking for existing solution.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Checking for existing solution."</span><span class="p">)</span>
                 <span class="n">fitted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solved</span><span class="p">(</span>
                     <span class="n">data_reduction</span><span class="o">=</span><span class="n">data_reduction</span><span class="p">,</span>
                     <span class="n">deleted_phot_indices</span><span class="o">=</span><span class="n">deleted_phot_indices</span><span class="p">,</span>
-                    <span class="n">num_phot</span><span class="o">=</span><span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                    <span class="n">num_sources</span><span class="o">=</span><span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">num_phot</span><span class="o">=</span><span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="n">num_sources</span><span class="o">=</span><span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">dr_path_substitutions</span><span class="o">=</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
                 <span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Matching to reference.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Matching to reference."</span><span class="p">)</span>
                 <span class="n">fit_base</span><span class="p">,</span> <span class="n">fit_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_to_reference</span><span class="p">(</span>
                     <span class="n">phot</span><span class="p">,</span> <span class="n">no_catalogue</span><span class="p">,</span> <span class="n">evaluator</span>
                 <span class="p">)</span>
@@ -840,15 +840,15 @@
 
                 <span class="n">fit_results</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">fit_base</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing linear fit.&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Performing linear fit."</span><span class="p">)</span>
                     <span class="n">fit_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">fit_base</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">fit_results</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Post-processing fit.&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Post-processing fit."</span><span class="p">)</span>
                     <span class="n">fitted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_fit</span><span class="p">(</span><span class="n">phot</span><span class="p">,</span> <span class="n">fit_results</span><span class="p">)</span>
                     <span class="k">assert</span> <span class="n">fitted</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span>
-                        <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                        <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                        <span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">phot</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
                     <span class="p">)</span>
                     <span class="n">fit_statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_fit_statistics</span><span class="p">(</span>
                         <span class="n">fit_results</span>
@@ -859,7 +859,7 @@
                     <span class="n">diagnostics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_magfit_diagnostics</span><span class="p">(</span>
                         <span class="n">fit_results</span><span class="p">,</span> <span class="n">fit_statistics</span><span class="p">,</span> <span class="n">fit_base</span><span class="p">,</span> <span class="n">header</span>
                     <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding to DR file.&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Adding to DR file."</span><span class="p">)</span>
                     <span class="n">mark_start</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
                     <span class="n">data_reduction</span><span class="o">.</span><span class="n">add_magnitude_fitting</span><span class="p">(</span>
                         <span class="n">fitted_magnitudes</span><span class="o">=</span><span class="n">fitted</span><span class="p">,</span>
@@ -871,7 +871,7 @@
                     <span class="n">mark_end</span><span class="p">(</span>
                         <span class="n">dr_fname</span><span class="p">,</span> <span class="n">photometry_diagnostics</span><span class="o">=</span><span class="n">diagnostics</span>
                     <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating calibration status.&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Updating calibration status."</span><span class="p">)</span>
                     <span class="k">return</span> <span class="n">phot</span><span class="p">[</span><span class="n">fit_indices</span><span class="p">],</span> <span class="n">fitted</span><span class="p">[</span><span class="n">fit_indices</span><span class="p">]</span>
                 <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
@@ -879,9 +879,9 @@
             <span class="c1"># pylint: disable=logging-not-lazy</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()))</span>
-                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Bad DR:&quot;</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()))</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Bad DR:"</span>
                 <span class="o">+</span> <span class="n">dr_fname</span>
             <span class="p">)</span>
             <span class="c1"># pylint: enable=logging-not-lazy</span>

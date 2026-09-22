@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.lc_data_io module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,79 +172,55 @@
 <span id="autowisp-light-curves-lc-data-io-module"></span><h1>autowisp.light_curves.lc_data_io module<a class="headerlink" href="#module-autowisp.light_curves.lc_data_io" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-fb5c4e835efad7b69fca22c2d461722cb680a158.png" alt="Inheritance diagram of AltAz, DataReductionFile, EarthLocation, HashableArray, LCDataIO, LightCurveFile, SkyCoord, Time, c_char_p" usemap="#inheritancedbe6546036" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-ce4c5401691e5c5cc3ac317e36dbb52713ae479f.png" alt="Inheritance diagram of AltAz, DataReductionFile, EarthLocation, HashableArray, LCDataIO, LightCurveFile, SkyCoord, Time, c_char_p" usemap="#inheritancedbe6546036" class="inheritance graphviz" /></div>
 <map id="inheritancedbe6546036" name="inheritancedbe6546036">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
-<area shape="rect" id="node15" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
-<area shape="rect" id="node13" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
-<area shape="rect" id="node14" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
-<area shape="rect" id="node19" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
-<area shape="rect" id="node17" href="autowisp.light_curves.hashable_array.html#autowisp.light_curves.hashable_array.HashableArray" target="_top" title="Hashable wrapper for ndarray objects" alt="" coords="1815,5,2143,32"/>
-<area shape="rect" id="node18" href="#autowisp.light_curves.lc_data_io.LCDataIO" target="_top" title="A callable class which gathers a slice of LC data from frames/DR files." alt="" coords="2168,5,2441,32"/>
-<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="598,80,768,107"/>
-<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="602,155,764,181"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="436,5,581,32"/>
-<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="605,5,761,32"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="784,5,952,32"/>
-<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="467,229,675,256"/>
-<area shape="rect" id="node26" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_char_p" target="_top" title="ctypes.c_char_p" alt="" coords="2466,5,2583,32"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="331,445,407,471"/>
+<area shape="rect" id="node15" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="331,519,535,544"/>
+<area shape="rect" id="node13" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,665,439,691"/>
+<area shape="rect" id="node14" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="205,592,660,617"/>
+<area shape="rect" id="node19" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="463,665,827,691"/>
+<area shape="rect" id="node17" href="autowisp.light_curves.hashable_array.html#autowisp.light_curves.hashable_array.HashableArray" target="_top" title="Hashable wrapper for ndarray objects" alt="" coords="1995,5,2361,31"/>
+<area shape="rect" id="node18" href="#autowisp.light_curves.lc_data_io.LCDataIO" target="_top" title="A callable class which gathers a slice of LC data from frames/DR files." alt="" coords="2386,5,2685,31"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="659,79,847,104"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="663,152,842,177"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="483,5,641,31"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="666,5,839,31"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="863,5,1050,31"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="514,225,746,251"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_char_p" target="_top" title="ctypes.c_char_p" alt="" coords="2709,5,2836,31"/>
 </map><p>Define a class for collecting LC data from DR files.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.lc_data_io.</span></span><span class="sig-name descname"><span class="pre">LCDataIO</span></span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.lc_data_io.</span></span><span class="sig-name descname"><span class="pre">LCDataIO</span></span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-7d117ba63f93ef6550e028baee19a3b15ec73ff7.png" alt="Inheritance diagram of autowisp.light_curves.lc_data_io.LCDataIO" usemap="#inheritance80063547c8" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-7e5e1606bdb20e7f2e68f1c69f1a3690b4120a6f.png" alt="Inheritance diagram of autowisp.light_curves.lc_data_io.LCDataIO" usemap="#inheritance80063547c8" class="inheritance graphviz" /></div>
 <map id="inheritance80063547c8" name="inheritance80063547c8">
-<area shape="rect" id="node1" href="#autowisp.light_curves.lc_data_io.LCDataIO" target="_top" title="A callable class which gathers a slice of LC data from frames/DR files." alt="" coords="5,5,279,32"/>
+<area shape="rect" id="node1" href="#autowisp.light_curves.lc_data_io.LCDataIO" target="_top" title="A callable class which gathers a slice of LC data from frames/DR files." alt="" coords="5,5,304,31"/>
 </map><p>A callable class which gathers a slice of LC data from frames/DR files.</p>
 <p>Suitable for multiprocessing.</p>
 <p>Two instances of this class should never be created simultaneously!</p>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">(something)_config</span></span></dt>
-<dd><p>Attributes containing the configurations for
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>something</strong><strong>)</strong><strong>_config</strong> – Attributes containing the configurations for
 the various components for which configuration was defined in the
 processed frames and values which are in turn dictionaries indexed
 by the configurations found for this component as frozenset suitable
 for directly passing to LightCurve.add_configuration and values
 giving the number assigned to those configurations in the
-LCDataSlice structure that was filled.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.lc_data_slice">
-<span class="sig-name descname"><span class="pre">lc_data_slice</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.lc_data_slice" title="Link to this definition"></a></dt>
-<dd><p>An object which will be filled with
-data as it is being read from data reduction files.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>LCDataSlice</p>
+LCDataSlice structure that was filled.</p></li>
+<li><p><strong>lc_data_slice</strong> (<em>LCDataSlice</em>) – An object which will be filled with
+data as it is being read from data reduction files.</p></li>
+<li><p><strong>source_destinations</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Key: (field, source). Value: the offset of
+the given source in the LCDataSlice arrays that are per-source.</p></li>
+<li><p><strong>_config</strong> – The configuration of how to perform the LC dumping.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.source_destinations">
-<span class="sig-name descname"><span class="pre">source_destinations</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.source_destinations" title="Link to this definition"></a></dt>
-<dd><p>Key: (field, source). Value: the offset of
-the given source in the LCDataSlice arrays that are per-source.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._config">
-<span class="sig-name descname"><span class="pre">_config</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._config" title="Link to this definition"></a></dt>
-<dd><p>The configuration of how to perform the LC dumping.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._add_to_data_slice">
-<span class="sig-name descname"><span class="pre">_add_to_data_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_reduction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_example</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._add_to_data_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._add_to_data_slice" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_add_to_data_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_reduction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_example</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._add_to_data_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._add_to_data_slice" title="Link to this definition"></a></dt>
 <dd><p>Add the information from a single frame to the LCDataSlice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -272,7 +248,7 @@ LCDataSlice.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._classify_datasets">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_classify_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_example</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_splits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._classify_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._classify_datasets" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_classify_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_example</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_splits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._classify_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._classify_datasets" title="Link to this definition"></a></dt>
 <dd><p>Set dataset_dimensions, header_datasets, &amp; config_components attributes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -288,7 +264,7 @@ lightcurve files to expect.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._config_to_lc_format">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_to_lc_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._config_to_lc_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._config_to_lc_format" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_config_to_lc_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._config_to_lc_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._config_to_lc_format" title="Link to this definition"></a></dt>
 <dd><p>Return value as it would be read from the LC.</p>
 </dd></dl>
 
@@ -335,7 +311,7 @@ for which the configuration applies.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._get_dimensions_iterator">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_dimensions_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract_multivalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('frame',</span> <span class="pre">'source')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_dimensions_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_dimensions_iterator" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_dimensions_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract_multivalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('frame',</span> <span class="pre">'source')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_dimensions_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_dimensions_iterator" title="Link to this definition"></a></dt>
 <dd><p>Return iterator over all possible values for a set of dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -359,13 +335,13 @@ identified by <cite>dimensions</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._get_field_index">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_field_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_field_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_field_index" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_field_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_field_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_field_index" title="Link to this definition"></a></dt>
 <dd><p>Return the index within the field for the specified entry.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._get_lc_data">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_lc_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defined_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_lc_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_lc_data" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_lc_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defined_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_lc_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_lc_data" title="Link to this definition"></a></dt>
 <dd><p>Return the data that should be added to an LC dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -390,19 +366,19 @@ being updated within the LCDataReader.lc_data_slice.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._get_num_entries">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_num_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_num_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_num_entries" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_num_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_num_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_num_entries" title="Link to this definition"></a></dt>
 <dd><p>Return how many entries are in a single value for the given dims.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._get_slice_field">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_slice_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_slice_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_slice_field" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_slice_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_slice_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_slice_field" title="Link to this definition"></a></dt>
 <dd><p>Return the field in the data slice containing the given quantity.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._get_substitutions">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_substitutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_substitutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_substitutions" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_substitutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._get_substitutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._get_substitutions" title="Link to this definition"></a></dt>
 <dd><p>Return dict of path substitutions to fully resolve path to quantity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -423,7 +399,7 @@ dimensions which to turn to substitutions.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._set_field_entry">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_set_field_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._set_field_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._set_field_entry" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_set_field_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._set_field_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._set_field_entry" title="Link to this definition"></a></dt>
 <dd><p>Set the correct index within the field for the specified entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -446,7 +422,7 @@ only, the index of the source in the data_slice.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._write_configurations">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_write_configurations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defined_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._write_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._write_configurations" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_write_configurations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defined_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._write_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._write_configurations" title="Link to this definition"></a></dt>
 <dd><p>Add all configurations to the LC and fix their config_ids in slice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -467,20 +443,20 @@ in this light curve.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO._write_slice_data">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_write_slice_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defined_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_lc_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._write_slice_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._write_slice_data" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_write_slice_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defined_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_lc_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO._write_slice_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO._write_slice_data" title="Link to this definition"></a></dt>
 <dd><p>Add all non-configuration datasets to the light curve.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.cfg_index_id">
-<span class="sig-name descname"><span class="pre">cfg_index_id</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cfg_index'</span></em><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.cfg_index_id" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cfg_index_id</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cfg_index'</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.cfg_index_id" title="Link to this definition"></a></dt>
 <dd><p>Added to the end of configuration dataset names to get the corresponding
 index dataset.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.config_components">
-<span class="sig-name descname"><span class="pre">config_components</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.config_components" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">config_components</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.config_components" title="Link to this definition"></a></dt>
 <dd><p>Keys are all the configuration components that can be defined.</p>
 <p>Values are - 2-tuple:</p>
 <blockquote>
@@ -495,7 +471,7 @@ found must be dumped.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.create">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_id_parser</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_fname_parser</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observatory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.create" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_id_parser</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_fname_parser</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observatory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.create" title="Link to this definition"></a></dt>
 <dd><p>Configure the class for use in multiprocessing LC collection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -562,7 +538,7 @@ generated lightcurves.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.dataset_dimensions">
-<span class="sig-name descname"><span class="pre">dataset_dimensions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.dataset_dimensions" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dataset_dimensions</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.dataset_dimensions" title="Link to this definition"></a></dt>
 <dd><p>Identifiers for the dimensions of datasets. The keys are the pipeline keys
 of lightcurve datasets and the values are tuples containing some of:
 <cite>‘frame’</cite>, <cite>‘source’</cite>, <cite>‘srcproj_column_name’</cite>, <cite>‘aperture_index’</cite>,
@@ -574,7 +550,7 @@ frames.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.header_datasets">
-<span class="sig-name descname"><span class="pre">header_datasets</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.header_datasets" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">header_datasets</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.header_datasets" title="Link to this definition"></a></dt>
 <dd><p>The set of datasets which contain FITS header keywords. The index is the
 pipeline key identifying the dataset, and the value is the corresponding
 header keyword.</p>
@@ -582,20 +558,20 @@ header keyword.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.max_dimension_size">
-<span class="sig-name descname"><span class="pre">max_dimension_size</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.max_dimension_size" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">max_dimension_size</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.max_dimension_size" title="Link to this definition"></a></dt>
 <dd><p>A dictionary with keys the various dimensions on which datasets can depend
 (see dataset_dimensions) and entries the maximum size for each dimension.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_reading">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepare_for_reading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.prepare_for_reading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_reading" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prepare_for_reading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.prepare_for_reading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_reading" title="Link to this definition"></a></dt>
 <dd><p>Must be called every time a new batch of frames is being read.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_writing">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepare_for_writing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configurations_collection</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.prepare_for_writing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_writing" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prepare_for_writing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configurations_collection</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.prepare_for_writing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_writing" title="Link to this definition"></a></dt>
 <dd><p>Prepare for writing after a slice of data has been read.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -612,7 +588,7 @@ entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.light_curves.lc_data_io.LCDataIO.print_organized_configurations">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_organized_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.print_organized_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.print_organized_configurations" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">print_organized_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/lc_data_io.html#LCDataIO.print_organized_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.lc_data_io.LCDataIO.print_organized_configurations" title="Link to this definition"></a></dt>
 <dd><p>Print the result of organize_configurations() nicely formatted.</p>
 </dd></dl>
 

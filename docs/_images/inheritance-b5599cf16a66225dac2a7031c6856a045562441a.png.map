@@ -1,5 +1,0 @@
-<map id="inheritance3e2efc6a8a" name="inheritance3e2efc6a8a">
-<area shape="rect" id="node1" href="#autowisp.tests.test_expression_series.TestCrossChannelCounts" target="_top" title="Counting the images a *binding* draws, once the channels are chosen." alt="" coords="5,155,404,181"/>
-<area shape="rect" id="node2" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" target="_top" title="Reading one diagnostic in several channels, and counting by binding." alt="" coords="7,80,402,107"/>
-<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="126,5,283,32"/>
-</map>

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.magnitude_fitting package &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,13 +16,13 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="autowisp.magnitude_fitting.tests package" href="autowisp.magnitude_fitting.tests.html" />
+    <link rel="next" title="autowisp.magnitude_fitting.base module" href="autowisp.magnitude_fitting.base.html" />
     <link rel="prev" title="autowisp.light_curves.transit_model module" href="autowisp.light_curves.transit_model.html" /> 
 </head>
 
@@ -171,27 +171,13 @@
 <span id="autowisp-magnitude-fitting-package"></span><h1>autowisp.magnitude_fitting package<a class="headerlink" href="#module-autowisp.magnitude_fitting" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-efcc2a6f5521ec245483adad7cfc67c901733a52.png" alt="Inheritance diagram of LinearMagnitudeFit, MasterPhotrefCollector" usemap="#inheritancef7ca3a4e4e" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-c8c58efad38a531307352a0dab58df78657ff15e.png" alt="Inheritance diagram of LinearMagnitudeFit, MasterPhotrefCollector" usemap="#inheritancef7ca3a4e4e" class="inheritance graphviz" /></div>
 <map id="inheritancef7ca3a4e4e" name="inheritancef7ca3a4e4e">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,5,205,32"/>
-<area shape="rect" id="node2" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="24,80,312,107"/>
-<area shape="rect" id="node3" href="autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="5,155,331,181"/>
-<area shape="rect" id="node4" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="230,5,720,32"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="152,5,228,31"/>
+<area shape="rect" id="node2" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="28,79,352,104"/>
+<area shape="rect" id="node3" href="autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="5,152,375,177"/>
+<area shape="rect" id="node4" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="253,5,805,31"/>
 </map><p>Modules implementing magnitude fitting.</p>
-</section>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="autowisp.magnitude_fitting.tests.html">autowisp.magnitude_fitting.tests package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autowisp.magnitude_fitting.tests.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html">autowisp.magnitude_fitting.tests.test_mphotref_collector module</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
 </section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
@@ -200,13 +186,6 @@
 <li class="toctree-l1"><a class="reference internal" href="autowisp.magnitude_fitting.base.html">autowisp.magnitude_fitting.base module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit.config"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit.config</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit.logger"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit.logger</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._dr_fname"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit._dr_fname</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._magfit_collector"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit._magfit_collector</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._reference"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit._reference</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._catalogue"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit._catalogue</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._source_name_format"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit._source_name_format</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit.__call__"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit.__call__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit.__init__"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db"><code class="docutils literal notranslate"><span class="pre">MagnitudeFit._add_fit_to_db()</span></code></a></li>
@@ -246,11 +225,6 @@
 <li class="toctree-l1"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html">autowisp.magnitude_fitting.master_photref_collector_zarr module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._statistics_fname"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector._statistics_fname</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._grcollect"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector._grcollect</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._dimensions"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector._dimensions</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._source_name_format"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector._source_name_format</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._stat_quantities"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector._stat_quantities</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.__init__"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._add_catalog_info"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector._add_catalog_info()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._calculate_statistics"><code class="docutils literal notranslate"><span class="pre">MasterPhotrefCollector._calculate_statistics()</span></code></a></li>
@@ -285,7 +259,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="autowisp.light_curves.transit_model.html" class="btn btn-neutral float-left" title="autowisp.light_curves.transit_model module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="autowisp.magnitude_fitting.tests.html" class="btn btn-neutral float-right" title="autowisp.magnitude_fitting.tests package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autowisp.magnitude_fitting.base.html" class="btn btn-neutral float-right" title="autowisp.magnitude_fitting.base module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

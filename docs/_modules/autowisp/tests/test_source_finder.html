@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_source_finder &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,20 +165,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_source_finder</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Exercise the quantile-based brightness-threshold path in ``SourceFinder``.</span>
+<span></span><span class="sd">"""Exercise the quantile-based brightness-threshold path in ``SourceFinder``.</span>
 
 <span class="sd">When ``brightness_threshold`` is left unset, ``SourceFinder`` derives it from an</span>
 <span class="sd">image quantile (``brightness_quantile_scale * numpy.quantile(...)``), producing</span>
 <span class="sd">a ``numpy.float64``. Under numpy 2, ``repr(numpy.float64(x))`` is</span>
-<span class="sd">``&#39;np.float64(x)&#39;`` -- which fistar rejects with &quot;invalid command line</span>
-<span class="sd">argument&quot; -- so ``start_fistar`` coerces to a plain ``float`` before ``repr``.</span>
+<span class="sd">``'np.float64(x)'`` -- which fistar rejects with "invalid command line</span>
+<span class="sd">argument" -- so ``start_fistar`` coerces to a plain ``float`` before ``repr``.</span>
 
 <span class="sd">The find_stars integration test only ever uses a fixed (Python-float) threshold</span>
 <span class="sd">from ``test.cfg``, so this quantile path -- where the ``numpy.float64``</span>
 <span class="sd">originates and reaches the command line -- was never exercised. This drives it</span>
 <span class="sd">end to end with the real fistar (an astrowisp dependency) and checks that the</span>
 <span class="sd">extraction actually succeeds.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
@@ -194,7 +194,7 @@
 <div class="viewcode-block" id="_make_test_frame">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_source_finder.html#autowisp.tests.test_source_finder._make_test_frame">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_make_test_frame</span><span class="p">(</span><span class="n">fits_path</span><span class="p">,</span> <span class="n">source_positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a 3-HDU FITS (image, placeholder, saturation mask) with 5 sources.</span>
+<span class="w">    </span><span class="sd">"""Write a 3-HDU FITS (image, placeholder, saturation mask) with 5 sources.</span>
 
 <span class="sd">    Three HDUs because ``SourceFinder`` reads the image from HDU 0 and the</span>
 <span class="sd">    saturation mask from HDU 2. The five bright Gaussians sit well above the</span>
@@ -206,7 +206,7 @@
 <span class="sd">        source_positions(list or None):    ``(x, y)`` of each source to</span>
 <span class="sd">            inject; the default five are used if not given. Pass an empty</span>
 <span class="sd">            list for a starless frame.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">source_positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">source_positions</span> <span class="o">=</span> <span class="p">[</span>
@@ -238,25 +238,25 @@
 <div class="viewcode-block" id="TestQuantileBrightnessThreshold">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_source_finder.html#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestQuantileBrightnessThreshold</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The image-quantile threshold must drive a successful fistar run.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The image-quantile threshold must drive a successful fistar run."""</span>
 
 <div class="viewcode-block" id="TestQuantileBrightnessThreshold.test_quantile_threshold_extraction_succeeds">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_source_finder.html#autowisp.tests.test_source_finder.TestQuantileBrightnessThreshold.test_quantile_threshold_extraction_succeeds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_quantile_threshold_extraction_succeeds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Derive the threshold from the image quantile and run fistar for real.</span>
+<span class="w">        </span><span class="sd">"""Derive the threshold from the image quantile and run fistar for real.</span>
 
 <span class="sd">        With ``brightness_threshold`` unset, ``SourceFinder`` computes it as a</span>
 <span class="sd">        ``numpy.float64`` from the image and hands it to fistar. A malformed</span>
-<span class="sd">        value (the pre-fix numpy repr) makes fistar exit with &quot;invalid command</span>
-<span class="sd">        line argument&quot; and extract nothing, so a non-empty result confirms the</span>
+<span class="sd">        value (the pre-fix numpy repr) makes fistar exit with "invalid command</span>
+<span class="sd">        line argument" and extract nothing, so a non-empty result confirms the</span>
 <span class="sd">        threshold reached the CLI in a parseable form.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-            <span class="n">frame</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">&quot;frame.fits&quot;</span><span class="p">)</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">"frame.fits"</span><span class="p">)</span>
             <span class="n">_make_test_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
             <span class="n">finder</span> <span class="o">=</span> <span class="n">SourceFinder</span><span class="p">(</span>
-                <span class="n">tool</span><span class="o">=</span><span class="s2">&quot;fistar&quot;</span><span class="p">,</span>
+                <span class="n">tool</span><span class="o">=</span><span class="s2">"fistar"</span><span class="p">,</span>
                 <span class="n">brightness_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># unset -&gt; derive from the quantile</span>
                 <span class="n">brightness_quantile</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span>
                 <span class="n">brightness_quantile_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
@@ -274,60 +274,60 @@
 <div class="viewcode-block" id="TestExtremeSourceCounts">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_source_finder.html#autowisp.tests.test_source_finder.TestExtremeSourceCounts">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestExtremeSourceCounts</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frames with one source or none must not crash the extractor.</span>
+<span class="w">    </span><span class="sd">"""Frames with one source or none must not crash the extractor.</span>
 
 <span class="sd">    ``numpy.genfromtxt`` is what makes these two special: a single</span>
 <span class="sd">    extracted source comes back as a **0-d** array (indexing it with the</span>
 <span class="sd">    finite-value mask raised ``IndexError``), and no sources at all come</span>
 <span class="sd">    back as a 1-d array whose *dtype has no field names* (``sort(order=</span>
-<span class="sd">    &quot;flux&quot;)`` then raised ``ValueError: unknown field name``).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    "flux")`` then raised ``ValueError: unknown field name``).</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestExtremeSourceCounts.test_single_source_extraction_succeeds">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_source_finder.html#autowisp.tests.test_source_finder.TestExtremeSourceCounts.test_single_source_extraction_succeeds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_single_source_extraction_succeeds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;One source must come back as a normal 1-element source list.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""One source must come back as a normal 1-element source list."""</span>
 
         <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-            <span class="n">frame</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">&quot;one_source.fits&quot;</span><span class="p">)</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">"one_source.fits"</span><span class="p">)</span>
             <span class="n">_make_test_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">source_positions</span><span class="o">=</span><span class="p">[(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)])</span>
-            <span class="n">sources</span> <span class="o">=</span> <span class="n">SourceFinder</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="s2">&quot;fistar&quot;</span><span class="p">,</span> <span class="n">brightness_threshold</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)(</span>
+            <span class="n">sources</span> <span class="o">=</span> <span class="n">SourceFinder</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="s2">"fistar"</span><span class="p">,</span> <span class="n">brightness_threshold</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)(</span>
                 <span class="n">frame</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sources</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="n">sources</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">,</span> <span class="n">sources</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestExtremeSourceCounts.test_no_sources_raises_naming_the_frame">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_source_finder.html#autowisp.tests.test_source_finder.TestExtremeSourceCounts.test_no_sources_raises_naming_the_frame">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_no_sources_raises_naming_the_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A starless frame raises ``NoSourcesFoundError`` naming the file.</span>
+<span class="w">        </span><span class="sd">"""A starless frame raises ``NoSourcesFoundError`` naming the file.</span>
 
 <span class="sd">        The threshold is set far above anything in the (source-free)</span>
 <span class="sd">        image so fistar reliably extracts nothing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-            <span class="n">frame</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">&quot;starless.fits&quot;</span><span class="p">)</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">"starless.fits"</span><span class="p">)</span>
             <span class="n">_make_test_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">source_positions</span><span class="o">=</span><span class="p">[])</span>
-            <span class="n">finder</span> <span class="o">=</span> <span class="n">SourceFinder</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="s2">&quot;fistar&quot;</span><span class="p">,</span> <span class="n">brightness_threshold</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">)</span>
+            <span class="n">finder</span> <span class="o">=</span> <span class="n">SourceFinder</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="s2">"fistar"</span><span class="p">,</span> <span class="n">brightness_threshold</span><span class="o">=</span><span class="mf">1.0e6</span><span class="p">)</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">NoSourcesFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
                 <span class="n">finder</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
 
         <span class="c1"># ``repr`` because the message interpolates the name with ``!r``,</span>
         <span class="c1"># which on Windows doubles the backslashes of the raw path.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">frame</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">"image"</span><span class="p">],</span> <span class="n">frame</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-            <span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">],</span> <span class="mf">1.0e6</span>
+            <span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="s2">"brightness_threshold"</span><span class="p">],</span> <span class="mf">1.0e6</span>
         <span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

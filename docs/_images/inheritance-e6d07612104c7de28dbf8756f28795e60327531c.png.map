@@ -1,0 +1,5 @@
+<map id="inheritance39c047c0ed" name="inheritance39c047c0ed">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="52,152,435,177"/>
+<area shape="rect" id="node3" href="autowisp.browser_interface.diagnostics.models.html#autowisp.browser_interface.diagnostics.models.DiagnosticExpression" target="_top" title="A named expression over the per&#45;image diagnostics." alt="" coords="5,225,481,251"/>
+<area shape="rect" id="node4" title="Make subclasses preserve the alters_data attribute on overridden methods." alt="" coords="122,5,365,31"/>
+</map>

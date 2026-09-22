@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.image_master_selection &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,50 +164,50 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.image_master_selection</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define the ImageMasterSelection table for the pipeline.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define the ImageMasterSelection table for the pipeline."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">ForeignKey</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelSubBase</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ImageMasterSelection&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ImageMasterSelection"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ImageMasterSelection">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.image_master_selection.html#autowisp.database.data_model.ImageMasterSelection">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ImageMasterSelection</span><span class="p">(</span><span class="n">DataModelSubBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Records the resolved master file selected for each image/channel/type.</span>
+<span class="w">    </span><span class="sd">"""Records the resolved master file selected for each image/channel/type.</span>
 
 <span class="sd">    Populated when a photometric reference is registered in the BUI, binding</span>
 <span class="sd">    each qualifying image/channel to the selected MasterFile. Downstream steps</span>
 <span class="sd">    (create_lightcurves, epd, tfa) query this table first to guarantee they</span>
 <span class="sd">    use the same master as fit_magnitudes, without re-evaluating conditions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;image_master_selection&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"image_master_selection"</span>
 
     <span class="n">image_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;image.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"image.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">),</span>
         <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The image for which the master was selected.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The image for which the master was selected."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">channel</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
         <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The color channel for which the master was selected.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The color channel for which the master was selected."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">master_type_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;master_type.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"master_type.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">),</span>
         <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The type of master that was selected.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The type of master that was selected."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">master_file_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;master_file.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"master_file.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The master file that was selected for this image/channel/type.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The master file that was selected for this image/channel/type."</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 </pre></div>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.processing.tune_starfind_views &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.processing.tune_starfind_views</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Implement views for tuning source extraction.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Implement views for tuning source extraction."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -208,75 +208,75 @@
 <div class="viewcode-block" id="_init_session">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views._init_session">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_init_session</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">processing</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set default django session entries first time the interface is opened&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set default django session entries first time the interface is opened"""</span>
 
-    <span class="k">if</span> <span class="s2">&quot;starfind&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"starfind"</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
         <span class="k">return</span>
     <span class="k">assert</span> <span class="p">(</span>
-        <span class="nb">len</span><span class="p">(</span><span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;telescope-serial-number&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"telescope-serial-number"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="p">)</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;camera-serial-number&quot;</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"camera-serial-number"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
 
     <span class="n">grouping_expressions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Telescope&quot;</span><span class="p">,</span> <span class="s2">&quot;Camera&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Telescope"</span><span class="p">,</span> <span class="s2">"Camera"</span><span class="p">]:</span>
         <span class="n">sn_expression</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;-serial-number&quot;</span><span class="p">)[</span>
-                <span class="s2">&quot;value&quot;</span>
+            <span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"-serial-number"</span><span class="p">)[</span>
+                <span class="s2">"value"</span>
             <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">instrument_type</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
-            <span class="n">select</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">provenance</span><span class="p">,</span> <span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;Type&quot;</span><span class="p">))</span>
+            <span class="n">select</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">provenance</span><span class="p">,</span> <span class="n">component</span> <span class="o">+</span> <span class="s2">"Type"</span><span class="p">))</span>
         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="n">serial_numbers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
                 <span class="n">instrument</span><span class="o">.</span><span class="n">serial_number</span>
                 <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span>
-                    <span class="n">instrument_type</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span>
+                    <span class="n">instrument_type</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"s"</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="n">grouping_expressions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sn_expression</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">serial_numbers</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">instrument_type</span><span class="o">.</span><span class="n">make</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">instrument_type</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sn_expression</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">serial_numbers</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">instrument_type</span><span class="o">.</span><span class="n">make</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">instrument_type</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">s"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
     <span class="n">grouping_expressions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{value}</span><span class="s2"> channel&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"CLRCHNL"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{value}</span><span class="s2"> channel"</span><span class="p">),</span>
             <span class="p">(</span>
                 <span class="nb">list</span><span class="p">(</span>
-                    <span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exposure-seconds&quot;</span><span class="p">)[</span>
-                        <span class="s2">&quot;value&quot;</span>
+                    <span class="n">processing</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"exposure-seconds"</span><span class="p">)[</span>
+                        <span class="s2">"value"</span>
                     <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="s2">&quot;</span><span class="si">{value}</span><span class="s2">s exposure&quot;</span><span class="p">,</span>
+                <span class="s2">"</span><span class="si">{value}</span><span class="s2">s exposure"</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;grouping_expressions&quot;</span><span class="p">:</span> <span class="n">grouping_expressions</span><span class="p">}</span></div>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"grouping_expressions"</span><span class="p">:</span> <span class="n">grouping_expressions</span><span class="p">}</span></div>
 
 
 
 <div class="viewcode-block" id="_get_pending">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views._get_pending">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_pending</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add to ``request.session`` all image/channel pending star finding .&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add to ``request.session`` all image/channel pending star finding ."""</span>
 
     <span class="n">processing</span> <span class="o">=</span> <span class="n">ImageProcessingManager</span><span class="p">(</span><span class="n">pipeline_run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">_init_session</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">processing</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">"pending"</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">]:</span>
             <span class="k">return</span>
 
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span><span class="s2">&quot;pending&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span><span class="s2">"pending"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">find_star_steps</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ImageType</span><span class="p">)</span>
             <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">ProcessingSequence</span><span class="p">)</span>
             <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ProcessingSequence</span><span class="o">.</span><span class="n">step_id</span> <span class="o">==</span> <span class="n">Step</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
             <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">,</span> <span class="n">ProcessingSequence</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;find_stars&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"find_stars"</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
 
         <span class="n">processing</span><span class="o">.</span><span class="n">set_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="n">find_star_steps</span><span class="p">)</span>
@@ -290,14 +290,14 @@
                 <span class="n">processing</span><span class="o">.</span><span class="n">evaluate_expressions_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
                 <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span>
                     <span class="n">processing</span><span class="o">.</span><span class="n">get_product_fname</span><span class="p">(</span>
-                        <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">&quot;calibrated&quot;</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">"calibrated"</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">grouping_key</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
                     <span class="p">[</span>
                         <span class="n">evaluator</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">expr</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span>
-                            <span class="s2">&quot;grouping_expressions&quot;</span>
+                        <span class="k">for</span> <span class="n">expr</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span>
+                            <span class="s2">"grouping_expressions"</span>
                         <span class="p">]</span>
                     <span class="p">]</span>
                 <span class="p">)</span>
@@ -307,10 +307,10 @@
                     <span class="p">(</span>
                         <span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                         <span class="n">channel</span><span class="p">,</span>
-                        <span class="n">processing</span><span class="o">.</span><span class="n">get_step_input</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">&quot;calibrated&quot;</span><span class="p">),</span>
+                        <span class="n">processing</span><span class="o">.</span><span class="n">get_step_input</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">"calibrated"</span><span class="p">),</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span><span class="s2">&quot;pending&quot;</span><span class="p">][</span><span class="n">imtype</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span><span class="s2">"pending"</span><span class="p">][</span><span class="n">imtype</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
                 <span class="n">grouping</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
                 <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
                 <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -321,9 +321,9 @@
 <div class="viewcode-block" id="_get_batch_description">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views._get_batch_description">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_batch_description</span><span class="p">(</span><span class="n">grouping_values</span><span class="p">,</span> <span class="n">grouping_expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return as human readable as possible discription of a batch.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return as human readable as possible discription of a batch."""</span>
 
-    <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">expr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">expr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grouping_values</span><span class="p">,</span> <span class="n">grouping_expressions</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span>
@@ -334,39 +334,39 @@
 <div class="viewcode-block" id="select_starfind_batch">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views.select_starfind_batch">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">select_starfind_batch</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allow the user to select batch of images to tune star finding for.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Allow the user to select batch of images to tune star finding for."""</span>
 
     <span class="k">if</span> <span class="n">refresh</span><span class="p">:</span>
         <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;/processing/select_starfind_batch&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"/processing/select_starfind_batch"</span><span class="p">)</span>
 
     <span class="n">_get_pending</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;fits_display&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
-        <span class="k">del</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;fits_display&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">"fits_display"</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"fits_display"</span><span class="p">]</span>
 
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">configured</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-            <span class="n">notes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">notes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">notes</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">Condition</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
                     <span class="n">Condition</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">like</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
-                        <span class="s2">&quot;BUI tuned source extraction for: %&quot;</span>
+                        <span class="s2">"BUI tuned source extraction for: %"</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Found configured: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">configured</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Found configured: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">configured</span><span class="p">)</span>
 
-    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;batches&quot;</span><span class="p">:</span> <span class="p">[]}</span>
-    <span class="k">for</span> <span class="n">imtype_name</span><span class="p">,</span> <span class="n">imtype_batches</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span>
-        <span class="s2">&quot;pending&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"batches"</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="k">for</span> <span class="n">imtype_name</span><span class="p">,</span> <span class="n">imtype_batches</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span>
+        <span class="s2">"pending"</span>
     <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">batch_info</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">grouping_values</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">imtype_batches</span><span class="p">:</span>
             <span class="n">batch_description</span> <span class="o">=</span> <span class="n">_get_batch_description</span><span class="p">(</span>
                 <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">grouping_values</span><span class="p">),</span>
-                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span><span class="s2">&quot;grouping_expressions&quot;</span><span class="p">],</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span><span class="s2">"grouping_expressions"</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="n">batch_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
@@ -376,52 +376,52 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="n">context</span><span class="p">[</span><span class="s2">&quot;batches&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">imtype_name</span><span class="p">,</span> <span class="n">batch_info</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;processing/select_starfind_batch.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+        <span class="n">context</span><span class="p">[</span><span class="s2">"batches"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">imtype_name</span><span class="p">,</span> <span class="n">batch_info</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"processing/select_starfind_batch.html"</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="tune_starfind">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views.tune_starfind">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tune_starfind</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">imtype</span><span class="p">,</span> <span class="n">batch_index</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provide view allowing user to tune starfinding for given image batch.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Provide view allowing user to tune starfinding for given image batch."""</span>
 
-    <span class="n">batch</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span><span class="s2">&quot;pending&quot;</span><span class="p">][</span><span class="n">imtype</span><span class="p">][</span><span class="n">batch_index</span><span class="p">]</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span><span class="s2">"pending"</span><span class="p">][</span><span class="n">imtype</span><span class="p">][</span><span class="n">batch_index</span><span class="p">]</span>
     <span class="n">update_fits_display</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-    <span class="n">image_index</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;fits_display&quot;</span><span class="p">][</span><span class="s2">&quot;image_index&quot;</span><span class="p">]</span>
+    <span class="n">image_index</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"fits_display"</span><span class="p">][</span><span class="s2">"image_index"</span><span class="p">]</span>
     <span class="n">context</span> <span class="o">=</span> <span class="n">encode_fits</span><span class="p">(</span>
         <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">image_index</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;fits_display&quot;</span><span class="p">][</span><span class="s2">&quot;range&quot;</span><span class="p">],</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;fits_display&quot;</span><span class="p">][</span><span class="s2">&quot;transform&quot;</span><span class="p">],</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"fits_display"</span><span class="p">][</span><span class="s2">"range"</span><span class="p">],</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"fits_display"</span><span class="p">][</span><span class="s2">"transform"</span><span class="p">],</span>
     <span class="p">)</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;num_images&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;fits_display&quot;</span><span class="p">])</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;image_index1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;image_index&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;fits_fname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">image_index</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;imtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imtype</span>
-    <span class="n">context</span><span class="p">[</span><span class="s2">&quot;batch_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_index</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"num_images"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"fits_display"</span><span class="p">])</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"image_index1"</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s2">"image_index"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"fits_fname"</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">image_index</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"imtype"</span><span class="p">]</span> <span class="o">=</span> <span class="n">imtype</span>
+    <span class="n">context</span><span class="p">[</span><span class="s2">"batch_index"</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_index</span>
 
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;processing/tune_starfind.html&quot;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"processing/tune_starfind.html"</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="find_stars">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views.find_stars">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_stars</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">fits_fname</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run source extraction and respond with the results.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run source extraction and respond with the results."""</span>
 
     <span class="n">starfind_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
 
     <span class="n">stars</span> <span class="o">=</span> <span class="n">SourceFinder</span><span class="p">(</span>
-        <span class="n">tool</span><span class="o">=</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">&quot;srcfind-tool&quot;</span><span class="p">],</span>
-        <span class="n">brightness_threshold</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">&quot;brightness-threshold&quot;</span><span class="p">]),</span>
-        <span class="n">filter_sources</span><span class="o">=</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">&quot;filter-sources&quot;</span><span class="p">],</span>
-        <span class="n">max_sources</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">&quot;max-sources&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
+        <span class="n">tool</span><span class="o">=</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">"srcfind-tool"</span><span class="p">],</span>
+        <span class="n">brightness_threshold</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">"brightness-threshold"</span><span class="p">]),</span>
+        <span class="n">filter_sources</span><span class="o">=</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">"filter-sources"</span><span class="p">],</span>
+        <span class="n">max_sources</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">starfind_config</span><span class="p">[</span><span class="s2">"max-sources"</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">"0"</span><span class="p">),</span>
         <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">allow_dir_creation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)(</span><span class="n">fits_fname</span><span class="p">)</span>
-    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;extracted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot;xy&quot;</span><span class="p">}</span>
-    <span class="n">stars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stars</span><span class="p">]}</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"extracted"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">"xy"</span><span class="p">}</span>
+    <span class="n">stars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"stars"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">"x"</span><span class="p">],</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stars</span><span class="p">]}</span>
     <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span></div>
 
 
@@ -429,7 +429,7 @@
 <div class="viewcode-block" id="project_catalog">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views.project_catalog">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">project_catalog</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">fits_fname</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve for astrometry with current extracted stars and project catalog.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Solve for astrometry with current extracted stars and project catalog."""</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">)</span>
@@ -442,49 +442,49 @@
                         <span class="n">evaluate</span>
                     <span class="p">),</span>
                     <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
-                    <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span>
+                    <span class="n">step_name</span><span class="o">=</span><span class="s2">"solve_astrometry"</span><span class="p">,</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">header</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="n">fov_estimate</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;frame_fov_estimate&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+        <span class="n">fov_estimate</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"frame_fov_estimate"</span><span class="p">])</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">"deg"</span><span class="p">)</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extracted: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;extracted&quot;</span><span class="p">])</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Extracted: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"extracted"</span><span class="p">])</span>
 
         <span class="n">approx_trans</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">estimate_transformation</span><span class="p">(</span>
             <span class="n">dr_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">xy_extracted</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;extracted&quot;</span><span class="p">],</span>
+            <span class="n">xy_extracted</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"extracted"</span><span class="p">],</span>
             <span class="n">config</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;astrometry_order&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tweak_order&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
-                <span class="s2">&quot;tweak_order_range&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tweak_order&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tweak_order&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">"astrometry_order"</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"tweak_order"</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"tweak_order_range"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s2">"tweak_order"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s2">"tweak_order"</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;fov_range&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="n">fov_estimate</span> <span class="o">/</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;image_scale_factor&quot;</span><span class="p">],</span>
-                    <span class="n">fov_estimate</span> <span class="o">*</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;image_scale_factor&quot;</span><span class="p">],</span>
+                <span class="s2">"fov_range"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">fov_estimate</span> <span class="o">/</span> <span class="n">config</span><span class="p">[</span><span class="s2">"image_scale_factor"</span><span class="p">],</span>
+                    <span class="n">fov_estimate</span> <span class="o">*</span> <span class="n">config</span><span class="p">[</span><span class="s2">"image_scale_factor"</span><span class="p">],</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;anet_indices&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;anet_indices&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;anet_api_key&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;anet_api_key&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;x_cent&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="s2">&quot;y_cent&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s2">"anet_indices"</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"anet_indices"</span><span class="p">],</span>
+                <span class="s2">"anet_api_key"</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"anet_api_key"</span><span class="p">],</span>
+                <span class="s2">"x_cent"</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS1"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s2">"y_cent"</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS2"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="s2">"success"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Projecting catalog sources failed!&quot;</span><span class="p">}</span>
+                <span class="p">{</span><span class="s2">"stars"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Projecting catalog sources failed!"</span><span class="p">}</span>
             <span class="p">)</span>
         <span class="n">approx_trans</span> <span class="o">=</span> <span class="n">construct_transformation</span><span class="p">(</span><span class="n">approx_trans</span><span class="p">)</span>
 
         <span class="n">catalog</span> <span class="o">=</span> <span class="n">ensure_catalog</span><span class="p">(</span>
             <span class="n">transformation</span><span class="o">=</span><span class="n">approx_trans</span><span class="p">,</span>
             <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
-            <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;astrometry&quot;</span><span class="p">),</span>
+            <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"astrometry"</span><span class="p">),</span>
             <span class="n">return_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">projected</span> <span class="o">=</span> <span class="n">approx_trans</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">projected</span><span class="p">]}</span>
+            <span class="p">{</span><span class="s2">"stars"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">"x"</span><span class="p">],</span> <span class="s2">"y"</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">projected</span><span class="p">]}</span>
         <span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">print_exc</span><span class="p">()</span>
@@ -495,18 +495,18 @@
 <div class="viewcode-block" id="save_starfind_config">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.tune_starfind_views.html#autowisp.browser_interface.processing.tune_starfind_views.save_starfind_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">save_starfind_config</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">imtype</span><span class="p">,</span> <span class="n">batch_index</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the currently set extraction configuration to the database.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Save the currently set extraction configuration to the database."""</span>
 
     <span class="n">starfind_config</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">param</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"token"</span><span class="p">)</span>
     <span class="p">}</span>
 
     <span class="n">condition_values</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span><span class="s2">&quot;pending&quot;</span><span class="p">][</span><span class="n">imtype</span><span class="p">][</span><span class="n">batch_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span><span class="s2">"pending"</span><span class="p">][</span><span class="n">imtype</span><span class="p">][</span><span class="n">batch_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">grouping_expressions</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;starfind&quot;</span><span class="p">][</span><span class="s2">&quot;grouping_expressions&quot;</span><span class="p">]</span>
+    <span class="n">grouping_expressions</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"starfind"</span><span class="p">][</span><span class="s2">"grouping_expressions"</span><span class="p">]</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">condition_values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">grouping_expressions</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">param_ids</span> <span class="o">=</span> <span class="p">{</span>
@@ -525,7 +525,7 @@
                     <span class="k">continue</span>
                 <span class="n">match_expression</span> <span class="o">=</span> <span class="n">expression</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">match_expression</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">expression</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> == </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                <span class="n">match_expression</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">expression</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> == </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span>
             <span class="n">db_expression</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">ConditionExpression</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
                     <span class="n">expression</span><span class="o">=</span><span class="n">match_expression</span>
@@ -543,7 +543,7 @@
                     <span class="nb">id</span><span class="o">=</span><span class="n">condition_id</span><span class="p">,</span>
                     <span class="n">expression_id</span><span class="o">=</span><span class="n">db_expression</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                     <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
-                        <span class="s2">&quot;BUI tuned source extraction for: &quot;</span>
+                        <span class="s2">"BUI tuned source extraction for: "</span>
                         <span class="o">+</span> <span class="n">_get_batch_description</span><span class="p">(</span>
                             <span class="n">condition_values</span><span class="p">,</span> <span class="n">grouping_expressions</span>
                         <span class="p">)</span>
@@ -559,7 +559,7 @@
                     <span class="n">value</span><span class="o">=</span><span class="n">starfind_config</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;/processing/select_starfind_batch&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"/processing/select_starfind_batch"</span><span class="p">)</span></div>
 
 </pre></div>
 

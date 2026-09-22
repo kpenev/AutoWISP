@@ -1,0 +1,10 @@
+<map id="inheritance34083bf0ca" name="inheritance34083bf0ca">
+<area shape="rect" id="node1" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="767,5,1115,31"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_diagnostics_rules.TestQuantityDescription" target="_top" title="What a section header says about the quantity it draws." alt="" coords="5,79,432,104"/>
+<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="1140,5,1308,31"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_diagnostics_rules.TestRowId" target="_top" title="The row id, a round trip through the client and back." alt="" coords="456,79,792,104"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_diagnostics_rules.TestSectionMarkers" target="_top" title="Which marker a section&#39;s rows start with." alt="" coords="817,79,1213,104"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_diagnostics_rules.TestSeriesGrouping" target="_top" title="``group_series_by_x_overlap`` splits only non&#45;overlapping ranges." alt="" coords="1237,79,1632,104"/>
+<area shape="rect" id="node7" href="#autowisp.tests.test_diagnostics_rules.TestSlotCells" target="_top" title="What each channel column of a row offers, and what a move keeps." alt="" coords="1657,79,2010,104"/>
+<area shape="rect" id="node8" href="#autowisp.tests.test_diagnostics_rules.TestYAxisAssignment" target="_top" title="Which quantities share a y axis, and in what order the axes come." alt="" coords="2035,79,2443,104"/>
+</map>

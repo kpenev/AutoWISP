@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_find_stars &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_find_stars</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the find_stars step.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Unit tests for the find_stars step."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
@@ -182,17 +182,17 @@
 <div class="viewcode-block" id="TestFindStars">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestFindStars">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestFindStars</span><span class="p">(</span><span class="n">DRTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests of the find_stars step.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Tests of the find_stars step."""</span>
 
 <div class="viewcode-block" id="TestFindStars.test_find_stars">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestFindStars.test_find_stars">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_find_stars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the find_stars step and check the outputs against expected.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run the find_stars step and check the outputs against expected."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_step_test</span><span class="p">(</span>
-            <span class="s2">&quot;find_stars&quot;</span><span class="p">,</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;CAL&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">[</span><span class="s2">&quot;SourceExtraction/Version000/Sources&quot;</span><span class="p">,</span> <span class="s2">&quot;Provenance&quot;</span><span class="p">,</span> <span class="s2">&quot;FITSHeader&quot;</span><span class="p">],</span>
+            <span class="s2">"find_stars"</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"CAL"</span><span class="p">,</span> <span class="s2">"object"</span><span class="p">),</span>
+            <span class="p">[</span><span class="s2">"SourceExtraction/Version000/Sources"</span><span class="p">,</span> <span class="s2">"Provenance"</span><span class="p">,</span> <span class="s2">"FITSHeader"</span><span class="p">],</span>
         <span class="p">)</span></div>
 </div>
 
@@ -201,18 +201,18 @@
 <div class="viewcode-block" id="TestStarlessFrameHandling">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestStarlessFrameHandling</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A starless frame must fail on its own, not take the batch down.</span>
+<span class="w">    </span><span class="sd">"""A starless frame must fail on its own, not take the batch down.</span>
 
 <span class="sd">    A frame that is clouded over or badly defocused yields no extracted</span>
 <span class="sd">    sources. That is a property of the frame, not a pipeline fault, so</span>
 <span class="sd">    ``find_stars_single`` records it as a failed frame and returns;</span>
 <span class="sd">    every *other* find_stars failure still propagates and stops the run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestStarlessFrameHandling.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.setUp">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Record ``mark_start`` / ``mark_end`` calls in ``self.calls``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Record ``mark_start`` / ``mark_end`` calls in ``self.calls``."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">calls</span> <span class="o">=</span> <span class="p">[]</span></div>
 
@@ -220,25 +220,25 @@
 <div class="viewcode-block" id="TestStarlessFrameHandling._mark_start">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_start">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_mark_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stand-in for the manager&#39;s progress-start callback.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Stand-in for the manager's progress-start callback."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"start"</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestStarlessFrameHandling._mark_end">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_end">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_mark_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stand-in for the manager&#39;s progress-end callback.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Stand-in for the manager's progress-end callback."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"end"</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestStarlessFrameHandling._run_with_extractor">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._run_with_extractor">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_with_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">extractor</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run ``find_stars_single`` on a throwaway frame with ``extractor``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run ``find_stars_single`` on a throwaway frame with ``extractor``."""</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">&quot;frame.fits&quot;</span><span class="p">)</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">"frame.fits"</span><span class="p">)</span>
         <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)))</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
         <span class="n">find_stars_single</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">extractor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_end</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">frame</span></div>
@@ -247,12 +247,12 @@
 <div class="viewcode-block" id="TestStarlessFrameHandling.test_no_sources_marks_frame_failed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_no_sources_marks_frame_failed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_no_sources_marks_frame_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``NoSourcesFoundError`` is recorded as a failure, not re-raised.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``NoSourcesFoundError`` is recorded as a failure, not re-raised."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">extract_nothing</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Stand in for a source finder that extracts nothing.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Stand in for a source finder that extracts nothing."""</span>
 
-            <span class="k">raise</span> <span class="n">NoSourcesFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no sources in </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">NoSourcesFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no sources in </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
             <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_with_extractor</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">extract_nothing</span><span class="p">)</span>
@@ -260,22 +260,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="p">,</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="p">{}),</span>
-                <span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;no sources extracted&quot;</span><span class="p">],</span> <span class="p">{}),</span>
+                <span class="p">(</span><span class="s2">"start"</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="p">{}),</span>
+                <span class="p">(</span><span class="s2">"end"</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">"no sources extracted"</span><span class="p">],</span> <span class="p">{}),</span>
             <span class="p">],</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;no sources extracted&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">fail_reasons</span><span class="p">[</span><span class="s2">"no sources extracted"</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestStarlessFrameHandling.test_other_failures_still_propagate">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_other_failures_still_propagate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_other_failures_still_propagate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Any other find_stars failure must still stop the run.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Any other find_stars failure must still stop the run."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">extract_broken</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Stand in for a source finder that cannot run at all.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Stand in for a source finder that cannot run at all."""</span>
 
-            <span class="k">raise</span> <span class="n">FindStarsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cannot run the extractor on </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">FindStarsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cannot run the extractor on </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">):</span>
@@ -286,7 +286,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

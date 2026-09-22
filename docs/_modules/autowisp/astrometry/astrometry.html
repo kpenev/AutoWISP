@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.astrometry.astrometry &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -166,7 +166,7 @@
   <h1>Source code for autowisp.astrometry.astrometry</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;Fit for a transformation between sky and image coordinates.&quot;&quot;&quot;</span>
+<span class="sd">"""Fit for a transformation between sky and image coordinates."""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
@@ -209,7 +209,7 @@
 <div class="viewcode-block" id="transformation_matrix">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.transformation_matrix">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">transformation_matrix</span><span class="p">(</span><span class="n">astrometry_order</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">eta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Constructs the transformation matrix for a given astrometry order.</span>
 
 <span class="sd">    Args:</span>
@@ -224,7 +224,7 @@
 
 <span class="sd">    Notes:</span>
 <span class="sd">        Ex: for astrometry_order 2: 1, xi, eta, xi^2, xi*eta, eta^2</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># TODO: alocate matrix first with right size and then fill, instead of doing</span>
     <span class="c1"># it the slow way below: new method seems to be not faster.</span>
@@ -259,7 +259,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">find_ra_dec</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-positional-arguments</span>
     <span class="n">xieta_guess</span><span class="p">,</span> <span class="n">trans_x</span><span class="p">,</span> <span class="n">trans_y</span><span class="p">,</span> <span class="n">radec_cent</span><span class="p">,</span> <span class="n">frame_x</span><span class="p">,</span> <span class="n">frame_y</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find the RA and Dec corresponding to given pixel coordinates in the frame.</span>
 
 <span class="sd">    Solves for the gnomonic-projection coordinates (xi, eta) that map to the</span>
@@ -284,10 +284,10 @@
 <span class="sd">        frame_y(float):    y coordinate for which to find RA, Dec.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    A dictionary with keys ``&#39;RA&#39;`` and ``&#39;Dec&#39;`` (both float),</span>
+<span class="sd">        dict:    A dictionary with keys ``'RA'`` and ``'Dec'`` (both float),</span>
 <span class="sd">            giving the sky coordinates corresponding to the given frame</span>
 <span class="sd">            position.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">assert</span> <span class="n">trans_x</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">trans_y</span><span class="o">.</span><span class="n">size</span>
     <span class="n">astrometry_order</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="n">trans_x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
@@ -297,7 +297,7 @@
     <span class="n">astrometry_order</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">astrometry_order</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">equations</span><span class="p">(</span><span class="n">xieta_cent</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The equations that need to be solved to find the center.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The equations that need to be solved to find the center."""</span>
 
         <span class="n">xi</span> <span class="o">=</span> <span class="n">xieta_cent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="n">xieta_cent</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -315,13 +315,13 @@
                 <span class="n">k</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">new_xieta_cent</span>
 
-    <span class="n">xieta_cent</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)])</span>
-    <span class="n">xieta_cent</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">],</span> <span class="n">xieta_cent</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">equations</span><span class="p">,</span> <span class="n">xieta_guess</span><span class="p">)</span>
+    <span class="n">xieta_cent</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"xi"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"eta"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)])</span>
+    <span class="n">xieta_cent</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">],</span> <span class="n">xieta_cent</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="n">equations</span><span class="p">,</span> <span class="n">xieta_guess</span><span class="p">)</span>
 
-    <span class="n">source</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)])</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"RA"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Dec"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)])</span>
     <span class="n">inverse_gnomonic_projection</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">xieta_cent</span><span class="p">,</span> <span class="o">**</span><span class="n">radec_cent</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;RA&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Dec&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"RA"</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"Dec"</span><span class="p">:</span> <span class="n">source</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span></div>
 
 
 
@@ -334,7 +334,7 @@
     <span class="n">x_cent</span><span class="p">,</span>
     <span class="n">y_cent</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Estimate the transformation from astrometry.net correspondence file.</span>
 
 <span class="sd">    Args:</span>
@@ -365,15 +365,15 @@
 
 <span class="sd">            trans_y:</span>
 <span class="sd">                Estimate of the transformation coefficients for y(xi, eta)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">projected</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
-        <span class="n">initial_corr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+        <span class="n">initial_corr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"xi"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"eta"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
     <span class="p">)</span>
 
     <span class="n">radec_center</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;RA&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]),</span>
-        <span class="s2">&quot;Dec&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]),</span>
+        <span class="s2">"RA"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">initial_corr</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]),</span>
+        <span class="s2">"Dec"</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">initial_corr</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]),</span>
     <span class="p">}</span>
 
     <span class="n">num_tweak_terms</span> <span class="o">=</span> <span class="p">((</span><span class="n">tweak_order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">tweak_order</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>
@@ -385,17 +385,17 @@
     <span class="k">while</span> <span class="p">(</span><span class="n">trans_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_cent</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">trans_y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_cent</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&gt;</span> <span class="mf">1e-16</span><span class="p">:</span>
         <span class="n">gnomonic_projection</span><span class="p">(</span><span class="n">initial_corr</span><span class="p">,</span> <span class="n">projected</span><span class="p">,</span> <span class="o">**</span><span class="n">radec_center</span><span class="p">)</span>
 
-        <span class="n">xi</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">][</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">][</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="n">eta</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">][</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">][</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
 
         <span class="n">trans_matrix</span> <span class="o">=</span> <span class="n">transformation_matrix</span><span class="p">(</span><span class="n">tweak_order</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span>
 
         <span class="n">trans_x</span><span class="p">[:</span><span class="n">num_tweak_terms</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span>
-            <span class="n">trans_matrix</span><span class="p">,</span> <span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+            <span class="n">trans_matrix</span><span class="p">,</span> <span class="n">initial_corr</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">trans_y</span><span class="p">[:</span><span class="n">num_tweak_terms</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span>
-            <span class="n">trans_matrix</span><span class="p">,</span> <span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+            <span class="n">trans_matrix</span><span class="p">,</span> <span class="n">initial_corr</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">radec_center</span> <span class="o">=</span> <span class="n">find_ra_dec</span><span class="p">(</span>
             <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
@@ -407,10 +407,10 @@
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;ra_cent&quot;</span><span class="p">:</span> <span class="n">radec_center</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;dec_cent&quot;</span><span class="p">:</span> <span class="n">radec_center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;trans_x&quot;</span><span class="p">:</span> <span class="n">trans_x</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
-        <span class="s2">&quot;trans_y&quot;</span><span class="p">:</span> <span class="n">trans_y</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+        <span class="s2">"ra_cent"</span><span class="p">:</span> <span class="n">radec_center</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">],</span>
+        <span class="s2">"dec_cent"</span><span class="p">:</span> <span class="n">radec_center</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">],</span>
+        <span class="s2">"trans_x"</span><span class="p">:</span> <span class="n">trans_x</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+        <span class="s2">"trans_y"</span><span class="p">:</span> <span class="n">trans_y</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -418,12 +418,12 @@
 <div class="viewcode-block" id="TempAstrometryFiles">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TempAstrometryFiles</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for the temporary files needed for astrometry.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Context manager for the temporary files needed for astrometry."""</span>
 
 <div class="viewcode-block" id="TempAstrometryFiles.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_types</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;sources&quot;</span><span class="p">,</span> <span class="s2">&quot;corr&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">)):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create all required temporary files.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_types</span><span class="o">=</span><span class="p">(</span><span class="s2">"sources"</span><span class="p">,</span> <span class="s2">"corr"</span><span class="p">,</span> <span class="s2">"config"</span><span class="p">)):</span>
+<span class="w">        </span><span class="sd">"""Create all required temporary files."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_obj</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">TemporaryDirectory</span><span class="p">()</span>  <span class="c1"># pylint: disable=consider-using-with</span>
@@ -433,15 +433,15 @@
 
         <span class="k">for</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_types</span><span class="p">:</span>
             <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_dir_path</span><span class="p">,</span> <span class="n">file_type</span><span class="p">)</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_type</span> <span class="o">+</span> <span class="s2">&quot;_fname&quot;</span><span class="p">,</span> <span class="n">full_path</span><span class="p">)</span></div>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_type</span> <span class="o">+</span> <span class="s2">"_fname"</span><span class="p">,</span> <span class="n">full_path</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TempAstrometryFiles.__enter__">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles.__enter__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the filenames of the temporary files.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the filenames of the temporary files."""</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_type</span> <span class="o">+</span> <span class="s2">&quot;_fname&quot;</span><span class="p">)</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_type</span> <span class="o">+</span> <span class="s2">"_fname"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_types</span>
         <span class="p">)</span></div>
 
@@ -449,7 +449,7 @@
 <div class="viewcode-block" id="TempAstrometryFiles.__exit__">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles.__exit__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">ignored_args</span><span class="p">,</span> <span class="o">**</span><span class="n">ignored_kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close and delete the temporary files.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Close and delete the temporary files."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_obj</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 </div>
 
@@ -458,14 +458,14 @@
 <div class="viewcode-block" id="create_sources_file">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.create_sources_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_sources_file</span><span class="p">(</span><span class="n">xy_extracted</span><span class="p">,</span> <span class="n">sources_fname</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a FITS BinTable file with the given name containing</span>
+<span class="w">    </span><span class="sd">"""Create a FITS BinTable file with the given name containing</span>
 <span class="sd">    the extracted sources.</span>
 
 <span class="sd">    Returns: an array containing x-y extracted sources</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">x_extracted</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">xy_extracted</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">])</span>
-    <span class="n">y_extracted</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">xy_extracted</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">])</span>
+    <span class="n">x_extracted</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"D"</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">xy_extracted</span><span class="p">[</span><span class="s2">"x"</span><span class="p">])</span>
+    <span class="n">y_extracted</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"D"</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">xy_extracted</span><span class="p">[</span><span class="s2">"y"</span><span class="p">])</span>
     <span class="n">xyls</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">BinTableHDU</span><span class="o">.</span><span class="n">from_columns</span><span class="p">([</span><span class="n">x_extracted</span><span class="p">,</span> <span class="n">y_extracted</span><span class="p">])</span>
     <span class="n">xyls</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">sources_fname</span><span class="p">)</span>
 
@@ -476,36 +476,36 @@
 <div class="viewcode-block" id="create_config_file">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.create_config_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_config_file</span><span class="p">(</span><span class="n">config_fname</span><span class="p">,</span> <span class="n">fov_range</span><span class="p">,</span> <span class="n">anet_indices</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create configuration file set up to solve images FOV in given range.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create configuration file set up to solve images FOV in given range."""</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_fname</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">fov_range</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">2.0</span><span class="p">:</span>
-            <span class="n">config_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;add_path </span><span class="si">{</span><span class="n">anet_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">config_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"add_path </span><span class="si">{</span><span class="n">anet_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">fov_range</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
-            <span class="n">config_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;add_path </span><span class="si">{</span><span class="n">anet_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">config_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"add_path </span><span class="si">{</span><span class="n">anet_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="n">config_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;autoindex</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">config_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"autoindex</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Astrometry.net engine config:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">config_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_fname</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Astrometry.net engine config:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">config_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
 
 
 <div class="viewcode-block" id="_ansvr_bash">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry._ansvr_bash">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_ansvr_bash</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the ANSVR cygwin ``bash`` path on Windows if installed, else None.</span>
+<span class="w">    </span><span class="sd">"""Return the ANSVR cygwin ``bash`` path on Windows if installed, else None.</span>
 
 <span class="sd">    ANSVR (https://adgsoftware.com/ansvr/) is how ``solve-field`` is provided on</span>
 <span class="sd">    Windows; its ``solve-field`` is a cygwin binary invoked through this bash,</span>
 <span class="sd">    so it never appears on the Windows PATH.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"nt"</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">bash_exe</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;ANSVR_BASH&quot;</span><span class="p">,</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;%LOCALAPPDATA%\cygwin_ansvr\bin\bash.exe&quot;</span><span class="p">),</span>
+        <span class="s2">"ANSVR_BASH"</span><span class="p">,</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="sa">r</span><span class="s2">"%LOCALAPPDATA%\cygwin_ansvr\bin\bash.exe"</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">bash_exe</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">bash_exe</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span></div>
 
@@ -514,11 +514,11 @@
 <div class="viewcode-block" id="local_solver_available">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.local_solver_available">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_solver_available</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether a local ``solve-field`` can be invoked (native or via ANSVR).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Whether a local ``solve-field`` can be invoked (native or via ANSVR)."""</span>
 
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"nt"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_ansvr_bash</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;solve-field&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+    <span class="k">return</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">"solve-field"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
 
@@ -527,10 +527,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_initial_corr_local</span><span class="p">(</span>
     <span class="n">header</span><span class="p">,</span> <span class="n">xy_extracted</span><span class="p">,</span> <span class="n">tweak_order_range</span><span class="p">,</span> <span class="n">fov_range</span><span class="p">,</span> <span class="n">anet_indices</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get inital extracted to catalog source match using ``solve-field``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get inital extracted to catalog source match using ``solve-field``."""</span>
 
     <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Attempting to match catalog to a list of </span><span class="si">%d</span><span class="s2"> extracted sources: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">"Attempting to match catalog to a list of </span><span class="si">%d</span><span class="s2"> extracted sources: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">xy_extracted</span><span class="p">),</span>
         <span class="nb">repr</span><span class="p">(</span><span class="n">xy_extracted</span><span class="p">),</span>
     <span class="p">)</span>
@@ -549,48 +549,48 @@
         <span class="k">for</span> <span class="n">tweak</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tweak_order_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tweak_order_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
 
             <span class="n">solve_field_args</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;/usr/bin/solve-field&quot;</span> <span class="k">if</span> <span class="n">use_ansvr</span> <span class="k">else</span> <span class="s2">&quot;solve-field&quot;</span><span class="p">,</span>
+                <span class="s2">"/usr/bin/solve-field"</span> <span class="k">if</span> <span class="n">use_ansvr</span> <span class="k">else</span> <span class="s2">"solve-field"</span><span class="p">,</span>
                 <span class="n">sources_fname</span><span class="p">,</span>
-                <span class="s2">&quot;--backend-config&quot;</span><span class="p">,</span>
+                <span class="s2">"--backend-config"</span><span class="p">,</span>
                 <span class="n">config_fname</span><span class="p">,</span>
-                <span class="s2">&quot;--corr&quot;</span><span class="p">,</span>
+                <span class="s2">"--corr"</span><span class="p">,</span>
                 <span class="n">corr_fname</span><span class="p">,</span>
-                <span class="s2">&quot;--width&quot;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]),</span>
-                <span class="s2">&quot;--height&quot;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">]),</span>
-                <span class="s2">&quot;--tweak-order&quot;</span><span class="p">,</span>
+                <span class="s2">"--width"</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS1"</span><span class="p">]),</span>
+                <span class="s2">"--height"</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS2"</span><span class="p">]),</span>
+                <span class="s2">"--tweak-order"</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">tweak</span><span class="p">),</span>
-                <span class="s2">&quot;--match&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--wcs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--index-xyls&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--rdls&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--solved&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--no-plots&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--scale-low&quot;</span><span class="p">,</span>
+                <span class="s2">"--match"</span><span class="p">,</span>
+                <span class="s2">"none"</span><span class="p">,</span>
+                <span class="s2">"--wcs"</span><span class="p">,</span>
+                <span class="s2">"none"</span><span class="p">,</span>
+                <span class="s2">"--index-xyls"</span><span class="p">,</span>
+                <span class="s2">"none"</span><span class="p">,</span>
+                <span class="s2">"--rdls"</span><span class="p">,</span>
+                <span class="s2">"none"</span><span class="p">,</span>
+                <span class="s2">"--solved"</span><span class="p">,</span>
+                <span class="s2">"none"</span><span class="p">,</span>
+                <span class="s2">"--no-plots"</span><span class="p">,</span>
+                <span class="s2">"--scale-low"</span><span class="p">,</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">fov_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                <span class="s2">&quot;--scale-high&quot;</span><span class="p">,</span>
+                <span class="s2">"--scale-high"</span><span class="p">,</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">fov_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span>
+                <span class="s2">"--overwrite"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Starting solve-field command:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="s2">"Starting solve-field command:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"</span><span class="se">\n\t\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="n">solve_field_args</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">use_ansvr</span>
-                    <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;bash --login -c&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">solve_field_args</span><span class="p">]</span>
+                    <span class="k">else</span> <span class="p">[</span><span class="s2">"bash --login -c"</span><span class="p">,</span> <span class="o">*</span><span class="n">solve_field_args</span><span class="p">]</span>
                 <span class="p">),</span>
             <span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">use_ansvr</span><span class="p">:</span>
-                    <span class="n">cmd_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">solve_field_args</span><span class="p">)</span>
+                    <span class="n">cmd_str</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">solve_field_args</span><span class="p">)</span>
                     <span class="n">res</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                        <span class="p">[</span><span class="n">bash_exe</span><span class="p">,</span> <span class="s2">&quot;--login&quot;</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">cmd_str</span><span class="p">],</span>
+                        <span class="p">[</span><span class="n">bash_exe</span><span class="p">,</span> <span class="s2">"--login"</span><span class="p">,</span> <span class="s2">"-c"</span><span class="p">,</span> <span class="n">cmd_str</span><span class="p">],</span>
                         <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -604,27 +604,27 @@
                     <span class="p">)</span>
             <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">SubprocessError</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
-                    <span class="s2">&quot;solve-field failed with exception:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"solve-field failed with exception:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">format_exc</span><span class="p">(),</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">):</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
-                    <span class="s2">&quot;Correspondence file </span><span class="si">%s</span><span class="s2"> not created!</span><span class="se">\n</span><span class="s2">stdout:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;stderr:</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Correspondence file </span><span class="si">%s</span><span class="s2"> not created!</span><span class="se">\n</span><span class="s2">stdout:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"stderr:</span><span class="si">%s</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">),</span>
                     <span class="n">res</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
                     <span class="n">res</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="k">return</span> <span class="s2">&quot;solve-field failed&quot;</span><span class="p">,</span> <span class="mi">0</span>
+                <span class="k">return</span> <span class="s2">"solve-field failed"</span><span class="p">,</span> <span class="mi">0</span>
 
-            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">corr</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">corr</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">corr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[:])</span>
             <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="p">((</span><span class="n">tweak</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">tweak</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">tweak</span>
 
-    <span class="k">return</span> <span class="s2">&quot;solve-field failed&quot;</span><span class="p">,</span> <span class="mi">0</span></div>
+    <span class="k">return</span> <span class="s2">"solve-field failed"</span><span class="p">,</span> <span class="mi">0</span></div>
 
 
 
@@ -633,25 +633,25 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_initial_corr_web</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-branches</span>
     <span class="n">header</span><span class="p">,</span> <span class="n">xy_extracted</span><span class="p">,</span> <span class="n">tweak_order_range</span><span class="p">,</span> <span class="n">fov_range</span><span class="p">,</span> <span class="n">api_key</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get initial extracted-to-catalog match via web astrometry.net.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get initial extracted-to-catalog match via web astrometry.net."""</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;allow_commercial_use&quot;</span><span class="p">:</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;allow_modifications&quot;</span><span class="p">:</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;publicly_visible&quot;</span><span class="p">:</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;scale_lower&quot;</span><span class="p">:</span> <span class="n">fov_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="s2">&quot;scale_upper&quot;</span><span class="p">:</span> <span class="n">fov_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-        <span class="s2">&quot;scale_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ul&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;scale_units&quot;</span><span class="p">:</span> <span class="s2">&quot;degwidth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;image_width&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;image_height&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">],</span>
-        <span class="c1">#        &#39;center_ra&#39;,</span>
-        <span class="c1">#        &#39;center_dec&#39;,</span>
-        <span class="c1">#        &#39;radius&#39;,</span>
-        <span class="c1">#        &#39;downsample_factor&#39;,</span>
-        <span class="c1">#        &#39;positional_error&#39;,</span>
-        <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
+        <span class="s2">"allow_commercial_use"</span><span class="p">:</span> <span class="s2">"n"</span><span class="p">,</span>
+        <span class="s2">"allow_modifications"</span><span class="p">:</span> <span class="s2">"n"</span><span class="p">,</span>
+        <span class="s2">"publicly_visible"</span><span class="p">:</span> <span class="s2">"n"</span><span class="p">,</span>
+        <span class="s2">"scale_lower"</span><span class="p">:</span> <span class="n">fov_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">"scale_upper"</span><span class="p">:</span> <span class="n">fov_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"scale_type"</span><span class="p">:</span> <span class="s2">"ul"</span><span class="p">,</span>
+        <span class="s2">"scale_units"</span><span class="p">:</span> <span class="s2">"degwidth"</span><span class="p">,</span>
+        <span class="s2">"image_width"</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS1"</span><span class="p">],</span>
+        <span class="s2">"image_height"</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS2"</span><span class="p">],</span>
+        <span class="c1">#        'center_ra',</span>
+        <span class="c1">#        'center_dec',</span>
+        <span class="c1">#        'radius',</span>
+        <span class="c1">#        'downsample_factor',</span>
+        <span class="c1">#        'positional_error',</span>
+        <span class="s2">"x"</span><span class="p">:</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="s2">"x"</span><span class="p">],</span>
+        <span class="s2">"y"</span><span class="p">:</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="s2">"y"</span><span class="p">],</span>
     <span class="p">}</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">AstrometryNetClient</span><span class="p">()</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
@@ -660,73 +660,73 @@
             <span class="k">break</span>
         <span class="k">except</span> <span class="n">URLError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Failed to connect to astrometry.net server: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Retrying...&quot;</span><span class="p">,</span>
+                <span class="s2">"Failed to connect to astrometry.net server: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Retrying..."</span><span class="p">,</span>
                 <span class="n">err</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">tweak_order</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tweak_order_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tweak_order_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tweak_order&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tweak_order</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"tweak_order"</span><span class="p">]</span> <span class="o">=</span> <span class="n">tweak_order</span>
         <span class="n">upload_result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">upload_result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">upload_result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">upload_result</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"success"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">upload_result</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="mi">0</span>
 
-        <span class="k">assert</span> <span class="s2">&quot;subid&quot;</span> <span class="ow">in</span> <span class="n">upload_result</span>
+        <span class="k">assert</span> <span class="s2">"subid"</span> <span class="ow">in</span> <span class="n">upload_result</span>
         <span class="n">solved_job_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">while</span> <span class="n">solved_job_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
             <span class="n">submission_status</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">sub_status</span><span class="p">(</span>
-                <span class="n">upload_result</span><span class="p">[</span><span class="s2">&quot;subid&quot;</span><span class="p">],</span> <span class="n">justdict</span><span class="o">=</span><span class="kc">True</span>
+                <span class="n">upload_result</span><span class="p">[</span><span class="s2">"subid"</span><span class="p">],</span> <span class="n">justdict</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Astrometry.net submission status: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">submission_status</span>
+                <span class="s2">"Astrometry.net submission status: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">submission_status</span>
             <span class="p">)</span>
-            <span class="n">jobs</span> <span class="o">=</span> <span class="n">submission_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">jobs</span> <span class="o">=</span> <span class="n">submission_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"jobs"</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">job_id</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">job_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">break</span>
                 <span class="k">if</span> <span class="n">job_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Selecting job id </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">job_id</span><span class="p">)</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Selecting job id </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">job_id</span><span class="p">)</span>
                     <span class="n">solved_job_id</span> <span class="o">=</span> <span class="n">job_id</span>
 
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">job_status</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">job_status</span><span class="p">(</span><span class="n">solved_job_id</span><span class="p">,</span> <span class="n">justdict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+                <span class="s2">"status"</span><span class="p">,</span> <span class="s2">""</span>
             <span class="p">)</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got job status: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">job_status</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">job_status</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="s2">&quot;failure&quot;</span><span class="p">]:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Got job status: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">job_status</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">job_status</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"success"</span><span class="p">,</span> <span class="s2">"failure"</span><span class="p">]:</span>
                 <span class="k">break</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">job_status</span> <span class="o">==</span> <span class="s2">&quot;failure&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;web solve failed&quot;</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">job_status</span> <span class="o">==</span> <span class="s2">"failure"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"web solve failed"</span><span class="p">,</span> <span class="mi">0</span>
         <span class="n">corr_url</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">apiurl</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="s2">&quot;/api/&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;/corr_file/</span><span class="si">{</span><span class="n">solved_job_id</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"/api/"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"/corr_file/</span><span class="si">{</span><span class="n">solved_job_id</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">TempAstrometryFiles</span><span class="p">((</span><span class="s2">&quot;corr&quot;</span><span class="p">,))</span> <span class="k">as</span> <span class="p">(</span><span class="n">corr_fname</span><span class="p">,):</span>
+        <span class="k">with</span> <span class="n">TempAstrometryFiles</span><span class="p">((</span><span class="s2">"corr"</span><span class="p">,))</span> <span class="k">as</span> <span class="p">(</span><span class="n">corr_fname</span><span class="p">,):</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Retrieving file from &#39;</span><span class="si">%s</span><span class="s2">&#39; to &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">corr_url</span><span class="p">,</span> <span class="n">corr_fname</span>
+                <span class="s2">"Retrieving file from '</span><span class="si">%s</span><span class="s2">' to '</span><span class="si">%s</span><span class="s2">'"</span><span class="p">,</span> <span class="n">corr_url</span><span class="p">,</span> <span class="n">corr_fname</span>
             <span class="p">)</span>
             <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;Referer&quot;</span><span class="p">:</span> <span class="s2">&quot;https://nova.astrometry.net/api/login&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Cookie&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;session=</span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Referer"</span><span class="p">:</span> <span class="s2">"https://nova.astrometry.net/api/login"</span><span class="p">,</span>
+                <span class="s2">"Cookie"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"session=</span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">req</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">corr_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
             <span class="k">with</span> <span class="p">(</span>
                 <span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="k">as</span> <span class="n">remote_corr</span><span class="p">,</span>
-                <span class="nb">open</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">local_corr</span><span class="p">,</span>
+                <span class="nb">open</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">local_corr</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">remote_corr</span><span class="p">,</span> <span class="n">local_corr</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">corr</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">corr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">corr</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">corr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[:])</span>
             <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">tweak_order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">tweak_order</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">tweak_order</span>
 
-    <span class="k">return</span> <span class="s2">&quot;web solve failed&quot;</span><span class="p">,</span> <span class="mi">0</span></div>
+    <span class="k">return</span> <span class="s2">"web solve failed"</span><span class="p">,</span> <span class="mi">0</span></div>
 
 
 
@@ -735,63 +735,63 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_initial_corr</span><span class="p">(</span>
     <span class="o">*</span><span class="p">,</span> <span class="n">dr_file</span><span class="p">,</span> <span class="n">xy_extracted</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">web_lock</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempt to estimate the sky-to-frame transformation for given DR file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Attempt to estimate the sky-to-frame transformation for given DR file."""</span>
 
     <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
     <span class="n">initial_corr_arg</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">header</span><span class="p">,</span>
         <span class="n">xy_extracted</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tweak_order_range&quot;</span><span class="p">],</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;fov_range&quot;</span><span class="p">],</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"tweak_order_range"</span><span class="p">],</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"fov_range"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span>
-        <span class="s2">&quot;anet_indices&quot;</span> <span class="ow">in</span> <span class="n">config</span>
-        <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;anet_indices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;anet_indices&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="s2">"anet_indices"</span> <span class="ow">in</span> <span class="n">config</span>
+        <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"anet_indices"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"anet_indices"</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
         <span class="ow">and</span> <span class="n">local_solver_available</span><span class="p">()</span>
     <span class="p">):</span>
-        <span class="k">return</span> <span class="n">get_initial_corr_local</span><span class="p">(</span><span class="o">*</span><span class="n">initial_corr_arg</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;anet_indices&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">get_initial_corr_local</span><span class="p">(</span><span class="o">*</span><span class="n">initial_corr_arg</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">"anet_indices"</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">web_lock</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">web_lock</span> <span class="o">=</span> <span class="n">nullcontext</span><span class="p">()</span>
 
     <span class="k">with</span> <span class="n">web_lock</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">get_initial_corr_web</span><span class="p">(</span><span class="o">*</span><span class="n">initial_corr_arg</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;anet_api_key&quot;</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">get_initial_corr_web</span><span class="p">(</span><span class="o">*</span><span class="n">initial_corr_arg</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">"anet_api_key"</span><span class="p">])</span></div>
 
 
 
 <div class="viewcode-block" id="estimate_transformation">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.estimate_transformation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">estimate_transformation</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">initial_corr_kwarg</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempt to estimate the sky-to-frame transformation for given DR file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Attempt to estimate the sky-to-frame transformation for given DR file."""</span>
 
     <span class="n">field_corr</span><span class="p">,</span> <span class="n">tweak_order</span> <span class="o">=</span> <span class="n">get_initial_corr</span><span class="p">(</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">initial_corr_kwarg</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">tweak_order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;solve-field failed&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"solve-field failed"</span>
 
     <span class="n">initial_corr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">field_corr</span><span class="p">[</span><span class="s2">&quot;field_x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;f8&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;f8&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;f8&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;f8&quot;</span><span class="p">)],</span>
+        <span class="p">(</span><span class="n">field_corr</span><span class="p">[</span><span class="s2">"field_x"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"&gt;f8"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"&gt;f8"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"RA"</span><span class="p">,</span> <span class="s2">"&gt;f8"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Dec"</span><span class="p">,</span> <span class="s2">"&gt;f8"</span><span class="p">)],</span>
     <span class="p">)</span>
 
-    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">&quot;field_x&quot;</span><span class="p">]</span>
-    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">&quot;field_y&quot;</span><span class="p">]</span>
-    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">&quot;index_ra&quot;</span><span class="p">]</span>
-    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">&quot;index_dec&quot;</span><span class="p">]</span>
+    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">"field_x"</span><span class="p">]</span>
+    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">"field_y"</span><span class="p">]</span>
+    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">"index_ra"</span><span class="p">]</span>
+    <span class="n">initial_corr</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_corr</span><span class="p">[</span><span class="s2">"index_dec"</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">estimate_transformation_from_corr</span><span class="p">(</span>
             <span class="n">initial_corr</span><span class="o">=</span><span class="n">initial_corr</span><span class="p">,</span>
             <span class="n">tweak_order</span><span class="o">=</span><span class="n">tweak_order</span><span class="p">,</span>
-            <span class="n">astrometry_order</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;astrometry_order&quot;</span><span class="p">],</span>
-            <span class="n">x_cent</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;x_cent&quot;</span><span class="p">],</span>
-            <span class="n">y_cent</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;y_cent&quot;</span><span class="p">],</span>
+            <span class="n">astrometry_order</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"astrometry_order"</span><span class="p">],</span>
+            <span class="n">x_cent</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"x_cent"</span><span class="p">],</span>
+            <span class="n">y_cent</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"y_cent"</span><span class="p">],</span>
         <span class="p">),</span>
-        <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+        <span class="s2">"success"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -814,7 +814,7 @@
     <span class="n">catalog</span><span class="p">,</span>
     <span class="n">min_source_safety_factor</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Iterate the process until we get a transformation that</span>
 <span class="sd">    its difference from the previous one is less than a threshold</span>
 
@@ -865,7 +865,7 @@
 <span class="sd">        ra_cent(float): the new RA center array</span>
 
 <span class="sd">        dec_cent(float): the new Dec center array</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">x_cent</span> <span class="o">=</span> <span class="n">x_frame</span> <span class="o">/</span> <span class="mf">2.0</span>
     <span class="n">y_cent</span> <span class="o">=</span> <span class="n">y_frame</span> <span class="o">/</span> <span class="mf">2.0</span>
@@ -884,18 +884,18 @@
         <span class="k">if</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># TODO: fix pylint disables here</span>
             <span class="c1"># pylint:disable=used-before-assignment</span>
-            <span class="n">ra_cent</span> <span class="o">=</span> <span class="n">cent_new</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span>
-            <span class="n">dec_cent</span> <span class="o">=</span> <span class="n">cent_new</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span>
+            <span class="n">ra_cent</span> <span class="o">=</span> <span class="n">cent_new</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span>
+            <span class="n">dec_cent</span> <span class="o">=</span> <span class="n">cent_new</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span>
             <span class="c1"># pylint:enable=used-before-assignment</span>
-        <span class="n">radec_cent</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RA&quot;</span><span class="p">:</span> <span class="n">ra_cent</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">:</span> <span class="n">dec_cent</span><span class="p">}</span>
+        <span class="n">radec_cent</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"RA"</span><span class="p">:</span> <span class="n">ra_cent</span><span class="p">,</span> <span class="s2">"Dec"</span><span class="p">:</span> <span class="n">dec_cent</span><span class="p">}</span>
 
         <span class="n">projected</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
-            <span class="n">catalog</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"xi"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"eta"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
         <span class="p">)</span>
         <span class="n">gnomonic_projection</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">projected</span><span class="p">,</span> <span class="o">**</span><span class="n">radec_cent</span><span class="p">)</span>
 
-        <span class="n">xi</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Reshape to (n, 1)</span>
-        <span class="n">eta</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Reshape to (n, 1)</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Reshape to (n, 1)</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="n">projected</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Reshape to (n, 1)</span>
 
         <span class="n">trans_matrix_xy</span> <span class="o">=</span> <span class="n">transformation_matrix</span><span class="p">(</span><span class="n">astrometry_order</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span>
 
@@ -914,7 +914,7 @@
             <span class="o">+</span> <span class="p">(</span><span class="n">old_y_transformed</span> <span class="o">-</span> <span class="n">y_transformed</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="n">in_frame</span><span class="p">]</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;diff: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"diff: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="n">trans_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="n">max_iterations</span><span class="p">:</span>
             <span class="c1"># pylint:disable=used-before-assignment</span>
@@ -954,10 +954,10 @@
         <span class="n">res_rms</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">matched</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">ratio</span> <span class="o">=</span> <span class="n">n_matched</span> <span class="o">/</span> <span class="n">n_extracted</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;# of matched: </span><span class="si">%d</span><span class="s2"> out of </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_matched</span><span class="p">,</span> <span class="n">n_extracted</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"# of matched: </span><span class="si">%d</span><span class="s2"> out of </span><span class="si">%d</span><span class="s2">"</span><span class="p">,</span> <span class="n">n_matched</span><span class="p">,</span> <span class="n">n_extracted</span><span class="p">)</span>
         <span class="n">matched_sources</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
             <span class="n">n_matched</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"RA"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Dec"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)],</span>
         <span class="p">)</span>
 
         <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
@@ -966,10 +966,10 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ix</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
             <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
-                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">"RA"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">"Dec"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">"x"</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">matched_sources</span><span class="p">[</span><span class="s2">"y"</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xy_extracted</span><span class="p">[</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">]</span>
                 <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="n">cent_new</span> <span class="o">=</span> <span class="n">find_ra_dec</span><span class="p">(</span>
@@ -982,15 +982,15 @@
         <span class="p">)</span>
 
         <span class="n">projected_new</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
-            <span class="n">matched_sources</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+            <span class="n">matched_sources</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">"xi"</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">"eta"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
         <span class="p">)</span>
 
         <span class="n">gnomonic_projection</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">,</span> <span class="n">projected_new</span><span class="p">,</span> <span class="o">**</span><span class="n">cent_new</span><span class="p">)</span>
 
         <span class="n">trans_matrix</span> <span class="o">=</span> <span class="n">transformation_matrix</span><span class="p">(</span>
             <span class="n">astrometry_order</span><span class="p">,</span>
-            <span class="n">projected_new</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">projected_new</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="n">projected_new</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">projected_new</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">projected_new</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">projected_new</span><span class="p">[</span><span class="s2">"xi"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">projected_new</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">projected_new</span><span class="p">[</span><span class="s2">"eta"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">trans_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
@@ -998,19 +998,19 @@
             <span class="n">min_source_safety_factor</span> <span class="o">*</span> <span class="n">trans_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="n">SolveAstrometryError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The number of equations (</span><span class="si">{</span><span class="n">trans_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">) is &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;insufficient to solve for </span><span class="si">{</span><span class="n">trans_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;transformation coefficients with safety factor of &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">min_source_safety_factor</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"The number of equations (</span><span class="si">{</span><span class="n">trans_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">) is "</span>
+                <span class="sa">f</span><span class="s2">"insufficient to solve for </span><span class="si">{</span><span class="n">trans_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="s2">"transformation coefficients with safety factor of "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">min_source_safety_factor</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
         <span class="n">trans_x</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span>
             <span class="n">trans_matrix</span><span class="p">,</span>
-            <span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">matched_sources</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">trans_y</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span>
             <span class="n">trans_matrix</span><span class="p">,</span>
-            <span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">matched_sources</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matched_sources</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 </pre></div>

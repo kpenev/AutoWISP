@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.django_project.db_config &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.django_project.db_config</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Resolve which database the browser interface should use.</span>
+<span></span><span class="sd">"""Resolve which database the browser interface should use.</span>
 
 <span class="sd">By default this is an SQLite file in the user data directory, which is what</span>
 <span class="sd">every existing installation has and what a fresh one gets with no</span>
@@ -180,13 +180,13 @@
 <span class="sd">project home to hang a URL off.</span>
 
 <span class="sd">**One database per host.**  A server-hosted database is for keeping the</span>
-<span class="sd">installation&#39;s state somewhere backed up and administered centrally, not</span>
+<span class="sd">installation's state somewhere backed up and administered centrally, not</span>
 <span class="sd">for sharing between hosts.  Sharing would need more than a URL: ``Project``</span>
 <span class="sd">records a local filesystem path, so a project list written on one host is</span>
 <span class="sd">only meaningful on another if the project directories are mounted</span>
 <span class="sd">identically, and schema upgrades would stop being the single-process event</span>
 <span class="sd">that lets the browser interface migrate itself on launch.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">environ</span><span class="p">,</span> <span class="n">path</span>
 
@@ -194,29 +194,29 @@
 
 <span class="c1">#: Environment variable holding the URL, for deployments that would rather</span>
 <span class="c1">#: not leave a password on disk.  Takes precedence over the file.</span>
-<span class="n">url_env_var</span> <span class="o">=</span> <span class="s2">&quot;AUTOWISP_BUI_DB_URL&quot;</span>
+<span class="n">url_env_var</span> <span class="o">=</span> <span class="s2">"AUTOWISP_BUI_DB_URL"</span>
 
 <span class="c1">#: File in the user data directory holding the URL, when the environment</span>
-<span class="c1">#: does not.  Named to match the project database&#39;s ``autowisp_db.url``.</span>
-<span class="n">url_fname</span> <span class="o">=</span> <span class="s2">&quot;bui_db.url&quot;</span>
+<span class="c1">#: does not.  Named to match the project database's ``autowisp_db.url``.</span>
+<span class="n">url_fname</span> <span class="o">=</span> <span class="s2">"bui_db.url"</span>
 
 <span class="c1">#: The database used when nothing is configured.</span>
-<span class="n">sqlite_fname</span> <span class="o">=</span> <span class="s2">&quot;bui_db.sqlite3&quot;</span>
+<span class="n">sqlite_fname</span> <span class="o">=</span> <span class="s2">"bui_db.sqlite3"</span>
 
 <span class="c1"># Only the backends whose ``modified`` triggers are implemented, in</span>
 <span class="c1"># core.timestamp_triggers.  Accepting a URL we cannot keep timestamps on</span>
 <span class="c1"># would be worse than refusing it, since the failure would be silent.</span>
 <span class="n">_django_backends</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span> <span class="s2">&quot;django.db.backends.sqlite3&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;mysql&quot;</span><span class="p">:</span> <span class="s2">&quot;django.db.backends.mysql&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;mariadb&quot;</span><span class="p">:</span> <span class="s2">&quot;django.db.backends.mysql&quot;</span><span class="p">,</span>
+    <span class="s2">"sqlite"</span><span class="p">:</span> <span class="s2">"django.db.backends.sqlite3"</span><span class="p">,</span>
+    <span class="s2">"mysql"</span><span class="p">:</span> <span class="s2">"django.db.backends.mysql"</span><span class="p">,</span>
+    <span class="s2">"mariadb"</span><span class="p">:</span> <span class="s2">"django.db.backends.mysql"</span><span class="p">,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_database_url">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.django_project.db_config.html#autowisp.browser_interface.django_project.db_config.get_database_url">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_database_url</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the configured database URL, or ``None`` if there is none.</span>
 
 <span class="sd">    Args:</span>
@@ -225,15 +225,15 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        str or None:    The URL, stripped, or ``None`` to use the default</span>
 <span class="sd">            SQLite database.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">from_env</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_env_var</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">from_env</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url_env_var</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">from_env</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">from_env</span>
 
     <span class="n">url_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_dir</span><span class="p">),</span> <span class="n">url_fname</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">url_path</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">url_file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">url_file</span><span class="p">:</span>
             <span class="n">configured</span> <span class="o">=</span> <span class="n">url_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">configured</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">configured</span>
@@ -245,18 +245,18 @@
 <div class="viewcode-block" id="_ensure_mysql_driver">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.django_project.db_config.html#autowisp.browser_interface.django_project.db_config._ensure_mysql_driver">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_mysql_driver</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make Django&#39;s MySQL backend work with whichever driver is installed.</span>
+<span class="w">    </span><span class="sd">"""Make Django's MySQL backend work with whichever driver is installed.</span>
 
-<span class="sd">    Django&#39;s backend imports ``MySQLdb``, supplied by ``mysqlclient``.</span>
+<span class="sd">    Django's backend imports ``MySQLdb``, supplied by ``mysqlclient``.</span>
 <span class="sd">    AutoWISP does not depend on either driver -- the project database</span>
 <span class="sd">    documents ``mysql+pymysql`` and leaves installing it to the user -- so</span>
-<span class="sd">    accept ``pymysql`` as well rather than insisting on Django&#39;s default.</span>
+<span class="sd">    accept ``pymysql`` as well rather than insisting on Django's default.</span>
 
 <span class="sd">    The imports are deliberately not at module level: neither driver is a</span>
 <span class="sd">    dependency, so importing one on the way in would make this module --</span>
 <span class="sd">    and therefore ``settings`` -- unimportable on every SQLite install,</span>
 <span class="sd">    which is all of them by default.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">MySQLdb</span>  <span class="c1"># noqa: F401  pylint: disable=unused-import,C0415</span>
@@ -269,8 +269,8 @@
         <span class="kn">import</span><span class="w"> </span><span class="nn">pymysql</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;A MySQL/MariaDB browser-interface database needs a driver: &quot;</span>
-            <span class="s2">&quot;install either &#39;mysqlclient&#39; (Django&#39;s default) or &#39;pymysql&#39;.&quot;</span>
+            <span class="s2">"A MySQL/MariaDB browser-interface database needs a driver: "</span>
+            <span class="s2">"install either 'mysqlclient' (Django's default) or 'pymysql'."</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
 
     <span class="n">pymysql</span><span class="o">.</span><span class="n">install_as_MySQLdb</span><span class="p">()</span></div>
@@ -280,8 +280,8 @@
 <div class="viewcode-block" id="get_databases">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.django_project.db_config.html#autowisp.browser_interface.django_project.db_config.get_databases">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_databases</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return Django&#39;s ``DATABASES`` setting for the browser interface.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return Django's ``DATABASES`` setting for the browser interface.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        data_dir:    The user data directory, holding the default SQLite</span>
@@ -293,14 +293,14 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError:    If the configured URL names a backend whose</span>
 <span class="sd">            ``modified`` trigger is not implemented.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">url</span> <span class="o">=</span> <span class="n">get_database_url</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;ENGINE&quot;</span><span class="p">:</span> <span class="n">_django_backends</span><span class="p">[</span><span class="s2">&quot;sqlite&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;NAME&quot;</span><span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_dir</span><span class="p">),</span> <span class="n">sqlite_fname</span><span class="p">),</span>
+            <span class="s2">"default"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"ENGINE"</span><span class="p">:</span> <span class="n">_django_backends</span><span class="p">[</span><span class="s2">"sqlite"</span><span class="p">],</span>
+                <span class="s2">"NAME"</span><span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_dir</span><span class="p">),</span> <span class="n">sqlite_fname</span><span class="p">),</span>
             <span class="p">}</span>
         <span class="p">}</span>
 
@@ -308,32 +308,32 @@
     <span class="n">backend</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get_backend_name</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_django_backends</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unsupported browser-interface database backend </span><span class="si">{</span><span class="n">backend</span><span class="si">!r}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;in </span><span class="si">{</span><span class="n">url_env_var</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">url_fname</span><span class="si">}</span><span class="s2">. Supported: &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_django_backends</span><span class="p">))</span>
-            <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unsupported browser-interface database backend </span><span class="si">{</span><span class="n">backend</span><span class="si">!r}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"in </span><span class="si">{</span><span class="n">url_env_var</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">url_fname</span><span class="si">}</span><span class="s2">. Supported: "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_django_backends</span><span class="p">))</span>
+            <span class="o">+</span> <span class="s2">"."</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">"sqlite"</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;ENGINE&quot;</span><span class="p">:</span> <span class="n">_django_backends</span><span class="p">[</span><span class="s2">&quot;sqlite&quot;</span><span class="p">],</span>
+            <span class="s2">"default"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"ENGINE"</span><span class="p">:</span> <span class="n">_django_backends</span><span class="p">[</span><span class="s2">"sqlite"</span><span class="p">],</span>
                 <span class="c1"># An SQLite URL carries the path as the database, and</span>
                 <span class="c1"># query parameters (timeout, uri) that Django does not</span>
                 <span class="c1"># take here; the path is all that transfers.</span>
-                <span class="s2">&quot;NAME&quot;</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">database</span><span class="p">,</span>
+                <span class="s2">"NAME"</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">database</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">}</span>
 
     <span class="n">_ensure_mysql_driver</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;ENGINE&quot;</span><span class="p">:</span> <span class="n">_django_backends</span><span class="p">[</span><span class="n">backend</span><span class="p">],</span>
-            <span class="s2">&quot;NAME&quot;</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">database</span><span class="p">,</span>
-            <span class="s2">&quot;USER&quot;</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">username</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;PASSWORD&quot;</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">password</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;HOST&quot;</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">host</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;PORT&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">port</span><span class="p">)</span> <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">port</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"default"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"ENGINE"</span><span class="p">:</span> <span class="n">_django_backends</span><span class="p">[</span><span class="n">backend</span><span class="p">],</span>
+            <span class="s2">"NAME"</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">database</span><span class="p">,</span>
+            <span class="s2">"USER"</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">username</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"PASSWORD"</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">password</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"HOST"</span><span class="p">:</span> <span class="n">parsed</span><span class="o">.</span><span class="n">host</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"PORT"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">port</span><span class="p">)</span> <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">port</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">}</span></div>
 

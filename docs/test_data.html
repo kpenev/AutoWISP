@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Example: processing the test data one command line step at a time &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -17,11 +17,11 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -182,8 +182,8 @@ click at a time; it offers it the first time you open the interface, and the <st
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%mkdir autowisp_test
-%cd autowisp_test
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">mkdir</span> autowisp_test
+<span class="o">%</span><span class="k">cd</span> autowisp_test
 </pre></div>
 </div>
 </div>
@@ -242,7 +242,7 @@ for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-ove
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/zero
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/zero
 </pre></div>
 </div>
 </div>
@@ -256,7 +256,7 @@ for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-ove
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-stack-to-master -c test.cfg CAL/zero/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/zero/
 </pre></div>
 </div>
 </div>
@@ -270,7 +270,7 @@ for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-ove
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/dark/*.fits.fz --master-bias &quot;R:MASTERS/zero_R.fits.fz&quot;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/dark/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">"R:MASTERS/zero_R.fits.fz"</span>
 </pre></div>
 </div>
 </div>
@@ -283,7 +283,7 @@ for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-ove
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-stack-to-master -c test.cfg CAL/dark/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/dark/
 </pre></div>
 </div>
 </div>
@@ -296,7 +296,7 @@ for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-ove
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/flat/*.fits.fz --master-bias &quot;R:MASTERS/zero_R.fits.fz&quot; --master-dark &quot;R:MASTERS/dark_R.fits.fz&quot;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/flat/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">"R:MASTERS/zero_R.fits.fz"</span><span class="w"> </span>--master-dark<span class="w"> </span><span class="s2">"R:MASTERS/dark_R.fits.fz"</span>
 </pre></div>
 </div>
 </div>
@@ -309,7 +309,7 @@ for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-ove
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-stack-to-master-flat -c test.cfg CAL/flat/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master-flat<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/flat/
 </pre></div>
 </div>
 </div>
@@ -321,7 +321,7 @@ for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-ove
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/object/*.fits.fz --master-bias &quot;R:MASTERS/zero_R.fits.fz&quot; --master-dark &quot;R:MASTERS/dark_R.fits.fz&quot; --master-flat &quot;R:MASTERS/flat_R.fits.fz&quot;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/object/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">"R:MASTERS/zero_R.fits.fz"</span><span class="w"> </span>--master-dark<span class="w"> </span><span class="s2">"R:MASTERS/dark_R.fits.fz"</span><span class="w"> </span>--master-flat<span class="w"> </span><span class="s2">"R:MASTERS/flat_R.fits.fz"</span>
 </pre></div>
 </div>
 </div>
@@ -338,7 +338,7 @@ to start from. Behind the scenes the search is done by <code class="docutils lit
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-find-stars --config-file test.cfg CAL/object/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-find-stars<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
 </pre></div>
 </div>
 </div>
@@ -357,7 +357,7 @@ rotation and a scale.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-solve-astrometry --config-file test.cfg DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-solve-astrometry<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>DR/
 </pre></div>
 </div>
 </div>
@@ -378,7 +378,7 @@ rotation and a scale.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-fit-star-shape --config test.cfg CAL/object/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-star-shape<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
 </pre></div>
 </div>
 </div>
@@ -392,7 +392,7 @@ rotation and a scale.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-measure-aperture-photometry --config test.cfg CAL/object/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-measure-aperture-photometry<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
 </pre></div>
 </div>
 </div>
@@ -408,7 +408,7 @@ step does is smooth those three numbers.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-fit-source-extracted-psf-map --config test.cfg DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-source-extracted-psf-map<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
 </pre></div>
 </div>
 </div>
@@ -424,7 +424,7 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-fit-magnitudes --config test.cfg DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-magnitudes<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
 </pre></div>
 </div>
 </div>
@@ -454,7 +454,7 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-create-lightcurves --config test.cfg DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-create-lightcurves<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
 </pre></div>
 </div>
 </div>
@@ -469,7 +469,7 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-epd --config test.cfg LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-epd<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
 </pre></div>
 </div>
 </div>
@@ -481,7 +481,7 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-generate-epd-statistics --config test.cfg LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-generate-epd-statistics<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
 </pre></div>
 </div>
 </div>
@@ -495,7 +495,7 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-tfa --config test.cfg LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-tfa<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
 </pre></div>
 </div>
 </div>
@@ -507,7 +507,7 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-generate-tfa-statistics --config test.cfg LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-generate-tfa-statistics<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
 </pre></div>
 </div>
 </div>
@@ -520,7 +520,7 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-get-from-lc LC/GDR3_809281106831668736.h5 --expression bjd=skypos.BJD --expression &#39;mag{aperture_index}=apphot.magfit.magnitude&#39; -o GDR3_809281106831668736.csv --find-best
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-get-from-lc<span class="w"> </span>LC/GDR3_809281106831668736.h5<span class="w"> </span>--expression<span class="w"> </span><span class="nv">bjd</span><span class="o">=</span>skypos.BJD<span class="w"> </span>--expression<span class="w"> </span><span class="s1">'mag{aperture_index}=apphot.magfit.magnitude'</span><span class="w"> </span>-o<span class="w"> </span>GDR3_809281106831668736.csv<span class="w"> </span>--find-best
 </pre></div>
 </div>
 </div>
@@ -529,8 +529,8 @@ times, which is why <code class="docutils literal notranslate"><span class="pre"
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>with open(&#39;GDR3_809281106831668736.csv&#39;, &#39;r&#39;) as f:
-    print(f.read())
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'GDR3_809281106831668736.csv'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>

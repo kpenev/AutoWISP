@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processor &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.processor</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define base class for all pipeline processing steps enforcing conventions.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define base class for all pipeline processing steps enforcing conventions."""</span>
 
 
 <span class="c1"># TODO: add recovery and logging.</span>
@@ -172,16 +172,16 @@
 <div class="viewcode-block" id="Processor">
 <a class="viewcode-back" href="../../implementation/autowisp.processor.html#autowisp.processor.Processor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Processor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Providing and enforcing uniform interface for config, recovery, and logging.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">default_configuration</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="Processor.__init__">
 <a class="viewcode-back" href="../../implementation/autowisp.processor.html#autowisp.processor.Processor.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare to process with the given configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Prepare to process with the given configuration."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_configuration</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span></div>
@@ -190,7 +190,7 @@
 <div class="viewcode-block" id="Processor.__call__">
 <a class="viewcode-back" href="../../implementation/autowisp.processor.html#autowisp.processor.Processor.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add/overwrite any configuration parameters at time of processing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add/overwrite any configuration parameters at time of processing."""</span>
 
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">:</span>

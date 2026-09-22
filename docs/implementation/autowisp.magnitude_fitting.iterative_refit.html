@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.magnitude_fitting.iterative_refit module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,27 +172,27 @@
 <span id="autowisp-magnitude-fitting-iterative-refit-module"></span><h1>autowisp.magnitude_fitting.iterative_refit module<a class="headerlink" href="#module-autowisp.magnitude_fitting.iterative_refit" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-1202ce2b6d80d383548f02e44385570b50c7a82f.png" alt="Inheritance diagram of DataReductionFile, FileKind, FitMagnitudesError, LinearMagnitudeFit, MasterPhotrefCollector, RelatedFile, partial" usemap="#inheritance173b7bdc7c" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-c8d00e33676e862f300d9a5bdf9e6934aef962ac.png" alt="Inheritance diagram of DataReductionFile, FileKind, FitMagnitudesError, LinearMagnitudeFit, MasterPhotrefCollector, RelatedFile, partial" usemap="#inheritance173b7bdc7c" class="inheritance graphviz" /></div>
 <map id="inheritance173b7bdc7c" name="inheritance173b7bdc7c">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="447,453,521,480"/>
-<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="183,528,369,555"/>
-<area shape="rect" id="node12" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="426,528,713,555"/>
-<area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
-<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="800,5,1034,32"/>
-<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="818,80,1017,107"/>
-<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1042,80,1233,107"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1092,5,1183,32"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.FitMagnitudesError" target="_top" title="Failure in the fit_magnitudes step." alt="" coords="790,155,1044,181"/>
-<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1207,5,1417,32"/>
-<area shape="rect" id="node13" href="autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="440,603,765,629"/>
-<area shape="rect" id="node14" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="1441,5,1932,32"/>
-<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="421,80,592,107"/>
-<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="426,155,587,181"/>
-<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="259,5,404,32"/>
-<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="429,5,584,32"/>
-<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="608,5,776,32"/>
-<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="292,229,500,256"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="495,445,571,471"/>
+<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="204,519,408,544"/>
+<area shape="rect" id="node12" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="469,519,793,544"/>
+<area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="16,665,449,691"/>
+<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,592,460,617"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="881,5,1136,31"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.StepError" target="_top" title="Failure inside a processing step." alt="" coords="899,79,1119,104"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1143,79,1355,104"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1199,5,1299,31"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.FitMagnitudesError" target="_top" title="Failure in the fit_magnitudes step." alt="" coords="867,152,1150,177"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1323,5,1556,31"/>
+<area shape="rect" id="node13" href="autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="484,592,853,617"/>
+<area shape="rect" id="node14" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="1581,5,2133,31"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="465,79,653,104"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="470,152,649,177"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="289,5,448,31"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="473,5,646,31"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="670,5,857,31"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="322,225,554,251"/>
 </map><p>Interface for performing iterative magnitude fitting.</p>
 </section>
 <dl class="py function">
@@ -213,7 +213,7 @@ picklable to the workers.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.iterative_refit.iterative_refit">
-<span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.iterative_refit.</span></span><span class="sig-name descname"><span class="pre">iterative_refit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_dr_filenames</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_photref_dr_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/iterative_refit.html#iterative_refit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.iterative_refit.iterative_refit" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.iterative_refit.</span></span><span class="sig-name descname"><span class="pre">iterative_refit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_dr_filenames</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_photref_dr_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/iterative_refit.html#iterative_refit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.iterative_refit.iterative_refit" title="Link to this definition"></a></dt>
 <dd><p>Iteratively performa magnitude fitting/generating master until convergence.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -228,84 +228,58 @@ information in magnitude fitting terms and for excluding sources
 from the fit.</p></li>
 <li><p><strong>configuration</strong> – <p>Passed directly as the config argument to
 LinearMagnitudeFit.__init__() but it must also contain the following
-.. attribute:: * num_parallel_processes</p>
+:ivar * num_parallel_processes: the the maximum number of</p>
 <blockquote>
-<div><p>the the maximum number of
-magnitude fitting parallel processes to use.</p>
+<div><p>magnitude fitting parallel processes to use.</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">type<span class="colon">:</span></dt>
+<dt class="field-odd">vartype * num_parallel_processes<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
-</dl>
-</div></blockquote>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">\*</span> <span class="pre">max_photref_change</span></span></dt>
-<dd><p>the maximum square average change
+<dt class="field-even">ivar * max_photref_change<span class="colon">:</span></dt>
+<dd class="field-even"><p>the maximum square average change
 of photometric reference magnitudes to consider the iterations
 converged.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">\*</span> <span class="pre">master_photref_fname_format</span></span></dt>
-<dd><p>A format string involving a
+<dt class="field-odd">vartype * max_photref_change<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">ivar * master_photref_fname_format<span class="colon">:</span></dt>
+<dd class="field-even"><p>A format string involving a
 {magfit_iteration} substitution along with any variables from
 the header of the single photometric reference or passed
 through the path_substitutions arguments, that expands to the
 name of the file to save the master photometric reference for
 a particular iteration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">\*</span> <span class="pre">magfit_stat_fname_format</span></span></dt>
-<dd><p>Similar
+<dt class="field-odd">vartype * master_photref_fname_format<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">ivar * magfit_stat_fname_format<span class="colon">:</span></dt>
+<dd class="field-even"><p>Similar
 to <code class="docutils literal notranslate"><span class="pre">master_photref_fname_format</span></code>, but defines the name to
 use for saving the statistics of a magnitude fitting
 iteration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">\*</span> <span class="pre">num_parallel_processes</span></span></dt>
-<dd><p>How many processes to use
+<dt class="field-odd">vartype * magfit_stat_fname_format<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">ivar * num_parallel_processes<span class="colon">:</span></dt>
+<dd class="field-even"><p>How many processes to use
 for simultaneus fitting.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">\*</span> <span class="pre">master_scatter_fit_terms</span></span></dt>
-<dd><p>Terms to include in the fit
+<dt class="field-odd">vartype * num_parallel_processes<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">ivar * master_scatter_fit_terms<span class="colon">:</span></dt>
+<dd class="field-even"><p>Terms to include in the fit
 for the scatter when deciding which stars to include in the
 master.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+<dt class="field-odd">vartype * master_scatter_fit_terms<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
-</dd></dl>
-
 </p></li>
 <li><p><strong>mark_start</strong> (<em>callable</em>) – A function called at the start of each DR file
 fitting.</p></li>
@@ -326,7 +300,7 @@ to identify components to use in the fit.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.iterative_refit.single_iteration">
-<span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.iterative_refit.</span></span><span class="sig-name descname"><span class="pre">single_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_dr_filenames</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_substitutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_stat_collector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/iterative_refit.html#single_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.iterative_refit.single_iteration" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.iterative_refit.</span></span><span class="sig-name descname"><span class="pre">single_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_dr_filenames</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_substitutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_stat_collector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/iterative_refit.html#single_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.iterative_refit.single_iteration" title="Link to this definition"></a></dt>
 <dd><p>Do a single magfit iteration using parallel processes.</p>
 </dd></dl>
 

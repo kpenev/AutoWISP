@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.image_calibration.master_maker &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.image_calibration.master_maker</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define classes for creating master calibration frames.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define classes for creating master calibration frames."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -187,7 +187,7 @@
 <div class="viewcode-block" id="MasterMaker">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MasterMaker</span><span class="p">(</span><span class="n">Processor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Implement the simplest &amp; fully generalizable procedure for making a master.</span>
 
 <span class="sd">    Attributes:</span>
@@ -207,21 +207,21 @@
 <span class="sd">        &gt;&gt;&gt; #averaging/outlier rejection iterations and allowing a minimum of 3</span>
 <span class="sd">        &gt;&gt;&gt; #valid source pixels to make a master, for this master only.</span>
 <span class="sd">        &gt;&gt;&gt; make_master(</span>
-<span class="sd">        &gt;&gt;&gt;     [&#39;f1.fits.fz&#39;, &#39;f2.fits.fz&#39;, &#39;f3.fits.fz&#39;, &#39;f4.fits.fz&#39;],</span>
-<span class="sd">        &gt;&gt;&gt;     &#39;master.fits.fz&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;     ['f1.fits.fz', 'f2.fits.fz', 'f3.fits.fz', 'f4.fits.fz'],</span>
+<span class="sd">        &gt;&gt;&gt;     'master.fits.fz',</span>
 <span class="sd">        &gt;&gt;&gt;     max_iter=3,</span>
 <span class="sd">        &gt;&gt;&gt;     min_valid_values=3</span>
 <span class="sd">        &gt;&gt;&gt; )</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;All log messages from this class will be issued with this logger.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""All log messages from this class will be issued with this logger."""</span>
 
-    <span class="n">default_exclude_mask</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;BAD&quot;</span><span class="p">,)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">default_exclude_mask</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"BAD"</span><span class="p">,)</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The default bit-mask indicating all flags which should result in a pixel</span>
 <span class="sd">    being excluded from the averaging.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="MasterMaker.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker.__init__">[docs]</a>
@@ -237,7 +237,7 @@
         <span class="n">compress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">add_averaged_keywords</span><span class="o">=</span><span class="p">(),</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a master maker with the given default stacking configuration.</span>
 
 <span class="sd">        Keyword Args:</span>
@@ -250,17 +250,17 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stacking_options</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;outlier_threshold&quot;</span><span class="p">:</span> <span class="n">outlier_threshold</span><span class="p">,</span>
-            <span class="s2">&quot;average_func&quot;</span><span class="p">:</span> <span class="n">average_func</span><span class="p">,</span>
-            <span class="s2">&quot;min_valid_frames&quot;</span><span class="p">:</span> <span class="n">min_valid_frames</span><span class="p">,</span>
-            <span class="s2">&quot;min_valid_values&quot;</span><span class="p">:</span> <span class="n">min_valid_values</span><span class="p">,</span>
-            <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="n">max_iter</span><span class="p">,</span>
-            <span class="s2">&quot;exclude_mask&quot;</span><span class="p">:</span> <span class="n">exclude_mask</span><span class="p">,</span>
-            <span class="s2">&quot;add_averaged_keywords&quot;</span><span class="p">:</span> <span class="n">add_averaged_keywords</span><span class="p">,</span>
+            <span class="s2">"outlier_threshold"</span><span class="p">:</span> <span class="n">outlier_threshold</span><span class="p">,</span>
+            <span class="s2">"average_func"</span><span class="p">:</span> <span class="n">average_func</span><span class="p">,</span>
+            <span class="s2">"min_valid_frames"</span><span class="p">:</span> <span class="n">min_valid_frames</span><span class="p">,</span>
+            <span class="s2">"min_valid_values"</span><span class="p">:</span> <span class="n">min_valid_values</span><span class="p">,</span>
+            <span class="s2">"max_iter"</span><span class="p">:</span> <span class="n">max_iter</span><span class="p">,</span>
+            <span class="s2">"exclude_mask"</span><span class="p">:</span> <span class="n">exclude_mask</span><span class="p">,</span>
+            <span class="s2">"add_averaged_keywords"</span><span class="p">:</span> <span class="n">add_averaged_keywords</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compress</span> <span class="o">=</span> <span class="n">compress</span></div>
 
@@ -268,7 +268,7 @@
 <div class="viewcode-block" id="MasterMaker.prepare_for_stacking">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker.prepare_for_stacking">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_stacking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Override with any useful pre-processing of images before stacking.</span>
 
 <span class="sd">        Args:</span>
@@ -278,7 +278,7 @@
 <span class="sd">            same type as image:</span>
 <span class="sd">                The image to actually include in the stack. Return None if the</span>
 <span class="sd">                image should be excluded.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="n">image</span></div>
 
@@ -301,7 +301,7 @@
     <span class="p">):</span>
         <span class="c1"># No way to avoid</span>
         <span class="c1"># pylint: disable=line-too-long</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a master by stacking a list of frames.</span>
 
 <span class="sd">        Args:</span>
@@ -361,11 +361,11 @@
 <span class="sd">                [&lt;FITS filenames&gt;]:</span>
 <span class="sd">                    List of the frames that were excluded by</span>
 <span class="sd">                    self.prepare_for_stacking().</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># pylint: enable=line-too-long</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">document_in_header</span><span class="p">(</span><span class="n">header</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Document how the stacking was done in the given header.</span>
 
 <span class="sd">            The following extra keywords are added::</span>
@@ -381,7 +381,7 @@
 <span class="sd">                AVRGFUNC: The __name__ attribute of the averaging function used.</span>
 
 <span class="sd">                MINAVGPX: The minimum number of valid pixel values</span>
-<span class="sd">                    contributing to a pixel&#39;s average required to consider the</span>
+<span class="sd">                    contributing to a pixel's average required to consider the</span>
 <span class="sd">                    resulting master pixel valid.</span>
 
 <span class="sd">                MAXREJIT: The maximum number of rejection/averaging iterations</span>
@@ -395,38 +395,38 @@
 
 <span class="sd">            Returns:</span>
 <span class="sd">                None</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
-            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NUMFCOMB&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">"NUMFCOMB"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">),</span>
-                <span class="s2">&quot;Number frames combined in master&quot;</span><span class="p">,</span>
+                <span class="s2">"Number frames combined in master"</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame_list</span><span class="p">):</span>
-                <span class="n">header</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ORIGF</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">header</span><span class="p">[</span><span class="sa">f</span><span class="s2">"ORIGF</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">fname</span><span class="p">,</span>
-                    <span class="s2">&quot;Original frame contributing to master&quot;</span><span class="p">,</span>
+                    <span class="s2">"Original frame contributing to master"</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OUTLTHRS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">"OUTLTHRS"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">outlier_threshold</span><span class="p">),</span>
-                <span class="s2">&quot;The threshold for discarding outlier pixels&quot;</span><span class="p">,</span>
+                <span class="s2">"The threshold for discarding outlier pixels"</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;AVRGFUNC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">"AVRGFUNC"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">average_func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                <span class="s2">&quot;The averaging function used used for stacking&quot;</span><span class="p">,</span>
+                <span class="s2">"The averaging function used used for stacking"</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;MINAVGPX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">"MINAVGPX"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">min_valid_values</span><span class="p">,</span>
-                <span class="s2">&quot;The minimum number of valid pixels required.&quot;</span><span class="p">,</span>
+                <span class="s2">"The minimum number of valid pixels required."</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;MAXREJIT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">"MAXREJIT"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">max_iter</span> <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">max_iter</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_iter</span><span class="p">),</span>
-                <span class="s2">&quot;Max number of rejection/averaging iterations&quot;</span><span class="p">,</span>
+                <span class="s2">"Max number of rejection/averaging iterations"</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;XCLUDMSK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exclude_mask</span><span class="p">),</span>
-                <span class="s2">&quot;Pixels matching any of this mask were excluded&quot;</span><span class="p">,</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">"XCLUDMSK"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exclude_mask</span><span class="p">),</span>
+                <span class="s2">"Pixels matching any of this mask were excluded"</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;master&quot;</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">"IMAGETYP"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"master"</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="s2">"IMAGETYP"</span><span class="p">]</span>
 
         <span class="c1"># pylint: enable=anomalous-backslash-in-string</span>
 
@@ -480,7 +480,7 @@
                 <span class="k">if</span> <span class="n">exclude_pix</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                     <span class="n">pixel_values</span><span class="p">[</span><span class="n">frame_index</span><span class="p">][</span><span class="n">exclude_pix</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;Excluding </span><span class="si">%d</span><span class="s2"> masked pixels from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Excluding </span><span class="si">%d</span><span class="s2"> masked pixels from </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">exclude_pix</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                         <span class="n">frame_fname</span><span class="p">,</span>
                     <span class="p">)</span>
@@ -518,9 +518,9 @@
         <span class="p">)</span>
 
         <span class="n">master_mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
-            <span class="n">pixel_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;CLEAR&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int8&quot;</span>
+            <span class="n">pixel_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">"CLEAR"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int8"</span>
         <span class="p">)</span>
-        <span class="n">master_mask</span><span class="p">[</span><span class="n">master_num_averaged</span> <span class="o">&lt;</span> <span class="n">min_valid_values</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;BAD&quot;</span><span class="p">]</span>
+        <span class="n">master_mask</span><span class="p">[</span><span class="n">master_num_averaged</span> <span class="o">&lt;</span> <span class="n">min_valid_values</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">"BAD"</span><span class="p">]</span>
 
         <span class="n">document_in_header</span><span class="p">(</span><span class="n">master_header</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">add_averaged_keywords</span><span class="p">,</span> <span class="n">averaged_header</span><span class="p">):</span>
@@ -548,7 +548,7 @@
         <span class="n">compress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">stacking_options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a master by stacking the given frames.</span>
 
 <span class="sd">        The header of the craeted frame contains all keywords that are</span>
@@ -579,7 +579,7 @@
 
 <span class="sd">            [&lt;FITS filenames&gt;]:</span>
 <span class="sd">                Frames which were discarded during stacking.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">custom_header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">custom_header</span> <span class="o">=</span> <span class="p">{}</span>
@@ -597,7 +597,7 @@
 
         <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Failed to create master </span><span class="si">%s</span><span class="s2">!&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">output_fname</span><span class="p">)</span>
+                <span class="s2">"Failed to create master </span><span class="si">%s</span><span class="s2">!"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">output_fname</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">create_result</span><span class="p">(</span>
@@ -616,7 +616,7 @@
 
 <span class="c1"># pylint: enable=too-few-public-methods</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">make_master</span> <span class="o">=</span> <span class="n">MasterMaker</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">make_master</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">))</span>
 </pre></div>

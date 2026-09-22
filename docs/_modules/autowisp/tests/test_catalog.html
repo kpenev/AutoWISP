@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_catalog &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_catalog</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Test cases for catalog queries.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Test cases for catalog queries."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
@@ -180,35 +180,35 @@
 <div class="viewcode-block" id="TestCatalog">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_catalog.html#autowisp.tests.test_catalog.TestCatalog">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCatalog</span><span class="p">(</span><span class="n">FITSTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare catalog queries to expected results.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compare catalog queries to expected results."""</span>
 
     <span class="c1"># These tests exercise the live Gaia query itself, so do NOT stage the</span>
     <span class="c1"># cached catalogs (which would make ensure_catalog reuse them). CI selects</span>
-    <span class="c1"># or excludes this class with unittest&#39;s -k, so no skip logic is needed.</span>
+    <span class="c1"># or excludes this class with unittest's -k, so no skip logic is needed.</span>
     <span class="n">stage_catalog_cache</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="TestCatalog._test_single_query">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_catalog.html#autowisp.tests.test_catalog.TestCatalog._test_single_query">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_test_single_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_fname</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query a catalog per the header in given name and compare results.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Query a catalog per the header in given name and compare results."""</span>
 
         <span class="n">header</span> <span class="o">=</span> <span class="n">read_catalog_file</span><span class="p">(</span><span class="n">expected_fname</span><span class="p">,</span> <span class="n">return_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">query_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">k</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">,</span> <span class="s2">&quot;dec&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"ra"</span><span class="p">,</span> <span class="s2">"dec"</span><span class="p">,</span> <span class="s2">"width"</span><span class="p">,</span> <span class="s2">"height"</span><span class="p">]</span>
         <span class="p">}</span>
-        <span class="n">query_config</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">value</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;_orig&quot;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_orig&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+        <span class="n">query_config</span><span class="p">[</span><span class="s2">"columns"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">value</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">"_orig"</span><span class="p">)]</span> <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_orig"</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">header</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TTYPE&quot;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"TTYPE"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"RA"</span><span class="p">,</span> <span class="s2">"Dec"</span><span class="p">,</span> <span class="s2">"magnitude"</span><span class="p">]</span>
         <span class="p">]</span>
-        <span class="n">query_config</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;EPOCH&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">yr</span>
-        <span class="n">query_config</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">]</span>
-        <span class="n">query_config</span><span class="p">[</span><span class="s2">&quot;magnitude_expression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;MAGEXPR&quot;</span><span class="p">]</span>
+        <span class="n">query_config</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"EPOCH"</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">yr</span>
+        <span class="n">query_config</span><span class="p">[</span><span class="s2">"magnitude_limit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"MAGMAX"</span><span class="p">]</span>
+        <span class="n">query_config</span><span class="p">[</span><span class="s2">"magnitude_expression"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">"MAGEXPR"</span><span class="p">]</span>
         <span class="n">generated_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span>
-            <span class="s2">&quot;catalog_tests&quot;</span><span class="p">,</span>
+            <span class="s2">"catalog_tests"</span><span class="p">,</span>
             <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">expected_fname</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">create_catalog_file</span><span class="p">(</span><span class="n">generated_fname</span><span class="p">,</span> <span class="o">**</span><span class="n">query_config</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -218,17 +218,17 @@
 <div class="viewcode-block" id="TestCatalog.test_catalog_queries">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_catalog.html#autowisp.tests.test_catalog.TestCatalog.test_catalog_queries">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_catalog_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verify each of the queries for which expected results are known.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Verify each of the queries for which expected results are known."""</span>
 
         <span class="n">test_glob</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span>
-            <span class="s2">&quot;catalog_tests&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;test_catalog_*.fits&quot;</span><span class="p">,</span>
+            <span class="s2">"catalog_tests"</span><span class="p">,</span>
+            <span class="s2">"test_catalog_*.fits"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test directory contents: </span><span class="si">{</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;/*&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Looking for test catalogs matching </span><span class="si">{</span><span class="n">test_glob</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Test directory contents: </span><span class="si">{</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">'/*'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Looking for test catalogs matching </span><span class="si">{</span><span class="n">test_glob</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">expected_fname</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">test_glob</span><span class="p">)):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Testing </span><span class="si">{</span><span class="n">expected_fname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Testing </span><span class="si">{</span><span class="n">expected_fname</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_test_single_query</span><span class="p">(</span><span class="n">expected_fname</span><span class="p">)</span></div>
 </div>
 

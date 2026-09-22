@@ -1,5 +1,0 @@
-<map id="inheritance297a5cf819" name="inheritance297a5cf819">
-<area shape="rect" id="node1" href="#autowisp.tests.test_database_migration.BackendMixin" target="_top" title="Supplies clean project databases on whichever backend is under test." alt="" coords="5,5,344,32"/>
-<area shape="rect" id="node2" href="#autowisp.tests.test_database_migration.TestUpgradeFromRelease" target="_top" title="A database built by a *released* AutoWISP reaches today&#39;s schema." alt="" coords="106,80,515,107"/>
-<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="368,5,525,32"/>
-</map>

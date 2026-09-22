@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.browser_interface.diagnostics.forms &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.browser_interface.diagnostics.forms</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.browser_interface.diagnostics.forms</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The form behind the diagnostic expression management page.</span>
+
+<span class="sd">A ``ModelForm`` rather than hand-written POST handling, which is a new</span>
+<span class="sd">pattern in this interface and a deliberate one.  The name charset, the</span>
+<span class="sd">uniqueness of the name, the create-versus-update branch and the per-field</span>
+<span class="sd">error plumbing are all things Django already does correctly, and each one</span>
+<span class="sd">written out by hand would be another thing to keep right.</span>
+
+<span class="sd">What Django cannot know is whether the expression *means* anything.  That</span>
+<span class="sd">is :func:`~autowisp.diagnostics.expressions.check_expression`, which</span>
+<span class="sd">returns its complaints as plain strings rather than raising so that it</span>
+<span class="sd">stays usable with no Django at all -- import, and one day the command</span>
+<span class="sd">line, reach it by the same path.  Turning those strings into a</span>
+<span class="sd">``ValidationError`` is this module's whole reason to exist, and the only</span>
+<span class="sd">place that adaptation happens.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_expression</span><span class="p">,</span>
+    <span class="n">get_bare_aggregates</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagnosticExpression</span>
+
+
+<div class="viewcode-block" id="DiagnosticExpressionForm">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiagnosticExpressionForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Validate one proposed expression against the library it would join.</span>
+
+<span class="sd">    No project is involved.  An expression is valid or not in every project</span>
+<span class="sd">    alike -- see :mod:`autowisp.diagnostics.diagnostic_types` -- and</span>
+<span class="sd">    whether the open project has *recorded* what it needs is a separate</span>
+<span class="sd">    question, answered by counting rows elsewhere.  So this form works with</span>
+<span class="sd">    no project open, which is part of what makes one global library</span>
+<span class="sd">    coherent.</span>
+<span class="sd">    """</span>
+
+    <span class="c1"># A ModelForm is configuration plus one hook; the base class supplies</span>
+    <span class="c1"># the rest of the interface.</span>
+    <span class="c1"># pylint: disable=too-few-public-methods</span>
+<div class="viewcode-block" id="DiagnosticExpressionForm.Meta">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The three user-editable columns of the model."""</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DiagnosticExpression</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"expression"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">]</span>
+        <span class="c1"># Both are ``TextField`` because neither has a useful length limit,</span>
+        <span class="c1"># but both are written on one line, so a textarea would be a</span>
+        <span class="c1"># misleading amount of room.</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"expression"</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(),</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(),</span>
+        <span class="p">}</span></div>
+
+
+    <span class="c1"># pylint: enable=too-few-public-methods</span>
+
+<div class="viewcode-block" id="DiagnosticExpressionForm.__init__">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expressions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Args:</span>
+<span class="sd">            expressions(dict):    The library, ``{name: expression}``, this</span>
+<span class="sd">                one would join.  The view has it and the form does not, so</span>
+<span class="sd">                it arrives as a keyword argument.  An entry of the same</span>
+<span class="sd">                name is treated as the one being replaced rather than as a</span>
+<span class="sd">                conflict, so an edit can pass the library unchanged.</span>
+<span class="sd">        """</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">expressions</span> <span class="ow">or</span> <span class="p">{})</span>
+
+        <span class="c1">#: The NaN-propagating aggregates the accepted expression calls,</span>
+        <span class="c1">#: for the view to warn about.  Not an error: a deliberate</span>
+        <span class="c1">#: ``median`` is a legitimate thing to write, it is merely almost</span>
+        <span class="c1">#: never what was meant.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bare_aggregates</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiagnosticExpressionForm.clean">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.forms.html#autowisp.browser_interface.diagnostics.forms.DiagnosticExpressionForm.clean">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Report what ``check_expression`` says, against the field at fault."""</span>
+
+        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
+        <span class="n">expression</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"expression"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">expression</span><span class="p">:</span>
+            <span class="c1"># A missing field has already failed; complaining about the</span>
+            <span class="c1"># pair as well would only repeat that.</span>
+            <span class="k">return</span> <span class="n">cleaned_data</span>
+
+        <span class="c1"># check_expression reports on the pair, but its complaints have to</span>
+        <span class="c1"># land on the field that caused them.  The problems a name has on</span>
+        <span class="c1"># its own are exactly those it still has beside an expression that</span>
+        <span class="c1"># references nothing, which sorts them without matching on the</span>
+        <span class="c1"># message text.</span>
+        <span class="n">name_problems</span> <span class="o">=</span> <span class="n">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">check_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span>
+                <span class="s2">"name"</span> <span class="k">if</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">name_problems</span> <span class="k">else</span> <span class="s2">"expression"</span><span class="p">,</span> <span class="n">problem</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bare_aggregates</span> <span class="o">=</span> <span class="n">get_bare_aggregates</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cleaned_data</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

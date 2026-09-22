@@ -1,0 +1,13 @@
+<map id="inheritancedd23a01e3b" name="inheritancedd23a01e3b">
+<area shape="rect" id="node1" title="The base class for all table classes." alt="" coords="246,299,614,324"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="283,372,577,397"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,225,425,251"/>
+<area shape="rect" id="node3" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="450,225,842,251"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="499,152,793,177"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="729,5,984,31"/>
+<area shape="rect" id="node7" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="941,79,1175,104"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1008,5,1108,31"/>
+<area shape="rect" id="node9" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="32,152,399,177"/>
+<area shape="rect" id="node10" title="define a class as inspectable." alt="" coords="523,79,769,104"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="587,5,705,31"/>
+</map>

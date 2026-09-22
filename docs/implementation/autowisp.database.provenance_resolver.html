@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.provenance_resolver module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,21 +172,14 @@
 <span id="autowisp-database-provenance-resolver-module"></span><h1>autowisp.database.provenance_resolver module<a class="headerlink" href="#module-autowisp.database.provenance_resolver" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-fd10145c6b90a7335900fa89655281146ef9082f.png" alt="Inheritance diagram of Camera, EarthLocation, Mount, Observatory, Observer, ObservingSession, PipelineError, SkyCoord, Target, Telescope, Time, timedelta" usemap="#inheritance117cf78a0c" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b6947774589b6adb37d593769d87e12b99b53dc0.png" alt="Inheritance diagram of Camera, EarthLocation, Mount, Observatory, Observer, ObservingSession, PipelineError, SkyCoord, Target, Telescope, Time, timedelta" usemap="#inheritance117cf78a0c" class="inheritance graphviz" /></div>
 <map id="inheritance117cf78a0c" name="inheritance117cf78a0c">
-<area shape="rect" id="node10" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1266,304,1597,331"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="5,379,429,405"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="452,379,822,405"/>
-<area shape="rect" id="node16" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount" target="_top" title="The table describing the mounts specified" alt="" coords="846,379,1198,405"/>
-<area shape="rect" id="node17" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="1222,379,1641,405"/>
-<area shape="rect" id="node18" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer" target="_top" title="The table describing the observers" alt="" coords="1665,379,2049,405"/>
-<area shape="rect" id="node19" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope" target="_top" title="The table describing the telescopes specified" alt="" coords="2073,379,2468,405"/>
-<area shape="rect" id="node20" href="autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target" target="_top" title="The table describing the target." alt="" coords="2492,379,2771,405"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1450,229,1803,256"/>
-<area shape="rect" id="node21" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1753,5,1988,32"/>
-<area shape="rect" id="node22" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1761,80,1980,107"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="2012,5,2140,32"/>
-<area shape="rect" id="node26" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1574,5,1679,32"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="5,372,476,397"/>
+<area shape="rect" id="node20" href="autowisp.database.data_model.html#autowisp.database.data_model.Target" target="_top" title="The table describing the target." alt="" coords="2776,372,3089,397"/>
+<area shape="rect" id="node21" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1953,5,2208,31"/>
+<area shape="rect" id="node22" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1959,79,2202,104"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="2232,5,2380,31"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1754,5,1871,31"/>
 </map><p>Resolve FITS-header provenance to ORM rows shared by the survey database.</p>
 <p>Both the DB-backed pipeline (via
 <a class="reference internal" href="autowisp.processing_steps.add_images_to_db.html#module-autowisp.processing_steps.add_images_to_db" title="autowisp.processing_steps.add_images_to_db"><code class="xref py py-mod docutils literal notranslate"><span class="pre">autowisp.processing_steps.add_images_to_db</span></code></a>) and the manual /

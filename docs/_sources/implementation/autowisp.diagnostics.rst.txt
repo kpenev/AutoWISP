@@ -3,8 +3,8 @@ autowisp.diagnostics package
 
 .. automodule:: autowisp.diagnostics
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------

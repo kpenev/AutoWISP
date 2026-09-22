@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.configuration &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.configuration</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define the ProcessingConfiguration table for the pipeline&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define the ProcessingConfiguration table for the pipeline"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
@@ -175,25 +175,25 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.condition</span><span class="w"> </span><span class="kn">import</span> <span class="n">Condition</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Configuration&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Configuration"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Configuration">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.configuration.html#autowisp.database.data_model.Configuration">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.Configuration">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Configuration</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Table recording the values of the pipeline configuration parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Table recording the values of the pipeline configuration parameters."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;configuration&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"configuration"</span>
 
     <span class="n">parameter_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;parameter.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The name of the configuration parameter.&quot;</span><span class="p">,</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"parameter.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The name of the configuration parameter."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">version</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The version of the configuration parameter. Later versions fall &quot;</span>
-        <span class="s2">&quot;back on earlier versions if an entry for the parameter is not found.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The version of the configuration parameter. Later versions fall "</span>
+        <span class="s2">"back on earlier versions if an entry for the parameter is not found."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">condition_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
@@ -204,54 +204,54 @@
         <span class="c1"># that as a non-standard extension until MySQL 8.4 began rejecting</span>
         <span class="c1"># it (ER_FK_NO_UNIQUE_INDEX_PARENT); the relationship below already</span>
         <span class="c1"># hand-annotates the join for the same reason.</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The id of the condition that must be met for this configuration to&quot;</span>
-        <span class="s2">&quot; apply&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The id of the condition that must be met for this configuration to"</span>
+        <span class="s2">" apply"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The value of the configuration parameter for the given version &quot;</span>
-        <span class="s2">&quot;for images satisfying the given conditions.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The value of the configuration parameter for the given version "</span>
+        <span class="s2">"for images satisfying the given conditions."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">notes</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Any user supplied notes describing the configuration.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Any user supplied notes describing the configuration."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">conditions</span><span class="p">:</span> <span class="n">Mapped</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Condition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;Condition&quot;</span><span class="p">,</span>
-        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;Configuration.condition_id==foreign(Condition.id)&quot;</span><span class="p">,</span>
-        <span class="n">order_by</span><span class="o">=</span><span class="s2">&quot;Condition.id&quot;</span><span class="p">,</span>
+        <span class="s2">"Condition"</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">"Configuration.condition_id==foreign(Condition.id)"</span><span class="p">,</span>
+        <span class="n">order_by</span><span class="o">=</span><span class="s2">"Condition.id"</span><span class="p">,</span>
         <span class="n">uselist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parameter</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Parameter&quot;</span><span class="p">)</span>
+    <span class="n">parameter</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"Parameter"</span><span class="p">)</span>
     <span class="n">condition_expressions</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;ConditionExpression&quot;</span><span class="p">,</span>
+        <span class="s2">"ConditionExpression"</span><span class="p">,</span>
         <span class="n">secondary</span><span class="o">=</span><span class="n">Condition</span><span class="o">.</span><span class="n">__table__</span><span class="p">,</span>
         <span class="c1"># Spelled out because condition_id is deliberately not a foreign</span>
         <span class="c1"># key -- condition.id names a group of rows, not one row -- so</span>
         <span class="c1"># there is nothing for SQLAlchemy to infer the join from. foreign()</span>
         <span class="c1"># marks the side it would otherwise have taken from the constraint.</span>
-        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">&quot;Configuration.condition_id == foreign(Condition.id)&quot;</span><span class="p">,</span>
+        <span class="n">primaryjoin</span><span class="o">=</span><span class="s2">"Configuration.condition_id == foreign(Condition.id)"</span><span class="p">,</span>
         <span class="n">secondaryjoin</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;foreign(Condition.expression_id) == ConditionExpression.id&quot;</span>
+            <span class="s2">"foreign(Condition.expression_id) == ConditionExpression.id"</span>
         <span class="p">),</span>
         <span class="n">viewonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Config v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;if </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Config v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"if </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="n">__table_args__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">Index</span><span class="p">(</span>
-            <span class="s2">&quot;config_key2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;parameter_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;condition_id&quot;</span><span class="p">,</span>
+            <span class="s2">"config_key2"</span><span class="p">,</span>
+            <span class="s2">"parameter_id"</span><span class="p">,</span>
+            <span class="s2">"version"</span><span class="p">,</span>
+            <span class="s2">"condition_id"</span><span class="p">,</span>
             <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span></div>

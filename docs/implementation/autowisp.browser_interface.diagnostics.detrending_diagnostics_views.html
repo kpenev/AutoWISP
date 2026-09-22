@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.detrending_diagnostics_views module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -173,30 +173,28 @@
 <span id="autowisp-browser-interface-diagnostics-detrending-diagnostics-views-module"></span><h1>autowisp.browser_interface.diagnostics.detrending_diagnostics_views module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.detrending_diagnostics_views" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-81401cb6bd86bab2d3e5884136b03b7cc7f25bd3.png" alt="Inheritance diagram of BytesIO, Condition, ConditionExpression, DataReductionFile, Evaluator, HttpResponse, Image, LightCurveProcessingManager, MasterFile, MasterType" usemap="#inheritanceff1e3e1f08" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-923ea1c425e914060202667c5cc3c48d5eab45ed.png" alt="Inheritance diagram of BytesIO, Condition, ConditionExpression, DataReductionFile, Evaluator, HttpResponse, Image, LightCurveProcessingManager, MasterFile, MasterType" usemap="#inheritanceff1e3e1f08" class="inheritance graphviz" /></div>
 <map id="inheritanceff1e3e1f08" name="inheritanceff1e3e1f08">
-<area shape="rect" id="node2" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="151,453,226,480"/>
-<area shape="rect" id="node15" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="156,528,343,555"/>
-<area shape="rect" id="node19" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="876,80,1095,107"/>
-<area shape="rect" id="node4" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="56,677,443,704"/>
-<area shape="rect" id="node5" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="44,603,455,629"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1235,304,1566,331"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="445,379,761,405"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="785,379,1237,405"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="1260,379,1540,405"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="1564,379,1906,405"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="1930,379,2278,405"/>
-<area shape="rect" id="node8" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="1565,229,1918,256"/>
-<area shape="rect" id="node16" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="1876,80,2319,107"/>
-<area shape="rect" id="node17" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="1940,5,2256,32"/>
-<area shape="rect" id="node18" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="891,155,1080,181"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="423,80,594,107"/>
-<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="428,155,589,181"/>
-<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="261,5,406,32"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="431,5,586,32"/>
-<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="610,5,778,32"/>
-<area shape="rect" id="node26" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
-<area shape="rect" id="node36" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1689,5,1794,32"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="175,445,251,471"/>
+<area shape="rect" id="node15" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="175,519,379,544"/>
+<area shape="rect" id="node19" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="965,79,1209,104"/>
+<area shape="rect" id="node4" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="60,665,493,691"/>
+<area shape="rect" id="node5" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="49,592,504,617"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="484,372,840,397"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="864,372,1369,397"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="1393,372,1709,397"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="1733,372,2116,397"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2141,372,2530,397"/>
+<area shape="rect" id="node16" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="2076,79,2568,104"/>
+<area shape="rect" id="node17" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="2147,5,2497,31"/>
+<area shape="rect" id="node18" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="981,152,1193,177"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="468,79,656,104"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="473,152,651,177"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="292,5,451,31"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="475,5,649,31"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="673,5,859,31"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="279,225,511,251"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1870,5,1987,31"/>
 </map><p>Views for displaying diagnostics for the calibration steps.</p>
 </section>
 <dl class="py function">

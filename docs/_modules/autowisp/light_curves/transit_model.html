@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.transit_model &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -166,12 +166,12 @@
   <h1>Source code for autowisp.light_curves.transit_model</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Predict LC magnitudes given transit model parameters.</span>
 
-<span class="sd">Basically a convenient interface around pytransit, specific to the pipeline&#39;s</span>
+<span class="sd">Basically a convenient interface around pytransit, specific to the pipeline's</span>
 <span class="sd">lightcurve format.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
@@ -179,7 +179,7 @@
 <div class="viewcode-block" id="magnitude_change">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.transit_model.html#autowisp.light_curves.transit_model.magnitude_change">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">magnitude_change</span><span class="p">(</span><span class="n">light_curve</span><span class="p">,</span> <span class="n">transit_model</span><span class="p">,</span> <span class="o">*</span><span class="n">model_args</span><span class="p">,</span> <span class="o">**</span><span class="n">model_kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Evaluate the given model at the exposure times contained in the lightcurve.</span>
 
 <span class="sd">    Args:</span>
@@ -198,10 +198,10 @@
 <span class="sd">        array:</span>
 <span class="sd">            The change in magnitude of the given star due to the transit (i.e.</span>
 <span class="sd">            zere for all LC pointst out-of-transit).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">transit_model</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
-        <span class="n">light_curve</span><span class="o">.</span><span class="n">read_data_array</span><span class="p">({</span><span class="s2">&quot;BJD&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;skypos.BJD&quot;</span><span class="p">,</span> <span class="p">{})})[</span><span class="s2">&quot;BJD&quot;</span><span class="p">]</span>
+        <span class="n">light_curve</span><span class="o">.</span><span class="n">read_data_array</span><span class="p">({</span><span class="s2">"BJD"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"skypos.BJD"</span><span class="p">,</span> <span class="p">{})})[</span><span class="s2">"BJD"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
         <span class="n">transit_model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">*</span><span class="n">model_args</span><span class="p">,</span> <span class="o">**</span><span class="n">model_kwargs</span><span class="p">)</span>

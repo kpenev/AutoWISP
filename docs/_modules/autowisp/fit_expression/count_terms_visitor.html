@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.count_terms_visitor &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.fit_expression.count_terms_visitor</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Implement a visitor to parsed fit terms expressions that counts the terms.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Implement a visitor to parsed fit terms expressions that counts the terms."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">binom</span>
 
@@ -175,13 +175,13 @@
 <div class="viewcode-block" id="CountTermsVisitor">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CountTermsVisitor</span><span class="p">(</span><span class="n">FitTermsParserVisitor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Visitor to parsed fit terms expressions counting the expanded terms.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Visitor to parsed fit terms expressions counting the expanded terms."""</span>
 
     <span class="c1"># Visit a parse tree produced by FitTermsParser#fit_terms_list.</span>
 <div class="viewcode-block" id="CountTermsVisitor.visitFit_terms_list">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_terms_list">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_listContext</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of terms in the list.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of terms in the list."""</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">fit_term</span><span class="p">()),</span> <span class="mi">0</span></div>
 
@@ -190,7 +190,7 @@
 <div class="viewcode-block" id="CountTermsVisitor.visitFit_polynomial">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_polynomial">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_polynomialContext</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of terms after the polynomial expansion.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of terms after the polynomial expansion."""</span>
 
         <span class="n">max_order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">order</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="n">num_terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">fit_terms_list</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
@@ -201,7 +201,7 @@
 <div class="viewcode-block" id="CountTermsVisitor.visitFit_terms_set">
 <a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_terms_set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_setContext</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of the terms in the set.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of the terms in the set."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">getChild</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span></div>
 
@@ -212,7 +212,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_set_cross_product</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_set_cross_productContext</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of terms combining one term from each input set.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of terms combining one term from each input set."""</span>
 
         <span class="n">num_terms</span><span class="p">,</span> <span class="n">num_one_terms</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">term_set</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fit_terms_set</span><span class="p">():</span>
@@ -228,7 +228,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">visitFit_terms_expression</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_expressionContext</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the total number of terms the term expression expands to.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the total number of terms the term expression expands to."""</span>
 
         <span class="n">num_terms</span><span class="p">,</span> <span class="n">num_one_terms</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fit_terms_set_cross_product</span><span class="p">():</span>

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_related_files module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,36 +172,36 @@
 <span id="autowisp-tests-test-related-files-module"></span><h1>autowisp.tests.test_related_files module<a class="headerlink" href="#module-autowisp.tests.test_related_files" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-e4bd2ed11ab6706ef51b7efd177f50e0e453425e.png" alt="Inheritance diagram of AutoWISPError, Component, DataReductionFile, ExitStack, FileKind, LightCurveFile, MagicMock, Path, SimpleNamespace, TemporaryDirectory, TestCatalogScopes, TestHDF5ProductsAttachThemselves, TestMainProcessScopes, TestWorkerPoolClassifiers, _StampedFilesMixin, _StubRaise" usemap="#inheritance90b9395c73" class="inheritance graphviz" /></div>
-<map id="inheritance90b9395c73" name="inheritance90b9395c73">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="571,453,646,480"/>
-<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="330,528,516,555"/>
-<area shape="rect" id="node22" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractContextManager" target="_top" title="An abstract base class for context managers." alt="" coords="558,528,784,555"/>
-<area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
-<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
-<area shape="rect" id="node10" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
-<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="947,5,1182,32"/>
-<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1032,80,1243,107"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1205,5,1297,32"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1267,80,1459,107"/>
-<area shape="rect" id="node11" href="#autowisp.tests.test_related_files.TestCatalogScopes" target="_top" title="The catalog is named by the step that *uses* it, not by the query." alt="" coords="1483,80,1811,107"/>
-<area shape="rect" id="node13" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" target="_top" title="DR and lightcurve files scope themselves while open." alt="" coords="1835,80,2270,107"/>
-<area shape="rect" id="node14" href="#autowisp.tests.test_related_files.TestMainProcessScopes" target="_top" title="The main&#45;process steps, exercised through their real dispatch." alt="" coords="2293,80,2652,107"/>
-<area shape="rect" id="node15" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" target="_top" title="The ``run_pool`` sites, checked through the call that wires them up." alt="" coords="2675,80,3043,107"/>
-<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="568,80,739,107"/>
-<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="573,155,734,181"/>
-<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="406,5,552,32"/>
-<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="576,5,731,32"/>
-<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="755,5,923,32"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="439,229,647,256"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/contextlib.html#contextlib.ExitStack" target="_top" title="Context manager for dynamic management of a stack of exit callbacks." alt="" coords="619,603,758,629"/>
-<area shape="rect" id="node29" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="3067,80,3158,107"/>
-<area shape="rect" id="node30" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="3054,5,3171,32"/>
-<area shape="rect" id="node31" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="3196,5,3381,32"/>
-<area shape="rect" id="node32" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="3405,5,3572,32"/>
-<area shape="rect" id="node38" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.NonCallableMock" target="_top" title="A non&#45;callable version of `Mock`" alt="" coords="3559,80,3767,107"/>
-<area shape="rect" id="node37" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock" target="_top" title="Create a new `Mock` object. `Mock` takes several optional arguments" alt="" coords="3559,155,3695,181"/>
-<area shape="rect" id="node36" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.MagicMock" target="_top" title="MagicMock is a subclass of Mock with default implementations" alt="" coords="3631,229,3802,256"/>
+<div class="graphviz"><img src="../_images/inheritance-fe9db8dbf066e38f7d44ea686ceccb83a38d201e.png" alt="Inheritance diagram of AutoWISPError, Component, DataReductionFile, ExitStack, FileKind, LightCurveFile, MagicMock, Path, SimpleNamespace, TemporaryDirectory, TestCatalogScopes, TestHDF5ProductsAttachThemselves, TestMainProcessScopes, TestWorkerPoolClassifiers" usemap="#inheritance3a5b4cf5f0" class="inheritance graphviz" /></div>
+<map id="inheritance3a5b4cf5f0" name="inheritance3a5b4cf5f0">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="632,445,708,471"/>
+<area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="368,519,572,544"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractContextManager" target="_top" title="An abstract base class for context managers." alt="" coords="615,519,869,544"/>
+<area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,665,439,691"/>
+<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="205,592,660,617"/>
+<area shape="rect" id="node10" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="463,665,827,691"/>
+<area shape="rect" id="node5" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1045,5,1300,31"/>
+<area shape="rect" id="node6" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1133,79,1367,104"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1324,5,1424,31"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1391,79,1603,104"/>
+<area shape="rect" id="node11" href="#autowisp.tests.test_related_files.TestCatalogScopes" target="_top" title="The catalog is named by the step that *uses* it, not by the query." alt="" coords="1627,79,1985,104"/>
+<area shape="rect" id="node13" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" target="_top" title="DR and lightcurve files scope themselves while open." alt="" coords="2009,79,2485,104"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_related_files.TestMainProcessScopes" target="_top" title="The main&#45;process steps, exercised through their real dispatch." alt="" coords="2509,79,2900,104"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" target="_top" title="The ``run_pool`` sites, checked through the call that wires them up." alt="" coords="2925,79,3327,104"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="629,79,817,104"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="634,152,813,177"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="453,5,612,31"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="637,5,810,31"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="834,5,1021,31"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="486,225,718,251"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/contextlib.html#contextlib.ExitStack" target="_top" title="Context manager for dynamic management of a stack of exit callbacks." alt="" coords="685,592,837,617"/>
+<area shape="rect" id="node29" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" target="_top" title="PurePath subclass that can make system calls." alt="" coords="3351,79,3450,104"/>
+<area shape="rect" id="node30" href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath" target="_top" title="Base class for manipulating paths without I/O." alt="" coords="3337,5,3465,31"/>
+<area shape="rect" id="node31" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="3489,5,3699,31"/>
+<area shape="rect" id="node32" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" target="_top" title="A simple attribute&#45;based namespace." alt="" coords="3723,5,3907,31"/>
+<area shape="rect" id="node38" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.NonCallableMock" target="_top" title="A non&#45;callable version of `Mock`" alt="" coords="3891,79,4121,104"/>
+<area shape="rect" id="node37" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock" target="_top" title="Create a new `Mock` object. `Mock` takes several optional arguments" alt="" coords="3889,152,4040,177"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/unittest.mock.html#unittest.mock.MagicMock" target="_top" title="MagicMock is a subclass of Mock with default implementations" alt="" coords="3967,225,4157,251"/>
 </map><p>Unit tests for the per-step <code class="docutils literal notranslate"><span class="pre">related_files</span></code> classifiers (item 9).</p>
 <p>Each parallel/step site turns its work item (plus any batch-constant
 auxiliary inputs) into <code class="xref py py-class docutils literal notranslate"><span class="pre">RelatedFile</span></code> entries, so an error carries
@@ -223,11 +223,11 @@ is covered in <code class="docutils literal notranslate"><span class="pre">test_
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestCatalogScopes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestCatalogScopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestCatalogScopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestCatalogScopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestCatalogScopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="autowisp.tests.test_related_files._StampedFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">_StampedFilesMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-e638658768a1ccd709fc5cd0addf53132fc6a849.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestCatalogScopes" usemap="#inheritancee243d85713" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-79f7ffaeef62d57c1048a65ec6ee017b0486575b.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestCatalogScopes" usemap="#inheritancee243d85713" class="inheritance graphviz" /></div>
 <map id="inheritancee243d85713" name="inheritancee243d85713">
-<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestCatalogScopes" target="_top" title="The catalog is named by the step that *uses* it, not by the query." alt="" coords="5,80,333,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestCatalogScopes" target="_top" title="The catalog is named by the step that *uses* it, not by the query." alt="" coords="5,79,364,104"/>
 </map><p>The catalog is named by the step that <em>uses</em> it, not by the query.</p>
 <p><code class="docutils literal notranslate"><span class="pre">ensure_catalog</span></code> resolves the <code class="docutils literal notranslate"><span class="pre">{checksum}</span></code> filename and returns,
 long before its caller is done with it, so each consumer scopes the
@@ -242,7 +242,7 @@ back down into <code class="docutils literal notranslate"><span class="pre">ensu
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestCatalogScopes.catalog_fname">
-<span class="sig-name descname"><span class="pre">catalog_fname</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/MASTERS/Gaia/abc123.fits'</span></em><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes.catalog_fname" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">catalog_fname</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/MASTERS/Gaia/abc123.fits'</span></span><a class="headerlink" href="#autowisp.tests.test_related_files.TestCatalogScopes.catalog_fname" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -261,11 +261,11 @@ inside <code class="docutils literal notranslate"><span class="pre">create_sourc
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestHDF5ProductsAttachThemselves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestHDF5ProductsAttachThemselves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="autowisp.tests.test_related_files._StampedFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">_StampedFilesMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-c7e3fa476efff78c0acc642d5c7e030ef0f7199e.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" usemap="#inheritance854c960272" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-fd6ec699fb10f7f01601d2c80f07afd058e6dde4.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" usemap="#inheritance854c960272" class="inheritance graphviz" /></div>
 <map id="inheritance854c960272" name="inheritance854c960272">
-<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" target="_top" title="DR and lightcurve files scope themselves while open." alt="" coords="5,80,440,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves" target="_top" title="DR and lightcurve files scope themselves while open." alt="" coords="5,79,481,104"/>
 </map><p>DR and lightcurve files scope themselves while open.</p>
 <p>This is what replaced the per-step DR/LC scopes: every pipeline HDF5
 product opened through a <code class="docutils literal notranslate"><span class="pre">with</span></code> block attaches itself, so a step that
@@ -280,13 +280,13 @@ throwaway project home for the layout lookup.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.setUpClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.setUpClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.setUpClass" title="Link to this definition"></a></dt>
 <dd><p>Create a project home holding one (empty) DR file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.tearDownClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.tearDownClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestHDF5ProductsAttachThemselves.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestHDF5ProductsAttachThemselves.tearDownClass" title="Link to this definition"></a></dt>
 <dd><p>Remove the throwaway project home.</p>
 </dd></dl>
 
@@ -329,11 +329,11 @@ is open – a regression the hook’s own tests cannot see.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestMainProcessScopes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestMainProcessScopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestMainProcessScopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestMainProcessScopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestMainProcessScopes" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="autowisp.tests.test_related_files._StampedFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">_StampedFilesMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-c95adaba3489cf7adb8d225ea6fcdecf6b850196.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestMainProcessScopes" usemap="#inheritance8e2bf97535" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-6e855956d0c12552eab7ad7b684eaa24621afe5f.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestMainProcessScopes" usemap="#inheritance8e2bf97535" class="inheritance graphviz" /></div>
 <map id="inheritance8e2bf97535" name="inheritance8e2bf97535">
-<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestMainProcessScopes" target="_top" title="The main&#45;process steps, exercised through their real dispatch." alt="" coords="5,80,364,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestMainProcessScopes" target="_top" title="The main&#45;process steps, exercised through their real dispatch." alt="" coords="5,79,396,104"/>
 </map><p>The main-process steps, exercised through their real dispatch.</p>
 <p>These build their <code class="docutils literal notranslate"><span class="pre">RelatedFile</span></code> entries at the scope rather than in a
 classifier, so each test runs the actual step with the first call
@@ -394,11 +394,11 @@ open the first frame to build the name.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files.TestWorkerPoolClassifiers">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestWorkerPoolClassifiers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">TestWorkerPoolClassifiers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#TestWorkerPoolClassifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-a93d46bd41a944a3c053399ea9d272699281386f.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestWorkerPoolClassifiers" usemap="#inheritance5f59365904" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-acb927743d7f8afa42646ef533e137e67a6a0ca4.png" alt="Inheritance diagram of autowisp.tests.test_related_files.TestWorkerPoolClassifiers" usemap="#inheritance5f59365904" class="inheritance graphviz" /></div>
 <map id="inheritance5f59365904" name="inheritance5f59365904">
-<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" target="_top" title="The ``run_pool`` sites, checked through the call that wires them up." alt="" coords="5,80,373,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_related_files.TestWorkerPoolClassifiers" target="_top" title="The ``run_pool`` sites, checked through the call that wires them up." alt="" coords="5,79,408,104"/>
 </map><p>The <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> sites, checked through the call that wires them up.</p>
 <p>These steps do not scope the context themselves: they hand <code class="docutils literal notranslate"><span class="pre">run_pool</span></code>
 a classifier and <code class="docutils literal notranslate"><span class="pre">_WorkerEntry</span></code> applies it inside each worker. That
@@ -460,12 +460,12 @@ handed.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files._StampedFilesMixin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">_StampedFilesMixin</span></span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">_StampedFilesMixin</span></span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Run something behind a capture boundary and inspect the error.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files._StampedFilesMixin._raise_stub">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_raise_stub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin._raise_stub"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin._raise_stub" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_raise_stub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StampedFilesMixin._raise_stub"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StampedFilesMixin._raise_stub" title="Link to this definition"></a></dt>
 <dd><p>Stand in for the first call inside a scope; always raises.</p>
 </dd></dl>
 
@@ -512,7 +512,7 @@ master-filename resolver).</p></li>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="autowisp.tests.test_related_files._StubRaise">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">_StubRaise</span></span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StubRaise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StubRaise" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_related_files.</span></span><span class="sig-name descname"><span class="pre">_StubRaise</span></span><a class="reference internal" href="../_modules/autowisp/tests/test_related_files.html#_StubRaise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_related_files._StubRaise" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#Exception" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Raised by a stubbed per-item call to stop the step right there.</p>
 </dd></dl>

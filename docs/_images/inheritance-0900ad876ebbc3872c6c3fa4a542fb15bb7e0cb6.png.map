@@ -1,0 +1,5 @@
+<map id="inheritance0a8883b7cf" name="inheritance0a8883b7cf">
+<area shape="rect" id="node1" href="#autowisp.tests.test_bui_db_config.DbConfigTestCase" target="_top" title="Base giving each test an empty data directory and no environment." alt="" coords="5,79,368,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_bui_db_config.TestDiscovery" target="_top" title="Where the URL is looked for, and in what order." alt="" coords="18,152,355,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="103,5,271,31"/>
+</map>

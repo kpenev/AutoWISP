@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_expression_series module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,27 +172,25 @@
 <span id="autowisp-tests-test-expression-series-module"></span><h1>autowisp.tests.test_expression_series module<a class="headerlink" href="#module-autowisp.tests.test_expression_series" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-4c55f9fabdb74ea82b059c0fa53595e42bd6af72.png" alt="Inheritance diagram of DiagnosticType, DiagnosticsViewTestCase, Image, ImageDiagnostics, ImageType, ObservingSession, SeriesKey, SeriesValuesTestCase, TestCanonicalImages, TestCrossChannelCounts, TestCrossChannelValues, TestDiagnosticValues, TestSeriesValues, TestTiedJulianDates, datetime" usemap="#inheritance1ac995b96d" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-5bf402ed89fa9af2d74ab6f626e56575d2b1b0b8.png" alt="Inheritance diagram of DiagnosticType, DiagnosticsViewTestCase, Image, ImageDiagnostics, ImageType, ObservingSession, SeriesKey, SeriesValuesTestCase, TestCanonicalImages, TestCrossChannelCounts, TestCrossChannelValues, TestDiagnosticValues, TestSeriesValues, TestTiedJulianDates, datetime" usemap="#inheritance1ac995b96d" class="inheritance graphviz" /></div>
 <map id="inheritance1ac995b96d" name="inheritance1ac995b96d">
-<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="799,304,1129,331"/>
-<area shape="rect" id="node5" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="5,379,286,405"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.image_diagnostics.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="310,379,717,405"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1211,379,1552,405"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1575,379,1998,405"/>
-<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="982,229,1336,256"/>
-<area shape="rect" id="node8" href="autowisp.database.data_model.image_diagnostics.html#autowisp.database.data_model.image_diagnostics.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="753,453,1175,480"/>
-<area shape="rect" id="node11" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="1594,5,1910,32"/>
-<area shape="rect" id="node12" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="1743,80,2148,107"/>
-<area shape="rect" id="node14" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="1755,155,2136,181"/>
-<area shape="rect" id="node17" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" target="_top" title="Reading one diagnostic in several channels, and counting by binding." alt="" coords="2172,80,2567,107"/>
-<area shape="rect" id="node20" href="#autowisp.tests.test_expression_series.TestTiedJulianDates" target="_top" title="Two images of one session sharing a ``jd``." alt="" coords="2591,80,2958,107"/>
-<area shape="rect" id="node15" href="#autowisp.tests.test_expression_series.TestCanonicalImages" target="_top" title="The list every array is padded onto." alt="" coords="1360,229,1734,256"/>
-<area shape="rect" id="node18" href="#autowisp.tests.test_expression_series.TestDiagnosticValues" target="_top" title="Padding several diagnostics onto that list in one query." alt="" coords="1758,229,2133,256"/>
-<area shape="rect" id="node19" href="#autowisp.tests.test_expression_series.TestSeriesValues" target="_top" title="Resolving quantities, which is where expressions enter." alt="" coords="2156,229,2506,256"/>
-<area shape="rect" id="node16" href="#autowisp.tests.test_expression_series.TestCrossChannelCounts" target="_top" title="Counting the images a *binding* draws, once the channels are chosen." alt="" coords="2170,155,2569,181"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="2995,5,3096,32"/>
-<area shape="rect" id="node22" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="2983,80,3108,107"/>
-<area shape="rect" id="node25" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1106,5,1212,32"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="5,372,321,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="345,372,800,397"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1348,372,1731,397"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="1755,372,2225,397"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="837,445,1311,471"/>
+<area shape="rect" id="node11" href="autowisp.diagnostics.expression_series.html#autowisp.diagnostics.expression_series.SeriesKey" target="_top" title="What one series is: a population of images and a binding." alt="" coords="1765,5,2113,31"/>
+<area shape="rect" id="node12" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="1931,79,2374,104"/>
+<area shape="rect" id="node14" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="1945,152,2360,177"/>
+<area shape="rect" id="node17" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" target="_top" title="Reading one diagnostic in several channels, and counting by binding." alt="" coords="2398,79,2830,104"/>
+<area shape="rect" id="node20" href="#autowisp.tests.test_expression_series.TestTiedJulianDates" target="_top" title="Two images of one session sharing a ``jd``." alt="" coords="2854,79,3257,104"/>
+<area shape="rect" id="node15" href="#autowisp.tests.test_expression_series.TestCanonicalImages" target="_top" title="The list every array is padded onto." alt="" coords="1511,225,1923,251"/>
+<area shape="rect" id="node18" href="#autowisp.tests.test_expression_series.TestDiagnosticValues" target="_top" title="Padding several diagnostics onto that list in one query." alt="" coords="1947,225,2359,251"/>
+<area shape="rect" id="node19" href="#autowisp.tests.test_expression_series.TestSeriesValues" target="_top" title="Resolving quantities, which is where expressions enter." alt="" coords="2383,225,2765,251"/>
+<area shape="rect" id="node16" href="#autowisp.tests.test_expression_series.TestCrossChannelCounts" target="_top" title="Counting the images a *binding* draws, once the channels are chosen." alt="" coords="2397,152,2831,177"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="3295,5,3410,31"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="3281,79,3425,104"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1231,5,1349,31"/>
 </map><p>Tests for reading one series’ values out of the project database.</p>
 <p>These cover tier 2 of the expression layer: the part that knows the project
 database but not Django, and turns a <code class="xref py py-class docutils literal notranslate"><span class="pre">SeriesKey</span></code> into the
@@ -206,16 +204,16 @@ one, and the view tests and these want exactly the same rows.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.SeriesValuesTestCase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">SeriesValuesTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#SeriesValuesTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">SeriesValuesTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#SeriesValuesTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" title="autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticsViewTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-b1d454515cba944e3cb5c816cc1c644e47f6b456.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.SeriesValuesTestCase" usemap="#inheritanceed7cc02f87" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-1e7be1c5df8782dbce8cc514222df7bdd024f56b.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.SeriesValuesTestCase" usemap="#inheritanceed7cc02f87" class="inheritance graphviz" /></div>
 <map id="inheritanceed7cc02f87" name="inheritanceed7cc02f87">
-<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,80,410,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="17,155,398,181"/>
+<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,79,448,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="19,152,434,177"/>
 </map><p>The two-night fixture, with the keys these tests ask about.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.SeriesValuesTestCase.flats">
-<span class="sig-name descname"><span class="pre">flats</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'flat',</span> <span class="pre">('R',),</span> <span class="pre">None)</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.flats" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">flats</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'flat',</span> <span class="pre">('R',))</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.flats" title="Link to this definition"></a></dt>
 <dd><p>two, recording <code class="docutils literal notranslate"><span class="pre">bg_center</span></code> and no quantile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -226,7 +224,7 @@ one, and the view tests and these want exactly the same rows.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.SeriesValuesTestCase.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'object',</span> <span class="pre">('R',),</span> <span class="pre">None)</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.objects" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">'object',</span> <span class="pre">('R',))</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase.objects" title="Link to this definition"></a></dt>
 <dd><p>three, all recording everything.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -239,13 +237,13 @@ one, and the view tests and these want exactly the same rows.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCanonicalImages">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestCanonicalImages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCanonicalImages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCanonicalImages" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestCanonicalImages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCanonicalImages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCanonicalImages" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" title="autowisp.tests.test_expression_series.SeriesValuesTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeriesValuesTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-6f4306dfb0bbf69bcc318219ce9e1ffc9d65e4f3.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestCanonicalImages" usemap="#inheritanced21ceefc12" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-96f455ff5e2a17ff20795eb9be82d2ee8414993f.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestCanonicalImages" usemap="#inheritanced21ceefc12" class="inheritance graphviz" /></div>
 <map id="inheritanced21ceefc12" name="inheritanced21ceefc12">
-<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,80,410,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="17,155,398,181"/>
-<area shape="rect" id="node4" href="#autowisp.tests.test_expression_series.TestCanonicalImages" target="_top" title="The list every array is padded onto." alt="" coords="20,229,395,256"/>
+<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,79,448,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="19,152,434,177"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_expression_series.TestCanonicalImages" target="_top" title="The list every array is padded onto." alt="" coords="21,225,433,251"/>
 </map><p>The list every array is padded onto.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCanonicalImages.test_one_type_only">
@@ -269,12 +267,12 @@ one, and the view tests and these want exactly the same rows.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelCounts">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestCrossChannelCounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelCounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelCounts" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestCrossChannelCounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelCounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelCounts" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" title="autowisp.tests.test_expression_series.TestCrossChannelValues"><code class="xref py py-class docutils literal notranslate"><span class="pre">TestCrossChannelValues</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-b5599cf16a66225dac2a7031c6856a045562441a.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestCrossChannelCounts" usemap="#inheritance3e2efc6a8a" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-abbd6d750f23ded1aa250e72e45482b717b59939.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestCrossChannelCounts" usemap="#inheritance3e2efc6a8a" class="inheritance graphviz" /></div>
 <map id="inheritance3e2efc6a8a" name="inheritance3e2efc6a8a">
-<area shape="rect" id="node1" href="#autowisp.tests.test_expression_series.TestCrossChannelCounts" target="_top" title="Counting the images a *binding* draws, once the channels are chosen." alt="" coords="5,155,404,181"/>
-<area shape="rect" id="node2" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" target="_top" title="Reading one diagnostic in several channels, and counting by binding." alt="" coords="7,80,402,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_expression_series.TestCrossChannelCounts" target="_top" title="Counting the images a *binding* draws, once the channels are chosen." alt="" coords="5,152,440,177"/>
+<area shape="rect" id="node2" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" target="_top" title="Reading one diagnostic in several channels, and counting by binding." alt="" coords="7,79,439,104"/>
 </map><p>Counting the images a <em>binding</em> draws, once the channels are chosen.</p>
 <p>Shares the fixture above because the gap is what makes the question
 non-trivial: a session where every frame records both channels counts
@@ -319,18 +317,18 @@ of them is wrong in a way no other test here would show.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestCrossChannelValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestCrossChannelValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-59c428ba42f54ed1377897776edcca48fc806c96.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestCrossChannelValues" usemap="#inheritancedab13e4a37" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-2e50c3121fc2f474610b0d02a2cc2c46ded387cb.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestCrossChannelValues" usemap="#inheritancedab13e4a37" class="inheritance graphviz" /></div>
 <map id="inheritancedab13e4a37" name="inheritancedab13e4a37">
-<area shape="rect" id="node1" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" target="_top" title="Reading one diagnostic in several channels, and counting by binding." alt="" coords="5,80,401,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_expression_series.TestCrossChannelValues" target="_top" title="Reading one diagnostic in several channels, and counting by binding." alt="" coords="5,79,437,104"/>
 </map><p>Reading one diagnostic in several channels, and counting by binding.</p>
 <p>Its own fixture rather than the shared one, which records a single
 channel: giving that one a second would change what every series-table
 test sees.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues._fill_database">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_fill_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues._fill_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues._fill_database" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_fill_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues._fill_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues._fill_database" title="Link to this definition"></a></dt>
 <dd><p>One session per gap position, four frames of two channels each.</p>
 </dd></dl>
 
@@ -351,13 +349,13 @@ binding, since two axes may be one quantity in two channels.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues.hole">
-<span class="sig-name descname"><span class="pre">hole</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.hole" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hole</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.hole" title="Link to this definition"></a></dt>
 <dd><p>The one the tests about values use, the gap in the middle.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues.hole_positions">
-<span class="sig-name descname"><span class="pre">hole_positions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">3)</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.hole_positions" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hole_positions</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">3)</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.hole_positions" title="Link to this definition"></a></dt>
 <dd><p>One observing session per position of the gap in channel <code class="docutils literal notranslate"><span class="pre">B</span></code> –
 first frame, middle, last – so the same assertions can be made
 with it moved.  A gap only ever at the end would survive a column
@@ -377,20 +375,20 @@ number.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues.missing_channel">
-<span class="sig-name descname"><span class="pre">missing_channel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'G'</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.missing_channel" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">missing_channel</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'G'</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.missing_channel" title="Link to this definition"></a></dt>
 <dd><p>A channel this camera never recorded at all, for the case where a
 whole slot resolves to nothing.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues.setUpClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.setUpClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.setUpClass" title="Link to this definition"></a></dt>
 <dd><p>Hook method for setting up class fixture before running tests in the class.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues.tearDownClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.tearDownClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestCrossChannelValues.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.tearDownClass" title="Link to this definition"></a></dt>
 <dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
 </dd></dl>
 
@@ -460,7 +458,7 @@ become two reads of it, and a figure draws many series.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestCrossChannelValues.values_of">
-<span class="sig-name descname"><span class="pre">values_of</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'B':</span> <span class="pre">[2.0,</span> <span class="pre">3.0,</span> <span class="pre">8.0,</span> <span class="pre">5.0],</span> <span class="pre">'R':</span> <span class="pre">[8.0,</span> <span class="pre">6.0,</span> <span class="pre">4.0,</span> <span class="pre">9.0]}</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.values_of" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">values_of</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'B':</span> <span class="pre">[2.0,</span> <span class="pre">3.0,</span> <span class="pre">8.0,</span> <span class="pre">5.0],</span> <span class="pre">'R':</span> <span class="pre">[8.0,</span> <span class="pre">6.0,</span> <span class="pre">4.0,</span> <span class="pre">9.0]}</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestCrossChannelValues.values_of" title="Link to this definition"></a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code> in each channel, per frame.  Chosen so that every
 pairing of the two gives a distinct ratio: reading the wrong channel
 cannot land on the right answer by luck.</p>
@@ -470,20 +468,20 @@ cannot land on the right answer by luck.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestDiagnosticValues">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestDiagnosticValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestDiagnosticValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestDiagnosticValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestDiagnosticValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" title="autowisp.tests.test_expression_series.SeriesValuesTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeriesValuesTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-086a9be31e2ba307cb132af952da9ff9088f1d83.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestDiagnosticValues" usemap="#inheritanceaeb4fa63c8" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-2e60124af268c4b9337ed7a45033fad4fb636150.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestDiagnosticValues" usemap="#inheritanceaeb4fa63c8" class="inheritance graphviz" /></div>
 <map id="inheritanceaeb4fa63c8" name="inheritanceaeb4fa63c8">
-<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,80,410,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="17,155,398,181"/>
-<area shape="rect" id="node4" href="#autowisp.tests.test_expression_series.TestDiagnosticValues" target="_top" title="Padding several diagnostics onto that list in one query." alt="" coords="20,229,395,256"/>
+<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,79,448,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="19,152,434,177"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_expression_series.TestDiagnosticValues" target="_top" title="Padding several diagnostics onto that list in one query." alt="" coords="21,225,433,251"/>
 </map><p>Padding several diagnostics onto that list in one query.</p>
 <p>What is read is stated as <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">{channel</span> <span class="pre">tuples}}</span></code> – the shape the
 walk that decides it produces – because a diagnostic may be wanted in
 more than one channel at once.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestDiagnosticValues.recorded">
-<span class="sig-name descname"><span class="pre">recorded</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('R',)</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues.recorded" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">recorded</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('R',)</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestDiagnosticValues.recorded" title="Link to this definition"></a></dt>
 <dd><p>The fixture records everything in this one channel.</p>
 </dd></dl>
 
@@ -558,13 +556,13 @@ makes a ratio between them meaningful without any joining.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestSeriesValues">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestSeriesValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestSeriesValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestSeriesValues" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestSeriesValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestSeriesValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestSeriesValues" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" title="autowisp.tests.test_expression_series.SeriesValuesTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeriesValuesTestCase</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-9ce6b0653f054ccc3b38c963582a68f443c3aa9d.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestSeriesValues" usemap="#inheritance857b7a0234" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-283b1f1d243edcc07489c8bd13e8da3dc49c976f.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestSeriesValues" usemap="#inheritance857b7a0234" class="inheritance graphviz" /></div>
 <map id="inheritance857b7a0234" name="inheritance857b7a0234">
-<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,80,410,107"/>
-<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="17,155,398,181"/>
-<area shape="rect" id="node4" href="#autowisp.tests.test_expression_series.TestSeriesValues" target="_top" title="Resolving quantities, which is where expressions enter." alt="" coords="33,229,382,256"/>
+<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,79,448,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="19,152,434,177"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_expression_series.TestSeriesValues" target="_top" title="Resolving quantities, which is where expressions enter." alt="" coords="35,225,418,251"/>
 </map><p>Resolving quantities, which is where expressions enter.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestSeriesValues.test_a_composed_expression_resolves_its_dependency">
@@ -597,11 +595,11 @@ be nowhere near zero.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestTiedJulianDates">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestTiedJulianDates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.tests.test_expression_series.</span></span><span class="sig-name descname"><span class="pre">TestTiedJulianDates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-7fde9f69b8ba30a91eafca136d65faf09684868d.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestTiedJulianDates" usemap="#inheritancec044d333c4" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b60edb0fb907b9061a3a6e83d5152256625760ac.png" alt="Inheritance diagram of autowisp.tests.test_expression_series.TestTiedJulianDates" usemap="#inheritancec044d333c4" class="inheritance graphviz" /></div>
 <map id="inheritancec044d333c4" name="inheritancec044d333c4">
-<area shape="rect" id="node1" href="#autowisp.tests.test_expression_series.TestTiedJulianDates" target="_top" title="Two images of one session sharing a ``jd``." alt="" coords="5,80,373,107"/>
+<area shape="rect" id="node1" href="#autowisp.tests.test_expression_series.TestTiedJulianDates" target="_top" title="Two images of one session sharing a ``jd``." alt="" coords="5,79,408,104"/>
 </map><p>Two images of one session sharing a <code class="docutils literal notranslate"><span class="pre">jd</span></code>.</p>
 <p>Alignment is by position, so the order images come back in has to be
 total.  Ordering by <code class="docutils literal notranslate"><span class="pre">jd</span></code> alone leaves a tie for the database to break
@@ -611,19 +609,19 @@ fixture here is the smallest thing that would expose it: two frames at
 the same instant with values that say which is which.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestTiedJulianDates._fill_database">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_fill_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates._fill_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates._fill_database" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_fill_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates._fill_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates._fill_database" title="Link to this definition"></a></dt>
 <dd><p>Four frames, two of which share a Julian date.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestTiedJulianDates.setUpClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates.setUpClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates.setUpClass" title="Link to this definition"></a></dt>
 <dd><p>Hook method for setting up class fixture before running tests in the class.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestTiedJulianDates.tearDownClass">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates.tearDownClass" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests/test_expression_series.html#TestTiedJulianDates.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates.tearDownClass" title="Link to this definition"></a></dt>
 <dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
 </dd></dl>
 
@@ -641,7 +639,7 @@ the same instant with values that say which is which.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.tests.test_expression_series.TestTiedJulianDates.value_of">
-<span class="sig-name descname"><span class="pre">value_of</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates.value_of" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">value_of</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#autowisp.tests.test_expression_series.TestTiedJulianDates.value_of" title="Link to this definition"></a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code> of each image, by id, so a mispairing is visible.</p>
 </dd></dl>
 

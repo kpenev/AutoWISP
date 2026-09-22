@@ -3,5 +3,5 @@ autowisp.error\_persistence module
 
 .. automodule:: autowisp.error_persistence
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

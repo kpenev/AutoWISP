@@ -3,5 +3,5 @@ autowisp.evaluator module
 
 .. automodule:: autowisp.evaluator
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

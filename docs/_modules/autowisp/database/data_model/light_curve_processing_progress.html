@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.light_curve_processing_progress &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.light_curve_processing_progress</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define table tracknig what processing has been applied to which LCs.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define table tracknig what processing has been applied to which LCs."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -173,76 +173,76 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LightCurveProcessingProgress&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"LightCurveProcessingProgress"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="LightCurveProcessingProgress">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.LightCurveProcessingProgress">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LightCurveProcessingProgress</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The table describing the light curve processing progress&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The table describing the light curve processing progress"""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;light_curve_processing_progress&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"light_curve_processing_progress"</span>
 
     <span class="n">run_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;pipeline_run.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"pipeline_run.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The id of the pipeline run that this processing is part of&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The id of the pipeline run that this processing is part of"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">step_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;step.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"step.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Id of the step that was applied&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Id of the step that was applied"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">single_photref_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Integer</span><span class="p">,</span>
-        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;master_file.id&quot;</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">&quot;CASCADE&quot;</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">&quot;RESTRICT&quot;</span><span class="p">),</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The ID of the single photometric reference for which LC points &quot;</span>
-        <span class="s2">&quot;were processed.&quot;</span><span class="p">,</span>
+        <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"master_file.id"</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="s2">"CASCADE"</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s2">"RESTRICT"</span><span class="p">),</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The ID of the single photometric reference for which LC points "</span>
+        <span class="s2">"were processed."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">configuration_version</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;config version of image&quot;</span>
+        <span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"config version of image"</span>
     <span class="p">)</span>
     <span class="n">started</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">TIMESTAMP</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The time processing started&quot;</span>
+        <span class="n">TIMESTAMP</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"The time processing started"</span>
     <span class="p">)</span>
     <span class="n">finished</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">TIMESTAMP</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The time processing is known to have ended (NULL if possibly still&quot;</span>
-        <span class="s2">&quot; on-going)&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"The time processing is known to have ended (NULL if possibly still"</span>
+        <span class="s2">" on-going)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">final</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">Boolean</span><span class="p">,</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Is this the final processing status? The only case where &quot;</span>
-        <span class="s2">&quot;``status=1`` is not final is for magnitude fitting, where there may be&quot;</span>
-        <span class="s2">&quot; additional iterations needed.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Is this the final processing status? The only case where "</span>
+        <span class="s2">"``status=1`` is not final is for magnitude fitting, where there may be"</span>
+        <span class="s2">" additional iterations needed."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">notes</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
         <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;Any user supplied notes about the processing.&quot;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"Any user supplied notes about the processing."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="si">}</span><span class="s2"> v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_version</span><span class="si">}</span><span class="s2"> on LCs &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;fit against </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sphotref</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> started &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="si">}</span><span class="s2"> v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_version</span><span class="si">}</span><span class="s2"> on LCs "</span>
+            <span class="sa">f</span><span class="s2">"fit against </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sphotref</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> started "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2"> "</span>
             <span class="o">+</span> <span class="p">(</span>
-                <span class="s2">&quot;in progress&quot;</span>
+                <span class="s2">"in progress"</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finished</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;finished </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">finished</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span> <span class="sa">f</span><span class="s2">"finished </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">finished</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; timestamp: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">" timestamp: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
-    <span class="n">step</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Step&quot;</span><span class="p">)</span>
-    <span class="n">sphotref</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;MasterFile&quot;</span><span class="p">)</span>
-    <span class="n">run</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;PipelineRun&quot;</span><span class="p">)</span></div>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"Step"</span><span class="p">)</span>
+    <span class="n">sphotref</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"MasterFile"</span><span class="p">)</span>
+    <span class="n">run</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"PipelineRun"</span><span class="p">)</span></div>
 
 </pre></div>
 

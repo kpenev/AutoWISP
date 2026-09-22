@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.interface &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.interface</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Connect to the database and provide a session scope for queries.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Connect to the database and provide a session scope for queries."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">makedirs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
@@ -199,23 +199,23 @@
 
 <span class="n">_project_home</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="n">DB_URL_FNAME</span> <span class="o">=</span> <span class="s2">&quot;autowisp_db.url&quot;</span>  <span class="c1"># pylint: disable=invalid-name</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">DB_URL_FNAME</span> <span class="o">=</span> <span class="s2">"autowisp_db.url"</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="sd">"""</span>
 <span class="sd">Filename (relative to project home) where a non-SQLite connection URL is stored.</span>
 
 <span class="sd">When a project is initialised with a centralised database (MySQL, MariaDB,</span>
 <span class="sd">etc.) the connection URL is written to this file so that subsequent calls to</span>
 <span class="sd">:func:`set_project_home` with only the directory path can reconnect without</span>
 <span class="sd">requiring the caller to supply the URL again.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <div class="viewcode-block" id="get_db_engine">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.get_db_engine">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_db_engine</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the database engine.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the database engine."""</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returning engine </span><span class="si">{</span><span class="n">_db_engine</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Returning engine </span><span class="si">{</span><span class="n">_db_engine</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_db_engine</span></div>
 
 
@@ -224,7 +224,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.start_db_session">[docs]</a>
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">start_db_session</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager to start a database session.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Context manager to start a database session."""</span>
 
     <span class="k">with</span> <span class="n">_Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>  <span class="c1"># pylint: disable=no-member</span>
         <span class="k">yield</span> <span class="n">db_session</span></div>
@@ -234,7 +234,7 @@
 <div class="viewcode-block" id="get_project_home">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.get_project_home">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_project_home</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the project home directory currently being used.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the project home directory currently being used."""</span>
 
     <span class="k">return</span> <span class="n">_project_home</span></div>
 
@@ -243,7 +243,7 @@
 <div class="viewcode-block" id="snapshot_row">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.snapshot_row">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">snapshot_row</span><span class="p">(</span><span class="n">orm_obj</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">()):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Freeze all mapped columns of a live ORM instance into a FrozenRow.</span>
+<span class="w">    </span><span class="sd">"""Freeze all mapped columns of a live ORM instance into a FrozenRow.</span>
 
 <span class="sd">    Must be called while ``orm_obj`` is still attached/loaded (i.e.</span>
 <span class="sd">    inside the ``start_db_session()`` block that produced it), otherwise</span>
@@ -256,9 +256,9 @@
 <span class="sd">            sensitive columns).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        FrozenRow:    Snapshot of the instance&#39;s column values, detached</span>
+<span class="sd">        FrozenRow:    Snapshot of the instance's column values, detached</span>
 <span class="sd">            from the session and safe to pickle.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">mapper</span> <span class="o">=</span> <span class="n">sa_inspect</span><span class="p">(</span><span class="n">orm_obj</span><span class="p">)</span><span class="o">.</span><span class="n">mapper</span>
     <span class="n">exclude</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
@@ -276,7 +276,7 @@
 <div class="viewcode-block" id="initialize_cmdline_database">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.initialize_cmdline_database">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize_cmdline_database</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the current database HDF5 structure tables.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the current database HDF5 structure tables."""</span>
 
     <span class="n">create_project_schema</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
@@ -295,7 +295,7 @@
     <span class="n">migrate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">assume_backed_up</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set the database engine and session for the given project home.</span>
 
 <span class="sd">    On first use with a non-SQLite ``db_url`` the URL is persisted to</span>
@@ -317,8 +317,8 @@
 <span class="sd">            to an SQLite database in ``project_home``:</span>
 <span class="sd">            ``sqlite:///&lt;project_home&gt;/autowisp.db?timeout=100&amp;uri=true``.</span>
 <span class="sd">            To connect to a centralised server pass the full URL, e.g.:</span>
-<span class="sd">            ``&quot;mysql+pymysql://user:password@host:3306/dbname&quot;``</span>
-<span class="sd">            ``&quot;mariadb+pymysql://user:password@host:3306/dbname&quot;``</span>
+<span class="sd">            ``"mysql+pymysql://user:password@host:3306/dbname"``</span>
+<span class="sd">            ``"mariadb+pymysql://user:password@host:3306/dbname"``</span>
 <span class="sd">            Passing an explicit URL raises an error if a saved URL is found.</span>
 
 <span class="sd">        new_project:</span>
@@ -356,19 +356,19 @@
 <span class="sd">            already contains AutoWISP tables. Nothing is written or</span>
 <span class="sd">            dropped in that case: the URL file is persisted only after</span>
 <span class="sd">            this check passes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">global</span> <span class="n">_db_engine</span><span class="p">,</span> <span class="n">_Session</span><span class="p">,</span> <span class="n">_project_home</span>  <span class="c1"># pylint: disable=global-statement</span>
-    <span class="c1"># print(f&quot;Setting project home to {project_home!r}&quot;)</span>
+    <span class="c1"># print(f"Setting project home to {project_home!r}")</span>
     <span class="k">if</span> <span class="n">_db_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_db_engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">project_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">project_home</span> <span class="o">=</span> <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;autowisp&quot;</span><span class="p">)</span>
+        <span class="n">project_home</span> <span class="o">=</span> <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">"autowisp"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span>
             <span class="n">project_home</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Project home </span><span class="si">{</span><span class="n">project_home</span><span class="si">!r}</span><span class="s2"> is not a directory.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Project home </span><span class="si">{</span><span class="n">project_home</span><span class="si">!r}</span><span class="s2"> is not a directory."</span>
 
     <span class="c1"># Ensure directory exists</span>
     <span class="n">makedirs</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -379,29 +379,29 @@
     <span class="n">persist_db_url</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">db_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url_file</span><span class="p">),</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Attempting to set a new db_url in </span><span class="si">{</span><span class="n">_project_home</span><span class="si">!r}</span><span class="s2"> which already&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; contains </span><span class="si">{</span><span class="n">url_file</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Attempting to set a new db_url in </span><span class="si">{</span><span class="n">_project_home</span><span class="si">!r}</span><span class="s2"> which already"</span>
+            <span class="sa">f</span><span class="s2">" contains </span><span class="si">{</span><span class="n">url_file</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="c1"># Persisted (further down) only once the target database has been</span>
         <span class="c1"># accepted, so a rejected one leaves no half-created project whose</span>
-        <span class="c1"># URL file points at somebody else&#39;s data.</span>
+        <span class="c1"># URL file points at somebody else's data.</span>
         <span class="n">persist_db_url</span> <span class="o">=</span> <span class="n">db_url</span>
     <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url_file</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
             <span class="n">db_url</span> <span class="o">=</span> <span class="n">fobj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;echo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;pool_pre_ping&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;pool_recycle&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+        <span class="s2">"echo"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"pool_pre_ping"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"pool_recycle"</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">db_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">db_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="s2">&quot;autowisp.db&quot;</span><span class="p">)</span>
-        <span class="n">db_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span><span class="si">}</span><span class="s2">?timeout=600&amp;uri=true&quot;</span>
-    <span class="k">if</span> <span class="n">db_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sqlite&quot;</span><span class="p">):</span>
-        <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">&quot;poolclass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NullPool</span>
-        <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">&quot;connect_args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">}</span>
+        <span class="n">db_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="s2">"autowisp.db"</span><span class="p">)</span>
+        <span class="n">db_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span><span class="si">}</span><span class="s2">?timeout=600&amp;uri=true"</span>
+    <span class="k">if</span> <span class="n">db_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"sqlite"</span><span class="p">):</span>
+        <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">"poolclass"</span><span class="p">]</span> <span class="o">=</span> <span class="n">NullPool</span>
+        <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">"connect_args"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"timeout"</span><span class="p">:</span> <span class="mi">600</span><span class="p">}</span>
 
     <span class="c1"># Built into a local first: an engine rejected below must not become</span>
     <span class="c1"># the module-wide one, or the caller would be left connected to the</span>
@@ -414,13 +414,13 @@
         <span class="n">target</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">render_as_string</span><span class="p">(</span><span class="n">hide_password</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
         <span class="k">raise</span> <span class="n">DatabaseError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Refusing to create a new project in </span><span class="si">{</span><span class="n">_project_home</span><span class="si">!r}</span><span class="s2">: its &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;database (</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">) already contains &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">already_present</span><span class="p">)</span><span class="si">}</span><span class="s2"> AutoWISP table(s), including &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">already_present</span><span class="p">)[:</span><span class="mi">5</span><span class="p">])</span><span class="si">}</span><span class="s2">. Creating the &quot;</span>
-            <span class="s2">&quot;project would drop them, destroying whatever project they &quot;</span>
-            <span class="s2">&quot;belong to. Point the new project at an empty database, or &quot;</span>
-            <span class="s2">&quot;delete the existing project first.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Refusing to create a new project in </span><span class="si">{</span><span class="n">_project_home</span><span class="si">!r}</span><span class="s2">: its "</span>
+            <span class="sa">f</span><span class="s2">"database (</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">) already contains "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">already_present</span><span class="p">)</span><span class="si">}</span><span class="s2"> AutoWISP table(s), including "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">already_present</span><span class="p">)[:</span><span class="mi">5</span><span class="p">])</span><span class="si">}</span><span class="s2">. Creating the "</span>
+            <span class="s2">"project would drop them, destroying whatever project they "</span>
+            <span class="s2">"belong to. Point the new project at an empty database, or "</span>
+            <span class="s2">"delete the existing project first."</span>
         <span class="p">)</span>
 
     <span class="n">_db_engine</span> <span class="o">=</span> <span class="n">engine</span>
@@ -428,7 +428,7 @@
 
     <span class="k">if</span> <span class="n">persist_db_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Lets future calls with only project_home reconnect here.</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
             <span class="n">fobj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">persist_db_url</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">already_present</span><span class="p">:</span>
@@ -440,7 +440,7 @@
 
     <span class="c1"># Read-only on purpose: every process opening a project runs this,</span>
     <span class="c1"># including every pipeline worker, so it must never issue DDL. Migrating</span>
-    <span class="c1"># is migrate_project()&#39;s job -- see autowisp.database.migrate.</span>
+    <span class="c1"># is migrate_project()'s job -- see autowisp.database.migrate.</span>
     <span class="n">check_project_schema</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 

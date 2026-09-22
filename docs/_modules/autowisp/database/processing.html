@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.processing &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.processing</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define base class for processing images or lightcurves.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define base class for processing images or lightcurves."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -214,15 +214,15 @@
 <div class="viewcode-block" id="ProcessingInProgress">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingInProgress">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessingInProgress</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a particular step is running in a different process/host.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when a particular step is running in a different process/host."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_run</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_id</span> <span class="o">=</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">process_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">started</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Processing pipeline is still running on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">!r}</span><span class="s2"> with &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;process id </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_id</span><span class="si">!r}</span><span class="s2">, started </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="si">}</span><span class="s2">!&quot;</span>
+            <span class="sa">f</span><span class="s2">"Processing pipeline is still running on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">!r}</span><span class="s2"> with "</span>
+            <span class="sa">f</span><span class="s2">"process id </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_id</span><span class="si">!r}</span><span class="s2">, started </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="si">}</span><span class="s2">!"</span>
         <span class="p">)</span></div>
 
 
@@ -231,7 +231,7 @@
 <div class="viewcode-block" id="ProcessingManager">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessingManager</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Utilities for automated processing of images or lightcurves.</span>
 
 <span class="sd">    Attrs:</span>
@@ -260,7 +260,7 @@
 
 <span class="sd">        _processed_ids(dict):    The keys are the filenames of the required</span>
 <span class="sd">            inputs (DR or FITS) for the current step and the values are</span>
-<span class="sd">            dictionaries with keys ``&#39;image_id&#39;`` and ``&#39;channel&#39;`` identifying</span>
+<span class="sd">            dictionaries with keys ``'image_id'`` and ``'channel'`` identifying</span>
 <span class="sd">            what was processed.</span>
 
 <span class="sd">        _evaluated_expressions(dict):    Indexed by image ID and then channel,</span>
@@ -290,14 +290,14 @@
 <span class="sd">        pending(dict):     Information about what images or lightcurves still</span>
 <span class="sd">            need processing by the various steps. The format is different for</span>
 <span class="sd">            image vs lightcurve processing managers.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ProcessingManager.get_param_values">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_param_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_param_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">matched_expressions</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the values to use for the given parameters.</span>
 
 <span class="sd">        Args:</span>
@@ -318,19 +318,19 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict or list:    The values for the given parameters indexed by</span>
 <span class="sd">                parameter name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return value for given parameter.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return value for given parameter."""</span>
 
             <span class="k">for</span> <span class="n">required_expressions</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="n">param</span><span class="p">][</span>
-                <span class="s2">&quot;value&quot;</span>
+                <span class="s2">"value"</span>
             <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">required_expressions</span> <span class="o">&lt;=</span> <span class="n">matched_expressions</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">value</span>
             <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No applicable configuration value found for </span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s2">; &quot;</span>
-                <span class="s2">&quot;check this step&#39;s configuration.&quot;</span>
+                <span class="sa">f</span><span class="s2">"No applicable configuration value found for </span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s2">; "</span>
+                <span class="s2">"check this step's configuration."</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -360,13 +360,13 @@
         <span class="n">db_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">step_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write to given file configuration for given matched expressions.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Set of tuples of parameters and values as set in the file. Used for</span>
 <span class="sd">            comparing configurations.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># TODO: exclude master options</span>
         <span class="k">if</span> <span class="n">db_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -386,23 +386,23 @@
         <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">db_steps</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Getting configuration for </span><span class="si">%s</span><span class="s2"> step&quot;</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Getting configuration for </span><span class="si">%s</span><span class="s2"> step"</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">step_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_param_values</span><span class="p">(</span>
                 <span class="n">matched_expressions</span><span class="p">,</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">parameters</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Adding configuration for </span><span class="si">%s</span><span class="s2"> step to config file&quot;</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
+                <span class="s2">"Adding configuration for </span><span class="si">%s</span><span class="s2"> step to config file"</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
             <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">step_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;    </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                    <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"    </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
                     <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;    </span><span class="si">%s</span><span class="s2"> in result&quot;</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"    </span><span class="si">%s</span><span class="s2"> in result"</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
 
-            <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
 
@@ -410,12 +410,12 @@
 <div class="viewcode-block" id="ProcessingManager._get_best_master">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_best_master">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_best_master</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidate_masters</span><span class="p">,</span> <span class="n">image_eval</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the best master from given list for given image/channel.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Find the best master from given list for given image/channel."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Selecting best master for </span><span class="si">%s</span><span class="s2">, channel </span><span class="si">%s</span><span class="s2"> from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="nb">repr</span><span class="p">(</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">)),</span>
-            <span class="nb">repr</span><span class="p">(</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">)),</span>
+            <span class="s2">"Selecting best master for </span><span class="si">%s</span><span class="s2">, channel </span><span class="si">%s</span><span class="s2"> from </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">"RAWFNAME"</span><span class="p">)),</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">"CLRCHNL"</span><span class="p">)),</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">candidate_masters</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">candidate_masters</span><span class="p">:</span>
@@ -425,18 +425,18 @@
         <span class="n">best_master_fname</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">master_fname</span><span class="p">,</span> <span class="n">use_smallest</span> <span class="ow">in</span> <span class="n">candidate_masters</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">use_smallest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Master </span><span class="si">{</span><span class="n">master_fname</span><span class="si">}</span><span class="s2"> is a candidate for &quot;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> but has no expression saying which &#39;</span>
-                <span class="s2">&quot;of several candidates to prefer!&quot;</span>
+                <span class="sa">f</span><span class="s2">"Master </span><span class="si">{</span><span class="n">master_fname</span><span class="si">}</span><span class="s2"> is a candidate for "</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">"RAWFNAME"</span><span class="p">)</span><span class="si">}</span><span class="s1"> but has no expression saying which '</span>
+                <span class="s2">"of several candidates to prefer!"</span>
             <span class="p">)</span>
             <span class="n">master_value</span> <span class="o">=</span> <span class="n">image_eval</span><span class="p">(</span><span class="n">use_smallest</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">master_value</span> <span class="o">&lt;</span> <span class="n">best_master_value</span><span class="p">:</span>
                 <span class="n">best_master_value</span> <span class="o">=</span> <span class="n">master_value</span>
                 <span class="n">best_master_fname</span> <span class="o">=</span> <span class="n">master_fname</span>
         <span class="k">assert</span> <span class="n">best_master_fname</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;None of the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">candidate_masters</span><span class="p">)</span><span class="si">}</span><span class="s2"> candidate masters for &quot;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">, channel </span><span class="si">{</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> could &#39;</span>
-            <span class="s2">&quot;be ranked; their preference expressions gave no usable value!&quot;</span>
+            <span class="sa">f</span><span class="s2">"None of the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">candidate_masters</span><span class="p">)</span><span class="si">}</span><span class="s2"> candidate masters for "</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">"RAWFNAME"</span><span class="p">)</span><span class="si">}</span><span class="s1">, channel </span><span class="si">{</span><span class="n">image_eval</span><span class="p">(</span><span class="s2">"CLRCHNL"</span><span class="p">)</span><span class="si">}</span><span class="s1"> could '</span>
+            <span class="s2">"be ranked; their preference expressions gave no usable value!"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">best_master_fname</span></div>
 
@@ -452,7 +452,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ambiguous_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the master that should be used for the given image.</span>
+<span class="w">        </span><span class="sd">"""Return the master that should be used for the given image.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ambiguous_ok(bool):    If True and multiple candidates exist but</span>
@@ -461,7 +461,7 @@
 <span class="sd">                ``single_photref``) whose selection is done externally via</span>
 <span class="sd">                ``ImageMasterSelection`` rather than by evaluating a header</span>
 <span class="sd">                expression.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">expressions</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span><span class="n">ConditionExpression</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ConditionExpression</span><span class="o">.</span><span class="n">expression</span><span class="p">)</span>
@@ -480,7 +480,7 @@
 
         <span class="k">if</span> <span class="n">master_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_master_expressions</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Evaluating expressions for all masters of type: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Evaluating expressions for all masters of type: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_master_expressions</span><span class="p">[</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -506,7 +506,7 @@
 
         <span class="n">expr_values</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">image_values</span><span class="p">[</span><span class="n">expr_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">expr_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Master </span><span class="si">%s</span><span class="s2"> available for: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Master </span><span class="si">%s</span><span class="s2"> available for: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_master_expressions</span><span class="p">[</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
         <span class="p">)</span>
@@ -515,7 +515,7 @@
             <span class="n">expr_values</span><span class="p">,</span> <span class="p">[]</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Candidate Masters: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">candidates</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Candidate Masters: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">candidates</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span>
         <span class="k">if</span> <span class="n">ambiguous_ok</span> <span class="ow">and</span> <span class="p">(</span>
@@ -536,37 +536,37 @@
         <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return entry to add to self._evaluated_expressions.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return entry to add to self._evaluated_expressions."""</span>
 
         <span class="n">evaluated_expressions</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"values"</span><span class="p">:</span> <span class="p">{</span>
                 <span class="n">expr_id</span><span class="p">:</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">expr_id</span><span class="p">,</span> <span class="n">expression</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">condition_expressions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">},</span>
-            <span class="s2">&quot;calibrated&quot;</span><span class="p">:</span> <span class="n">calib_config</span><span class="p">[</span><span class="s2">&quot;calibrated_fname&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+            <span class="s2">"calibrated"</span><span class="p">:</span> <span class="n">calib_config</span><span class="p">[</span><span class="s2">"calibrated_fname"</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
                 <span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span>
             <span class="p">),</span>
-            <span class="s2">&quot;masters&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">"masters"</span><span class="p">:</span> <span class="p">{},</span>
         <span class="p">}</span>
-        <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
             <span class="n">expr_id</span>
-            <span class="k">for</span> <span class="n">expr_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">expr_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"values"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">value</span>
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">required_expressions</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span>
-            <span class="s2">&quot;data-reduction-fname&quot;</span>
-        <span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">required_expressions</span> <span class="o">&lt;=</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]:</span>
-                <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;dr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+            <span class="s2">"data-reduction-fname"</span>
+        <span class="p">][</span><span class="s2">"value"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">required_expressions</span> <span class="o">&lt;=</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]:</span>
+                <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"dr"</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
                     <span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span>
                 <span class="p">)</span>
                 <span class="k">break</span>
-        <span class="k">if</span> <span class="s2">&quot;dr&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">evaluated_expressions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"dr"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">evaluated_expressions</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
-                <span class="s2">&quot;None of the configured data reduction filenames applies to &quot;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">, channel </span><span class="si">{</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">: the &#39;</span>
-                <span class="s2">&quot;conditions attached to each of them are all unsatisfied!&quot;</span>
+                <span class="s2">"None of the configured data reduction filenames applies to "</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">"RAWFNAME"</span><span class="p">)</span><span class="si">}</span><span class="s1">, channel </span><span class="si">{</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">"CLRCHNL"</span><span class="p">)</span><span class="si">}</span><span class="s1">: the '</span>
+                <span class="s2">"conditions attached to each of them are all unsatisfied!"</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
@@ -575,7 +575,7 @@
             <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">InputMasterTypes</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">image_type_id</span><span class="p">)</span>
             <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
         <span class="p">):</span>
-            <span class="k">if</span> <span class="n">master_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;epd_stat&quot;</span><span class="p">,</span> <span class="s2">&quot;tfa_stat&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">master_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"epd_stat"</span><span class="p">,</span> <span class="s2">"tfa_stat"</span><span class="p">]:</span>
                 <span class="n">pinned</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">image_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">pinned</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
@@ -592,15 +592,15 @@
                             <span class="o">==</span> <span class="n">master_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-                <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;masters&quot;</span><span class="p">][</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"masters"</span><span class="p">][</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">pinned</span>
                     <span class="k">if</span> <span class="n">pinned</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                     <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_master</span><span class="p">(</span>
                         <span class="n">master_type</span><span class="p">,</span>
-                        <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">],</span>
+                        <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"values"</span><span class="p">],</span>
                         <span class="n">evaluate</span><span class="p">,</span>
                         <span class="n">db_session</span><span class="p">,</span>
-                        <span class="n">ambiguous_ok</span><span class="o">=</span><span class="p">(</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;single_photref&quot;</span><span class="p">),</span>
+                        <span class="n">ambiguous_ok</span><span class="o">=</span><span class="p">(</span><span class="n">master_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"single_photref"</span><span class="p">),</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
@@ -611,16 +611,16 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_extra_header">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_extra_header</span><span class="p">(</span><span class="n">db_image</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the kewyords to auto-add to FITS headers at calibration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the kewyords to auto-add to FITS headers at calibration."""</span>
 
         <span class="n">obs_session</span> <span class="o">=</span> <span class="n">db_image</span><span class="o">.</span><span class="n">observing_session</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;IMAGETYP&quot;</span><span class="p">:</span> <span class="n">db_image</span><span class="o">.</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;OBSSSNID&quot;</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
-            <span class="s2">&quot;TARGETID&quot;</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;OBSERVER&quot;</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;CAMERAID&quot;</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span>
-            <span class="s2">&quot;TELSCPID&quot;</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">telescope</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span>
+            <span class="s2">"IMAGETYP"</span><span class="p">:</span> <span class="n">db_image</span><span class="o">.</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"OBSSSNID"</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+            <span class="s2">"TARGETID"</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"OBSERVER"</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"CAMERAID"</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span>
+            <span class="s2">"TELSCPID"</span><span class="p">:</span> <span class="n">obs_session</span><span class="o">.</span><span class="n">telescope</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
@@ -628,19 +628,19 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.check_interrupted_statuses">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_interrupted_statuses</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">interrupted</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verify a step can clean up after the progress it is handed.</span>
+<span class="w">        </span><span class="sd">"""Verify a step can clean up after the progress it is handed.</span>
 
 <span class="sd">        Unlike the start status, there is no universally valid value</span>
 <span class="sd">        here: how far a step can get before being interrupted is</span>
-<span class="sd">        genuinely step-specific (most only ever record &quot;started&quot;, but</span>
-<span class="sd">        lightcurve creation also has a &quot;points added, not yet final&quot;</span>
+<span class="sd">        genuinely step-specific (most only ever record "started", but</span>
+<span class="sd">        lightcurve creation also has a "points added, not yet final"</span>
 <span class="sd">        stage), so every step with a ``cleanup_interrupted`` declares its</span>
 <span class="sd">        own ``allowed_interrupted_status_values``. As for the start</span>
 <span class="sd">        status, a declaration of ``None`` means the step sorts this out</span>
 <span class="sd">        itself -- ``fit_magnitudes`` reads an iteration number out of the</span>
 <span class="sd">        status rather than matching it against a fixed set.</span>
 
-<span class="sd">        Checked once here rather than inside each step&#39;s</span>
+<span class="sd">        Checked once here rather than inside each step's</span>
 <span class="sd">        ``cleanup_interrupted``, because the statuses come from</span>
 <span class="sd">        ``ProcessedImages`` rows that only the manager reads.</span>
 
@@ -650,22 +650,22 @@
 <span class="sd">            step_name(str):    Its name, for the message.</span>
 
 <span class="sd">            interrupted:    The ``(filename, status)`` pairs about to be</span>
-<span class="sd">                handed to the step&#39;s ``cleanup_interrupted``.</span>
+<span class="sd">                handed to the step's ``cleanup_interrupted``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">allowed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="n">step_module</span><span class="p">,</span> <span class="s2">&quot;allowed_interrupted_status_values&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
+            <span class="n">step_module</span><span class="p">,</span> <span class="s2">"allowed_interrupted_status_values"</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">for</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">,</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Interrupted </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2"> left </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> at status &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="si">!r}</span><span class="s2">, which it never reports; it can only be &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;interrupted at </span><span class="si">{</span><span class="n">allowed</span><span class="si">!r}</span><span class="s2">!&quot;</span>
+                <span class="sa">f</span><span class="s2">"Interrupted </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2"> left </span><span class="si">{</span><span class="n">input_fname</span><span class="si">}</span><span class="s2"> at status "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">status</span><span class="si">!r}</span><span class="s2">, which it never reports; it can only be "</span>
+                <span class="sa">f</span><span class="s2">"interrupted at </span><span class="si">{</span><span class="n">allowed</span><span class="si">!r}</span><span class="s2">!"</span>
             <span class="p">)</span></div>
 
 
@@ -673,7 +673,7 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.check_start_status">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_start_status</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">start_status</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verify a step can start from the status the database implies.</span>
+<span class="w">        </span><span class="sd">"""Verify a step can start from the status the database implies.</span>
 
 <span class="sd">        The status says how far a previous run got. ``None`` -- nothing</span>
 <span class="sd">        done yet -- is always acceptable, so a step that cannot resume at</span>
@@ -698,26 +698,26 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">allowed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="s2">&quot;allowed_start_status_values&quot;</span><span class="p">,</span> <span class="p">())</span>
+        <span class="n">allowed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="s2">"allowed_start_status_values"</span><span class="p">,</span> <span class="p">())</span>
         <span class="k">if</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">assert</span> <span class="n">start_status</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Cannot start </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2"> from status </span><span class="si">{</span><span class="n">start_status</span><span class="si">!r}</span><span class="s2">: it &quot;</span>
-            <span class="s2">&quot;resumes only from &quot;</span>
-            <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">allowed</span><span class="si">!r}</span><span class="s2"> or &quot;</span> <span class="k">if</span> <span class="n">allowed</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="o">+</span> <span class="s2">&quot;no previous processing at all!&quot;</span>
+            <span class="sa">f</span><span class="s2">"Cannot start </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2"> from status </span><span class="si">{</span><span class="n">start_status</span><span class="si">!r}</span><span class="s2">: it "</span>
+            <span class="s2">"resumes only from "</span>
+            <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">allowed</span><span class="si">!r}</span><span class="s2"> or "</span> <span class="k">if</span> <span class="n">allowed</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">"no previous processing at all!"</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ProcessingManager.get_matched_expressions">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_matched_expressions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_matched_expressions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluate</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return set of matching expressions given an evaluator for image.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return set of matching expressions given an evaluator for image."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return True if expression evaluates True.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return True if expression evaluates True."""</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
@@ -734,7 +734,7 @@
 <div class="viewcode-block" id="ProcessingManager.evaluate_expressions_image">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.evaluate_expressions_image">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_expressions_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return evaluator for header expressions for given image.</span>
 
 <span class="sd">        Args:</span>
@@ -752,47 +752,47 @@
 <span class="sd">            Evaluator or None:</span>
 <span class="sd">                Evaluator ready to evaluate additional expressions involving</span>
 <span class="sd">                FITS headers. Only returned if ``return_evaluator`` is True.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Evaluating expressions for: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Evaluating expressions for: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
         <span class="n">evaluate</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">get_primary_header</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
         <span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_extra_header</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Matched expressions: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Matched expressions: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_matched_expressions</span><span class="p">(</span><span class="n">evaluate</span><span class="p">)),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="n">all_channel</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;matched&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="n">all_channel</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"matched"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"values"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_split_channels</span><span class="p">(</span>
             <span class="n">image</span>
         <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Adding channel keywords for channel </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Adding channel keywords for channel </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">channel_name</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">add_channel_keywords</span><span class="p">(</span><span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Configuring for channel </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) of </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Configuring for channel </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) of </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">channel_name</span><span class="p">,</span>
-                <span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">],</span>
+                <span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"CLRCHNL"</span><span class="p">],</span>
                 <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">calib_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_matched_expressions</span><span class="p">(</span><span class="n">evaluate</span><span class="p">),</span>
                 <span class="n">db_session</span><span class="p">,</span>
-                <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span>
+                <span class="n">step_name</span><span class="o">=</span><span class="s2">"calibrate"</span><span class="p">,</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Raw HDU for channel </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) of </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Raw HDU for channel </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) of </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">channel_name</span><span class="p">,</span>
-                <span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">],</span>
+                <span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"CLRCHNL"</span><span class="p">],</span>
                 <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">,</span>
-                <span class="nb">repr</span><span class="p">(</span><span class="n">calib_config</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]),</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">calib_config</span><span class="p">[</span><span class="s2">"raw_hdu"</span><span class="p">]),</span>
             <span class="p">)</span>
             <span class="n">add_required_keywords</span><span class="p">(</span><span class="n">evaluate</span><span class="o">.</span><span class="n">symtable</span><span class="p">,</span> <span class="n">calib_config</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
@@ -805,22 +805,22 @@
                 <span class="n">channel</span><span class="o">=</span><span class="n">channel_name</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span>
-                <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">all_channel</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span> <span class="o">=</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span>
+                <span class="n">all_channel</span><span class="p">[</span><span class="s2">"values"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"values"</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span>
+                <span class="n">all_channel</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">all_channel</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="c1"># False positive</span>
                 <span class="c1"># pylint: disable=unsubscriptable-object</span>
                 <span class="c1"># pylint: disable=unsupported-delete-operation</span>
-                <span class="k">for</span> <span class="n">expr_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">for</span> <span class="n">expr_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_channel</span><span class="p">[</span><span class="s2">"values"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                     <span class="k">if</span> <span class="p">(</span>
-                        <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
-                        <span class="o">!=</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
+                        <span class="n">all_channel</span><span class="p">[</span><span class="s2">"values"</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
+                        <span class="o">!=</span> <span class="n">evaluated_expressions</span><span class="p">[</span><span class="s2">"values"</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
                     <span class="p">):</span>
-                        <span class="k">del</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
+                        <span class="k">del</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">"values"</span><span class="p">][</span><span class="n">expr_id</span><span class="p">]</span>
                 <span class="c1"># pylint: enable=unsupported-delete-operation</span>
                 <span class="c1"># pylint: enable=unsubscriptable-object</span>
 
@@ -829,11 +829,11 @@
             <span class="p">]</span> <span class="o">=</span> <span class="n">evaluated_expressions</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;matched&quot;</span><span class="p">:</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;matched&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">],</span>
+            <span class="s2">"matched"</span><span class="p">:</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">"matched"</span><span class="p">],</span>
+            <span class="s2">"values"</span><span class="p">:</span> <span class="n">all_channel</span><span class="p">[</span><span class="s2">"values"</span><span class="p">],</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Evaluated expressions for image </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Evaluated expressions for image </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">image</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
         <span class="p">)</span></div>
@@ -842,12 +842,12 @@
 <div class="viewcode-block" id="ProcessingManager.get_product_fname">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_product_fname">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_product_fname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">product</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the ``dr`` or ``calibrated`` filename of specified image/channel.</span>
 
 <span class="sd">        `self.evaluate_image_expressions()` must already have been called for</span>
 <span class="sd">        this image.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="n">product</span><span class="p">]</span></div>
 
@@ -855,9 +855,9 @@
 <div class="viewcode-block" id="ProcessingManager.get_master_fname">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_master_fname">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_master_fname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_id</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">master_type_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the filename of best master for a given image/channel.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the filename of best master for a given image/channel."""</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="s2">&quot;masters&quot;</span><span class="p">][</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span><span class="n">channel</span><span class="p">][</span><span class="s2">"masters"</span><span class="p">][</span>
             <span class="n">master_type_name</span>
         <span class="p">]</span></div>
 
@@ -870,7 +870,7 @@
 <div class="viewcode-block" id="ProcessingManager._progress_image_type">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._progress_image_type">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_progress_image_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processing_progress</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ``image_type`` name in a progress row&#39;s log names.</span>
+<span class="w">        </span><span class="sd">"""Return the ``image_type`` name in a progress row's log names.</span>
 
 <span class="sd">        The per-process log filenames are keyed on ``processing_step`` and</span>
 <span class="sd">        ``image_type`` (see ``setup_process``). Image processing has the</span>
@@ -885,7 +885,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str:    The image-type name used when the logs were written.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -893,7 +893,7 @@
 <div class="viewcode-block" id="ProcessingManager.find_processing_outputs">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.find_processing_outputs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">find_processing_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processing_progress</span><span class="p">,</span> <span class="n">db_session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return all logging and output filenames for given processing ID.</span>
+<span class="w">        </span><span class="sd">"""Return all logging and output filenames for given processing ID.</span>
 
 <span class="sd">        Works for both image and lightcurve processing: everything but the</span>
 <span class="sd">        progress table (:attr:`_progress_model`) and the image-type lookup</span>
@@ -911,7 +911,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple:    ``(main_fnames, worker_fnames)`` as produced by</span>
 <span class="sd">                ``get_log_outerr_filenames``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">db_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># False positivie</span>
@@ -939,24 +939,24 @@
         <span class="n">image_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress_image_type</span><span class="p">(</span><span class="n">processing_progress</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
         <span class="n">main_fnames</span> <span class="o">=</span> <span class="n">get_log_outerr_filenames</span><span class="p">(</span>
             <span class="n">existing_pid</span><span class="o">=</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">process_id</span><span class="p">,</span>
-            <span class="n">task</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
-            <span class="n">parent_pid</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span>
+            <span class="n">parent_pid</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">processing_step</span><span class="o">=</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">,</span>
             <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Main fnames: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Main fnames: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">))</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> reported &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> input and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2"> output &quot;</span>
-            <span class="s2">&quot;files where exactly one of each was expected!&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> reported "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> input and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">main_fnames</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2"> output "</span>
+            <span class="s2">"files where exactly one of each was expected!"</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">tuple</span><span class="p">(</span><span class="n">fname</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">main_fnames</span><span class="p">),</span>
             <span class="n">get_log_outerr_filenames</span><span class="p">(</span>
-                <span class="n">existing_pid</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
-                <span class="n">task</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+                <span class="n">existing_pid</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span>
+                <span class="n">task</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span>
                 <span class="n">parent_pid</span><span class="o">=</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">process_id</span><span class="p">,</span>
                 <span class="n">processing_step</span><span class="o">=</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">,</span>
@@ -968,20 +968,20 @@
 <div class="viewcode-block" id="ProcessingManager._create_current_processing">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._create_current_processing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_current_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a new ProcessingProgress at start of given step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add a new ProcessingProgress at start of given step."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">current_step</span> <span class="o">=</span> <span class="n">step</span>
 
         <span class="n">progress_class</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ImageProcessingProgress</span>
-            <span class="k">if</span> <span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;image_type&quot;</span>
+            <span class="k">if</span> <span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"image_type"</span>
             <span class="k">else</span> <span class="n">LightCurveProcessingProgress</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span> <span class="o">=</span> <span class="n">progress_class</span><span class="p">(</span>
             <span class="n">run_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pipeline_run_id</span><span class="p">,</span>
             <span class="n">step_id</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="o">**</span><span class="p">{</span><span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">]},</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"_id"</span><span class="p">:</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">]},</span>
             <span class="n">configuration_version</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_version</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
             <span class="c1"># False positive</span>
             <span class="c1"># pylint: disable=not-callable</span>
@@ -996,17 +996,17 @@
 <div class="viewcode-block" id="ProcessingManager._cleanup_interrupted">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._cleanup_interrupted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_interrupted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cleanup previously interrupted processing for the current step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Cleanup previously interrupted processing for the current step."""</span>
 
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="s2">&quot;Cleanup is not defined for ProcessingManager base class&quot;</span>
+            <span class="s2">"Cleanup is not defined for ProcessingManager base class"</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ProcessingManager._get_split_channels">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_split_channels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_split_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ``split_channels`` option for the given image.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the ``split_channels`` option for the given image."""</span>
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">channel</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">(</span>
@@ -1020,7 +1020,7 @@
 <div class="viewcode-block" id="ProcessingManager.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_run_id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set the public class attributes per the given configuartion version.</span>
 
 <span class="sd">        Args:</span>
@@ -1036,7 +1036,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">pipeline_run_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
@@ -1067,10 +1067,10 @@
                 <span class="n">pipeline_run</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PipelineRun</span><span class="p">,</span> <span class="n">pipeline_run_id</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">pipeline_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_error_context_keys</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;pipeline_run_id&quot;</span><span class="p">:</span> <span class="n">pipeline_run_id</span><span class="p">,</span>
-                        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
-                        <span class="s2">&quot;pipeline_started&quot;</span><span class="p">:</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">started</span><span class="p">,</span>
-                        <span class="s2">&quot;code_version&quot;</span><span class="p">:</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">code_version</span><span class="p">,</span>
+                        <span class="s2">"pipeline_run_id"</span><span class="p">:</span> <span class="n">pipeline_run_id</span><span class="p">,</span>
+                        <span class="s2">"host"</span><span class="p">:</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                        <span class="s2">"pipeline_started"</span><span class="p">:</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">started</span><span class="p">,</span>
+                        <span class="s2">"code_version"</span><span class="p">:</span> <span class="n">pipeline_run</span><span class="o">.</span><span class="n">code_version</span><span class="p">,</span>
                     <span class="p">}</span>
             <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">version</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1086,10 +1086,10 @@
             <span class="k">for</span> <span class="n">config_entry</span> <span class="ow">in</span> <span class="n">db_configuration</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">config_entry</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="n">config_entry</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">config_entry</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-                        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">{},</span>
+                        <span class="s2">"version"</span><span class="p">:</span> <span class="n">config_entry</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+                        <span class="s2">"value"</span><span class="p">:</span> <span class="p">{},</span>
                     <span class="p">}</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="n">config_entry</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">][</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="n">config_entry</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">"value"</span><span class="p">][</span>
                     <span class="nb">frozenset</span><span class="p">(</span>
                         <span class="n">cond</span><span class="o">.</span><span class="n">expression_id</span> <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">config_entry</span><span class="o">.</span><span class="n">conditions</span>
                     <span class="p">)</span>
@@ -1104,17 +1104,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_matched_expressions</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">()),</span>
                 <span class="n">db_session</span><span class="p">,</span>
-                <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;add_images_to_db&quot;</span><span class="p">,</span>
+                <span class="n">step_name</span><span class="o">=</span><span class="s2">"add_images_to_db"</span><span class="p">,</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">[</span><span class="s2">&quot;processing_step&quot;</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">[</span><span class="s2">&quot;image_type&quot;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">[</span><span class="s2">"processing_step"</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">[</span><span class="s2">"image_type"</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">pipeline_run_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">setup_process</span><span class="p">(</span>
-                    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-                    <span class="n">parent_pid</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-                    <span class="n">processing_step</span><span class="o">=</span><span class="s2">&quot;init_processing&quot;</span><span class="p">,</span>
-                    <span class="n">image_type</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                    <span class="n">task</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span>
+                    <span class="n">parent_pid</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+                    <span class="n">processing_step</span><span class="o">=</span><span class="s2">"init_processing"</span><span class="p">,</span>
+                    <span class="n">image_type</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
                     <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">,</span>
                 <span class="p">)</span>
 
@@ -1127,13 +1127,13 @@
                         <span class="n">expression</span><span class="o">.</span><span class="n">expression</span>
                     <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Condition expressions to evaluate: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Condition expressions to evaluate: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condition_expressions</span><span class="p">),</span>
             <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">step_version</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;version&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">"version"</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">parameters</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -1155,24 +1155,24 @@
         <span class="n">image_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the configuration for the given step for given expressions.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the configuration for the given step for given expressions."""</span>
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">db_step</span> <span class="ow">or</span> <span class="n">step_name</span>
-        <span class="p">),</span> <span class="s2">&quot;Requesting a configuration without saying which step it is for!&quot;</span>
+        <span class="p">),</span> <span class="s2">"Requesting a configuration without saying which step it is for!"</span>
         <span class="k">if</span> <span class="n">matched_expressions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">image_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-                <span class="s2">&quot;Requesting the configuration for &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">step_name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">db_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> without either the matched &quot;</span>
-                <span class="s2">&quot;expressions or an image and channel to evaluate them for!&quot;</span>
+                <span class="s2">"Requesting the configuration for "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">step_name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">db_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> without either the matched "</span>
+                <span class="s2">"expressions or an image and channel to evaluate them for!"</span>
             <span class="p">)</span>
             <span class="n">matched_expressions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluated_expressions</span><span class="p">[</span><span class="n">image_id</span><span class="p">][</span>
                 <span class="n">channel</span>
-            <span class="p">][</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span>
+            <span class="p">][</span><span class="s2">"matched"</span><span class="p">]</span>
         <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
-            <span class="n">temp_file_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">&quot;config_file.tmp&quot;</span><span class="p">)</span>
+            <span class="n">temp_file_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">"config_file.tmp"</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
-                <span class="n">temp_file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+                <span class="n">temp_file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
                 <span class="n">config_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_config_file</span><span class="p">(</span>
                     <span class="n">matched_expressions</span><span class="p">,</span>
@@ -1182,25 +1182,25 @@
                     <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Flushing config file </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="s2">"Flushing config file </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">config_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span>
                     <span class="n">config_file</span><span class="o">.</span><span class="n">fileno</span><span class="p">()</span>
                 <span class="p">)</span>  <span class="c1"># Ensure data is written to disk (cross-platform)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Wrote config file </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="s2">"Wrote config file </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="p">)</span>
-                <span class="c1"># Parse stored configuration into the step&#39;s config dict.</span>
+                <span class="c1"># Parse stored configuration into the step's config dict.</span>
                 <span class="c1"># In this programmatic context a bad value must raise a</span>
                 <span class="c1"># recordable ConfigurationError, not print usage and</span>
-                <span class="c1"># sys.exit() into a detached run&#39;s redirected log.</span>
+                <span class="c1"># sys.exit() into a detached run's redirected log.</span>
                 <span class="k">with</span> <span class="n">raise_config_parse_errors</span><span class="p">():</span>
                     <span class="n">config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
                         <span class="n">processing_steps</span><span class="p">,</span> <span class="n">db_step</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">db_step</span> <span class="k">else</span> <span class="n">step_name</span>
-                    <span class="p">)</span><span class="o">.</span><span class="n">parse_command_line</span><span class="p">([</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">config_file</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">parse_command_line</span><span class="p">([</span><span class="s2">"-c"</span><span class="p">,</span> <span class="n">config_file</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
 
-                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_project_home</span><span class="p">()</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">"project_home"</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_project_home</span><span class="p">()</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_context_keys</span><span class="p">)</span>
 
                 <span class="k">return</span> <span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_key</span><span class="p">)</span></div>
@@ -1209,7 +1209,7 @@
 <div class="viewcode-block" id="ProcessingManager.set_pending">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.set_pending">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set the unprocessed images and channels split by step and image type.</span>
 
 <span class="sd">        Args:</span>
@@ -1219,17 +1219,17 @@
 <span class="sd">            {(step.id, image_type.id): (Image, str)}:</span>
 <span class="sd">                The images and channels of the specified type for which the</span>
 <span class="sd">                specified step has not applied with the current configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="s2">&quot;Setting pending is not defined for ProcessingManager base class&quot;</span>
+            <span class="s2">"Setting pending is not defined for ProcessingManager base class"</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ProcessingManager.add_masters">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.add_masters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_masters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_masters</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_type_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add new master files to the database.</span>
 
 <span class="sd">        Args:</span>
@@ -1253,10 +1253,10 @@
 
 <span class="sd">            image_type_name(str):    The name of the type of images whose</span>
 <span class="sd">                processing created the masters.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Adding new masters from </span><span class="si">%s</span><span class="s2"> step for </span><span class="si">%s</span><span class="s2"> images:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Adding new masters from </span><span class="si">%s</span><span class="s2"> step for </span><span class="si">%s</span><span class="s2"> images:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">step_name</span><span class="p">,</span>
             <span class="n">image_type_name</span><span class="p">,</span>
             <span class="nb">repr</span><span class="p">(</span><span class="n">new_masters</span><span class="p">),</span>
@@ -1276,8 +1276,8 @@
             <span class="n">type_id_select</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">step_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">image_type_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Looking up the master type produced by </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;without saying which image type it was created from!&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Looking up the master type produced by </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="s2">"without saying which image type it was created from!"</span>
                 <span class="p">)</span>
                 <span class="n">type_id_select</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">type_id_select</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">)</span>
@@ -1298,7 +1298,7 @@
             <span class="k">for</span> <span class="n">master</span> <span class="ow">in</span> <span class="n">new_masters</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_masters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">step_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">master_type_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
-                        <span class="n">type_id_select</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
+                        <span class="n">type_id_select</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">master</span><span class="p">[</span><span class="s2">"type"</span><span class="p">])</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">master_type_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">type_id_select</span><span class="p">)</span>
@@ -1311,9 +1311,9 @@
                             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span> <span class="ow">is</span> <span class="kc">None</span>
                             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span><span class="o">.</span><span class="n">id</span>
                         <span class="p">),</span>
-                        <span class="n">filename</span><span class="o">=</span><span class="n">master</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
-                        <span class="n">use_smallest</span><span class="o">=</span><span class="n">master</span><span class="p">[</span><span class="s2">&quot;preference_order&quot;</span><span class="p">],</span>
-                        <span class="n">enabled</span><span class="o">=</span><span class="ow">not</span> <span class="n">master</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;disable&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">master</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">],</span>
+                        <span class="n">use_smallest</span><span class="o">=</span><span class="n">master</span><span class="p">[</span><span class="s2">"preference_order"</span><span class="p">],</span>
+                        <span class="n">enabled</span><span class="o">=</span><span class="ow">not</span> <span class="n">master</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"disable"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">master_id</span> <span class="o">+=</span> <span class="mi">1</span></div>
@@ -1322,7 +1322,7 @@
 <div class="viewcode-block" id="ProcessingManager.create_config_file">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.create_config_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">example_header</span><span class="p">,</span> <span class="n">outf</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save configuration for processing given header to given output file.</span>
 
 <span class="sd">        Args:</span>
@@ -1341,14 +1341,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">matched_expressions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_matched_expressions</span><span class="p">(</span>
             <span class="n">Evaluator</span><span class="p">(</span><span class="n">example_header</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outf</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outf</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened_outf</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outf</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened_outf</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_write_config_file</span><span class="p">(</span>
                         <span class="n">matched_expressions</span><span class="p">,</span>
                         <span class="n">opened_outf</span><span class="p">,</span>
@@ -1367,9 +1367,9 @@
 <div class="viewcode-block" id="ProcessingManager.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform all the processing for the given steps (all if None).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform all the processing for the given steps (all if None)."""</span>
 
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Calling instance of ProcessingManager base class!&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Calling instance of ProcessingManager base class!"</span><span class="p">)</span></div>
 </div>
 
 

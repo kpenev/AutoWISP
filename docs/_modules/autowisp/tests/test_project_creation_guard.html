@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_project_creation_guard &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,14 +165,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_project_creation_guard</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Unit tests for the guard against creating a project over another one.</span>
+<span></span><span class="sd">"""Unit tests for the guard against creating a project over another one.</span>
 
 <span class="sd">Project creation drops and recreates every AutoWISP table, so pointing a</span>
 <span class="sd">new project at a database that already holds them destroys whichever</span>
 <span class="sd">project lives there. These exercise ``set_project_home(new_project=True)``</span>
 <span class="sd">against throwaway SQLite databases -- the check is backend-independent</span>
 <span class="sd">(it compares table names), so SQLite covers the centralised case too.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -189,7 +189,7 @@
 <div class="viewcode-block" id="TestNewProjectGuard">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestNewProjectGuard</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``new_project=True`` refuses a non-empty AutoWISP database.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""``new_project=True`` refuses a non-empty AutoWISP database."""</span>
 
 <div class="viewcode-block" id="TestNewProjectGuard.setUp">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.setUp">[docs]</a>
@@ -205,32 +205,32 @@
 <div class="viewcode-block" id="TestNewProjectGuard.test_creation_in_empty_home_succeeds">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_creation_in_empty_home_succeeds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_creation_in_empty_home_succeeds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A fresh directory is a valid home for a new project.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A fresh directory is a valid home for a new project."""</span>
 
         <span class="n">set_project_home</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_home</span><span class="p">,</span> <span class="n">new_project</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_home</span><span class="p">,</span> <span class="s2">&quot;autowisp.db&quot;</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_home</span><span class="p">,</span> <span class="s2">"autowisp.db"</span><span class="p">))</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestNewProjectGuard.test_recreating_over_existing_project_refused">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_recreating_over_existing_project_refused">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_recreating_over_existing_project_refused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A second creation against the same database is rejected.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A second creation against the same database is rejected."""</span>
 
         <span class="n">set_project_home</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_home</span><span class="p">,</span> <span class="n">new_project</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">DatabaseError</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
             <span class="n">set_project_home</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_home</span><span class="p">,</span> <span class="n">new_project</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;already contains&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">"already contains"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">caught</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestNewProjectGuard.test_opening_existing_project_still_allowed">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_opening_existing_project_still_allowed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_opening_existing_project_still_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Without new_project the same call just reconnects.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Without new_project the same call just reconnects."""</span>
 
         <span class="n">set_project_home</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_home</span><span class="p">,</span> <span class="n">new_project</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">set_project_home</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_home</span><span class="p">)</span>
@@ -241,16 +241,16 @@
 <div class="viewcode-block" id="TestNewProjectGuard.test_refused_centralised_url_is_not_persisted">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_project_creation_guard.html#autowisp.tests.test_project_creation_guard.TestNewProjectGuard.test_refused_centralised_url_is_not_persisted">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_refused_centralised_url_is_not_persisted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A rejected db_url leaves no autowisp_db.url behind.</span>
+<span class="w">        </span><span class="sd">"""A rejected db_url leaves no autowisp_db.url behind.</span>
 
 <span class="sd">        Otherwise the half-created project home would keep pointing at</span>
 <span class="sd">        the database it was just refused.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">shared</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;shared.db&quot;</span><span class="p">)</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"shared.db"</span><span class="p">)</span>
         <span class="n">first_home</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">second_home</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">db_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">shared</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">db_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="n">shared</span><span class="si">}</span><span class="s2">"</span>
 
         <span class="n">set_project_home</span><span class="p">(</span><span class="n">first_home</span><span class="p">,</span> <span class="n">db_url</span><span class="o">=</span><span class="n">db_url</span><span class="p">,</span> <span class="n">new_project</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_url_file</span><span class="p">(</span><span class="n">first_home</span><span class="p">)))</span>
@@ -263,7 +263,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

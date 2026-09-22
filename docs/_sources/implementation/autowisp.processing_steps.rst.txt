@@ -3,8 +3,8 @@ autowisp.processing\_steps package
 
 .. automodule:: autowisp.processing_steps
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------

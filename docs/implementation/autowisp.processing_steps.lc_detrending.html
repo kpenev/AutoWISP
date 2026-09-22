@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processing_steps.lc_detrending module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,27 +172,27 @@
 <span id="autowisp-processing-steps-lc-detrending-module"></span><h1>autowisp.processing_steps.lc_detrending module<a class="headerlink" href="#module-autowisp.processing_steps.lc_detrending" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-7d5ed4ee779343222f78d5a6a847461ba8967acf.png" alt="Inheritance diagram of ConfigurationError, DataReductionFile, Evaluator, FileKind, LightCurveFile, QuadraticModel, RelatedFile" usemap="#inheritance3e64db0733" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-bad4a8ed58adb534626a53c7e93ac6bd8d99f256.png" alt="Inheritance diagram of ConfigurationError, DataReductionFile, Evaluator, FileKind, LightCurveFile, QuadraticModel, RelatedFile" usemap="#inheritance3e64db0733" class="inheritance graphviz" /></div>
 <map id="inheritance3e64db0733" name="inheritance3e64db0733">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
-<area shape="rect" id="node5" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
-<area shape="rect" id="node7" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="952,80,1171,107"/>
-<area shape="rect" id="node3" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
-<area shape="rect" id="node4" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
-<area shape="rect" id="node15" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
-<area shape="rect" id="node6" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="967,155,1156,181"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1188,5,1423,32"/>
-<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1196,80,1415,107"/>
-<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="1181,155,1430,181"/>
-<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1439,80,1631,107"/>
-<area shape="rect" id="node12" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1489,5,1581,32"/>
-<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1604,5,1815,32"/>
-<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="596,80,767,107"/>
-<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="601,155,762,181"/>
-<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="434,5,580,32"/>
-<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="604,5,759,32"/>
-<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="783,5,951,32"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="467,229,675,256"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="331,445,407,471"/>
+<area shape="rect" id="node5" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="331,519,535,544"/>
+<area shape="rect" id="node7" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="1048,79,1292,104"/>
+<area shape="rect" id="node3" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,665,439,691"/>
+<area shape="rect" id="node4" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="205,592,660,617"/>
+<area shape="rect" id="node15" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="463,665,827,691"/>
+<area shape="rect" id="node6" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1064,152,1276,177"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.AutoWISPError" target="_top" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="1312,5,1567,31"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.PipelineError" target="_top" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="1318,79,1561,104"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.ConfigurationError" target="_top" title="Invalid or inconsistent pipeline configuration." alt="" coords="1300,152,1579,177"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1585,79,1797,104"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1641,5,1741,31"/>
+<area shape="rect" id="node13" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1765,5,1999,31"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="657,79,845,104"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="662,152,841,177"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="481,5,640,31"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="665,5,838,31"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="862,5,1049,31"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="514,225,746,251"/>
 </map><p>Functions for detrending light curves (EPD or TFA).</p>
 </section>
 <dl class="py function">
@@ -224,7 +224,7 @@ confusing error about the lightcurve structure.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending._generate_statistics">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending.</span></span><span class="sig-name descname"><span class="pre">_generate_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrending_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_progress</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending.html#_generate_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending._generate_statistics" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending.</span></span><span class="sig-name descname"><span class="pre">_generate_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrending_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_progress</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending.html#_generate_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending._generate_statistics" title="Link to this definition"></a></dt>
 <dd><p>Compute, augment and save the detrending statistics (see caller).</p>
 </dd></dl>
 

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.home.create_project_view module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,140 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-home-create-project-view-module">
-<h1>autowisp.browser_interface.home.create_project_view module<a class="headerlink" href="#autowisp-browser-interface-home-create-project-view-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.home.create_project_view">
+<span id="autowisp-browser-interface-home-create-project-view-module"></span><h1>autowisp.browser_interface.home.create_project_view module<a class="headerlink" href="#module-autowisp.browser_interface.home.create_project_view" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-ea388c31daf3ae5c6e8ae6ea2f956b0cfd8ca33d.png" alt="Inheritance diagram of CreateProjectView, HttpResponseRedirect, MasterConfigView, Namespace, Project, WalkFSView" usemap="#inheritance6e51725668" class="inheritance graphviz" /></div>
+<map id="inheritance6e51725668" name="inheritance6e51725668">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" target="_top" title="Simple object for storing attributes." alt="" coords="5,5,165,31"/>
+<area shape="rect" id="node2" href="autowisp.browser_interface.core.models.html#autowisp.browser_interface.core.models.BuiModelBase" target="_top" title="Base for browser&#45;interface models, recording when each row changed." alt="" coords="119,152,502,177"/>
+<area shape="rect" id="node8" href="autowisp.browser_interface.home.models.html#autowisp.browser_interface.home.models.Project" target="_top" title="Model to represent a project." alt="" coords="139,225,483,251"/>
+<area shape="rect" id="node4" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="573,79,981,104"/>
+<area shape="rect" id="node6" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView" target="_top" title="View to create a new AutoWISP project." alt="" coords="527,152,1028,177"/>
+<area shape="rect" id="node7" href="#autowisp.browser_interface.home.create_project_view.MasterConfigView" target="_top" title="Handle master configuration part of the project creation view." alt="" coords="528,225,1027,251"/>
+</map><p>Define the view for creating new AutoWISP projects.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.home.create_project_view.</span></span><span class="sig-name descname"><span class="pre">CreateProjectView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#CreateProjectView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" title="autowisp.browser_interface.core.walk_fs_view.WalkFSView"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalkFSView</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-077ee903a9a9b1a3341fe3b39b27ca10abe96d31.png" alt="Inheritance diagram of autowisp.browser_interface.home.create_project_view.CreateProjectView" usemap="#inheritance28cd121c74" class="inheritance graphviz" /></div>
+<map id="inheritance28cd121c74" name="inheritance28cd121c74">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="52,79,460,104"/>
+<area shape="rect" id="node3" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView" target="_top" title="View to create a new AutoWISP project." alt="" coords="5,152,507,177"/>
+</map><p>View to create a new AutoWISP project.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView._create_project">
+<span class="sig-name descname"><span class="pre">_create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#CreateProjectView._create_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView._create_project" title="Link to this definition"></a></dt>
+<dd><p>Create a new project following the given configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView._get_context">
+<span class="sig-name descname"><span class="pre">_get_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#CreateProjectView._get_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView._get_context" title="Link to this definition"></a></dt>
+<dd><p>Return the context required by the home selection template.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView._load_master_config">
+<span class="sig-name descname"><span class="pre">_load_master_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#CreateProjectView._load_master_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView._load_master_config" title="Link to this definition"></a></dt>
+<dd><p>Load master configuration from user-supplied JSON file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView._save_form">
+<span class="sig-name descname"><span class="pre">_save_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#CreateProjectView._save_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView._save_form" title="Link to this definition"></a></dt>
+<dd><p>Save the current state of the form to the session.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView.cancel_url_name">
+<span class="sig-name descname"><span class="pre">cancel_url_name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'home:new_project'</span></span><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView.cancel_url_name" title="Link to this definition"></a></dt>
+<dd><p>The URL name to redirect to when the cancel button is pressed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView.db_fname">
+<span class="sig-name descname"><span class="pre">db_fname</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'autowisp.db'</span></span><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView.db_fname" title="Link to this definition"></a></dt>
+<dd><p>The base filename of the SQLite database tracking all projects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#CreateProjectView.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView.get" title="Link to this definition"></a></dt>
+<dd><p>Display the appropriate project cretion page per the current mode.</p>
+<p>The expected arguments depend on the mode:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dirname</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.optional" title="autowisp.database.data_model.InputMasterTypes.optional"><em>optional</em></a>) – Directory name to display contents of
+when selecting project home or where new directory or new
+project will be created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'create_project'</span></span><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView.mode" title="Link to this definition"></a></dt>
+<dd><p>What mode this view is in.</p>
+<dl>
+<dt>Possible values:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;select_home&quot;</span></code>: Display the project home director selection page.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;create_dir&quot;</span></code>: Allow specifying name of directory to create.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;create_project&quot;</span></code>: Create a new project in the specified directory.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;change_master_usage&quot;</span></code>: Toggle the</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView.post">
+<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#CreateProjectView.post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView.post" title="Link to this definition"></a></dt>
+<dd><p>Handle POST request to create a new directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – The HTTP request object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView.template">
+<span class="sig-name descname"><span class="pre">template</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'home/create_project.html'</span></span><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView.template" title="Link to this definition"></a></dt>
+<dd><p>The template used to display the project creation page.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.CreateProjectView.url_name">
+<span class="sig-name descname"><span class="pre">url_name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'home:new_project'</span></span><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView.url_name" title="Link to this definition"></a></dt>
+<dd><p>The URL name for this view.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.MasterConfigView">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.home.create_project_view.</span></span><span class="sig-name descname"><span class="pre">MasterConfigView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#MasterConfigView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.MasterConfigView" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView" title="autowisp.browser_interface.home.create_project_view.CreateProjectView"><code class="xref py py-class docutils literal notranslate"><span class="pre">CreateProjectView</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-775ea8924e154242a7be50e687d4709a44493a14.png" alt="Inheritance diagram of autowisp.browser_interface.home.create_project_view.MasterConfigView" usemap="#inheritance73b79ce8bc" class="inheritance graphviz" /></div>
+<map id="inheritance73b79ce8bc" name="inheritance73b79ce8bc">
+<area shape="rect" id="node1" href="autowisp.browser_interface.core.walk_fs_view.html#autowisp.browser_interface.core.walk_fs_view.WalkFSView" target="_top" title="Base class allowing user to walk through the file system." alt="" coords="52,79,460,104"/>
+<area shape="rect" id="node3" href="#autowisp.browser_interface.home.create_project_view.CreateProjectView" target="_top" title="View to create a new AutoWISP project." alt="" coords="5,152,507,177"/>
+<area shape="rect" id="node4" href="#autowisp.browser_interface.home.create_project_view.MasterConfigView" target="_top" title="Handle master configuration part of the project creation view." alt="" coords="7,225,505,251"/>
+</map><p>Handle master configuration part of the project creation view.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.home.create_project_view.MasterConfigView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/home/create_project_view.html#MasterConfigView.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.home.create_project_view.MasterConfigView.get" title="Link to this definition"></a></dt>
+<dd><p>Handle a change to the master configuration by the user.</p>
+<p>If kwargs is empty, the master is toggled between enabled and
+disabled. Otherwise, it should contain a single key (<code class="docutils literal notranslate"><span class="pre">&quot;split&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;match&quot;</span></code>) with a value a single tuple specifying the change:
+<code class="docutils literal notranslate"><span class="pre">(old</span> <span class="pre">expression,</span> <span class="pre">new</span> <span class="pre">expression)</span></code>. If old expression is None, the
+corresponding list is extended.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

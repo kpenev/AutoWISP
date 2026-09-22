@@ -3,16 +3,8 @@ autowisp.magnitude\_fitting package
 
 .. automodule:: autowisp.magnitude_fitting
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   autowisp.magnitude_fitting.tests
+   :undoc-members:
 
 Submodules
 ----------

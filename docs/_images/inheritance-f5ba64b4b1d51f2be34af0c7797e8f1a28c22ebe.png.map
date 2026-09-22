@@ -1,0 +1,31 @@
+<map id="inheritancef5d681357c" name="inheritancef5d681357c">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="331,445,407,471"/>
+<area shape="rect" id="node7" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="331,519,535,544"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="1073,5,1259,31"/>
+<area shape="rect" id="node18" title="Drop&#45;in replacement for `argparse.ArgumentParser` that adds support for" alt="" coords="1053,79,1279,104"/>
+<area shape="rect" id="node3" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="1283,5,1478,31"/>
+<area shape="rect" id="node4" title="A class to represent tables of heterogeneous data." alt="" coords="1502,5,1683,31"/>
+<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,665,439,691"/>
+<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="205,592,660,617"/>
+<area shape="rect" id="node15" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="463,665,827,691"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1410,79,1645,104"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1708,5,1808,31"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1668,79,1880,104"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1832,5,2065,31"/>
+<area shape="rect" id="node12" title="Represents an HDF5 file." alt="" coords="431,445,565,471"/>
+<area shape="rect" id="node13" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="1921,79,2385,104"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="2089,5,2216,31"/>
+<area shape="rect" id="node16" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="2240,5,2660,31"/>
+<area shape="rect" id="node17" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="935,152,1397,177"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="657,79,845,104"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="662,152,841,177"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="481,5,640,31"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="665,5,838,31"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="862,5,1049,31"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="514,225,746,251"/>
+<area shape="rect" id="node27" title="Wraps a Group, AttributeManager or DimensionManager object to provide" alt="" coords="771,225,977,251"/>
+<area shape="rect" id="node28" title="Wraps a Group or AttributeManager object to provide a mutable" alt="" coords="501,299,759,324"/>
+<area shape="rect" id="node25" title="Mixin class that allows sharing information between objects which" alt="" coords="240,225,489,251"/>
+<area shape="rect" id="node26" title="Base class for high&#45;level interface objects." alt="" coords="291,299,465,324"/>
+<area shape="rect" id="node29" title="Represents an HDF5 group." alt="" coords="419,372,577,397"/>
+</map>

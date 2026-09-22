@@ -3,5 +3,5 @@ autowisp.tests.test\_expression\_series module
 
 .. automodule:: autowisp.tests.test_expression_series
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -3,5 +3,5 @@ autowisp.crash\_report module
 
 .. automodule:: autowisp.crash_report
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

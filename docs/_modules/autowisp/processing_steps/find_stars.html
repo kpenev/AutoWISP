@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processing_steps.find_stars &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -166,7 +166,7 @@
   <h1>Source code for autowisp.processing_steps.find_stars</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;Detect stars within calibrated image(s).&quot;&quot;&quot;</span>
+<span class="sd">"""Detect stars within calibrated image(s)."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitStack</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
@@ -197,79 +197,79 @@
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
-<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;calibrated + dr&quot;</span>
-<span class="c1">#: This step records only &quot;started&quot; before it finishes, so that is</span>
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">"calibrated + dr"</span>
+<span class="c1">#: This step records only "started" before it finishes, so that is</span>
 <span class="c1">#: the only state an interrupted run can leave behind.</span>
 <span class="n">allowed_interrupted_status_values</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">fail_reasons</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;no sources extracted&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
+    <span class="s2">"no sources extracted"</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="parse_command_line">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.find_stars.html#autowisp.processing_steps.find_stars.parse_command_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the parsed command line arguments."""</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
-        <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;+dr&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">),</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">"+dr"</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">),</span>
         <span class="n">allow_parallel_processing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;srcextract&quot;</span><span class="p">,),</span>
+        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(</span><span class="s2">"srcextract"</span><span class="p">,),</span>
         <span class="n">add_provenance_args</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-only-if&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expression involving the header of the input images that &quot;</span>
-        <span class="s2">&quot;evaluates to True/False if a particular image from the specified &quot;</span>
-        <span class="s2">&quot;image collection should/should not be processed.&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-only-if"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"True"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Expression involving the header of the input images that "</span>
+        <span class="s2">"evaluates to True/False if a particular image from the specified "</span>
+        <span class="s2">"image collection should/should not be processed."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcfind-tool&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fistar&quot;</span><span class="p">,</span> <span class="s2">&quot;hatphot&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;fistar&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The source extractor to use.&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcfind-tool"</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"fistar"</span><span class="p">,</span> <span class="s2">"hatphot"</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"fistar"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The source extractor to use."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--brightness-threshold&quot;</span><span class="p">,</span>
+        <span class="s2">"--brightness-threshold"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The minimum brightness to require of extracted sources. If not &quot;</span>
-        <span class="s2">&quot;specified, it will be automatically calculated from the image using &quot;</span>
-        <span class="s2">&quot;brightness-quantile and brightness-quantile-scale parameters. It &quot;</span>
-        <span class="s2">&quot;should be tuned to a value that picks out as many stars as possible, &quot;</span>
-        <span class="s2">&quot;without resulting in an appreciable number of spurious detections. &quot;</span>
-        <span class="s2">&quot;Two additional parameters (:option:`filter-sources` and &quot;</span>
-        <span class="s2">&quot;:option:`srcextract-max-sources`) are sometimes useful to eliminate &quot;</span>
-        <span class="s2">&quot;false positives.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The minimum brightness to require of extracted sources. If not "</span>
+        <span class="s2">"specified, it will be automatically calculated from the image using "</span>
+        <span class="s2">"brightness-quantile and brightness-quantile-scale parameters. It "</span>
+        <span class="s2">"should be tuned to a value that picks out as many stars as possible, "</span>
+        <span class="s2">"without resulting in an appreciable number of spurious detections. "</span>
+        <span class="s2">"Two additional parameters (:option:`filter-sources` and "</span>
+        <span class="s2">":option:`srcextract-max-sources`) are sometimes useful to eliminate "</span>
+        <span class="s2">"false positives."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--filter-sources&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A condition involving the output columns from source extraction &quot;</span>
-        <span class="s2">&quot;to impose on the list of extracted sources (sources that fail are &quot;</span>
-        <span class="s2">&quot;discarded).&quot;</span><span class="p">,</span>
+        <span class="s2">"--filter-sources"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"True"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"A condition involving the output columns from source extraction "</span>
+        <span class="s2">"to impose on the list of extracted sources (sources that fail are "</span>
+        <span class="s2">"discarded)."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--srcextract-max-sources&quot;</span><span class="p">,</span>
+        <span class="s2">"--srcextract-max-sources"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If more than this many sources are extracted, the list is sorted &quot;</span>
-        <span class="s2">&quot;by flux and truncated to this number.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"If more than this many sources are extracted, the list is sorted "</span>
+        <span class="s2">"by flux and truncated to this number."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--brightness-quantile&quot;</span><span class="p">,</span>
+        <span class="s2">"--brightness-quantile"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The quantile to use for the brightness threshold.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The quantile to use for the brightness threshold."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--brightness-quantile-scale&quot;</span><span class="p">,</span>
+        <span class="s2">"--brightness-quantile-scale"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The scale factor to use for the brightness quantile.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The scale factor to use for the brightness quantile."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
@@ -278,24 +278,24 @@
 <div class="viewcode-block" id="_resolve_observing_session_ids">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.find_stars.html#autowisp.processing_steps.find_stars._resolve_observing_session_ids">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_observing_session_ids</span><span class="p">(</span><span class="n">image_collection</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-resolve provenance once in the parent (single-threaded).</span>
+<span class="w">    </span><span class="sd">"""Pre-resolve provenance once in the parent (single-threaded).</span>
 
 <span class="sd">    Returns a ``{image_fname: observing_session_id}`` map. Empty if</span>
 <span class="sd">    ``--no-provenance`` is set. Running this in the parent avoids the</span>
 <span class="sd">    target/session-name UNIQUE races that would otherwise hit when several</span>
 <span class="sd">    worker processes call ``get_or_create_*`` against the same survey row.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;no_provenance&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"no_provenance"</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
             <span class="n">header_eval</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
-            <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;FULLPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_fname</span>
+            <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"FULLPATH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_fname</span>
             <span class="n">observing_session</span> <span class="o">=</span> <span class="n">get_or_create_observing_session</span><span class="p">(</span>
-                <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
+                <span class="s2">"object"</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
             <span class="p">)</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">result</span><span class="p">[</span><span class="n">image_fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">id</span>
@@ -314,7 +314,7 @@
     <span class="n">mark_end</span><span class="p">,</span>
     <span class="n">observing_session_ids</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pool worker: dispatch to ``find_stars_single`` with the matching id.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Pool worker: dispatch to ``find_stars_single`` with the matching id."""</span>
 
     <span class="n">find_stars_single</span><span class="p">(</span>
         <span class="n">image_fname</span><span class="p">,</span>
@@ -337,29 +337,29 @@
     <span class="n">mark_end</span><span class="p">,</span>
     <span class="n">observing_session_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the stars in a single image.</span>
+<span class="w">    </span><span class="sd">"""Find the stars in a single image.</span>
 
 <span class="sd">    If ``observing_session_id`` is given (i.e. provenance was pre-resolved by</span>
 <span class="sd">    the caller), the worker looks up the ``ObservingSession`` row by id and</span>
 <span class="sd">    writes the ``/Provenance`` group to the DR file. Pre-resolving in the</span>
 <span class="sd">    caller -- rather than per worker -- is what prevents races when multiple</span>
 <span class="sd">    workers see the same target/session.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">fits_header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Extracting sources from </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Extracting sources from </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">extracted_sources</span> <span class="o">=</span> <span class="n">find_stars_in_image</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">NoSourcesFoundError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
         <span class="c1"># A starless frame (clouded over, badly defocused, threshold too</span>
         <span class="c1"># high) fails just that frame; the rest of the batch continues.</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
         <span class="n">mark_start</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
-        <span class="n">mark_end</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;no sources extracted&quot;</span><span class="p">])</span>
+        <span class="n">mark_end</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">"no sources extracted"</span><span class="p">])</span>
         <span class="k">return</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished extracting sources: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Finished extracting sources: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
     <span class="n">mark_start</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Marked started: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Marked started: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
         <span class="n">observing_session</span> <span class="o">=</span> <span class="kc">None</span>
@@ -370,22 +370,22 @@
             <span class="p">)</span>
 
         <span class="n">dr_file</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span>
-            <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">fits_header</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+            <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">fits_header</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"a"</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">dr_file</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">fits_header</span><span class="p">,</span> <span class="n">observing_session</span><span class="o">=</span><span class="n">observing_session</span><span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Added header from: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Added header from: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
         <span class="n">dr_file</span><span class="o">.</span><span class="n">add_sources</span><span class="p">(</span>
             <span class="n">extracted_sources</span><span class="p">,</span>
-            <span class="s2">&quot;srcextract.sources&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;srcextract_column_name&quot;</span><span class="p">,</span>
+            <span class="s2">"srcextract.sources"</span><span class="p">,</span>
+            <span class="s2">"srcextract_column_name"</span><span class="p">,</span>
             <span class="n">srcextract_version</span><span class="o">=</span><span class="n">srcextract_version</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Added sources from: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Added sources from: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span>
         <span class="n">mark_end</span><span class="p">(</span>
             <span class="n">image_fname</span><span class="p">,</span>
-            <span class="n">diagnostics</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;num_extracted_src&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">extracted_sources</span><span class="p">))],</span>
+            <span class="n">diagnostics</span><span class="o">=</span><span class="p">[(</span><span class="s2">"num_extracted_src"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">extracted_sources</span><span class="p">))],</span>
         <span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Marked end for: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span></div>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Marked end for: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span> <span class="n">extracted_sources</span><span class="p">)</span></div>
 
 
 
@@ -394,67 +394,67 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">find_stars</span><span class="p">(</span>
     <span class="n">image_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract sources from all input images and save them to DR files.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract sources from all input images and save them to DR files."""</span>
     <span class="c1"># ``start_status`` is part of the signature the manager calls</span>
     <span class="c1"># with; the values this step accepts are declared in</span>
     <span class="c1"># ``allowed_start_status_values`` and checked there.</span>
     <span class="c1"># pylint: disable=unused-argument</span>
 
     <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Start of find_stars steps for DB </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%d</span><span class="s2"> images with configuration &quot;</span>
-        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;project_home&quot;</span><span class="p">],</span>
+        <span class="s2">"Start of find_stars steps for DB </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%d</span><span class="s2"> images with configuration "</span>
+        <span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">"project_home"</span><span class="p">],</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">image_collection</span><span class="p">),</span>
         <span class="nb">repr</span><span class="p">(</span><span class="n">configuration</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">]</span>
+    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"data_reduction_fname"</span><span class="p">]</span>
     <span class="n">find_stars_in_image</span> <span class="o">=</span> <span class="n">SourceFinder</span><span class="p">(</span>
-        <span class="n">tool</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcfind_tool&quot;</span><span class="p">],</span>
-        <span class="n">brightness_threshold</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">],</span>
-        <span class="n">brightness_quantile</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_quantile&quot;</span><span class="p">],</span>
-        <span class="n">brightness_quantile_scale</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_quantile_scale&quot;</span><span class="p">],</span>
-        <span class="n">filter_sources</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;filter_sources&quot;</span><span class="p">],</span>
-        <span class="n">max_sources</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_max_sources&quot;</span><span class="p">],</span>
+        <span class="n">tool</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"srcfind_tool"</span><span class="p">],</span>
+        <span class="n">brightness_threshold</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"brightness_threshold"</span><span class="p">],</span>
+        <span class="n">brightness_quantile</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"brightness_quantile"</span><span class="p">],</span>
+        <span class="n">brightness_quantile_scale</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"brightness_quantile_scale"</span><span class="p">],</span>
+        <span class="n">filter_sources</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"filter_sources"</span><span class="p">],</span>
+        <span class="n">max_sources</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_max_sources"</span><span class="p">],</span>
     <span class="p">)</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created source finder&quot;</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Created source finder"</span><span class="p">)</span>
     <span class="n">observing_session_ids</span> <span class="o">=</span> <span class="n">_resolve_observing_session_ids</span><span class="p">(</span>
         <span class="n">image_collection</span><span class="p">,</span> <span class="n">configuration</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"num_parallel_processes"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Running in serial mode for images: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">image_collection</span><span class="p">)</span>
+            <span class="s2">"Running in serial mode for images: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">image_collection</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Extracting stars in image </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Extracting stars in image </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
             <span class="n">find_stars_single</span><span class="p">(</span>
                 <span class="n">image_fname</span><span class="p">,</span>
                 <span class="n">find_stars_in_image</span><span class="p">,</span>
-                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_version&quot;</span><span class="p">],</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_version"</span><span class="p">],</span>
                 <span class="n">mark_start</span><span class="p">,</span>
                 <span class="n">mark_end</span><span class="p">,</span>
                 <span class="n">observing_session_id</span><span class="o">=</span><span class="n">observing_session_ids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_fname</span><span class="p">),</span>
             <span class="p">)</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished extracting stars in image </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Finished extracting stars in image </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Running in parallel mode with config </span><span class="si">%s</span><span class="s2"> and DB fname </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Running in parallel mode with config </span><span class="si">%s</span><span class="s2"> and DB fname </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">configuration</span><span class="p">,</span>
-            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;project_home&quot;</span><span class="p">],</span>
+            <span class="n">configuration</span><span class="p">[</span><span class="s2">"project_home"</span><span class="p">],</span>
         <span class="p">)</span>
 
         <span class="n">run_pool</span><span class="p">(</span>
             <span class="n">partial</span><span class="p">(</span>
                 <span class="n">_find_stars_worker</span><span class="p">,</span>
                 <span class="n">find_stars_in_image</span><span class="o">=</span><span class="n">find_stars_in_image</span><span class="p">,</span>
-                <span class="n">srcextract_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_version&quot;</span><span class="p">],</span>
+                <span class="n">srcextract_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_version"</span><span class="p">],</span>
                 <span class="n">mark_start</span><span class="o">=</span><span class="n">mark_start</span><span class="p">,</span>
                 <span class="n">mark_end</span><span class="o">=</span><span class="n">mark_end</span><span class="p">,</span>
                 <span class="n">observing_session_ids</span><span class="o">=</span><span class="n">observing_session_ids</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">image_collection</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
-            <span class="n">num_processes</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">],</span>
+            <span class="n">num_processes</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"num_parallel_processes"</span><span class="p">],</span>
             <span class="n">related_files</span><span class="o">=</span><span class="n">FileKind</span><span class="o">.</span><span class="n">CALIBRATED_IMAGE</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -463,20 +463,20 @@
 <div class="viewcode-block" id="cleanup_interrupted">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.find_stars.html#autowisp.processing_steps.find_stars.cleanup_interrupted">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove the extracted stars from the DR of the given calibrated image.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Remove the extracted stars from the DR of the given calibrated image."""</span>
 
-    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">]</span>
+    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">"data_reduction_fname"</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">image_fname</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
         <span class="n">fits_header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
         <span class="n">dr_fname</span> <span class="o">=</span> <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">get_fname_from_header</span><span class="p">(</span><span class="n">fits_header</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">):</span>
             <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
 
-        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
             <span class="n">dr_file</span><span class="o">.</span><span class="n">delete_sources</span><span class="p">(</span>
-                <span class="s2">&quot;srcextract.sources&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;srcextract_column_name&quot;</span><span class="p">,</span>
-                <span class="n">srcextract_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_version&quot;</span><span class="p">],</span>
+                <span class="s2">"srcextract.sources"</span><span class="p">,</span>
+                <span class="s2">"srcextract_column_name"</span><span class="p">,</span>
+                <span class="n">srcextract_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">"srcextract_version"</span><span class="p">],</span>
             <span class="p">)</span>
     <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
 
@@ -486,16 +486,16 @@
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.find_stars.html#autowisp.processing_steps.find_stars.main">[docs]</a>
 <span class="nd">@cli_entry_point</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from the command line.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run the step from the command line."""</span>
 
     <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
-    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
 
     <span class="n">find_stars</span><span class="p">(</span>
         <span class="nb">list</span><span class="p">(</span>
             <span class="n">find_fits_fnames</span><span class="p">(</span>
-                <span class="n">cmdline_config</span><span class="p">[</span><span class="s2">&quot;calibrated_images&quot;</span><span class="p">],</span>
-                <span class="n">cmdline_config</span><span class="p">[</span><span class="s2">&quot;srcextract_only_if&quot;</span><span class="p">],</span>
+                <span class="n">cmdline_config</span><span class="p">[</span><span class="s2">"calibrated_images"</span><span class="p">],</span>
+                <span class="n">cmdline_config</span><span class="p">[</span><span class="s2">"srcextract_only_if"</span><span class="p">],</span>
             <span class="p">)</span>
         <span class="p">),</span>
         <span class="kc">None</span><span class="p">,</span>
@@ -506,7 +506,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

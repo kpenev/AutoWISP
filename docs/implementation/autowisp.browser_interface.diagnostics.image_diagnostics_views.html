@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.image_diagnostics_views module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -173,32 +173,102 @@
 <span id="autowisp-browser-interface-diagnostics-image-diagnostics-views-module"></span><h1>autowisp.browser_interface.diagnostics.image_diagnostics_views module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.image_diagnostics_views" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-9f2168022e471c4eeb2af3138f90530e71f6c0c9.png" alt="Inheritance diagram of BytesIO, Figure, HttpResponse" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-5a722034c79e0b4bdbff59210a06ef24a39b5141.png" alt="Inheritance diagram of BytesIO, Figure, HttpResponse" class="inheritance graphviz" /></div>
 <p>Views for displaying per-image diagnostics.</p>
-<p>One quantity may be plotted against another, where a quantity is a
-<code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> name, the <code class="docutils literal notranslate"><span class="pre">pixel_quantiles</span></code> pseudo-name expanding to
-one series per <code class="docutils literal notranslate"><span class="pre">pixel_q*</span></code>, or <code class="docutils literal notranslate"><span class="pre">jd</span></code>.  Plotting against time is not a separate
-mode: it is <code class="docutils literal notranslate"><span class="pre">x=&quot;jd&quot;</span></code>, which resolves through the same path as everything
-else because the canonical image list already carries the Julian dates.</p>
+<p>Quantities may be plotted against one another, where a quantity is a
+<code class="docutils literal notranslate"><span class="pre">DiagnosticType</span></code> name, an expression over those, or <code class="docutils literal notranslate"><span class="pre">jd</span></code>.  Plotting
+against time is not a separate mode: it is <code class="docutils literal notranslate"><span class="pre">x=&quot;jd&quot;</span></code>, which resolves
+through the same path as everything else because the canonical image list
+already carries the Julian dates.</p>
 <p>The figure half of the page: reading the values a row asks for, drawing
 them, and the Django views that serve it. What the <em>table</em> above the plot
 offers, and what a row binds, is <code class="xref py py-mod docutils literal notranslate"><span class="pre">series_table</span></code> – which never
 evaluates anything, where everything here does.</p>
 </section>
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">assign_y_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drawn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requested</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#assign_y_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes" title="Link to this definition"></a></dt>
+<dd><p>Return the quantities to put on each y axis, in the order drawn.</p>
+<p>Sharing an axis is the safe default and the usual answer: two
+quantities wrongly sharing one show it at once, since one of them is
+flattened, where two wrongly given separate axes are rescaled to fill
+the same height and invite a reader to compare what cannot be
+compared.</p>
+<p>What a user asks for is an axis <em>number</em> per quantity, which is easier
+to say than an ordering. Turning numbers into axes is what happens
+here: numbers nothing drawn uses are skipped, so asking for 1 and 3
+draws two axes rather than three with an empty one between them, and
+the number is only ever a way of grouping and ordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>drawn</strong> (<em>iterable</em>) – The quantities actually drawn, in section
+order. Repeats are ignored: a quantity is on one axis however
+many rows draw it.</p></li>
+<li><p><strong>requested</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – <code class="docutils literal notranslate"><span class="pre">{quantity:</span> <span class="pre">axis</span> <span class="pre">number}</span></code>, as the client
+posts it. A quantity missing from it, or carrying something
+that is not a number, falls to the first axis – an
+unanswered question is not worth failing a plot over.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>One list of quantity names per axis, the first being the</dt><dd><p>host. Each list is in section order, and the axes are ordered
+by the number asked for. Empty when nothing is drawn.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.build_section">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">build_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_y</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descriptions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#build_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.build_section" title="Link to this definition"></a></dt>
+<dd><p>Return everything one section of the page is rendered from.</p>
+<p>A section is the table for the pair <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">section_y)</span></code>, headed by what
+that quantity is. Its channel columns depend on the quantity it draws,
+which is what a section is <em>for</em>: quantities binding different numbers
+of channels cannot share one table, so each gets its own.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>section_y</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The quantity this section draws.</p></li>
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis, shared by the page.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
+<li><p><strong>descriptions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What each quantity means, the recorded
+diagnostics’ and the expressions’ together.</p></li>
+<li><p><strong>marker</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What this section’s rows start out drawn with.</p></li>
+<li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The section, as <code class="docutils literal notranslate"><span class="pre">_series_section.html</span></code> renders it.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">collect_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#collect_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">collect_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#collect_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.collect_series_data" title="Link to this definition"></a></dt>
 <dd><p>Read the selected series, dropping those with nothing to draw.</p>
 <p>Every row of the table is posted rather than only the drawn ones, so
-that the server can see what the whole table binds.  Three of them are
+that the server can see what the whole table binds.  Four of them are
 skipped here: one the user has not selected, one whose marker is
-blank, and one still missing a channel, which names no data to read.</p>
+blank, one still missing a channel, and one naming no session and
+image type – the last two naming no data to read.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>series_list</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Every row as the client posted it back.</p></li>
-<li><p><strong>x_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
-<li><p><strong>y_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis, shared by the whole
+figure.  Each row names its own y through its id.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 </ul>
@@ -218,15 +288,15 @@ blank, and one still missing a channel, which names no data to read.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.create_diagnostics_figure">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">create_diagnostics_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#create_diagnostics_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_diagnostics_figure" title="Link to this definition"></a></dt>
-<dd><p>Create the figure for the selected series of an axis pair.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">create_diagnostics_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_list</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#create_diagnostics_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.create_diagnostics_figure" title="Link to this definition"></a></dt>
+<dd><p>Create the figure for the selected series, against one x quantity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>series_list</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Entries from <code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_series()</span></code>.
+<li><p><strong>series_list</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Every row as the client posted it back.
 Only those with a non-empty <code class="docutils literal notranslate"><span class="pre">marker</span></code> are plotted.</p></li>
-<li><p><strong>x_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
-<li><p><strong>y_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis, which every series
+shares.  What each draws against it comes from its own id.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>.</p></li>
 <li><p><strong>db_session</strong> – An active SQLAlchemy database session.</p></li>
 <li><p><strong>figure_config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Layout of the figure, defining
@@ -249,21 +319,47 @@ Only those with a non-empty <code class="docutils literal notranslate"><span cla
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">display_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#display_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics" title="Link to this definition"></a></dt>
-<dd><p>View displaying the table of available series for an axis pair.</p>
-<p>The library arrives as an argument rather than being fetched here: it
-is the one thing on this page that comes from the browser-interface
-database, and keeping it out means everything in this module can be
-tested against a project database alone.  <code class="docutils literal notranslate"><span class="pre">views.py</span></code> supplies it.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.diagnostics_section">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">diagnostics_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression_descriptions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#diagnostics_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.diagnostics_section" title="Link to this definition"></a></dt>
+<dd><p>Return one rendered section, for adding one without a reload.</p>
+<p>A request of its own rather than something a redraw carries, unlike
+the row <code class="docutils literal notranslate"><span class="pre">+</span></code> adds: a new section’s row is bound only where each of
+its channel columns has a single channel recorded, so on a colour
+camera it arrives unbound, draws nothing, and the figure is unchanged.
+Asking for the section alone leaves that figure alone; folding this
+into a redraw would rebuild it to look exactly as it already does.</p>
+<p>The markers the page’s sections already start with arrive as
+<code class="docutils literal notranslate"><span class="pre">taken</span></code>, comma separated, since sections have come and gone in the
+browser since the page was built and the server cannot know otherwise
+which markers are still spoken for.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.display_image_diagnostics">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">display_image_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#display_image_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_image_diagnostics" title="Link to this definition"></a></dt>
-<dd><p>Redirect the pre-merge time-series URL onto the merged view.</p>
-<p>Kept so that links built before the merge keep working, including the
-six <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">url</span> <span class="pre">%}</span></code> tags in <code class="docutils literal notranslate"><span class="pre">processing/progress.html</span></code>.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">display_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_quantities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression_descriptions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#display_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.display_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>View displaying a section per y quantity, all against one x.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – The Django request.</p></li>
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis. The page has one, and
+a user wanting a second opens another tab: everything drawn
+here shares it.</p></li>
+<li><p><strong>y_quantities</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What the sections draw, in the order the
+URL names them, which is the order they appear in and the
+order they take their markers in.</p></li>
+<li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library.  It arrives as an argument
+rather than being fetched here because it comes from the
+browser-interface database, and keeping that out means
+everything in this module can be tested against a project
+database alone.  <code class="docutils literal notranslate"><span class="pre">views.py</span></code> supplies it.</p></li>
+<li><p><strong>expression_descriptions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – What each expression is for,
+from the same database and passed in for the same reason. The
+recorded diagnostics describe themselves in the project one,
+and the two are merged here.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -288,18 +384,20 @@ last POST data.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_series_group">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">draw_series_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_offset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#draw_series_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_series_group" title="Link to this definition"></a></dt>
-<dd><p>Plot every series sharing one set of axes.</p>
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_group_on_axes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">draw_group_on_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_legend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#draw_group_on_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_group_on_axes" title="Link to this definition"></a></dt>
+<dd><p>Draw one night’s series, each on the axis its quantity was given.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>axes</strong> – The matplotlib Axes the group was assigned.</p></li>
-<li><p><strong>group</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – <code class="docutils literal notranslate"><span class="pre">(series,</span> <span class="pre">x_values,</span> <span class="pre">y_values,</span> <span class="pre">image_ids)</span></code> tuples,
-as grouped by <a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.group_series_by_x_overlap"><code class="xref py py-func docutils literal notranslate"><span class="pre">group_series_by_x_overlap()</span></code></a>.</p></li>
-<li><p><strong>x_offset</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Subtracted from every x value.  Shared by the
-whole figure so the series keep their spacing relative to each
-other.</p></li>
+<li><p><strong>host</strong> – The subplot this night was assigned, which carries the
+first y axis, the x axis and the grid.</p></li>
+<li><p><strong>group</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – <code class="docutils literal notranslate"><span class="pre">(series,</span> <span class="pre">x_values,</span> <span class="pre">y_values,</span> <span class="pre">image_ids)</span></code> tuples
+for this night.</p></li>
+<li><p><strong>per_axis</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – What <a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.assign_y_axes"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_y_axes()</span></code></a> returned: the
+quantities on each axis, the first being the host’s.</p></li>
+<li><p><strong>x_offset</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Subtracted from every x value.</p></li>
+<li><p><strong>show_legend</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to draw the merged legend.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -309,8 +407,27 @@ other.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_merged_legend">
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">draw_merged_legend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#draw_merged_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_merged_legend" title="Link to this definition"></a></dt>
+<dd><p>Draw one legend for a subplot, naming what every one of its axes drew.</p>
+<p>On the topmost axis rather than the host, and gathering the handles by
+hand, because neither happens by itself: each axis offers only the
+series drawn on it, and a legend belonging to the host is painted
+underneath the twins that sit above it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The subplot’s axes, host first, as
+<a class="reference internal" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_group_on_axes" title="autowisp.browser_interface.diagnostics.image_diagnostics_views.draw_group_on_axes"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_group_on_axes()</span></code></a> built them.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.get_series_data">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">get_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#get_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_series_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">get_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/image_diagnostics_views.html#get_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.get_series_data" title="Link to this definition"></a></dt>
 <dd><p>Query the paired x/y values for a single series.</p>
 <p>Both axes are resolved in one call, which is what makes them share a
 query for the diagnostics they need and one symbol table, so a
@@ -321,9 +438,12 @@ unmasked; the single finite mask lives in
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – One row as the client posted it back, holding the
-id it was rendered with and the channels its dropdowns say.</p></li>
-<li><p><strong>x_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis.</p></li>
-<li><p><strong>y_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the Y axis.</p></li>
+id it was rendered with, and the pair and channels its
+dropdowns say.</p></li>
+<li><p><strong>x_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Quantity on the X axis, which the page
+supplies: it is the one thing a row does not choose.  The y
+comes from the row’s own id, which names the quantity it
+draws.</p></li>
 <li><p><strong>expressions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The library, <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">expression}</span></code>, passed in
 rather than fetched so that nothing below the view has to know
 it came from the browser-interface database.</p></li>
@@ -375,7 +495,11 @@ tuples.</p>
 click-through URLs.</p></li>
 <li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Configuration for the plotting, usually produced by
 <code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_series()</span></code>. Should contain keys <code class="docutils literal notranslate"><span class="pre">channel</span></code>,
-<code class="docutils literal notranslate"><span class="pre">color</span></code>, <code class="docutils literal notranslate"><span class="pre">marker</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code>, and <code class="docutils literal notranslate"><span class="pre">label</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">color</span></code>, <code class="docutils literal notranslate"><span class="pre">marker</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code>, and <code class="docutils literal notranslate"><span class="pre">label</span></code>. A <code class="docutils literal notranslate"><span class="pre">marker</span></code>
+naming one of
+<a class="reference internal" href="autowisp.browser_interface.core.plot_utils.html#autowisp.browser_interface.core.plot_utils.line_styles" title="autowisp.browser_interface.core.plot_utils.line_styles"><code class="xref py py-data docutils literal notranslate"><span class="pre">line_styles</span></code></a>
+draws a curve instead of points, reading the scale as the line
+width where points read it as the marker size.</p></li>
 </ul>
 </dd>
 </dl>
@@ -383,7 +507,7 @@ click-through URLs.</p></li>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_session_key">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">plot_session_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'diagnostics_last'</span></em><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_session_key" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.image_diagnostics_views.</span></span><span class="sig-name descname"><span class="pre">plot_session_key</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'diagnostics_last'</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.image_diagnostics_views.plot_session_key" title="Link to this definition"></a></dt>
 <dd><p>Where the last posted plot configuration is kept, so that the download
 view can regenerate exactly what was on screen.</p>
 </dd></dl>
@@ -403,14 +527,19 @@ and returns an SVG <code class="docutils literal notranslate"><span class="pre">
 <li><p><strong>figure_factory</strong> – Callable accepting <code class="docutils literal notranslate"><span class="pre">series_list</span></code>, <code class="docutils literal notranslate"><span class="pre">db_session</span></code>,
 <code class="docutils literal notranslate"><span class="pre">figure_config</span></code>, plus any URL kwargs as keyword
 arguments.</p></li>
-<li><p><strong>session_key</strong> – If given, the raw POST data is stored in the session
-under this key so a download view can retrieve it.</p></li>
+<li><p><strong>session_key</strong> – If given, the posted plot configuration is stored in
+the session under this key so a download view can
+retrieve it.</p></li>
 <li><p><strong>extra</strong> – Optional callable given the whole POST, the database
-session and the URL kwargs, returning a dict merged
-into the response.  What a redraw answers <em>besides</em>
-the figure – a newly bound row’s count and its
-spare – rides along here, so that one action costs
-one round trip.</p></li>
+session and the URL kwargs, returning <code class="docutils literal notranslate"><span class="pre">(rows,</span>
+<span class="pre">fields)</span></code>: the rows to draw, and what a redraw
+answers <em>besides</em> the figure – a rebound row’s
+count and cells – which rides along in the
+response so that one action costs one round trip.
+It decides what is drawn as well as what is said,
+because a row whose binding has just changed has to
+be drawn with the colour and label of the binding
+it now has.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

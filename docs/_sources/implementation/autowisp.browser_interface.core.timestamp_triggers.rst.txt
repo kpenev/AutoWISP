@@ -3,5 +3,5 @@ autowisp.browser\_interface.core.timestamp\_triggers module
 
 .. automodule:: autowisp.browser_interface.core.timestamp_triggers
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

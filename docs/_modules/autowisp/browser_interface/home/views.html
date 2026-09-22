@@ -1,0 +1,793 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.browser_interface.home.views &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../diagnostics.html">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../diagnostics.html#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../photometric_reference.html">Choosing the photometric reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#getting-there">Getting there</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#a-starting-point-not-the-final-standard">A starting point, not the final standard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#one-reference-per-group">One reference per group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#start-at-the-top-then-look">Start at the top, then look</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#what-you-are-shown">What you are shown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#watch-where-it-points">Watch where it points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../photometric_reference.html#recording-the-choice">Recording the choice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.browser_interface.home.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.browser_interface.home.views</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Define the vies available on the home page."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">iglob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_catalog_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">master_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">set_project_home</span><span class="p">,</span>
+    <span class="n">start_db_session</span><span class="p">,</span>
+    <span class="n">get_db_engine</span><span class="p">,</span>
+    <span class="n">DB_URL_FNAME</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_all_error_sidecars</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseError</span><span class="p">,</span> <span class="n">ViewError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># pylint: disable=no-name-in-module</span>
+    <span class="n">Configuration</span><span class="p">,</span>
+    <span class="n">Image</span><span class="p">,</span>
+    <span class="n">MasterFile</span><span class="p">,</span>
+    <span class="n">MasterType</span><span class="p">,</span>
+    <span class="n">Parameter</span><span class="p">,</span>
+    <span class="n">PipelineRun</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.provenance.camera_channel</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CameraChannel</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_primary_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.light_curves.collect_light_curves</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecodingStringFormatter</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.create_project_view</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># pylint: disable=unused-import</span>
+    <span class="n">CreateProjectView</span><span class="p">,</span>
+    <span class="n">MasterConfigView</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="home">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.home">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Display the home page."""</span>
+
+    <span class="n">display_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">Project</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_fields</span><span class="p">()</span>  <span class="c1"># pylint: disable=no-member, protected-access</span>
+        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"id"</span>
+    <span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Projects: </span><span class="si">{</span><span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+    <span class="n">missing_db_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">proj</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">proj</span> <span class="ow">in</span> <span class="n">find_missing_databases</span><span class="p">()}</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"columns"</span><span class="p">:</span> <span class="n">display_columns</span><span class="p">,</span>
+        <span class="s2">"projects"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">proj</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">proj</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">display_columns</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">proj</span> <span class="ow">in</span> <span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">},</span>
+        <span class="s2">"missing_db_ids"</span><span class="p">:</span> <span class="n">missing_db_ids</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Context: </span><span class="si">{</span><span class="n">context</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># Debugging output</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"home/index.html"</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="confirm_delete_projects">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.confirm_delete_projects">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">confirm_delete_projects</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Show a confirmation page listing projects and file-type checkboxes."""</span>
+
+    <span class="n">file_type_choices</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">"lightcurves"</span><span class="p">,</span> <span class="s2">"Light curves"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"data_reductions"</span><span class="p">,</span> <span class="s2">"Data reduction files"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"calibrated_images"</span><span class="p">,</span> <span class="s2">"Calibrated images"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"master_files"</span><span class="p">,</span> <span class="s2">"Master files"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"logs"</span><span class="p">,</span> <span class="s2">"Log and output files"</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">project_ids</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"project_ids"</span><span class="p">)</span>
+    <span class="n">projects</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">id__in</span><span class="o">=</span><span class="n">project_ids</span>
+    <span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"project_ids"</span><span class="p">:</span> <span class="n">project_ids</span><span class="p">,</span>
+        <span class="s2">"project_names"</span><span class="p">:</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">projects</span><span class="p">],</span>
+        <span class="s2">"file_type_choices"</span><span class="p">:</span> <span class="n">file_type_choices</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"home/confirm_delete.html"</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_safe_remove">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views._safe_remove">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_safe_remove</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="n">project_home</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Delete *fpath* after verifying it resides under *project_home*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fpath(str):         Path to the file to delete.</span>
+
+<span class="sd">        project_home(str):  Absolute path to the project home directory.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ViewError:  If *fpath* is not under *project_home*.</span>
+<span class="sd">    """</span>
+
+    <span class="n">real_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">real_home</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
+    <span class="n">real_fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">real_fpath</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">real_home</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ViewError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Refusing to delete </span><span class="si">{</span><span class="n">fpath</span><span class="si">!r}</span><span class="s2">: not under project home "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">project_home</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_projects">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_projects">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_projects</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Delete selected projects and optionally their generated files."""</span>
+
+    <span class="n">project_ids</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"project_ids"</span><span class="p">)</span>
+    <span class="n">file_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"file_types"</span><span class="p">))</span>
+
+    <span class="n">projects</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">id__in</span><span class="o">=</span><span class="n">project_ids</span>
+    <span class="p">)</span>
+    <span class="n">missing_db_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">proj</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">proj</span> <span class="ow">in</span> <span class="n">find_missing_databases</span><span class="p">()}</span>
+    <span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">projects</span><span class="p">:</span>
+        <span class="n">project_home</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">path</span>
+
+        <span class="k">if</span> <span class="n">project</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">missing_db_ids</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">"Skipping file deletion for </span><span class="si">%s</span><span class="s2">: database missing"</span><span class="p">,</span>
+                <span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="s2">"lightcurves"</span> <span class="ow">in</span> <span class="n">file_types</span><span class="p">:</span>
+            <span class="n">delete_lightcurves</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"data_reductions"</span> <span class="ow">in</span> <span class="n">file_types</span> <span class="ow">or</span> <span class="s2">"calibrated_images"</span> <span class="ow">in</span> <span class="n">file_types</span><span class="p">:</span>
+            <span class="n">delete_image_products</span><span class="p">(</span>
+                <span class="n">project_home</span><span class="p">,</span>
+                <span class="n">data_reductions</span><span class="o">=</span><span class="s2">"data_reductions"</span> <span class="ow">in</span> <span class="n">file_types</span><span class="p">,</span>
+                <span class="n">calibrated_images</span><span class="o">=</span><span class="s2">"calibrated_images"</span> <span class="ow">in</span> <span class="n">file_types</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"master_files"</span> <span class="ow">in</span> <span class="n">file_types</span><span class="p">:</span>
+            <span class="n">delete_master_files</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"logs"</span> <span class="ow">in</span> <span class="n">file_types</span><span class="p">:</span>
+            <span class="n">delete_logs</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+
+        <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+        <span class="c1"># The error sidecars are bound to the Error table dropped below, so</span>
+        <span class="c1"># remove them before the table is gone. prune_empty_directories</span>
+        <span class="c1"># (at the end) clears the emptied errors directories.</span>
+        <span class="n">delete_all_error_sidecars</span><span class="p">()</span>
+        <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="n">get_db_engine</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">db_file</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"autowisp.db"</span><span class="p">,</span> <span class="n">DB_URL_FNAME</span><span class="p">):</span>
+            <span class="n">db_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">db_file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">db_file_path</span><span class="p">):</span>
+                <span class="n">_safe_remove</span><span class="p">(</span><span class="n">db_file_path</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+
+        <span class="c1"># The project is being removed entirely (DB + error sidecars</span>
+        <span class="c1"># always go), so clear any directories left empty -- including the</span>
+        <span class="c1"># emptied errors directory -- regardless of which file types were</span>
+        <span class="c1"># selected. Only empty directories are removed, so kept data files</span>
+        <span class="c1"># keep their directories.</span>
+        <span class="n">prune_empty_directories</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+
+    <span class="n">projects</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"home:home"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_lightcurves">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_lightcurves">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_lightcurves</span><span class="p">(</span><span class="n">project_home</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Delete all lightcurve files generated by the project at *project_home*.</span>
+
+<span class="sd">    Uses the lightcurve catalog(s) stored as ``MasterFile`` entries of type</span>
+<span class="sd">    ``lightcurve_catalog`` to identify which individual lightcurve files were</span>
+<span class="sd">    created, then removes them together with the catalog files themselves.</span>
+
+<span class="sd">    The ``lc-fname`` configuration parameter is read from the project database</span>
+<span class="sd">    to determine the filename pattern used when the lightcurves were created.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_home(str):  Absolute path to the project home directory.</span>
+<span class="sd">    """</span>
+
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+    <span class="n">srcid_formatter</span> <span class="o">=</span> <span class="n">DecodingStringFormatter</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">lc_fname_pattern</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"lc-fname"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">lc_fname_pattern</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No lc-fname configuration found for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">catalog_fnames</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MasterType</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">MasterType</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"lightcurve_catalog"</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">catalog_fname</span> <span class="ow">in</span> <span class="n">catalog_fnames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">catalog_fname</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Catalog file missing: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">catalog_fname</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">read_catalog_file</span><span class="p">(</span><span class="n">catalog_fname</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="n">catalog</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">lc_fname</span> <span class="o">=</span> <span class="n">srcid_formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">lc_fname_pattern</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">source_id</span><span class="p">),</span>
+                <span class="n">PROJHOME</span><span class="o">=</span><span class="n">project_home</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">):</span>
+                <span class="n">_safe_remove</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Deleted lightcurve file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">lc_fname</span><span class="p">)</span>
+
+        <span class="n">_safe_remove</span><span class="p">(</span><span class="n">catalog_fname</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Deleted lightcurve catalog: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">catalog_fname</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_image_products">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_image_products">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_image_products</span><span class="p">(</span>
+    <span class="n">project_home</span><span class="p">,</span> <span class="n">data_reductions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">calibrated_images</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Delete data reduction files and/or calibrated images for a project.</span>
+
+<span class="sd">    Reads the ``data-reduction-fname`` and/or ``calibrated-fname``</span>
+<span class="sd">    configuration parameters from the project database, then iterates over</span>
+<span class="sd">    every ``Image``, reads its FITS header to resolve the templates, and</span>
+<span class="sd">    removes the corresponding files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_home(str):  Absolute path to the project home directory.</span>
+
+<span class="sd">        data_reductions(bool):  If True, delete data reduction files.</span>
+
+<span class="sd">        calibrated_images(bool):  If True, delete calibrated image files.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_reductions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">calibrated_images</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data_reductions</span><span class="p">:</span>
+            <span class="n">patterns</span><span class="p">[</span><span class="s2">"data reduction"</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"data-reduction-fname"</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">calibrated_images</span><span class="p">:</span>
+            <span class="n">patterns</span><span class="p">[</span><span class="s2">"calibrated image"</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"calibrated-fname"</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">patterns</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">kind</span><span class="p">:</span> <span class="n">pat</span> <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">patterns</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No filename configuration found for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">raw_fnames</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+        <span class="n">channel_names</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">CameraChannel</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">raw_fname</span> <span class="ow">in</span> <span class="n">raw_fnames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">raw_fname</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Raw FITS file missing, skipping: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">raw_fname</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">raw_fname</span><span class="p">)</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">"PROJHOME"</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_home</span>
+        <span class="n">base_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">raw_fname</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">".fz"</span><span class="p">,</span> <span class="s2">".fits"</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">base_fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">):</span>
+                <span class="n">base_fname</span> <span class="o">=</span> <span class="n">base_fname</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">ext</span><span class="p">)]</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">"RAWFNAME"</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_fname</span>
+
+        <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">channel_name</span> <span class="ow">in</span> <span class="n">channel_names</span><span class="p">:</span>
+                <span class="n">header</span><span class="p">[</span><span class="s2">"CLRCHNL"</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_name</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">product_fname</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">"Raw FITS header missing keyword required to "</span>
+                        <span class="s2">"find </span><span class="si">%s</span><span class="s2">, skipping </span><span class="si">%s</span><span class="s2"> channel </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                        <span class="n">kind</span><span class="p">,</span>
+                        <span class="n">raw_fname</span><span class="p">,</span>
+                        <span class="n">channel_name</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">product_fname</span><span class="p">):</span>
+                    <span class="n">_safe_remove</span><span class="p">(</span><span class="n">product_fname</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Deleted </span><span class="si">%s</span><span class="s2"> file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">product_fname</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_pattern_to_glob">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views._pattern_to_glob">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pattern_to_glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">known_values</span><span class="p">,</span> <span class="n">project_home</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Convert a filename pattern to glob by substituting unknown keys with ``*``.</span>
+
+<span class="sd">    Known keys are replaced with their values from *known_values*; all</span>
+<span class="sd">    remaining ``{key}`` or ``{key:spec}`` placeholders are replaced with</span>
+<span class="sd">    ``*``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pattern(str):       A Python format string with named placeholders.</span>
+
+<span class="sd">        known_values(dict): Mapping of placeholder names to their values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str:  A glob pattern suitable for :func:`glob.iglob`.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"key"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">known_values</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">known_values</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">"*"</span>
+
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\{(?P&lt;key&gt;\w+)(?::[^}]*)?\}"</span><span class="p">,</span> <span class="n">_replace</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pattern</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_master_files">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_master_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_master_files</span><span class="p">(</span><span class="n">project_home</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Delete all master files generated by the project at *project_home*.</span>
+
+<span class="sd">    Queries the ``master_file`` table for every entry and removes the</span>
+<span class="sd">    corresponding file from disk.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_home(str):  Absolute path to the project home directory.</span>
+<span class="sd">    """</span>
+
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">masters</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">MasterType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MasterType</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">extra_patterns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">"master-photref-fname-format"</span><span class="p">,</span>
+            <span class="s2">"magfit-stat-fname-format"</span><span class="p">,</span>
+            <span class="s2">"astrometry-catalog"</span><span class="p">,</span>
+            <span class="s2">"photometry-catalog"</span><span class="p">,</span>
+            <span class="s2">"magfit-catalog"</span><span class="p">,</span>
+            <span class="s2">"lc-catalog"</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">param_name</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">pattern</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">extra_patterns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+
+    <span class="n">known</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"PROJHOME"</span><span class="p">:</span> <span class="n">project_home</span><span class="p">,</span> <span class="s2">"project_home"</span><span class="p">:</span> <span class="n">project_home</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">extra_patterns</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">iglob</span><span class="p">(</span><span class="n">_pattern_to_glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">known</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+                <span class="n">_safe_remove</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Deleted master file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">master_fname</span><span class="p">,</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="n">masters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">master_fname</span><span class="p">):</span>
+            <span class="n">_safe_remove</span><span class="p">(</span><span class="n">master_fname</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Deleted </span><span class="si">%s</span><span class="s2"> master file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">master_type</span><span class="p">,</span> <span class="n">master_fname</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_logs">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.delete_logs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_logs</span><span class="p">(</span><span class="n">project_home</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Delete all log and stdout/stderr output files for a project.</span>
+
+<span class="sd">    Reads the ``logging-fname`` and ``std-out-err-fname`` configuration</span>
+<span class="sd">    parameters from the project database, converts the patterns to globs</span>
+<span class="sd">    by substituting unknown placeholders with ``*``, and removes all</span>
+<span class="sd">    matching files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_home(str):  Absolute path to the project home directory.</span>
+<span class="sd">    """</span>
+
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">log_pattern</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"logging-fname"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">outerr_pattern</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Parameter</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"std-out-err-fname"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">parent_pids</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">PipelineRun</span><span class="o">.</span><span class="n">process_id</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="n">known</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"project_home"</span><span class="p">:</span> <span class="n">project_home</span><span class="p">}</span>
+    <span class="n">glob_patterns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">(</span><span class="n">log_pattern</span><span class="p">,</span> <span class="n">outerr_pattern</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">pattern</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">base_glob</span> <span class="o">=</span> <span class="n">_pattern_to_glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">known</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+        <span class="n">glob_patterns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_glob</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">parent_pids</span><span class="p">:</span>
+            <span class="n">glob_patterns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">base_glob</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">pid</span><span class="p">),</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_glob</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">glob_patterns</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No log filename configuration found for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">glob_pattern</span> <span class="ow">in</span> <span class="n">glob_patterns</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">iglob</span><span class="p">(</span><span class="n">glob_pattern</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+                <span class="n">_safe_remove</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="n">project_home</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Deleted log file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="prune_empty_directories">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.prune_empty_directories">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">prune_empty_directories</span><span class="p">(</span><span class="n">project_home</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Remove all empty directories under *project_home*.</span>
+
+<span class="sd">    Walks the directory tree bottom-up so that a parent directory is checked</span>
+<span class="sd">    only after its children have already been removed if they were empty.</span>
+<span class="sd">    The *project_home* directory itself is never removed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_home(str):  Absolute path to the project home directory.</span>
+<span class="sd">    """</span>
+
+    <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">_dirnames</span><span class="p">,</span> <span class="n">_filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirpath</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Removed empty directory: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">dirpath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_missing_databases">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.find_missing_databases">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_missing_databases</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Return projects whose database is not accessible.</span>
+
+<span class="sd">    A project's database is considered present when either its SQLite file</span>
+<span class="sd">    (``autowisp.db``) or its centralised-DB connection file</span>
+<span class="sd">    (``autowisp_db.url``) exists under the project home directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[Project]:  Projects for which neither database indicator exists.</span>
+<span class="sd">    """</span>
+
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">sqlite_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">"autowisp.db"</span><span class="p">)</span>
+        <span class="n">url_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">DB_URL_FNAME</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">sqlite_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span>
+            <span class="n">url_file_path</span>
+        <span class="p">):</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">missing</span></div>
+
+
+
+<div class="viewcode-block" id="select_project">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.select_project">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">select_project</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">project_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Redirect to the processing progress page for the selected project."""</span>
+
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">project_id</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+
+    <span class="c1"># Selection is the one moment a single process is known to be in charge of</span>
+    <span class="c1"># this project, so it is where any pending schema migration runs. Every</span>
+    <span class="c1"># later request only checks, via the project middleware.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">migration</span> <span class="o">=</span> <span class="n">set_project_home</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">migrate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">DatabaseError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="c1"># Typically a centralised database, which refuses to migrate without</span>
+        <span class="c1"># a confirmed backup. Leave the project unselected and say why.</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"home:home"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">migration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">migration</span><span class="p">[</span><span class="s2">"from"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">migration</span><span class="p">[</span><span class="s2">"to"</span><span class="p">]:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Updated the project database from </span><span class="si">{</span><span class="n">migration</span><span class="p">[</span><span class="s1">'from'</span><span class="p">]</span><span class="si">}</span><span class="s2"> to "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">migration</span><span class="p">[</span><span class="s1">'to'</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
+            <span class="o">+</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">" Previous version saved as </span><span class="si">{</span><span class="n">migration</span><span class="p">[</span><span class="s1">'backup'</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
+                <span class="k">if</span> <span class="n">migration</span><span class="p">[</span><span class="s2">"backup"</span><span class="p">]</span>
+                <span class="k">else</span> <span class="s2">""</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"project_home"</span><span class="p">]</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">path</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"project_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"processing:progress"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="reset_project_config">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.reset_project_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reset_project_config</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Reset the configuration of project being created to defaults."""</span>
+
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"home:new_project"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="export_master_config">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.home.views.html#autowisp.browser_interface.home.views.export_master_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export_master_config</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Generate a JSON file with the current master config for new project."""</span>
+
+    <span class="n">master_config</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="n">master_info</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"highflat"</span><span class="p">,</span> <span class="s2">"lowflat"</span><span class="p">]:</span>
+            <span class="n">master_type</span> <span class="o">=</span> <span class="s2">"flat"</span>
+        <span class="n">master_config</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">param</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="sa">f</span><span class="s2">"master-</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">"enabled"</span>
+                <span class="k">else</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="nb">filter</span><span class="p">(</span>
+                        <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="sa">f</span><span class="s2">"master-</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"enabled"</span><span class="p">,</span> <span class="s2">"split"</span><span class="p">,</span> <span class="s2">"match"</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="k">with</span> <span class="n">StringIO</span><span class="p">()</span> <span class="k">as</span> <span class="n">export_stream</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">master_config</span><span class="p">,</span> <span class="n">export_stream</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
+            <span class="n">export_stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">),</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span>
+                <span class="s2">"Content-Disposition"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s1">'attachment; filename="master_config.json"'</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

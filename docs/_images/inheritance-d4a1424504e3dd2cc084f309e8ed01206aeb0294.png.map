@@ -1,0 +1,8 @@
+<map id="inheritanceb9f2b53c5a" name="inheritanceb9f2b53c5a">
+<area shape="rect" id="node1" title="Test case involving floating point comparisons." alt="" coords="147,79,416,104"/>
+<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="160,152,403,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="197,5,365,31"/>
+<area shape="rect" id="node5" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase" target="_top" title="Add assert for comparing groups in HDF5 files." alt="" coords="138,225,425,251"/>
+<area shape="rect" id="node4" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase" target="_top" title="H5TestCase aware of row&#45;order ambiguity in SourceExtraction groups." alt="" coords="138,299,425,324"/>
+<area shape="rect" id="node6" href="#autowisp.tests.test_fit_source_extracted_psf_map.TestFitSourceExtractedPSFMap" target="_top" title="Tests of the fit_source_extracted_psf_map step." alt="" coords="5,372,557,397"/>
+</map>

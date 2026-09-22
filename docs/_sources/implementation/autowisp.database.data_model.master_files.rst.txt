@@ -1,7 +1,0 @@
-autowisp.database.data\_model.master\_files module
-==================================================
-
-.. automodule:: autowisp.database.data_model.master_files
-   :members:
-   :undoc-members:
-   :show-inheritance:

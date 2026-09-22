@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.data_reduction.source_extracted_psf_map module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,19 +172,19 @@
 <span id="autowisp-data-reduction-source-extracted-psf-map-module"></span><h1>autowisp.data_reduction.source_extracted_psf_map module<a class="headerlink" href="#module-autowisp.data_reduction.source_extracted_psf_map" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-f9e9bb40b87ebe6bc83accf7022920471bf5999e.png" alt="Inheritance diagram of FitTermsInterface, SourceExtractedPSFMap" usemap="#inheritance4b7c09645c" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-f5435fb1390433a88ca386a86966460973f0232a.png" alt="Inheritance diagram of FitTermsInterface, SourceExtractedPSFMap" usemap="#inheritance4b7c09645c" class="inheritance graphviz" /></div>
 <map id="inheritance4b7c09645c" name="inheritance4b7c09645c">
-<area shape="rect" id="node1" href="#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" target="_top" title="Evaluate smoothed PSF maps based on source extraction." alt="" coords="5,5,481,32"/>
-<area shape="rect" id="node2" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="505,5,773,32"/>
+<area shape="rect" id="node1" href="#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" target="_top" title="Evaluate smoothed PSF maps based on source extraction." alt="" coords="5,5,528,31"/>
+<area shape="rect" id="node2" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="553,5,853,31"/>
 </map><p>Define callable class representing PSF maps from source extraction.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.data_reduction.source_extracted_psf_map.</span></span><span class="sig-name descname"><span class="pre">SourceExtractedPSFMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psf_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terms_expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/source_extracted_psf_map.html#SourceExtractedPSFMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.data_reduction.source_extracted_psf_map.</span></span><span class="sig-name descname"><span class="pre">SourceExtractedPSFMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psf_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terms_expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/data_reduction/source_extracted_psf_map.html#SourceExtractedPSFMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-36e34cbb73cf67be7fbdc8500842cd09cabf23e6.png" alt="Inheritance diagram of autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" usemap="#inheritance167ebe0def" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-68ef224465db66b6c8ecd6eddfbcace81b5f192d.png" alt="Inheritance diagram of autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" usemap="#inheritance167ebe0def" class="inheritance graphviz" /></div>
 <map id="inheritance167ebe0def" name="inheritance167ebe0def">
-<area shape="rect" id="node1" href="#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" target="_top" title="Evaluate smoothed PSF maps based on source extraction." alt="" coords="5,5,481,32"/>
+<area shape="rect" id="node1" href="#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" target="_top" title="Evaluate smoothed PSF maps based on source extraction." alt="" coords="5,5,528,31"/>
 </map><p>Evaluate smoothed PSF maps based on source extraction.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap.__call__">

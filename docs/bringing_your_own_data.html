@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bringing your own data &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -345,8 +345,8 @@ that happened to suit the cameras it was first used with:</p>
 <p>An expression is not limited to naming a keyword. It is ordinary Python
 evaluated with the header keywords as variables, so anything you can
 compute from them is available. These are all from a working project:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">exposure</span><span class="o">-</span><span class="n">start</span><span class="o">-</span><span class="n">utc</span> <span class="o">=</span> <span class="n">IMAGEID</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">mount</span><span class="o">-</span><span class="n">serial</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="n">SEQID</span><span class="p">[</span><span class="n">SEQID</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;PAN&#39;</span><span class="p">):</span><span class="n">SEQID</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;PAN&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">exposure</span><span class="o">-</span><span class="n">start</span><span class="o">-</span><span class="n">utc</span> <span class="o">=</span> <span class="n">IMAGEID</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">mount</span><span class="o">-</span><span class="n">serial</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="n">SEQID</span><span class="p">[</span><span class="n">SEQID</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'PAN'</span><span class="p">):</span><span class="n">SEQID</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'PAN'</span><span class="p">)</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
 <span class="n">observatory</span><span class="o">-</span><span class="n">location</span> <span class="o">=</span> <span class="p">[</span><span class="n">LAT_OBS</span><span class="p">,</span> <span class="n">LONG_OBS</span><span class="p">,</span> <span class="n">ELEV_OBS</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -366,12 +366,12 @@ to do. You can switch it off by having the expression ignore the header
 and return a fixed string, which then only has to agree with the name you
 gave that device in the survey. In the browser interface, type the name
 into the field <em>with quotes around it</em>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;my camera&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">'my camera'</span>
 </pre></div>
 </div>
 <p>Writing it in a configuration file instead takes two sets of quotes, one
 of which is stripped when the file is read:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">camera</span><span class="o">-</span><span class="n">serial</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="s2">&quot;&#39;my camera&#39;&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">camera</span><span class="o">-</span><span class="n">serial</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="s2">"'my camera'"</span>
 </pre></div>
 </div>
 <p>The quotes are not decorations. These settings are expressions, not

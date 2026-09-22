@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.light_curves.epd_correction &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.light_curves.epd_correction</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define class for performing EPD correction on lightcurves.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define class for performing EPD correction on lightcurves."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">repeat</span>
@@ -190,7 +190,7 @@
 <div class="viewcode-block" id="EPDCorrection">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EPDCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for deriving and applying EPD corrections to lightcurves.</span>
 
 <span class="sd">    Attributes:</span>
@@ -207,27 +207,27 @@
 <span class="sd">            fitting. Formatted properly for passing as the only entry</span>
 <span class="sd">            directly to LightCurveFile.add_configurations().</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="EPDCorrection._get_fit_configurations">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection._get_fit_configurations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_fit_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_terms_expression</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current fitting configurations (see self._fit_config).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the current fitting configurations (see self._fit_config)."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">format_substitutions</span><span class="p">(</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return a string of `var=value` containing the given subs dict.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return a string of `var=value` containing the given subs dict."""</span>
 
-            <span class="k">return</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">substitutions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">return</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">substitutions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">)</span>
 
-        <span class="n">fit_variables_str</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">fit_variables_str</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">dataset_key</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">format_substitutions</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">dataset_key</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">format_substitutions</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="p">(</span>
                     <span class="n">dataset_key</span><span class="p">,</span>
@@ -239,7 +239,7 @@
         <span class="k">for</span> <span class="n">fit_target</span><span class="p">,</span> <span class="n">fit_weights</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fit_datasets</span><span class="p">,</span>
             <span class="p">(</span>
-                <span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_weights</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_weights</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="k">if</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">fit_weights</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_weights</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
@@ -251,24 +251,24 @@
             <span class="n">pipeline_key_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_key_prefix</span><span class="p">(</span><span class="n">fit_target</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_points_filter_expression</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">point_filter</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+                <span class="n">point_filter</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">""</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">point_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_points_filter_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+                <span class="n">point_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_points_filter_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
 
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="p">(</span>
-                        <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;variables&quot;</span><span class="p">,</span>
-                        <span class="n">fit_variables_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+                        <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">"variables"</span><span class="p">,</span>
+                        <span class="n">fit_variables_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">),</span>
                     <span class="p">),</span>
-                    <span class="p">(</span><span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;fit_filter&quot;</span><span class="p">,</span> <span class="n">point_filter</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">"fit_filter"</span><span class="p">,</span> <span class="n">point_filter</span><span class="p">),</span>
                     <span class="p">(</span>
-                        <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;fit_terms&quot;</span><span class="p">,</span>
-                        <span class="n">fit_terms_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+                        <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">"fit_terms"</span><span class="p">,</span>
+                        <span class="n">fit_terms_expression</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">),</span>
                     <span class="p">),</span>
                     <span class="p">(</span>
-                        <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;fit_weights&quot;</span><span class="p">,</span>
-                        <span class="n">fit_weights</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+                        <span class="n">pipeline_key_prefix</span> <span class="o">+</span> <span class="s2">"fit_weights"</span><span class="p">,</span>
+                        <span class="n">fit_weights</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">),</span>
                     <span class="p">),</span>
                 <span class="p">]</span>
                 <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_io_iterative_fit_config</span><span class="p">(</span><span class="n">pipeline_key_prefix</span><span class="p">)</span>
@@ -289,7 +289,7 @@
         <span class="n">fit_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">,</span>
     <span class="p">):</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Configure the fitting.</span>
 
 <span class="sd">        Args:</span>
@@ -323,7 +323,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fit_datasets</span><span class="p">,</span> <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">)</span>
 
@@ -343,7 +343,7 @@
         <span class="n">extra_predictors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>  <span class="c1"># pylint: disable=too-many-locals</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Fit and correct the given lightcurve.</span>
 
 <span class="sd">        Args:</span>
@@ -374,26 +374,26 @@
 <span class="sd">                final one during reconstructive EPD.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            numpy.array(dtype=[(&#39;rms&#39;, float64), (&#39;num_finite&#39;, uint)]):</span>
+<span class="sd">            numpy.array(dtype=[('rms', float64), ('num_finite', uint)]):</span>
 <span class="sd">                The RMS of the corrected values and the number of finite points</span>
 <span class="sd">                for each corrected dataset in the order in which the datasets</span>
 <span class="sd">                were supplied to __init__().</span>
 
 <span class="sd">            numpy.array(dtype=[(extra predictor 1, numpy.float64), ...]):</span>
 <span class="sd">                The best-fit amplitudes for the `extra_predictors`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">prepare_fit</span><span class="p">(</span><span class="n">extra_predictor_order</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return predictors, weights, and array flagging points to fit.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return predictors, weights, and array flagging points to fit."""</span>
 
             <span class="n">lc_variables</span> <span class="o">=</span> <span class="n">light_curve</span><span class="o">.</span><span class="n">read_data_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">used_variables</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Creating evaluator from:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_variables</span><span class="p">)</span>
+                <span class="s2">"Creating evaluator from:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_variables</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">evaluate</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">lc_variables</span><span class="p">)</span>
 
             <span class="n">predictors</span> <span class="o">=</span> <span class="n">FitTermsInterface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_terms_expression</span><span class="p">)(</span><span class="n">evaluate</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Predictors:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Predictors:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">extra_predictors</span><span class="p">:</span>
                 <span class="n">predictors</span> <span class="o">=</span> <span class="n">recfunctions</span><span class="o">.</span><span class="n">append_fields</span><span class="p">(</span>
@@ -412,7 +412,7 @@
                 <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Fit points (</span><span class="si">%s</span><span class="s2">): </span><span class="si">%d</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Fit points (</span><span class="si">%s</span><span class="s2">): </span><span class="si">%d</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fit_points_filter_expression</span><span class="p">,</span>
                 <span class="n">fit_points</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                 <span class="nb">repr</span><span class="p">(</span><span class="n">fit_points</span><span class="p">),</span>
@@ -443,7 +443,7 @@
             <span class="n">result</span><span class="p">,</span>
             <span class="n">num_extra_predictors</span><span class="p">,</span>
         <span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Calculate and apply EPD correction to a single dataset.</span>
 
 <span class="sd">            Args:</span>
@@ -470,7 +470,7 @@
 
 <span class="sd">            Returns:</span>
 <span class="sd">                None</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
 
             <span class="n">raw_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fit_data</span><span class="p">(</span>
                 <span class="n">light_curve</span><span class="p">,</span> <span class="n">get_fit_dataset</span><span class="p">,</span> <span class="n">fit_target</span><span class="p">,</span> <span class="n">fit_points</span>
@@ -481,7 +481,7 @@
                 <span class="n">fit_data</span> <span class="o">=</span> <span class="n">raw_values</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Fit data contains </span><span class="si">%d</span><span class="s2"> NaNs, </span><span class="si">%d</span><span class="s2"> non finites, and </span><span class="si">%d</span><span class="s2"> negatives&quot;</span><span class="p">,</span>
+                <span class="s2">"Fit data contains </span><span class="si">%d</span><span class="s2"> NaNs, </span><span class="si">%d</span><span class="s2"> non finites, and </span><span class="si">%d</span><span class="s2"> negatives"</span><span class="p">,</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">fit_data</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                 <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fit_data</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
                 <span class="p">(</span><span class="n">fit_data</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
@@ -512,20 +512,20 @@
             <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
                 <span class="n">num_filter_matching_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fit_points</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;EPD fit for </span><span class="si">%r</span><span class="s2"> fit_index=</span><span class="si">%d</span><span class="s2">: filter matched </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;points; fit point indices: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"EPD fit for </span><span class="si">%r</span><span class="s2"> fit_index=</span><span class="si">%d</span><span class="s2">: filter matched </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2"> "</span>
+                    <span class="s2">"points; fit point indices: </span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">light_curve</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
                     <span class="n">fit_index</span><span class="p">,</span>
                     <span class="n">num_filter_matching_points</span><span class="p">,</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">fit_points</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
                     <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">fit_points</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
                 <span class="p">)</span>
-                <span class="n">property_key_prefix</span> <span class="o">=</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">property_key_prefix</span> <span class="o">=</span> <span class="n">fit_target</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">extended_configuration</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_io_fit_config</span><span class="p">[</span><span class="n">fit_index</span><span class="p">]</span>
                 <span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
                     <span class="p">(</span>
-                        <span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.num_filter_matching_points&quot;</span><span class="p">,</span>
+                        <span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">".num_filter_matching_points"</span><span class="p">,</span>
                         <span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">(</span><span class="n">num_filter_matching_points</span><span class="p">),</span>
                     <span class="p">),</span>
                 <span class="p">]</span>
@@ -544,7 +544,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">num_extra_predictors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_predictors</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">"r+"</span><span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
                 <span class="n">shape</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -580,10 +580,10 @@
                         <span class="c1"># diagnostics. As an EPDError it travels back from a</span>
                         <span class="c1"># worker faithfully without a stringify workaround.</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
-                            <span class="s2">&quot;EPD failed for </span><span class="si">%r</span><span class="s2"> dataset of </span><span class="si">%r</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;Predictors:</span><span class="se">\n</span><span class="si">%r</span><span class="se">\n</span><span class="s2">fit_points:</span><span class="se">\n</span><span class="si">%r</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;fit_weights:</span><span class="se">\n</span><span class="si">%r</span><span class="se">\n</span><span class="s2">fit_index: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;num_extra_predictors: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">"EPD failed for </span><span class="si">%r</span><span class="s2"> dataset of </span><span class="si">%r</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"Predictors:</span><span class="se">\n</span><span class="si">%r</span><span class="se">\n</span><span class="s2">fit_points:</span><span class="se">\n</span><span class="si">%r</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"fit_weights:</span><span class="se">\n</span><span class="si">%r</span><span class="se">\n</span><span class="s2">fit_index: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"num_extra_predictors: </span><span class="si">%d</span><span class="s2">"</span><span class="p">,</span>
                             <span class="n">to_fit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                             <span class="n">lc_fname</span><span class="p">,</span>
                             <span class="n">predictors</span><span class="p">,</span>
@@ -594,19 +594,19 @@
                             <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="p">)</span>
                         <span class="k">raise</span> <span class="n">EPDError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;EPD failed for </span><span class="si">{</span><span class="n">to_fit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> dataset of &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lc_fname</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"EPD failed for </span><span class="si">{</span><span class="n">to_fit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> dataset of "</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lc_fname</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span>
                             <span class="n">details</span><span class="o">=</span><span class="p">{</span>
-                                <span class="s2">&quot;lc_fname&quot;</span><span class="p">:</span> <span class="n">lc_fname</span><span class="p">,</span>
-                                <span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="n">to_fit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="s2">&quot;fit_index&quot;</span><span class="p">:</span> <span class="n">fit_index</span><span class="p">,</span>
-                                <span class="s2">&quot;num_extra_predictors&quot;</span><span class="p">:</span> <span class="n">num_extra_predictors</span><span class="p">,</span>
+                                <span class="s2">"lc_fname"</span><span class="p">:</span> <span class="n">lc_fname</span><span class="p">,</span>
+                                <span class="s2">"dataset"</span><span class="p">:</span> <span class="n">to_fit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="s2">"fit_index"</span><span class="p">:</span> <span class="n">fit_index</span><span class="p">,</span>
+                                <span class="s2">"num_extra_predictors"</span><span class="p">:</span> <span class="n">num_extra_predictors</span><span class="p">,</span>
                             <span class="p">},</span>
                         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No points to fit in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No points to fit in </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">))</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">mark_progress</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">light_curve</span><span class="p">[</span><span class="s2">&quot;Identifiers&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mark_progress</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">light_curve</span><span class="p">[</span><span class="s2">"Identifiers"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">result</span></div>
 </div>
 

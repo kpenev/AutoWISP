@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fit_expression.evaluate_terms_visitor module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,27 +172,27 @@
 <span id="autowisp-fit-expression-evaluate-terms-visitor-module"></span><h1>autowisp.fit_expression.evaluate_terms_visitor module<a class="headerlink" href="#module-autowisp.fit_expression.evaluate_terms_visitor" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-74f8504ecb2aa1e1245cd2c3bcf898be9c433894.png" alt="Inheritance diagram of EvaluateTermsVisitor, Evaluator, FitTermsParser, ProcessTermsVisitor" usemap="#inheritance7badd97aae" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-0acaabec873c66a925ffd0b8f663f833ed62feeb.png" alt="Inheritance diagram of EvaluateTermsVisitor, Evaluator, FitTermsParser, ProcessTermsVisitor" usemap="#inheritance7badd97aae" class="inheritance graphviz" /></div>
 <map id="inheritance7badd97aae" name="inheritance7badd97aae">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="70,80,144,107"/>
-<area shape="rect" id="node11" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor" target="_top" title="Base visitor class for processing individual terms in fit terms expressions." alt="" coords="8,155,424,181"/>
-<area shape="rect" id="node8" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser" target="_top" title="autowisp.fit_expression.FitTermsParser.FitTermsParser" alt="" coords="557,155,902,181"/>
-<area shape="rect" id="node9" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" target="_top" title="autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" alt="" coords="168,80,586,107"/>
-<area shape="rect" id="node7" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="910,80,1130,107"/>
-<area shape="rect" id="node6" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="925,155,1115,181"/>
-<area shape="rect" id="node10" href="#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" target="_top" title="Visitor to parsed fit terms expression evaluating all terms." alt="" coords="5,229,427,256"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="85,79,161,104"/>
+<area shape="rect" id="node11" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor" target="_top" title="Base visitor class for processing individual terms in fit terms expressions." alt="" coords="12,152,469,177"/>
+<area shape="rect" id="node8" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser" target="_top" title="autowisp.fit_expression.FitTermsParser.FitTermsParser" alt="" coords="610,152,983,177"/>
+<area shape="rect" id="node9" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" target="_top" title="autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" alt="" coords="185,79,643,104"/>
+<area shape="rect" id="node7" href="autowisp.evaluator.html#autowisp.evaluator.EvaluatorBase" target="_top" title="Asteval interpreter with the symbols all AutoWISP expressions share." alt="" coords="992,79,1236,104"/>
+<area shape="rect" id="node6" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1008,152,1220,177"/>
+<area shape="rect" id="node10" href="#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" target="_top" title="Visitor to parsed fit terms expression evaluating all terms." alt="" coords="5,225,476,251"/>
 </map><p>Implement visitor to parsed fit terms expression that evaluates all terms.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.fit_expression.evaluate_terms_visitor.</span></span><span class="sig-name descname"><span class="pre">EvaluateTermsVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/fit_expression/evaluate_terms_visitor.html#EvaluateTermsVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.fit_expression.evaluate_terms_visitor.</span></span><span class="sig-name descname"><span class="pre">EvaluateTermsVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/fit_expression/evaluate_terms_visitor.html#EvaluateTermsVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor" title="autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessTermsVisitor</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-6967d85bfa4f97b0f74d1e914f66c87e0dadd342.png" alt="Inheritance diagram of autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" usemap="#inheritance5f7acbe6f1" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-4093093c3ca55b2a9dbdbb77d30050173e20cdf6.png" alt="Inheritance diagram of autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" usemap="#inheritance5f7acbe6f1" class="inheritance graphviz" /></div>
 <map id="inheritance5f7acbe6f1" name="inheritance5f7acbe6f1">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="44,80,118,107"/>
-<area shape="rect" id="node5" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor" target="_top" title="Base visitor class for processing individual terms in fit terms expressions." alt="" coords="8,155,424,181"/>
-<area shape="rect" id="node3" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" target="_top" title="autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" alt="" coords="143,80,561,107"/>
-<area shape="rect" id="node4" href="#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" target="_top" title="Visitor to parsed fit terms expression evaluating all terms." alt="" coords="5,229,427,256"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="57,79,133,104"/>
+<area shape="rect" id="node5" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor" target="_top" title="Base visitor class for processing individual terms in fit terms expressions." alt="" coords="12,152,469,177"/>
+<area shape="rect" id="node3" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" target="_top" title="autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor" alt="" coords="157,79,615,104"/>
+<area shape="rect" id="node4" href="#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor" target="_top" title="Visitor to parsed fit terms expression evaluating all terms." alt="" coords="5,225,476,251"/>
 </map><p>Visitor to parsed fit terms expression evaluating all terms.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.__init__">

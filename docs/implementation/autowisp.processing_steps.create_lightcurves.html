@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.processing_steps.create_lightcurves module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -172,37 +172,37 @@
 <span id="autowisp-processing-steps-create-lightcurves-module"></span><h1>autowisp.processing_steps.create_lightcurves module<a class="headerlink" href="#module-autowisp.processing_steps.create_lightcurves" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-e752c0705b7dd5052a4aff348b1f2b786a48e1ac.png" alt="Inheritance diagram of Component, DataReductionFile, DecodingStringFormatter, FileKind, Interpreter, LightCurveFile, ManualStepArgumentParser, MasterCatalog, RelatedFile, Table" usemap="#inheritancef5d681357c" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-f5ba64b4b1d51f2be34af0c7797e8f1a28c22ebe.png" alt="Inheritance diagram of Component, DataReductionFile, DecodingStringFormatter, FileKind, Interpreter, LightCurveFile, ManualStepArgumentParser, MasterCatalog, RelatedFile, Table" usemap="#inheritancef5d681357c" class="inheritance graphviz" /></div>
 <map id="inheritancef5d681357c" name="inheritancef5d681357c">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
-<area shape="rect" id="node7" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
-<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="976,5,1145,32"/>
-<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
-<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
-<area shape="rect" id="node15" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
-<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1283,80,1494,107"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1552,5,1643,32"/>
-<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1518,80,1709,107"/>
-<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1667,5,1878,32"/>
-<area shape="rect" id="node13" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="1750,80,2165,107"/>
-<area shape="rect" id="node14" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="1901,5,2014,32"/>
-<area shape="rect" id="node16" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="2038,5,2416,32"/>
-<area shape="rect" id="node17" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="852,155,1268,181"/>
-<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="596,80,767,107"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="601,155,762,181"/>
-<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="434,5,580,32"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="604,5,759,32"/>
-<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="783,5,951,32"/>
-<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="467,229,675,256"/>
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="331,445,407,471"/>
+<area shape="rect" id="node7" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="331,519,535,544"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="1073,5,1259,31"/>
+<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,665,439,691"/>
+<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="205,592,660,617"/>
+<area shape="rect" id="node15" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="463,665,827,691"/>
+<area shape="rect" id="node8" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1410,79,1645,104"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1708,5,1808,31"/>
+<area shape="rect" id="node10" href="autowisp.exceptions.html#autowisp.exceptions.FileKind" target="_top" title="The sort of file a :class:`RelatedFile` points at." alt="" coords="1668,79,1880,104"/>
+<area shape="rect" id="node11" href="autowisp.exceptions.html#autowisp.exceptions.RelatedFile" target="_top" title="A file the error is about (input, output, or intermediate)." alt="" coords="1832,5,2065,31"/>
+<area shape="rect" id="node13" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="1921,79,2385,104"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="2089,5,2216,31"/>
+<area shape="rect" id="node16" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="2240,5,2660,31"/>
+<area shape="rect" id="node17" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="935,152,1397,177"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="657,79,845,104"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="662,152,841,177"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="481,5,640,31"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="665,5,838,31"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="862,5,1049,31"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="514,225,746,251"/>
 </map><p>Create light curves from a collection of DR files.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.MasterCatalog">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">MasterCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#MasterCatalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">MasterCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#MasterCatalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-4c02a324673685b49ece662bb61ed973feb5fd6c.png" alt="Inheritance diagram of autowisp.processing_steps.create_lightcurves.MasterCatalog" usemap="#inheritance9bc6c0f694" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-b5dc73077f902297675d23e04eeb57e5f98a8785.png" alt="Inheritance diagram of autowisp.processing_steps.create_lightcurves.MasterCatalog" usemap="#inheritance9bc6c0f694" class="inheritance graphviz" /></div>
 <map id="inheritance9bc6c0f694" name="inheritance9bc6c0f694">
-<area shape="rect" id="node1" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="5,5,384,32"/>
+<area shape="rect" id="node1" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="5,5,425,31"/>
 </map><p>Class for managing the master catalog for LC creation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.MasterCatalog.__init__">
@@ -263,7 +263,7 @@ catalog query settings.</p></li>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.allowed_interrupted_status_values">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">allowed_interrupted_status_values</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">1)</span></em><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.allowed_interrupted_status_values" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">allowed_interrupted_status_values</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">1)</span></span><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.allowed_interrupted_status_values" title="Link to this definition"></a></dt>
 <dd><p>Unlike the steps that only ever record “started”, lightcurve creation
 adds the points (<code class="docutils literal notranslate"><span class="pre">0</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">1</span></code>) before marking the DR files final, so
 an interrupted run can be found in either state.</p>
@@ -271,7 +271,7 @@ an interrupted run can be found in either state.</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.allowed_start_status_values">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">allowed_start_status_values</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(1,)</span></em><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.allowed_start_status_values" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">allowed_start_status_values</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(1,)</span></span><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.allowed_start_status_values" title="Link to this definition"></a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">1</span></code> means a previous
 run got as far as adding the points but not marking the DR files final,
 so it only needs finishing off.</p>

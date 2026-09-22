@@ -3,5 +3,5 @@ autowisp.browser\_interface.diagnostics.forms module
 
 .. automodule:: autowisp.browser_interface.diagnostics.forms
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

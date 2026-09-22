@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.error_render module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -171,17 +171,15 @@
 <span id="autowisp-error-render-module"></span><h1>autowisp.error_render module<a class="headerlink" href="#module-autowisp.error_render" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-35f0f79a37f19a8c1ec0d19d41a5944fb38f9599.png" alt="Inheritance diagram of Component, Error, Image, MasterFile, PipelineRun" usemap="#inheritance6d8fce550d" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-36ccbb6711adf5091613e200275d0d9ba67c7f06.png" alt="Inheritance diagram of Component, Error, Image, MasterFile, PipelineRun" usemap="#inheritance6d8fce550d" class="inheritance graphviz" /></div>
 <map id="inheritance6d8fce550d" name="inheritance6d8fce550d">
-<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="434,304,765,331"/>
-<area shape="rect" id="node5" href="autowisp.database.data_model.error.html#autowisp.database.data_model.error.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="5,379,269,405"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="293,379,573,405"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="597,379,938,405"/>
-<area shape="rect" id="node8" href="autowisp.database.data_model.pipeline_run.html#autowisp.database.data_model.pipeline_run.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="963,379,1311,405"/>
-<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="618,229,971,256"/>
-<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="929,80,1140,107"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="989,5,1080,32"/>
-<area shape="rect" id="node13" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="742,5,847,32"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.html#autowisp.database.data_model.Error" target="_top" title="A persisted pipeline/step/BUI error." alt="" coords="5,372,300,397"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" target="_top" title="The table describing the image specified" alt="" coords="324,372,640,397"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="664,372,1047,397"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun" target="_top" title="The table tracking runs of the pipeline." alt="" coords="1071,372,1461,397"/>
+<area shape="rect" id="node9" href="autowisp.exceptions.html#autowisp.exceptions.Component" target="_top" title="Which broad part of AutoWISP an error belongs to." alt="" coords="1031,79,1266,104"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1099,5,1199,31"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="826,5,943,31"/>
 </map><p>Human-readable projections of a persisted <code class="xref py py-class docutils literal notranslate"><span class="pre">Error</span></code> record.</p>
 <p>The CLI and BUI never format an exception directly – they render the
 persisted <code class="docutils literal notranslate"><span class="pre">Error</span></code> row (and, on demand, its detail sidecar) through the
@@ -239,7 +237,7 @@ errors with no step (pipeline/BUI) are excluded.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_render.error_detail">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_render.</span></span><span class="sig-name descname"><span class="pre">error_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">developer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_render.html#error_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_render.error_detail" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_render.</span></span><span class="sig-name descname"><span class="pre">error_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">developer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_render.html#error_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_render.error_detail" title="Link to this definition"></a></dt>
 <dd><p>Return the full human view of an error row as a dict.</p>
 <p>Lazily loads the sidecar. With <code class="docutils literal notranslate"><span class="pre">developer=False</span></code> the result holds
 the user-facing fields (summary, message, artifact, and remediation
@@ -267,7 +265,7 @@ sidecar-backed fields are simply absent / empty).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.error_render.error_list_rows">
-<span class="sig-prename descclassname"><span class="pre">autowisp.error_render.</span></span><span class="sig-name descname"><span class="pre">error_list_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_run_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_render.html#error_list_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_render.error_list_rows" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.error_render.</span></span><span class="sig-name descname"><span class="pre">error_list_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_run_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/error_render.html#error_list_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.error_render.error_list_rows" title="Link to this definition"></a></dt>
 <dd><p>Return the rows for a list view, newest first, from inline columns.</p>
 <p>Reads only the queryable columns – never a sidecar – so a list view
 stays cheap regardless of how many errors there are.</p>

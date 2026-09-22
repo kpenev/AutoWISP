@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_detrending_stat &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_detrending_stat</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define Testt class for the EPD and TFA statistics genaration.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define Testt class for the EPD and TFA statistics genaration."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 
@@ -177,28 +177,28 @@
 <div class="viewcode-block" id="TestDetrendingStat">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestDetrendingStat</span><span class="p">(</span><span class="n">AutoWISPTestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests for the generate_(epd/tfa)_statistics steps.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Tests for the generate_(epd/tfa)_statistics steps."""</span>
 
 <div class="viewcode-block" id="TestDetrendingStat.run_test">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat.run_test">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the test for the given detrending mode (&quot;epd&quot; or &quot;tfa&quot;).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run the test for the given detrending mode ("epd" or "tfa")."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">([</span><span class="s2">&quot;LC&quot;</span><span class="p">,</span> <span class="s2">&quot;MASTERS/lc_catalog*.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;DR&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">([</span><span class="s2">"LC"</span><span class="p">,</span> <span class="s2">"MASTERS/lc_catalog*.fits"</span><span class="p">,</span> <span class="s2">"DR"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_step</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;wisp-generate-</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">-statistics&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;test.cfg&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LC&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"wisp-generate-</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">-statistics"</span><span class="p">,</span>
+                <span class="s2">"-c"</span><span class="p">,</span>
+                <span class="s2">"test.cfg"</span><span class="p">,</span>
+                <span class="s2">"LC"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">generated</span><span class="p">,</span> <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s2">&quot;MASTERS&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">_statistics.txt&quot;</span><span class="p">),</span>
-                <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span>
-                <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;ID&quot;</span><span class="p">)</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s2">"MASTERS"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">_statistics.txt"</span><span class="p">),</span>
+                <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span>
+                <span class="n">index_col</span><span class="o">=</span><span class="s2">"ID"</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">"ID"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="p">[</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">processing_directory</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">test_directory</span><span class="p">,</span>
@@ -207,24 +207,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertApproxPandas</span><span class="p">(</span>
             <span class="n">expected</span><span class="p">,</span>
             <span class="n">generated</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> statistics&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> statistics"</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDetrendingStat.test_generate_epd_statistics">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat.test_generate_epd_statistics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_generate_epd_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test the generation of EPD statistics.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Test the generation of EPD statistics."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span><span class="s2">&quot;epd&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span><span class="s2">"epd"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestDetrendingStat.test_generate_tfa_statistics">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat.test_generate_tfa_statistics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_generate_tfa_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test the generation of TFA statistics.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Test the generation of TFA statistics."""</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span><span class="s2">&quot;tfa&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">(</span><span class="s2">"tfa"</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.tests.test_diagnostic_types &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -165,14 +165,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.tests.test_diagnostic_types</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tests for the diagnostic vocabulary.</span>
+<span></span><span class="sd">"""Tests for the diagnostic vocabulary.</span>
 
 <span class="sd">The catalogue was moved out of ``_init_diagnostic_types()`` so that an</span>
 <span class="sd">expression can be validated without opening a project.  The risk that</span>
 <span class="sd">creates is drift: the seeder and the catalogue are now two things that</span>
 <span class="sd">must agree, where before they were one.  :class:`TestSeeding` is the test</span>
 <span class="sd">that keeps them honest, and is the reason the rest of this file exists.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
@@ -197,15 +197,15 @@
 <div class="viewcode-block" id="TestCatalogue">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestCatalogue</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The shape and content of the static catalogue.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The shape and content of the static catalogue."""</span>
 
 <div class="viewcode-block" id="TestCatalogue.test_it_cannot_be_mutated">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_it_cannot_be_mutated">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_it_cannot_be_mutated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A shared catalogue one caller can edit is not shared, it is a bug.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A shared catalogue one caller can edit is not shared, it is a bug."""</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
-            <span class="n">standard_diagnostic_types</span><span class="p">()[</span><span class="s2">&quot;invented&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nonsense&quot;</span>
+            <span class="n">standard_diagnostic_types</span><span class="p">()[</span><span class="s2">"invented"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"nonsense"</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">standard_diagnostic_names</span><span class="p">(),</span> <span class="nb">frozenset</span><span class="p">)</span></div>
 
@@ -213,7 +213,7 @@
 <div class="viewcode-block" id="TestCatalogue.test_names_are_exactly_the_mapping_keys">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_names_are_exactly_the_mapping_keys">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_names_are_exactly_the_mapping_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The two accessors cannot disagree about what exists.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The two accessors cannot disagree about what exists."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
             <span class="n">standard_diagnostic_names</span><span class="p">(),</span> <span class="nb">set</span><span class="p">(</span><span class="n">standard_diagnostic_types</span><span class="p">())</span>
@@ -223,25 +223,25 @@
 <div class="viewcode-block" id="TestCatalogue.test_descriptions_are_fully_interpolated">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_descriptions_are_fully_interpolated">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_descriptions_are_fully_interpolated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;No description may contain an unexpanded placeholder.</span>
+<span class="w">        </span><span class="sd">"""No description may contain an unexpanded placeholder.</span>
 
 <span class="sd">        Guards a real defect the extraction fixed: the continuation line of</span>
 <span class="sd">        the ``*_map_residual`` description was not an f-string, so every one</span>
-<span class="sd">        of them was seeded reading &quot;and smoothed {param.upper()} map&quot;</span>
+<span class="sd">        of them was seeded reading "and smoothed {param.upper()} map"</span>
 <span class="sd">        literally.  A missing ``f`` prefix is silent, so only a test of the</span>
 <span class="sd">        rendered text catches it coming back.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">standard_diagnostic_types</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">diagnostic</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s2">"{"</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="TestCatalogue.test_it_is_not_empty">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestCatalogue.test_it_is_not_empty">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_it_is_not_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A catalogue that silently emptied would pass every other test.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A catalogue that silently emptied would pass every other test."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">standard_diagnostic_types</span><span class="p">()),</span> <span class="mi">10</span><span class="p">)</span></div>
 </div>
@@ -251,21 +251,21 @@
 <div class="viewcode-block" id="TestRuntimePatterns">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestRuntimePatterns">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestRuntimePatterns</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The names that are described rather than listed.</span>
+<span class="w">    </span><span class="sd">"""The names that are described rather than listed.</span>
 
 <span class="sd">    ``is_quantile_diagnostic`` is the single definition of what a quantile</span>
 <span class="sd">    is called: ``_save_image_diagnostics`` asks it before creating a row,</span>
 <span class="sd">    and expression validation asks it before accepting a name. The two used</span>
-<span class="sd">    to disagree -- a loose ``startswith(&quot;pixel_q&quot;)`` against an anchored</span>
+<span class="sd">    to disagree -- a loose ``startswith("pixel_q")`` against an anchored</span>
 <span class="sd">    pattern -- which is exactly the drift one predicate prevents.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="TestRuntimePatterns.test_it_matches_quantile_diagnostics">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestRuntimePatterns.test_it_matches_quantile_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_it_matches_quantile_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``calibrate`` names them ``pixel_q`` followed by the percentile.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``calibrate`` names them ``pixel_q`` followed by the percentile."""</span>
 
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;pixel_q1&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q99&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q999&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"pixel_q1"</span><span class="p">,</span> <span class="s2">"pixel_q99"</span><span class="p">,</span> <span class="s2">"pixel_q999"</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_quantile_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">))</span></div>
@@ -274,14 +274,14 @@
 <div class="viewcode-block" id="TestRuntimePatterns.test_it_does_not_swallow_plausible_names">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestRuntimePatterns.test_it_does_not_swallow_plausible_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_it_does_not_swallow_plausible_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The anchor and the required digits both matter.</span>
+<span class="w">        </span><span class="sd">"""The anchor and the required digits both matter.</span>
 
 <span class="sd">        Without them ``pixel_quality`` would be taken for a quantile, and a</span>
 <span class="sd">        real diagnostic by that name could then never be referenced -- an</span>
 <span class="sd">        expression naming it would be told it is shadowing something.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;pixel_quality&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q&quot;</span><span class="p">,</span> <span class="s2">&quot;pixel_q9x&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_center&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"pixel_quality"</span><span class="p">,</span> <span class="s2">"pixel_q"</span><span class="p">,</span> <span class="s2">"pixel_q9x"</span><span class="p">,</span> <span class="s2">"bg_center"</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_quantile_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">))</span></div>
 </div>
@@ -291,14 +291,14 @@
 <div class="viewcode-block" id="TestVocabulary">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestVocabulary</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;What an expression may reference, without opening any project.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""What an expression may reference, without opening any project."""</span>
 
 <div class="viewcode-block" id="TestVocabulary.test_catalogue_entries_are_diagnostics">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary.test_catalogue_entries_are_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_catalogue_entries_are_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The seeded names, recorded or not in any particular project.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The seeded names, recorded or not in any particular project."""</span>
 
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bg_center&quot;</span><span class="p">,</span> <span class="s2">&quot;astrom_residual&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_center"</span><span class="p">,</span> <span class="s2">"astrom_residual"</span><span class="p">,</span> <span class="s2">"diagonal_fov"</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">))</span></div>
 
@@ -306,8 +306,8 @@
 <div class="viewcode-block" id="TestVocabulary.test_time_is_a_quantity_but_not_a_diagnostic">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary.test_time_is_a_quantity_but_not_a_diagnostic">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_time_is_a_quantity_but_not_a_diagnostic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``jd`` is a column of the image row, not an ``image_diagnostics``</span>
-<span class="sd">        value, yet it is a variable in the same flat name space.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``jd`` is a column of the image row, not an ``image_diagnostics``</span>
+<span class="sd">        value, yet it is a variable in the same flat name space."""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_diagnostic</span><span class="p">(</span><span class="n">time_quantity</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_known_quantity</span><span class="p">(</span><span class="n">time_quantity</span><span class="p">))</span></div>
@@ -316,9 +316,9 @@
 <div class="viewcode-block" id="TestVocabulary.test_invented_names_are_neither">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestVocabulary.test_invented_names_are_neither">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_invented_names_are_neither</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The vocabulary is closed, which is what makes it checkable.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The vocabulary is closed, which is what makes it checkable."""</span>
 
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bg_centre&quot;</span><span class="p">,</span> <span class="s2">&quot;no_such_thing&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bg_centre"</span><span class="p">,</span> <span class="s2">"no_such_thing"</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_known_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">))</span></div>
 </div>
@@ -328,17 +328,17 @@
 <div class="viewcode-block" id="TestSeeding">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestSeeding">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestSeeding</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The catalogue and the rows it seeds must stay identical.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The catalogue and the rows it seeds must stay identical."""</span>
 
 <div class="viewcode-block" id="TestSeeding.test_seeded_rows_match_the_catalogue">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_diagnostic_types.html#autowisp.tests.test_diagnostic_types.TestSeeding.test_seeded_rows_match_the_catalogue">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_seeded_rows_match_the_catalogue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The whole point of the extraction, and the only silent failure.</span>
+<span class="w">        </span><span class="sd">"""The whole point of the extraction, and the only silent failure.</span>
 
 <span class="sd">        Descriptions are compared as well as names: they are what the</span>
 <span class="sd">        catalogue carries beyond what validation needs, so a mismatch there</span>
 <span class="sd">        is exactly the drift that splitting the two invites.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">project_home</span><span class="p">:</span>
             <span class="n">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
@@ -354,7 +354,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

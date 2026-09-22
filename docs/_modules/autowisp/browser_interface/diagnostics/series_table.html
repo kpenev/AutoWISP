@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.series_table &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,86 +164,66 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.diagnostics.series_table</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;What the table above a diagnostics plot offers, and what it binds.</span>
+<span></span><span class="sd">"""What the table above a diagnostics plot offers, and what it binds.</span>
 
-<span class="sd">The half of the plot page that knows what a *row* means: which series can</span>
-<span class="sd">be drawn at all, which channel each column of a row may be bound to, how</span>
-<span class="sd">many images a binding would draw, and what a row is called while the user</span>
-<span class="sd">chooses. It never evaluates an expression and never draws anything --</span>
-<span class="sd">:mod:`image_diagnostics_views` does both -- which is not merely a tidy</span>
-<span class="sd">division. There is a row per observing session and image type, so</span>
-<span class="sd">evaluating one to fill the table would be work proportional to the whole</span>
-<span class="sd">image collection; every question asked here is answered by a SQL</span>
-<span class="sd">aggregate instead.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="sd">The half of the plot page that knows what a *row* means: which observing</span>
+<span class="sd">session and image type a row may be drawn for, which channel each of its</span>
+<span class="sd">columns may be bound to, how many images a binding would draw, and what a</span>
+<span class="sd">row is called while the user chooses. It never evaluates an expression and</span>
+<span class="sd">never draws anything -- :mod:`image_diagnostics_views` does both -- which</span>
+<span class="sd">is not merely a tidy division. The dropdowns a row is built from span every</span>
+<span class="sd">observing session and image type in the project, so evaluating anything to</span>
+<span class="sd">fill them would be work proportional to the whole image collection; every</span>
+<span class="sd">question asked here is answered by a SQL aggregate instead.</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.template.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_to_string</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.browser_interface.core.plot_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">channel_colors</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.diagnostic_types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">is_quantile_diagnostic</span><span class="p">,</span>
-    <span class="n">quantiles_quantity</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expression_series</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">SeriesKey</span><span class="p">,</span>
     <span class="n">count_images_with_all</span><span class="p">,</span>
     <span class="n">count_images_with_channels</span><span class="p">,</span>
-    <span class="n">time_quantity</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.diagnostics.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_expression_parameters</span><span class="p">,</span>
     <span class="n">get_needed_values</span><span class="p">,</span>
     <span class="n">get_quantity_arity</span><span class="p">,</span>
-    <span class="n">order_expressions</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineError</span>
 
 <span class="c1"># False positive due to unusual importing</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DiagnosticType</span><span class="p">,</span>
-    <span class="n">ImageDiagnostics</span><span class="p">,</span>
-    <span class="n">ObservingSession</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Camera</span><span class="p">,</span> <span class="n">CameraChannel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservingSession</span>
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
-
-<span class="c1">#: Separates the fields of a row id.  Not the underscore an earlier</span>
+<span class="c1">#: Separates the fields of the two ids the client round-trips: a row's,</span>
+<span class="c1">#: ``quantity|ordinal``, and the value of one option of the session and</span>
+<span class="c1">#: type dropdown, ``session id|image type``.  Not the underscore an earlier</span>
 <span class="c1">#: encoding used: ``pixel_q*`` names contain those, so unpacking had to</span>
 <span class="c1">#: guess which underscores separated fields.  Neither a session id, an</span>
 <span class="c1">#: image type nor a diagnostic name can contain this one.</span>
-<span class="n">row_id_separator</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span>
+<span class="n">row_id_separator</span> <span class="o">=</span> <span class="s2">"|"</span>
+
+<span class="c1">#: What a channel dropdown shows while it is unset.  Named here rather than</span>
+<span class="c1">#: written into the template because a cell sorts by the text of its</span>
+<span class="c1">#: selected option, so one place has to decide what that text is.</span>
+<span class="n">unset_option_text</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\N{EM DASH}</span><span class="s2">"</span>
 
 
-<div class="viewcode-block" id="make_row_id">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_row_id">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_row_id</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the id of one row of the series table.</span>
+<div class="viewcode-block" id="make_id">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_id</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return one of the ids the client round-trips, built from *parts*.</span>
 
-<span class="sd">    A row outlives the channels bound in it -- binding one is an edit made</span>
-<span class="sd">    *in* the row -- so its id names the group it belongs to and its place</span>
-<span class="sd">    among the rows of that group, and says nothing about channels. That is</span>
-<span class="sd">    what lets the four element ids derived from it (``plot-color:``,</span>
-<span class="sd">    ``marker-button:``, ``scale:``, ``label:``) and the key the client</span>
-<span class="sd">    posts it under stay put while the user chooses.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        session_id(int):    The observing session.</span>
-
-<span class="sd">        image_type(str):    The frame type.</span>
-
-<span class="sd">        quantile_name(str):    The ``pixel_q*`` this row stands for, or</span>
-<span class="sd">            ``None`` outside a quantile expansion.</span>
-
-<span class="sd">        ordinal(int):    Distinguishes the rows of one group, which differ</span>
-<span class="sd">            only by what they bind.</span>
+<span class="sd">    One function for both of them -- a row's ``quantity|ordinal`` and a</span>
+<span class="sd">    pair's ``session id|image type`` -- because the encoding is the same</span>
+<span class="sd">    and all either needs of it is that it can be taken apart again.  Where</span>
+<span class="sd">    the two differ is in the reading: :func:`split_row_id` and</span>
+<span class="sd">    :func:`split_pair_id`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str:    The opaque id, which has to survive a round trip through</span>
@@ -253,20 +233,15 @@
 <span class="sd">        ValueError:    If a part contains the separator, which would make</span>
 <span class="sd">            the id ambiguous. Worth failing on rather than trusting, since</span>
 <span class="sd">            the alternative is a plot that silently draws the wrong rows.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">parts</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">session_id</span><span class="p">),</span>
-        <span class="n">image_type</span><span class="p">,</span>
-        <span class="n">quantile_name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">ordinal</span><span class="p">),</span>
-    <span class="p">)</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">)</span>
     <span class="n">ambiguous</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span> <span class="k">if</span> <span class="n">row_id_separator</span> <span class="ow">in</span> <span class="n">part</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">ambiguous</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Cannot build a row id from </span><span class="si">{</span><span class="n">parts</span><span class="si">!r}</span><span class="s2">: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">part</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">part</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ambiguous</span><span class="p">)</span><span class="si">}</span><span class="s2"> contains &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row_id_separator</span><span class="si">!r}</span><span class="s2">, which separates its parts.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Cannot build an id from </span><span class="si">{</span><span class="n">parts</span><span class="si">!r}</span><span class="s2">: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">part</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">part</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ambiguous</span><span class="p">)</span><span class="si">}</span><span class="s2"> contains "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row_id_separator</span><span class="si">!r}</span><span class="s2">, which separates its parts."</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">row_id_separator</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
@@ -276,40 +251,55 @@
 <div class="viewcode-block" id="split_row_id">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.split_row_id">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">split_row_id</span><span class="p">(</span><span class="n">row_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(session_id, image_type, quantile_name)`` from a row id.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return ``(quantity, ordinal)`` from the id of one row.</span>
 
-<span class="sd">    The *group* a row belongs to, which is what almost everything wants:</span>
-<span class="sd">    the ordinal only tells sibling rows apart, and is read separately by</span>
-<span class="sd">    the one caller that needs it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    A row outlives everything chosen in it -- its session, its image type</span>
+<span class="sd">    and its channels are all edits made *in* the row -- so its id names</span>
+<span class="sd">    only what cannot be edited there: the quantity the row draws, and its</span>
+<span class="sd">    place among the rows drawing it.  That is what lets the five element</span>
+<span class="sd">    ids derived from it (``plot-color:``, ``marker-button:``, ``marker:``,</span>
+<span class="sd">    ``scale:``, ``label:``) and the key the client posts it under stay put</span>
+<span class="sd">    while the user chooses.</span>
 
-    <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">row_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row_id_separator</span><span class="p">)</span>
+<span class="sd">    The quantity is part of it because two rows drawing different</span>
+<span class="sd">    quantities may otherwise agree on everything: a row is told apart by</span>
+<span class="sd">    what it draws, not by where it draws it.</span>
+<span class="sd">    """</span>
 
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">session_id</span><span class="p">),</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">quantile_name</span> <span class="ow">or</span> <span class="kc">None</span></div>
+    <span class="n">quantity</span><span class="p">,</span> <span class="n">ordinal</span> <span class="o">=</span> <span class="n">row_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row_id_separator</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">quantity</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ordinal</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="row_ordinal">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.row_ordinal">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">row_ordinal</span><span class="p">(</span><span class="n">row_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return which of its group&#39;s rows this is, counting from zero.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="split_pair_id">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.split_pair_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_pair_id</span><span class="p">(</span><span class="n">pair_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return ``(session_id, image_type)`` from what a row's dropdown says.</span>
 
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">row_id</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">row_id_separator</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span></div>
+<span class="sd">    The pair is the unit everything on this page is counted by, so it</span>
+<span class="sd">    travels as one value and is taken apart only here.</span>
+<span class="sd">    """</span>
+
+    <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">pair_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row_id_separator</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">session_id</span><span class="p">),</span> <span class="n">image_type</span></div>
 
 
 
 <div class="viewcode-block" id="get_series_key">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_series_key">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_series_key</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return what one posted row draws: its group, and what it binds.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the population one posted row draws from, and what it binds.</span>
 
-<span class="sd">    Half of this comes from the row id and half from the client, and the</span>
-<span class="sd">    split is not an inconsistency. Session, type and quantile are not</span>
-<span class="sd">    editable in the table, so taking them from the id keeps one source of</span>
-<span class="sd">    truth for them; the channels *are* edited there, and reading them from</span>
-<span class="sd">    anywhere but the dropdown the user just changed would be reading a</span>
-<span class="sd">    stale value.</span>
+<span class="sd">    All of it comes from the client and none from the row id: the session,</span>
+<span class="sd">    the image type and the channels are chosen *in* the row, so reading any</span>
+<span class="sd">    of them from anywhere but the dropdown the user just changed would be</span>
+<span class="sd">    reading a stale value.  What the id carries instead is the quantity,</span>
+<span class="sd">    which the row cannot change.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        series(dict):    One row as the client posted it back.</span>
@@ -317,247 +307,148 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        SeriesKey:    What the row identifies, with empty channels where</span>
 <span class="sd">            its dropdowns are still unset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">quantile_name</span> <span class="o">=</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+    <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">split_pair_id</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"pair"</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">SeriesKey</span><span class="p">(</span>
         <span class="n">session_id</span><span class="p">,</span>
         <span class="n">image_type</span><span class="p">,</span>
-        <span class="nb">tuple</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="p">())),</span>
-        <span class="n">quantile_name</span><span class="p">,</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"channels"</span><span class="p">,</span> <span class="p">())),</span>
     <span class="p">)</span></div>
 
 
 
+<div class="viewcode-block" id="posted_rows">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.posted_rows">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">posted_rows</span><span class="p">(</span><span class="n">post_data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the rows of a posted table as a list, each carrying its id.</span>
+
+<span class="sd">    The client posts them keyed by id, since that is what it has to look</span>
+<span class="sd">    them up by; everything on the server wants a row to be one object that</span>
+<span class="sd">    knows its own id. The single place that turns one shape into the other.</span>
+<span class="sd">    """</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">row_id</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">row_id</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"datasets"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="next_row_id">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.next_row_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">next_row_id</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">row_ids</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the id for a row added beside *row*, drawing the same quantity.</span>
+
+<span class="sd">    One past the highest ordinal among that quantity's rows rather than</span>
+<span class="sd">    one past *row*'s own, so that the id stays unique after a removal has</span>
+<span class="sd">    left a gap: reusing a freed ordinal would collide with nothing on the</span>
+<span class="sd">    page, but the id is also the suffix of five element ids, and a second</span>
+<span class="sd">    row answering to them while the first is still being edited is the</span>
+<span class="sd">    kind of bug that shows up as one row's colour landing on another's.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        row(dict):    The row the new one is built beside, as the client</span>
+<span class="sd">            posted it. Only the quantity in its id is read here.</span>
+
+<span class="sd">        row_ids(iterable):    Every row id on the page, the new one having</span>
+<span class="sd">            to be unique among all of them.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str:    The id, as :func:`make_id` builds it.</span>
+<span class="sd">    """</span>
+
+    <span class="n">quantity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])</span>
+    <span class="n">taken</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ordinal</span>
+        <span class="k">for</span> <span class="n">other_quantity</span><span class="p">,</span> <span class="n">ordinal</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">split_row_id</span><span class="p">,</span> <span class="n">row_ids</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">other_quantity</span> <span class="o">==</span> <span class="n">quantity</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">make_id</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">taken</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Six things a row is made of, each named at the call site. Grouping them</span>
+<span class="c1"># would only move the list somewhere less visible.</span>
+<span class="c1"># pylint: disable=too-many-arguments</span>
 <div class="viewcode-block" id="make_series">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_series">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_series</span><span class="p">(</span><span class="n">row_id</span><span class="p">,</span> <span class="n">session_label</span><span class="p">,</span> <span class="n">series_key</span><span class="p">,</span> <span class="n">slots</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_series</span><span class="p">(</span><span class="n">row_id</span><span class="p">,</span> <span class="n">series_key</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">slots</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">marker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the entry describing one row of the series table.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        row_id(str):    What :func:`make_row_id` returned for this row.</span>
-
-<span class="sd">        session_label(str):    The label of the observing session.</span>
+<span class="sd">        row_id(str):    What :func:`make_id` returned for this row.</span>
 
 <span class="sd">        series_key(SeriesKey):    What the row draws once bound. Its</span>
 <span class="sd">            ``channels`` are empty for a row still to be bound.</span>
 
-<span class="sd">        slots(list):    One entry per channel the axes bind, as</span>
-<span class="sd">            :func:`get_slot_options` describes them.</span>
+<span class="sd">        options(list):    Every (session, image type) pair to allow the user to</span>
+<span class="sd">            select, as :func:`get_pair_options` returns them.  Carried by</span>
+<span class="sd">            the row rather than read from the page's context, so that a row</span>
+<span class="sd">            can be rendered on its own.</span>
+
+<span class="sd">        slots(list):    One cell per channel the axes bind, as</span>
+<span class="sd">            :func:`make_slot_cells` builds them.</span>
 
 <span class="sd">        count(int):    The number of images contributing, or ``None``</span>
 <span class="sd">            where nothing is bound yet and there is nothing to count.</span>
+
+<span class="sd">        marker(str):    What the row is drawn with to begin with, which</span>
+<span class="sd">            its section decides: the default tells quantities apart by</span>
+<span class="sd">            shape, as the colour tells channels apart. Editable</span>
+<span class="sd">            afterwards, like the colour.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:    A series entry with the keys expected by</span>
 <span class="sd">            ``diagnostics/_series_row.html`` and</span>
 <span class="sd">            :func:`plot_image_diagnostic_series`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">quantile</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">series_key</span><span class="o">.</span><span class="n">quantile_name</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="k">else</span> <span class="s2">&quot;0.&quot;</span> <span class="o">+</span> <span class="n">series_key</span><span class="o">.</span><span class="n">quantile_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;pixel_q&quot;</span><span class="p">)</span> <span class="p">:]</span>
-    <span class="p">)</span>
-    <span class="n">describe</span> <span class="o">=</span> <span class="p">[</span><span class="n">session_label</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">quantile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">describe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span>
-    <span class="n">describe</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
+    <span class="n">pair</span> <span class="o">=</span> <span class="n">make_id</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">)</span>
+    <span class="n">chosen</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">option</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span> <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="n">pair</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">row_id</span><span class="p">,</span>
-        <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">),</span>
-        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">channel_colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">series_key</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">series_key</span><span class="o">.</span><span class="n">channel</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#ffffff&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="n">row_id</span><span class="p">,</span>
+        <span class="s2">"channels"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">),</span>
+        <span class="s2">"color"</span><span class="p">:</span> <span class="n">channel_colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">series_key</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">series_key</span><span class="o">.</span><span class="n">channel</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"#ffffff"</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">describe</span><span class="p">),</span>
-        <span class="s2">&quot;session_label&quot;</span><span class="p">:</span> <span class="n">session_label</span><span class="p">,</span>
-        <span class="s2">&quot;image_type&quot;</span><span class="p">:</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">,</span>
-        <span class="s2">&quot;quantile&quot;</span><span class="p">:</span> <span class="n">quantile</span><span class="p">,</span>
-        <span class="s2">&quot;slots&quot;</span><span class="p">:</span> <span class="n">slots</span><span class="p">,</span>
-        <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span> <span class="k">if</span> <span class="n">count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">count</span><span class="p">,</span>
+        <span class="s2">"marker"</span><span class="p">:</span> <span class="n">marker</span><span class="p">,</span>
+        <span class="s2">"scale"</span><span class="p">:</span> <span class="s2">"1.0"</span><span class="p">,</span>
+        <span class="c1"># The quantity first, so that a legend entry says which of the</span>
+        <span class="c1"># page's sections it belongs to. With one section that is</span>
+        <span class="c1"># redundant, but prefixing always keeps the rule simple, and the</span>
+        <span class="c1"># label is the user's to rewrite either way.</span>
+        <span class="s2">"label"</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">split_row_id</span><span class="p">(</span><span class="n">row_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chosen</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="o">*</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">]</span>
+        <span class="p">),</span>
+        <span class="s2">"pair"</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span>
+        <span class="c1"># The cell sorts by what it shows -- the label rather than the id</span>
+        <span class="c1"># behind it -- so that sorting by this column puts the sessions in</span>
+        <span class="c1"># the order the dropdown lists them rather than in insertion order.</span>
+        <span class="s2">"pair_sort"</span><span class="p">:</span> <span class="n">chosen</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="n">chosen</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span>
+        <span class="s2">"end"</span><span class="p">:</span> <span class="n">chosen</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span>
+        <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+        <span class="s2">"slots"</span><span class="p">:</span> <span class="n">slots</span><span class="p">,</span>
+        <span class="s2">"count"</span><span class="p">:</span> <span class="s2">"-"</span> <span class="k">if</span> <span class="n">count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">count</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
 
-<div class="viewcode-block" id="get_recorded_diagnostics">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_recorded_diagnostics">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_recorded_diagnostics</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the ``DiagnosticType`` names anything has recorded in this project.</span>
-
-<span class="sd">    A per-type ``EXISTS`` probe rather than a ``GROUP BY`` over the whole of</span>
-<span class="sd">    ``image_diagnostics``: the question is only which names are in use, and</span>
-<span class="sd">    the grouped form has to walk every row to answer it.</span>
-
-<span class="sd">    The names come back raw, individual ``pixel_q*`` entries included --</span>
-<span class="sd">    before :func:`get_available_diagnostics` collapses them into the family</span>
-<span class="sd">    name.  That is what an expression has to be judged against, since one</span>
-<span class="sd">    may reference a concrete quantile.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list:    The names in use, in ``DiagnosticType`` order.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">type_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>
-            <span class="n">DiagnosticType</span><span class="o">.</span><span class="n">id</span>
-        <span class="p">)</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="n">in_use</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="n">select</span><span class="p">(</span>
-                <span class="n">select</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ImageDiagnostics</span><span class="o">.</span><span class="n">diagnostic_id</span> <span class="o">==</span> <span class="n">type_id</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">exists</span><span class="p">()</span>
-            <span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">in_use</span><span class="p">:</span>
-            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">names</span></div>
-
-
-
-<div class="viewcode-block" id="get_available_diagnostics">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_available_diagnostics">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_available_diagnostics</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return every quantity an axis may be set to.</span>
-
-<span class="sd">    One flat list rather than diagnostics and expressions kept apart: an</span>
-<span class="sd">    axis reads a name, and a recorded diagnostic is simply an expression of</span>
-<span class="sd">    itself as far as anything downstream is concerned.  Sharing one name</span>
-<span class="sd">    space is what lets the selectors, the URL and the series table treat</span>
-<span class="sd">    all of them alike, and it is why an expression may not take a</span>
-<span class="sd">    diagnostic&#39;s name.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        recorded(list):    What :func:`get_recorded_diagnostics` found.</span>
-
-<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list:    ``jd``, then every recorded diagnostic -- with the</span>
-<span class="sd">            individual quantiles standing down in favour of the family name</span>
-<span class="sd">            that expands to one series per member -- then the expressions</span>
-<span class="sd">            this project has the data to draw.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">time_quantity</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
-        <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">recorded</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_quantile_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="p">]</span>
-    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">is_quantile_diagnostic</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">recorded</span><span class="p">):</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantiles_quantity</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">get_available_expressions</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">recorded</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="get_available_expressions">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_available_expressions">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_available_expressions</span><span class="p">(</span><span class="n">expressions</span><span class="p">,</span> <span class="n">recorded</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the expressions this project has the data to draw.</span>
-
-<span class="sd">    Availability, not validity.  Every stored expression is valid in every</span>
-<span class="sd">    project -- the vocabulary is the same everywhere, see</span>
-<span class="sd">    :mod:`autowisp.diagnostics.diagnostic_types` -- so filtering by</span>
-<span class="sd">    :func:`~autowisp.diagnostics.expressions.check_expression` would filter</span>
-<span class="sd">    nothing and offer all of them everywhere.  What decides whether one is</span>
-<span class="sd">    offered *here* is whether the diagnostics it reaches, transitively, have</span>
-<span class="sd">    actually been recorded.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
-
-<span class="sd">        recorded(list):    What :func:`get_recorded_diagnostics` found.</span>
-<span class="sd">            The raw names, since an expression may reference a concrete</span>
-<span class="sd">            ``pixel_q*`` rather than the family.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list:    The names whose every diagnostic is recorded here,</span>
-<span class="sd">            alphabetically.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">recorded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">recorded</span><span class="p">)</span>
-
-    <span class="n">available</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">expressions</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="o">=</span> <span class="n">order_expressions</span><span class="p">([</span><span class="n">name</span><span class="p">],</span> <span class="n">expressions</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">PipelineError</span><span class="p">:</span>
-            <span class="c1"># A stored cycle, or a name no version of AutoWISP defines.</span>
-            <span class="c1"># Saying so is the management page&#39;s business; here it is</span>
-            <span class="c1"># merely not offered, so that one broken expression cannot stop</span>
-            <span class="c1"># the plot page rendering.</span>
-            <span class="k">continue</span>
-        <span class="c1"># jd is known for every image of the canonical list, so it never</span>
-        <span class="c1"># counts against availability.</span>
-        <span class="k">if</span> <span class="n">needed</span> <span class="o">-</span> <span class="p">{</span><span class="n">time_quantity</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">recorded</span><span class="p">:</span>
-            <span class="n">available</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">available</span></div>
-
-
-
-<div class="viewcode-block" id="resolve_quantity">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.resolve_quantity">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">resolve_quantity</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Map an axis name onto the concrete quantity for one series.</span>
-
-<span class="sd">    ``pixel_quantiles`` names a family rather than a quantity: each series picks</span>
-<span class="sd">    one ``pixel_q*`` member of it, recorded in the series id.  Resolving</span>
-<span class="sd">    that here, once, is what lets everything downstream handle a single</span>
-<span class="sd">    concrete name -- leaving ``jd`` as the only quantity that still needs a</span>
-<span class="sd">    branch anywhere, because it alone comes from the image table rather than</span>
-<span class="sd">    from ``image_diagnostics``.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        quantity_name(str):    The name an axis was selected as.</span>
-
-<span class="sd">        quantile_name(str):    The ``pixel_q*`` this series stands for, or</span>
-<span class="sd">            ``None`` outside a quantile expansion.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        str:    The quantity to actually read.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">quantity_name</span> <span class="o">==</span> <span class="n">quantiles_quantity</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">quantile_name</span>
-    <span class="k">return</span> <span class="n">quantity_name</span></div>
-
-
-
-<div class="viewcode-block" id="get_quantile_names">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_quantile_names">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_quantile_names</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the ``pixel_q*`` diagnostic names in use, quantile order.&quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="n">select</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="s2">&quot;pixel_q%&quot;</span><span class="p">))</span>
-            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="p">]</span></div>
-
+<span class="c1"># pylint: enable=too-many-arguments</span>
 
 
 <div class="viewcode-block" id="get_axis_slots">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_axis_slots">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_axis_slots</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the diagnostics read in each channel one axis binds.</span>
 
 <span class="sd">    An axis binds one channel per parameter of the quantity it draws, and</span>
@@ -578,7 +469,7 @@
 <span class="sd">            parameter is ``None`` for a diagnostic, which has no numbering</span>
 <span class="sd">            of its own. Empty for an axis over the time alone, which binds</span>
 <span class="sd">            nothing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">get_expression_parameters</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="n">quantity</span><span class="p">])</span>
@@ -593,7 +484,7 @@
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="c1"># Walked with a *column index* standing in for each channel. A</span>
-    <span class="c1"># reference&#39;s arguments are matched against the definition&#39;s</span>
+    <span class="c1"># reference's arguments are matched against the definition's</span>
     <span class="c1"># parameters positionally, so whatever is passed here is what comes</span>
     <span class="c1"># back at the leaves: passing columns asks which column each</span>
     <span class="c1"># diagnostic is read in, whatever numbers the expression happened to</span>
@@ -614,7 +505,7 @@
 <div class="viewcode-block" id="get_slot_headings">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_slot_headings">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the column heading for each channel one axis binds.</span>
 
 <span class="sd">    Named for the axis as well as the quantity because the two axes may</span>
@@ -635,19 +526,19 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list:    One heading per channel to bind.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">axis_name</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">]"</span> <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">]</span></div>
 
 
 
 <div class="viewcode-block" id="get_slot_options">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_slot_options">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return what each slot of the table may be bound to, and the labels.</span>
 
 <span class="sd">    One aggregate per *distinct* set of diagnostics among the slots --</span>
@@ -667,7 +558,7 @@
 <span class="sd">                ``{(session_id, image_type): {channel: count}}``.</span>
 
 <span class="sd">            dict:    ``{session_id: label}``, the same whatever is read.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
@@ -691,7 +582,7 @@
 <div class="viewcode-block" id="count_bound_images">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.count_bound_images">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">count_bound_images</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Count the images one binding draws on, for every group at once.</span>
 
 <span class="sd">    The exact question, where :func:`get_slot_options` answers the looser</span>
@@ -715,7 +606,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:    ``{(session_id, image_type): count}``, holding only the</span>
 <span class="sd">            groups with anything to draw.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">):</span> <span class="n">count</span>
@@ -731,134 +622,272 @@
 
 
 
-<div class="viewcode-block" id="get_session_channels">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_session_channels">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_session_channels</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the channels each observing session&#39;s camera defines.</span>
+<div class="viewcode-block" id="get_session_times">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_session_times">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_session_times</span><span class="p">(</span><span class="n">session_ids</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return when each observing session began and ended, as text.</span>
 
-<span class="sd">    Not the channels it has *recorded*: a Bayer camera part way through</span>
-<span class="sd">    processing has one channel with data and three still to come, and</span>
-<span class="sd">    treating that one as the only possibility would be wrong by tomorrow.</span>
-<span class="sd">    What the camera defines does not move.</span>
+<span class="sd">    Formatted here rather than in the template because the table sorts a</span>
+<span class="sd">    column by the text in it: ``YYYY-MM-DD HH:MM`` UTC sorts into</span>
+<span class="sd">    chronological order, which is the whole reason these two columns</span>
+<span class="sd">    exist. Session labels are free-form, so nothing else on the row can be</span>
+<span class="sd">    sorted on to the same effect.</span>
 
 <span class="sd">    Args:</span>
+<span class="sd">        session_ids(iterable):    The sessions to look up, read in one</span>
+<span class="sd">            query however many of them there are.</span>
+
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    ``{session_id: [channel name, ...]}``, in name order.</span>
-<span class="sd">            A session whose camera is not described is simply absent.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        dict:    ``{session_id: (start, end)}``, with an empty string</span>
+<span class="sd">            wherever a session records no such time.</span>
+<span class="sd">    """</span>
 
-    <span class="n">channels</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">session_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">session_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_text</span><span class="p">(</span><span class="n">when</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the timestamp as the table shows and sorts it."""</span>
+
+        <span class="k">return</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">when</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">when</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M"</span><span class="p">)</span>
+
     <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">for</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="n">select</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">CameraChannel</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">ObservingSession</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Camera</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">ObservingSession</span><span class="o">.</span><span class="n">camera_id</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">CameraChannel</span><span class="p">,</span> <span class="n">CameraChannel</span><span class="o">.</span><span class="n">camera_type_id</span> <span class="o">==</span> <span class="n">Camera</span><span class="o">.</span><span class="n">camera_type_id</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">CameraChannel</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="n">channels</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">session_id</span><span class="p">:</span> <span class="p">(</span><span class="n">as_text</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="n">as_text</span><span class="p">(</span><span class="n">end</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span>
+                <span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">ObservingSession</span><span class="o">.</span><span class="n">start_time_utc</span><span class="p">,</span>
+                <span class="n">ObservingSession</span><span class="o">.</span><span class="n">end_time_utc</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">session_ids</span><span class="p">))</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">}</span></div>
+
     <span class="c1"># pylint: enable=no-member</span>
 
-    <span class="k">return</span> <span class="n">channels</span></div>
 
+<div class="viewcode-block" id="make_slot_cells">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_slot_cells">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_slot_cells</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what each channel column of one row offers, and what it says.</span>
 
+<span class="sd">    A column offering a single channel is settled rather than asked</span>
+<span class="sd">    about: that is the whole of a monochrome camera, and of a colour one</span>
+<span class="sd">    whose other channels are not processed yet, and demanding a click with</span>
+<span class="sd">    one possible outcome before anything can be drawn is ceremony. Such a</span>
+<span class="sd">    cell shows its channel as text, which is what lets a row be drawn the</span>
+<span class="sd">    moment it appears. Should another channel be recorded later, the</span>
+<span class="sd">    column has a choice to offer and asks for one.</span>
 
-<div class="viewcode-block" id="build_group_rows">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.build_group_rows">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">build_group_rows</span><span class="p">(</span><span class="n">quantile_name</span><span class="p">,</span> <span class="n">slot_needs</span><span class="p">,</span> <span class="n">session_channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return one row per (session, image type) the axes can be drawn for.</span>
+<span class="sd">    What a column may offer depends on the (session, image type) pair the</span>
+<span class="sd">    row names, so choosing another pair asks this again for all of them.</span>
+<span class="sd">    A channel the new pair still offers is kept -- the user chose it, and</span>
+<span class="sd">    it remains an answer -- and one it does not is cleared rather than</span>
+<span class="sd">    quietly bound to something else.</span>
 
-<span class="sd">    A group is offered where every slot has at least one channel to choose</span>
-<span class="sd">    from; the choosing then happens in the table, and nothing arrives</span>
-<span class="sd">    bound. Pre-binding instead would mean enumerating a cartesian product</span>
-<span class="sd">    of the channels across the axes&#39; parameters.</span>
-
-<span class="sd">    The exception is a camera defining a single channel -- a monochrome</span>
-<span class="sd">    one, zero not being a working configuration -- where there is nothing</span>
-<span class="sd">    to choose. Demanding a click with one possible outcome before anything</span>
-<span class="sd">    can be drawn is ceremony, so those rows arrive bound and counted.</span>
+<span class="sd">    Pure, so that both rules can be tested without a database or a</span>
+<span class="sd">    browser.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        quantile_name(str):    Which ``pixel_q*`` these rows stand for,</span>
-<span class="sd">            when an axis was selected as the ``pixel_quantiles`` *family*</span>
-<span class="sd">            and the table expanded it into one group of rows per recorded</span>
-<span class="sd">            member. ``None`` otherwise -- including for an expression</span>
-<span class="sd">            naming concrete quantiles, such as ``pixel_q99[0] /</span>
-<span class="sd">            pixel_q50[0]``, which is an ordinary quantity reading two</span>
-<span class="sd">            diagnostics and expands into nothing.</span>
+<span class="sd">        available(list):    What each column may be bound to under this</span>
+<span class="sd">            row's pair, ``{channel: count}`` in column order.</span>
 
-<span class="sd">        slot_needs(list):    What each slot reads, in column order.</span>
+<span class="sd">        channels(tuple):    What the row binds now, in the same order.</span>
+<span class="sd">            Empty, or short, for a row whose columns are not all set.</span>
 
-<span class="sd">        session_channels(dict):    What :func:`get_session_channels`</span>
-<span class="sd">            returned.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        list:    One cell per column, as ``_slot_cells.html`` renders it.</span>
+<span class="sd">    """</span>
+
+    <span class="n">cells</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">offered</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">available</span><span class="p">):</span>
+        <span class="n">settled</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">offered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">settled</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">offered</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">channels</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="s2">""</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"value"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="n">unset_option_text</span><span class="p">}]</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="n">channel</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)"</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">offered</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="p">]</span>
+        <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+                <span class="s2">"value"</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+                <span class="s2">"fixed"</span><span class="p">:</span> <span class="n">settled</span><span class="p">,</span>
+                <span class="c1"># What the column sorts by: what the cell shows, so that</span>
+                <span class="c1"># sorting follows the channels chosen rather than the</span>
+                <span class="c1"># run-together text of a dropdown.</span>
+                <span class="s2">"sort"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">value</span>
+                    <span class="k">if</span> <span class="n">settled</span>
+                    <span class="k">else</span> <span class="nb">next</span><span class="p">(</span>
+                        <span class="n">option</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span>
+                        <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cells</span></div>
+
+
+
+<div class="viewcode-block" id="get_pair_options">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_pair_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pair_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the (session, image type) pairs a row may be drawn for.</span>
+
+<span class="sd">    A pair is offered where every channel column has at least one channel</span>
+<span class="sd">    to bind: unless each of them can be read somewhere in that session's</span>
+<span class="sd">    frames of that type, a row on it could name no data at all.  Which</span>
+<span class="sd">    channel a column takes is chosen in the row afterwards, so a pair is</span>
+<span class="sd">    offered once rather than once per binding it could carry.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        slot_needs(list):    What each channel column reads, in column</span>
+<span class="sd">            order.</span>
+
+<span class="sd">        options(dict):    What :func:`get_slot_options` returned.</span>
+
+<span class="sd">        labels(dict):    The session labels from the same call.</span>
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list:    Series entries, as :func:`make_series` builds them.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        list:    ``{"value", "text", "start", "end"}`` per pair, by session</span>
+<span class="sd">            start time and then image type -- which is the order the</span>
+<span class="sd">            dropdown lists them in, and why the first of them is the</span>
+<span class="sd">            earliest session. Empty where the axes bind no channel at all,</span>
+<span class="sd">            there being nothing to draw and so nothing to offer.</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">slot_needs</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="n">options</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
-    <span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-        <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">])</span> <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span><span class="p">))</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">])</span> <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span><span class="p">))</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">get_session_times</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">session_id</span> <span class="k">for</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">},</span> <span class="n">db_session</span>
     <span class="p">)</span>
 
-    <span class="n">bound</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">session_id</span><span class="p">:</span> <span class="n">session_channels</span><span class="p">[</span><span class="n">session_id</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">groups</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_channels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span>
-    <span class="p">}</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">channel</span><span class="p">:</span> <span class="n">count_bound_images</span><span class="p">(</span>
-            <span class="n">slot_needs</span><span class="p">,</span> <span class="p">(</span><span class="n">channel</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">),</span> <span class="n">db_session</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">bound</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-    <span class="p">}</span>
+    <span class="n">listed</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"value"</span><span class="p">:</span> <span class="n">make_id</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">),</span>
+            <span class="s2">"text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">labels</span><span class="p">[</span><span class="n">session_id</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">image_type</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"start"</span><span class="p">:</span> <span class="n">times</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">))[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">"end"</span><span class="p">:</span> <span class="n">times</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">))[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="n">pairs</span>
+    <span class="p">]</span>
+    <span class="c1"># By text rather than by type alone, so that the pairs of one session</span>
+    <span class="c1"># stay together: it begins with the session label, which is what the</span>
+    <span class="c1"># start time ties on.</span>
+    <span class="n">listed</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">option</span><span class="p">:</span> <span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]))</span>
 
-    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
-        <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">group</span>
-        <span class="n">channel</span> <span class="o">=</span> <span class="n">bound</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">session_id</span><span class="p">)</span>
-        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">make_series</span><span class="p">(</span>
-                <span class="n">make_row_id</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-                <span class="n">labels</span><span class="p">[</span><span class="n">session_id</span><span class="p">],</span>
-                <span class="n">SeriesKey</span><span class="p">(</span>
-                    <span class="n">session_id</span><span class="p">,</span>
-                    <span class="n">image_type</span><span class="p">,</span>
-                    <span class="p">()</span> <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">channel</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">),</span>
-                    <span class="n">quantile_name</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">[</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">][</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
-                        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">channel</span><span class="p">,</span>
-                        <span class="s2">&quot;fixed&quot;</span><span class="p">:</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
-                    <span class="p">}</span>
-                    <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span>
-                <span class="p">],</span>
-                <span class="kc">None</span> <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">counts</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="k">return</span> <span class="n">listed</span></div>
+
+
+
+<span class="c1"># Six things, none derivable from the others here, and both callers hold</span>
+<span class="c1"># all of them. Bundling them would hide what a row depends on.</span>
+<span class="c1"># pylint: disable=too-many-arguments</span>
+<div class="viewcode-block" id="make_row_for_pair">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.make_row_for_pair">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_row_for_pair</span><span class="p">(</span>
+    <span class="n">row_id</span><span class="p">,</span>
+    <span class="n">series_key</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">slot_needs</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">,</span>
+    <span class="n">pair_options</span><span class="p">,</span>
+    <span class="n">marker</span><span class="p">,</span>
+    <span class="n">db_session</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return one row of the series table, bound as far as its pair allows.</span>
+
+<span class="sd">    Shared by the first row of a table and by a row whose pair has just</span>
+<span class="sd">    changed, both asking the same question: what a row on this pair</span>
+<span class="sd">    offers, which of the channels it names survive there, and how many</span>
+<span class="sd">    images the result draws.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        row_id(str):    What :func:`make_id` returned for this row.</span>
+
+<span class="sd">        series_key(SeriesKey):    The pair the row names, and the channels</span>
+<span class="sd">            it would keep -- those the pair does not offer are dropped.</span>
+
+<span class="sd">        slot_needs(list):    What each channel column reads.</span>
+
+<span class="sd">        options(dict):    What :func:`get_slot_options` returned.</span>
+
+<span class="sd">        pair_options(list):    What :func:`get_pair_options` returned.</span>
+
+<span class="sd">        marker(str):    The marker the row's section starts its rows with.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:    A series entry, as :func:`make_series` builds it, counted</span>
+<span class="sd">            where the pair leaves it fully bound and uncounted where it</span>
+<span class="sd">            does not.</span>
+<span class="sd">    """</span>
+
+    <span class="n">pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">)</span>
+    <span class="n">slots</span> <span class="o">=</span> <span class="n">make_slot_cells</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">][</span><span class="n">pair</span><span class="p">]</span> <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span><span class="p">],</span>
+        <span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">channels</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slot</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+        <span class="c1"># A partly bound row binds nothing: it names no data to read, and</span>
+        <span class="c1"># an empty binding is what the colour, the label and the count all</span>
+        <span class="c1"># branch on.</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">make_series</span><span class="p">(</span>
+        <span class="n">row_id</span><span class="p">,</span>
+        <span class="n">SeriesKey</span><span class="p">(</span><span class="o">*</span><span class="n">pair</span><span class="p">,</span> <span class="n">channels</span><span class="p">),</span>
+        <span class="n">pair_options</span><span class="p">,</span>
+        <span class="n">slots</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">channels</span>
+            <span class="k">else</span> <span class="n">count_bound_images</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">pair</span><span class="p">,</span> <span class="mi">0</span>
             <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
-    <span class="k">return</span> <span class="n">rows</span></div>
 
+
+<span class="c1"># pylint: enable=too-many-arguments</span>
 
 
 <div class="viewcode-block" id="get_available_series">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_available_series">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_available_series</span><span class="p">(</span><span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the (session, image type, channel) series plottable for an axis pair.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_available_series</span><span class="p">(</span>
+    <span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">marker</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what one section's table offers, and the row it starts with.</span>
+
+<span class="sd">    A row is a series the user builds, so what this answers is what its</span>
+<span class="sd">    dropdowns may offer: the (session, image type) pairs where every</span>
+<span class="sd">    channel column has a channel to bind.  The table then starts with one</span>
+<span class="sd">    row on the first of them -- the earliest session -- so that the page</span>
+<span class="sd">    has a series without the user having to build one.</span>
 
 <span class="sd">    The count is the number of images recording every diagnostic both axes</span>
 <span class="sd">    need -- for an expression, every diagnostic it reaches transitively.  It</span>
@@ -868,9 +897,10 @@
 <span class="sd">    question about rows, and stays a SQL aggregate.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        x_diagnostic(str):    Quantity on the X axis.</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis.</span>
 
-<span class="sd">        y_diagnostic(str):    Quantity on the Y axis.</span>
+<span class="sd">        y_quantity(str):    Quantity on the Y axis, which is what the</span>
+<span class="sd">            rows draw and therefore what their ids name.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``, passed in</span>
 <span class="sd">            rather than fetched so that nothing below the view has to know</span>
@@ -878,260 +908,261 @@
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
+<span class="sd">        marker(str):    What this section's rows are drawn with to begin</span>
+<span class="sd">            with, chosen for the section rather than for the row so that</span>
+<span class="sd">            the quantities on a plot are told apart by shape.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    ``diagnostics_fields`` and ``diagnostics_list``, in the</span>
-<span class="sd">            format ``diagnostics_app.html`` expects.</span>
+<span class="sd">        dict:    ``diagnostics_fields``, ``pair_options`` and</span>
+<span class="sd">            ``diagnostics_list``, in the format ``_series_section.html``</span>
+<span class="sd">            expects.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        PipelineError:    If an axis names nothing that resolves.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">has_quantiles</span> <span class="o">=</span> <span class="n">quantiles_quantity</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">)</span>
-    <span class="n">quantile_names</span> <span class="o">=</span> <span class="n">get_quantile_names</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_quantiles</span> <span class="k">else</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-    <span class="n">session_channels</span> <span class="o">=</span> <span class="n">get_session_channels</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
-
-    <span class="n">headings</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">quantile_name</span> <span class="ow">in</span> <span class="n">quantile_names</span><span class="p">:</span>
-        <span class="c1"># What an axis *needs* is not what it names: an expression needs</span>
-        <span class="c1"># the diagnostics it reaches, transitively, and per slot, since a</span>
-        <span class="c1"># slot is offered only the channels its own are recorded in. jd</span>
-        <span class="c1"># drops out either way -- it is known for every image of the</span>
-        <span class="c1"># session and so constrains nothing.</span>
-        <span class="n">per_axis</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">get_axis_slots</span><span class="p">(</span>
-                <span class="n">resolve_quantity</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">),</span> <span class="n">expressions</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="c1"># One header for the whole table, so it is written from the axis</span>
-        <span class="c1"># names rather than from a member: every member of the family is a</span>
-        <span class="c1"># diagnostic binding one channel, so the shape does not vary.</span>
-        <span class="n">headings</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">heading</span>
-            <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">),</span> <span class="n">per_axis</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">heading</span> <span class="ow">in</span> <span class="n">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="n">rows</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="n">build_group_rows</span><span class="p">(</span>
-                <span class="n">quantile_name</span><span class="p">,</span>
-                <span class="p">[</span><span class="n">needed</span> <span class="k">for</span> <span class="n">slots</span> <span class="ow">in</span> <span class="n">per_axis</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">],</span>
-                <span class="n">session_channels</span><span class="p">,</span>
-                <span class="n">db_session</span><span class="p">,</span>
-            <span class="p">)</span>
+    <span class="c1"># What an axis *needs* is not what it names: an expression needs the</span>
+    <span class="c1"># diagnostics it reaches, transitively, and per slot, since a slot is</span>
+    <span class="c1"># offered only the channels its own are recorded in. jd drops out</span>
+    <span class="c1"># either way -- it is known for every image of the session and so</span>
+    <span class="c1"># constrains nothing.</span>
+    <span class="n">per_axis</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">get_axis_slots</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">headings</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">heading</span>
+        <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">),</span> <span class="n">per_axis</span>
         <span class="p">)</span>
+        <span class="k">for</span> <span class="n">heading</span> <span class="ow">in</span> <span class="n">get_slot_headings</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">axis_name</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">slot_needs</span> <span class="o">=</span> <span class="p">[</span><span class="n">needed</span> <span class="k">for</span> <span class="n">slots</span> <span class="ow">in</span> <span class="n">per_axis</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">]</span>
 
-    <span class="c1"># Session, then type, then quantile.  Not by channel: an unbound row</span>
-    <span class="c1"># has none, and nothing reorders the table once it is drawn.</span>
-    <span class="n">rows</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
-        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">(</span>
-            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;session_label&quot;</span><span class="p">],</span>
-            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;image_type&quot;</span><span class="p">],</span>
-            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;quantile&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="n">options</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span> <span class="k">if</span> <span class="n">slot_needs</span> <span class="k">else</span> <span class="p">({},</span> <span class="p">{})</span>
     <span class="p">)</span>
+    <span class="n">pair_options</span> <span class="o">=</span> <span class="n">get_pair_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
-    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Observing Session&quot;</span><span class="p">,</span> <span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">headings</span>
-    <span class="k">if</span> <span class="n">has_quantiles</span><span class="p">:</span>
-        <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Quantile&quot;</span><span class="p">)</span>
-    <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">pair_options</span><span class="p">:</span>
+        <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">split_pair_id</span><span class="p">(</span><span class="n">pair_options</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">])</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">make_row_for_pair</span><span class="p">(</span>
+                <span class="n">make_id</span><span class="p">(</span><span class="n">y_quantity</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">SeriesKey</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="p">()),</span>
+                <span class="n">slot_needs</span><span class="o">=</span><span class="n">slot_needs</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                <span class="n">pair_options</span><span class="o">=</span><span class="n">pair_options</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
+                <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;diagnostics_fields&quot;</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span>
-        <span class="c1"># Named separately so the header can mark them unsortable: they</span>
-        <span class="c1"># hold a dropdown, which sorts by nothing anyone wants.</span>
-        <span class="s2">&quot;slot_headings&quot;</span><span class="p">:</span> <span class="n">headings</span><span class="p">,</span>
-        <span class="s2">&quot;diagnostics_list&quot;</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
+        <span class="s2">"diagnostics_fields"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">"Session and Type"</span><span class="p">,</span> <span class="s2">"Start (UTC)"</span><span class="p">,</span> <span class="s2">"End (UTC)"</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">headings</span>
+            <span class="o">+</span> <span class="p">[</span><span class="s2">"Count"</span><span class="p">]</span>
+        <span class="p">),</span>
+        <span class="s2">"pair_options"</span><span class="p">:</span> <span class="n">pair_options</span><span class="p">,</span>
+        <span class="s2">"diagnostics_list"</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
 
 <div class="viewcode-block" id="get_axes_slot_needs">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_axes_slot_needs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_axes_slot_needs</span><span class="p">(</span><span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return what each channel column of the table reads, in column order.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_axes_slot_needs</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return what each channel column of the table reads, in column order.</span>
 
-<span class="sd">    The x quantity&#39;s slots followed by the y quantity&#39;s, concatenated</span>
-<span class="sd">    rather than merged: an expression&#39;s numbers are formal parameters, so</span>
-<span class="sd">    the two axes&#39; slots are unrelated even when written alike.</span>
+<span class="sd">    The x quantity's slots followed by the y quantity's, concatenated</span>
+<span class="sd">    rather than merged: an expression's numbers are formal parameters, so</span>
+<span class="sd">    the two axes' slots are unrelated even when written alike.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        x_diagnostic(str):    Quantity on the X axis.</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis.</span>
 
-<span class="sd">        y_diagnostic(str):    Quantity on the Y axis.</span>
+<span class="sd">        y_quantity(str):    Quantity on the Y axis.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
-<span class="sd">        quantile_name(str):    The ``pixel_q*`` a row stands for, or</span>
-<span class="sd">            ``None`` outside a quantile expansion.</span>
-
 <span class="sd">    Returns:</span>
 <span class="sd">        list:    One ``frozenset`` of diagnostic names per column.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="p">[</span>
         <span class="n">needed</span>
-        <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">get_axis_slots</span><span class="p">(</span>
-            <span class="n">resolve_quantity</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">),</span> <span class="n">expressions</span>
-        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">quantity_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">get_axis_slots</span><span class="p">(</span><span class="n">quantity_name</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
     <span class="p">]</span></div>
 
 
 
-<div class="viewcode-block" id="plan_spare_row">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.plan_spare_row">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plan_spare_row</span><span class="p">(</span><span class="n">row_id</span><span class="p">,</span> <span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">datasets</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the entry for a fresh unbound row, or ``None`` for no spare.</span>
+<div class="viewcode-block" id="get_row_options">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_row_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_row_options</span><span class="p">(</span><span class="n">y_quantity</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return what a row drawing one quantity against the page's x is built from.</span>
 
-<span class="sd">    Completing a row&#39;s channels summons one below it, so that a second</span>
-<span class="sd">    binding of the same series can be built and drawn on the same figure.</span>
-<span class="sd">    Two cases earn none: a spare is already waiting -- this row is not the</span>
-<span class="sd">    last of its group, so it was rebound rather than newly bound -- and a</span>
-<span class="sd">    group whose every possible binding is already present, where a further</span>
-<span class="sd">    row could only repeat one.</span>
-
-<span class="sd">    Kept apart from rendering it so that the decision can be tested</span>
-<span class="sd">    without Django, which is where every other rule in this module is</span>
-<span class="sd">    checked.</span>
+<span class="sd">    The three things that have to be worked out before any row can be</span>
+<span class="sd">    built: what each channel column reads, what each may be bound to, and</span>
+<span class="sd">    the (session, image type) pairs the row may name.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        row_id(str):    The row that was just bound. What it binds does</span>
-<span class="sd">            not matter here -- a spare binds nothing -- so only its group</span>
-<span class="sd">            and its ordinal are read from it.</span>
+<span class="sd">        y_quantity(str):    The quantity the row draws, from its id.</span>
 
-<span class="sd">        slot_needs(list):    What each channel column reads.</span>
-
-<span class="sd">        options(dict):    What :func:`get_slot_options` returned.</span>
-
-<span class="sd">        labels(dict):    The session labels from the same call.</span>
-
-<span class="sd">        datasets(dict):    Every row of the table as the client posted it.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        dict or None:    A series entry, as :func:`make_series` builds it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">quantile_name</span> <span class="o">=</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">row_id</span><span class="p">)</span>
-    <span class="n">group</span> <span class="o">=</span> <span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">)</span>
-    <span class="n">ordinal</span> <span class="o">=</span> <span class="n">row_ordinal</span><span class="p">(</span><span class="n">row_id</span><span class="p">)</span>
-    <span class="n">siblings</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">other_id</span>
-        <span class="k">for</span> <span class="n">other_id</span> <span class="ow">in</span> <span class="n">datasets</span>
-        <span class="k">if</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">other_id</span><span class="p">)</span> <span class="o">==</span> <span class="n">split_row_id</span><span class="p">(</span><span class="n">row_id</span><span class="p">)</span>
-    <span class="p">]</span>
-
-    <span class="c1"># A spare is already waiting below this one, so the row was rebound</span>
-    <span class="c1"># rather than newly bound.</span>
-    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">row_ordinal</span><span class="p">(</span><span class="n">other_id</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ordinal</span> <span class="k">for</span> <span class="n">other_id</span> <span class="ow">in</span> <span class="n">siblings</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="n">bindings</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="nb">tuple</span><span class="p">(</span><span class="n">datasets</span><span class="p">[</span><span class="n">other_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="p">()))</span>
-        <span class="k">for</span> <span class="n">other_id</span> <span class="ow">in</span> <span class="n">siblings</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">datasets</span><span class="p">[</span><span class="n">other_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="p">()))</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bindings</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">math</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span>
-        <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">][</span><span class="n">group</span><span class="p">])</span> <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span>
-    <span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="k">return</span> <span class="n">make_series</span><span class="p">(</span>
-        <span class="n">make_row_id</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">quantile_name</span><span class="p">,</span> <span class="n">ordinal</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">labels</span><span class="p">[</span><span class="n">session_id</span><span class="p">],</span>
-        <span class="n">SeriesKey</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="p">(),</span> <span class="n">quantile_name</span><span class="p">),</span>
-        <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">][</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
-                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fixed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span>
-        <span class="p">],</span>
-        <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="get_binding_response">
-<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_binding_response">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_binding_response</span><span class="p">(</span>
-    <span class="n">post_data</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return what a row that has just been fully bound earns.</span>
-
-<span class="sd">    Merged into the figure&#39;s JSON response, so that choosing the last of a</span>
-<span class="sd">    row&#39;s channels costs one round trip rather than two. Nothing here</span>
-<span class="sd">    re-renders the table: the client updates one cell and appends at most</span>
-<span class="sd">    one row, which is what lets every other row keep its node, and with it</span>
-<span class="sd">    what was typed into it and its place under whatever sort is in force.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        post_data(dict):    The whole POST, holding every row&#39;s state and</span>
-<span class="sd">            ``bind``, the id of the row whose channels were completed.</span>
-
-<span class="sd">        x_diagnostic(str):    Quantity on the X axis.</span>
-
-<span class="sd">        y_diagnostic(str):    Quantity on the Y axis.</span>
+<span class="sd">        x_quantity(str):    Quantity on the X axis.</span>
 
 <span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
 
 <span class="sd">        db_session:    An active SQLAlchemy database session.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict:    ``bind`` echoed back with the row&#39;s ``count`` and the</span>
-<span class="sd">            defaults that follow from its channels, plus ``spare_row``</span>
-<span class="sd">            where a further binding is still to be built. Empty when</span>
-<span class="sd">            nothing was bound, which is every other redraw.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        tuple:    ``(slot_needs, options, pair_options)``, as</span>
+<span class="sd">            :func:`get_axes_slot_needs`, :func:`get_slot_options` and</span>
+<span class="sd">            :func:`get_pair_options` return them.</span>
+<span class="sd">    """</span>
 
-    <span class="n">row_id</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bind&quot;</span><span class="p">)</span>
-    <span class="n">datasets</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;datasets&quot;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">row_id</span> <span class="ow">or</span> <span class="n">row_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{}</span>
-
-    <span class="n">series_key</span> <span class="o">=</span> <span class="n">get_series_key</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">row_id</span><span class="p">,</span> <span class="o">**</span><span class="n">datasets</span><span class="p">[</span><span class="n">row_id</span><span class="p">]})</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">series_key</span><span class="o">.</span><span class="n">channels</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{}</span>
-
-    <span class="n">group</span> <span class="o">=</span> <span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">)</span>
-    <span class="n">slot_needs</span> <span class="o">=</span> <span class="n">get_axes_slot_needs</span><span class="p">(</span>
-        <span class="n">x_diagnostic</span><span class="p">,</span> <span class="n">y_diagnostic</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">quantile_name</span>
+    <span class="n">slot_needs</span> <span class="o">=</span> <span class="n">get_axes_slot_needs</span><span class="p">(</span><span class="n">x_quantity</span><span class="p">,</span> <span class="n">y_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span> <span class="k">if</span> <span class="n">slot_needs</span> <span class="k">else</span> <span class="p">({},</span> <span class="p">{})</span>
     <span class="p">)</span>
-    <span class="n">options</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">get_slot_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">[</span><span class="n">needed</span><span class="p">]</span> <span class="k">for</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">slot_needs</span><span class="p">):</span>
-        <span class="c1"># The table was rendered against a project that has since changed.</span>
-        <span class="k">return</span> <span class="p">{}</span>
 
-    <span class="n">entry</span> <span class="o">=</span> <span class="n">make_series</span><span class="p">(</span>
-        <span class="n">row_id</span><span class="p">,</span>
-        <span class="n">labels</span><span class="p">[</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">],</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">slot_needs</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">,</span>
+        <span class="n">get_pair_options</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_table_response">
+<a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.diagnostics.series_table.html#autowisp.browser_interface.diagnostics.series_table.get_table_response">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_table_response</span><span class="p">(</span><span class="n">post_data</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">x_quantity</span><span class="p">,</span> <span class="n">expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the rows to draw, and what the edit behind this redraw earns.</span>
+
+<span class="sd">    Three kinds of redraw arrive here. A row was rebound (``bind``) --</span>
+<span class="sd">    its last channel chosen, or another (session, image type) pair, which</span>
+<span class="sd">    is a rebinding as much as the first since which channels a column may</span>
+<span class="sd">    offer depends on the pair, and so is answered even while the channels</span>
+<span class="sd">    are unset. Or ``+`` was pressed in a row (``add``), which earns a copy</span>
+<span class="sd">    of it. Or nothing structural happened at all -- a colour, a marker, a</span>
+<span class="sd">    row switched off -- which earns the figure and nothing else.</span>
+
+<span class="sd">    Every one of them rides on the redraw the edit causes anyway, so each</span>
+<span class="sd">    costs one round trip rather than two, and the table and the figure are</span>
+<span class="sd">    answered together. Nothing here re-renders the table: the client</span>
+<span class="sd">    replaces a row's channel cells, or inserts one row, which is what lets</span>
+<span class="sd">    every other row keep its node, and with it what was typed into it and</span>
+<span class="sd">    its place under whatever sort is in force.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        post_data(dict):    The whole POST, holding every row's state and,</span>
+<span class="sd">            where an edit is being answered, ``bind`` or ``add``: the id</span>
+<span class="sd">            of the row it happened in.</span>
+
+<span class="sd">        x_quantity(str):    Quantity on the X axis.  The y comes from</span>
+<span class="sd">            the row id, each row naming the quantity it draws.</span>
+
+<span class="sd">        expressions(dict):    The library, ``{name: expression}``.</span>
+
+<span class="sd">        db_session:    An active SQLAlchemy database session.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            list:    The rows the figure is drawn from: those posted, plus</span>
+<span class="sd">                an added row, and with a rebound row's colour and label</span>
+<span class="sd">                replaced by the defaults of its new binding wherever the</span>
+<span class="sd">                client reports them still automatic. Drawing from these is</span>
+<span class="sd">                what stops a rebound row appearing in the colour and</span>
+<span class="sd">                legend of the binding it has just left while the table</span>
+<span class="sd">                beside it shows the new ones.</span>
+
+<span class="sd">            dict:    For a rebinding, ``bind`` echoed back with the row's</span>
+<span class="sd">                ``count``, its channel cells rendered for the pair it now</span>
+<span class="sd">                names, that session's ``start`` and ``end``, and the</span>
+<span class="sd">                colour and label its binding makes default. For an</span>
+<span class="sd">                addition, ``added_row``, the markup to insert, and</span>
+<span class="sd">                ``after``, the row to insert it below. Empty when nothing</span>
+<span class="sd">                was edited, which is every other redraw.</span>
+<span class="sd">    """</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">posted_rows</span><span class="p">(</span><span class="n">post_data</span><span class="p">)</span>
+    <span class="n">datasets</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"datasets"</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">adding</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"add"</span><span class="p">))</span>
+    <span class="n">edited</span> <span class="o">=</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"add"</span><span class="p">)</span> <span class="k">if</span> <span class="n">adding</span> <span class="k">else</span> <span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bind"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">edited</span> <span class="ow">or</span> <span class="n">edited</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rows</span><span class="p">,</span> <span class="p">{}</span>
+
+    <span class="n">source</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">edited</span><span class="p">,</span> <span class="o">**</span><span class="n">datasets</span><span class="p">[</span><span class="n">edited</span><span class="p">]}</span>
+    <span class="n">series_key</span> <span class="o">=</span> <span class="n">get_series_key</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">pair_options</span> <span class="o">=</span> <span class="n">get_row_options</span><span class="p">(</span>
+        <span class="n">split_row_id</span><span class="p">(</span><span class="n">edited</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">x_quantity</span><span class="o">=</span><span class="n">x_quantity</span><span class="p">,</span>
+        <span class="n">expressions</span><span class="o">=</span><span class="n">expressions</span><span class="p">,</span>
+        <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">make_id</span><span class="p">(</span><span class="n">series_key</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">image_type</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
+        <span class="n">option</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">pair_options</span>
+    <span class="p">}:</span>
+        <span class="c1"># The row names a pair this table cannot offer, the project having</span>
+        <span class="c1"># changed since the table was rendered.</span>
+        <span class="k">return</span> <span class="n">rows</span><span class="p">,</span> <span class="p">{}</span>
+
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">make_row_for_pair</span><span class="p">(</span>
+        <span class="n">next_row_id</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span> <span class="k">if</span> <span class="n">adding</span> <span class="k">else</span> <span class="n">edited</span><span class="p">,</span>
         <span class="n">series_key</span><span class="p">,</span>
-        <span class="p">[],</span>
-        <span class="n">count_bound_images</span><span class="p">(</span><span class="n">slot_needs</span><span class="p">,</span> <span class="n">series_key</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">group</span><span class="p">,</span> <span class="mi">0</span>
-        <span class="p">),</span>
+        <span class="n">slot_needs</span><span class="o">=</span><span class="n">slot_needs</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+        <span class="n">pair_options</span><span class="o">=</span><span class="n">pair_options</span><span class="p">,</span>
+        <span class="c1"># A copy starts with its section's marker rather than the marker</span>
+        <span class="c1"># of the row it was copied from, which may have been set by hand:</span>
+        <span class="c1"># the client posts what the section's is. A rebound row keeps</span>
+        <span class="c1"># whatever it is already drawn with, the client sending it back</span>
+        <span class="c1"># unchanged, so what is passed here reaches only the copy.</span>
+        <span class="n">marker</span><span class="o">=</span><span class="p">(</span><span class="n">post_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"section_marker"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"marker"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"o"</span><span class="p">),</span>
+        <span class="n">db_session</span><span class="o">=</span><span class="n">db_session</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">spare</span> <span class="o">=</span> <span class="n">plan_spare_row</span><span class="p">(</span><span class="n">row_id</span><span class="p">,</span> <span class="n">slot_needs</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">adding</span><span class="p">:</span>
+        <span class="c1"># Drawn from the response that carries it, so the row and its</span>
+        <span class="c1"># series arrive together rather than the table gaining a row the</span>
+        <span class="c1"># figure only catches up with on the next redraw.</span>
+        <span class="k">return</span> <span class="n">rows</span> <span class="o">+</span> <span class="p">[</span><span class="n">entry</span><span class="p">],</span> <span class="p">{</span>
+            <span class="s2">"added_row"</span><span class="p">:</span> <span class="n">render_to_string</span><span class="p">(</span>
+                <span class="s2">"diagnostics/_series_row.html"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"diagnostic"</span><span class="p">:</span> <span class="n">entry</span><span class="p">}</span>
+            <span class="p">),</span>
+            <span class="s2">"after"</span><span class="p">:</span> <span class="n">edited</span><span class="p">,</span>
+        <span class="p">}</span>
 
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;bind&quot;</span><span class="p">:</span> <span class="n">row_id</span><span class="p">,</span>
-        <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;spare_row&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">spare</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="n">render_to_string</span><span class="p">(</span>
-                <span class="s2">&quot;diagnostics/_series_row.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;diagnostic&quot;</span><span class="p">:</span> <span class="n">spare</span><span class="p">}</span>
-            <span class="p">)</span>
-        <span class="p">),</span>
-    <span class="p">}</span></div>
+    <span class="c1"># The colour and label of the *new* binding, applied before the figure</span>
+    <span class="c1"># is drawn rather than written into the table after it. Only where the</span>
+    <span class="c1"># client reports the field still automatic, which is the same test</span>
+    <span class="c1"># ``applyTableResponse`` makes before accepting them -- both sides</span>
+    <span class="c1"># judging the same state, so exactly the fields the server corrects</span>
+    <span class="c1"># here are the ones the client will take.</span>
+    <span class="n">automatic</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">field</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"color"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">datasets</span><span class="p">[</span><span class="n">edited</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"automatic_"</span> <span class="o">+</span> <span class="n">field</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">[</span><span class="n">row</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">edited</span> <span class="k">else</span> <span class="p">{</span><span class="o">**</span><span class="n">row</span><span class="p">,</span> <span class="o">**</span><span class="n">automatic</span><span class="p">}</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">],</span>
+        <span class="p">{</span>
+            <span class="s2">"bind"</span><span class="p">:</span> <span class="n">edited</span><span class="p">,</span>
+            <span class="s2">"count"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"count"</span><span class="p">],</span>
+            <span class="s2">"color"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"color"</span><span class="p">],</span>
+            <span class="s2">"label"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"label"</span><span class="p">],</span>
+            <span class="s2">"start"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span>
+            <span class="s2">"end"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span>
+            <span class="s2">"slot_cells"</span><span class="p">:</span> <span class="n">render_to_string</span><span class="p">(</span>
+                <span class="s2">"diagnostics/_slot_cells.html"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"diagnostic"</span><span class="p">:</span> <span class="n">entry</span><span class="p">}</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 

@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.database.data_model.hdf5_products &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.data_model.hdf5_products</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define the hdf5_products table.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define the hdf5_products table."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">String</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">relationship</span>
@@ -179,33 +179,33 @@
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HDF5Product&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"HDF5Product"</span><span class="p">]</span>
 
 
 <span class="c1"># The standard use of SQLAlchemy ORM requires classes with no public methods.</span>
 <span class="c1"># pylint: disable=too-few-public-methods</span>
 <div class="viewcode-block" id="HDF5Product">
-<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.hdf5_products.html#autowisp.database.data_model.HDF5Product">[docs]</a>
+<a class="viewcode-back" href="../../../../implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HDF5Product</span><span class="p">(</span><span class="n">DataModelBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The types of pipeline products stored as HDF5 files.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The types of pipeline products stored as HDF5 files."""</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;hdf5_products&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"hdf5_products"</span>
 
     <span class="n">pipeline_key</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
         <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
         <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;How is this product referred to in the pipeline (e.g. &quot;</span>
-        <span class="s1">&#39;&quot;datareduction&quot; or &quot;lightcurve&quot;&#39;</span><span class="p">,</span>
+        <span class="n">doc</span><span class="o">=</span><span class="s2">"How is this product referred to in the pipeline (e.g. "</span>
+        <span class="s1">'"datareduction" or "lightcurve"'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
-        <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;A description of the product type.&quot;</span>
+        <span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">"A description of the product type."</span>
     <span class="p">)</span>
 
     <span class="n">structure_versions</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span>
-        <span class="s2">&quot;HDF5StructureVersion&quot;</span><span class="p">,</span>
+        <span class="s2">"HDF5StructureVersion"</span><span class="p">,</span>
         <span class="n">order_by</span><span class="o">=</span><span class="n">HDF5StructureVersion</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-        <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;product&quot;</span><span class="p">,</span>
+        <span class="n">back_populates</span><span class="o">=</span><span class="s2">"product"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

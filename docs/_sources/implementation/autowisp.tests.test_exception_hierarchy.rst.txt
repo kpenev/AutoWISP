@@ -3,5 +3,5 @@ autowisp.tests.test\_exception\_hierarchy module
 
 .. automodule:: autowisp.tests.test_exception_hierarchy
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

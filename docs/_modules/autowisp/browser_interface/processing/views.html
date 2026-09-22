@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.processing.views &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.browser_interface.processing.views</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;The views showing the status of the processing.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""The views showing the status of the processing."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
@@ -211,7 +211,7 @@
 <div class="viewcode-block" id="start_processing">
 <a class="viewcode-back" href="../../../../implementation/autowisp.browser_interface.processing.views.html#autowisp.browser_interface.processing.views.start_processing">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">start_processing</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the pipeline to complete any pending processing tasks.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run the pipeline to complete any pending processing tasks."""</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">executable</span><span class="p">,</span>
         <span class="n">run_pipeline</span><span class="o">.</span><span class="vm">__file__</span><span class="p">,</span>
@@ -221,21 +221,21 @@
     <span class="n">selected_steps</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">selected_step_imtypes</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
-        <span class="n">raw_tokens</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"POST"</span><span class="p">:</span>
+        <span class="n">raw_tokens</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"steps"</span><span class="p">)</span>
 
         <span class="c1"># Store which steps were selected</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;selected_step_tokens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">raw_tokens</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">"selected_step_tokens"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">raw_tokens</span><span class="p">)</span>
 
         <span class="n">seen_base</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">raw_tokens</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">base_step</span><span class="p">,</span> <span class="n">imtype</span> <span class="o">=</span> <span class="n">parts</span>
-                <span class="n">selected_step_imtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_step</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">imtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">selected_step_imtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_step</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">imtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">base_step</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen_base</span><span class="p">:</span>
                     <span class="n">selected_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_step</span><span class="p">)</span>
                     <span class="n">seen_base</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">base_step</span><span class="p">)</span>
@@ -245,43 +245,43 @@
                     <span class="n">seen_base</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;start_processing: steps=</span><span class="si">%s</span><span class="s2"> step_imtypes=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">"start_processing: steps=</span><span class="si">%s</span><span class="s2"> step_imtypes=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">selected_steps</span><span class="p">,</span>
         <span class="n">selected_step_imtypes</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">selected_steps</span><span class="p">:</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--steps&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">selected_steps</span><span class="p">])</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="o">*</span><span class="n">selected_steps</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">selected_step_imtypes</span><span class="p">:</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--step-imtypes&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">selected_step_imtypes</span><span class="p">])</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--step-imtypes"</span><span class="p">,</span> <span class="o">*</span><span class="n">selected_step_imtypes</span><span class="p">])</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;start_processing: cmd=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"start_processing: cmd=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
 
     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;autowisp&quot;</span><span class="p">),</span> <span class="s2">&quot;run_pipeline.out&quot;</span>
+            <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">"autowisp"</span><span class="p">),</span> <span class="s2">"run_pipeline.out"</span>
         <span class="p">),</span>
-        <span class="s2">&quot;w&quot;</span><span class="p">,</span>
-        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"w"</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
             <span class="n">cmd</span><span class="p">,</span>
-            <span class="n">start_new_session</span><span class="o">=</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">),</span>
+            <span class="n">start_new_session</span><span class="o">=</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"posix"</span><span class="p">),</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">outf</span><span class="p">,</span>
             <span class="n">stderr</span><span class="o">=</span><span class="n">outf</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"posix"</span><span class="p">:</span>
         <span class="c1"># Reap the child when it exits so it does not become a zombie.</span>
         <span class="c1"># On Linux the double-fork in run_pipeline.py orphans the</span>
         <span class="c1"># grandchild to init (which reaps it), but the intermediate</span>
         <span class="c1"># child still needs to be waited on here.  On macOS there is</span>
         <span class="c1"># no double-fork so this thread is the only reaper.</span>
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Started&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;processing:progress&quot;</span><span class="p">,</span> <span class="n">await_start</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Started"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">"processing:progress"</span><span class="p">,</span> <span class="n">await_start</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 </pre></div>
 

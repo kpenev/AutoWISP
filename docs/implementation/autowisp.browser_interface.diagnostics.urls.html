@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.diagnostics.urls module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -169,8 +169,57 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-browser-interface-diagnostics-urls-module">
-<h1>autowisp.browser_interface.diagnostics.urls module<a class="headerlink" href="#autowisp-browser-interface-diagnostics-urls-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.browser_interface.diagnostics.urls">
+<span id="autowisp-browser-interface-diagnostics-urls-module"></span><h1>autowisp.browser_interface.diagnostics.urls module<a class="headerlink" href="#module-autowisp.browser_interface.diagnostics.urls" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-04905b291ffbca830b952ede5b2f00dab2445965.png" alt="Inheritance diagram of SlugListConverter" usemap="#inheritance3c0adc0956" class="inheritance graphviz" /></div>
+<map id="inheritance3c0adc0956" name="inheritance3c0adc0956">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.diagnostics.urls.SlugListConverter" target="_top" title="One or more slugs, comma separated: the y quantities of a page." alt="" coords="5,5,432,31"/>
+</map><p>Define the URL paths used by the diagnostics BUI app.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.urls.SlugListConverter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.diagnostics.urls.</span></span><span class="sig-name descname"><span class="pre">SlugListConverter</span></span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/urls.html#SlugListConverter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.urls.SlugListConverter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-adbdbd8e9da796c7dd72c496e82c4069ebfb033b.png" alt="Inheritance diagram of autowisp.browser_interface.diagnostics.urls.SlugListConverter" usemap="#inheritance944da87945" class="inheritance graphviz" /></div>
+<map id="inheritance944da87945" name="inheritance944da87945">
+<area shape="rect" id="node1" href="#autowisp.browser_interface.diagnostics.urls.SlugListConverter" target="_top" title="One or more slugs, comma separated: the y quantities of a page." alt="" coords="5,5,432,31"/>
+</map><p>One or more slugs, comma separated: the y quantities of a page.</p>
+<p>A plot may draw several quantities against one x, and the address bar
+says which – so that a page can be bookmarked, reloaded or sent to
+somebody as what is on the screen. <code class="docutils literal notranslate"><span class="pre">image/jd/vs/bg_center,smooth_bg</span></code>
+is two sections against the time.</p>
+<p>The order is the sections’ order, which the page keeps meaningful: it
+decides which default marker each section takes, and the order of the
+legend.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.urls.SlugListConverter.regex">
+<span class="sig-name descname"><span class="pre">regex</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'[-a-zA-Z0-9_]+(?:,[-a-zA-Z0-9_]+)*'</span></span><a class="headerlink" href="#autowisp.browser_interface.diagnostics.urls.SlugListConverter.regex" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.urls.SlugListConverter.to_python">
+<span class="sig-name descname"><span class="pre">to_python</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/urls.html#SlugListConverter.to_python"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.urls.SlugListConverter.to_python" title="Link to this definition"></a></dt>
+<dd><p>Return the names in order, keeping the first of any repeat.</p>
+<p>A repeated name would be a second section drawing exactly what an
+earlier one draws, which is not worth refusing the whole address
+over: the sections are what the user asked for, minus the one
+that would have been a duplicate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.browser_interface.diagnostics.urls.SlugListConverter.to_url">
+<span class="sig-name descname"><span class="pre">to_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/browser_interface/diagnostics/urls.html#SlugListConverter.to_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.browser_interface.diagnostics.urls.SlugListConverter.to_url" title="Link to this definition"></a></dt>
+<dd><p>Return the path segment naming <em>value</em>.</p>
+<p>A string passes through whole, because the selector bar reverses
+this route with a placeholder standing in for the names and
+substitutes the real ones in the browser – so what arrives here
+is sometimes a marker rather than a list.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

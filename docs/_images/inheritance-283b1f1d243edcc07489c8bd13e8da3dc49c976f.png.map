@@ -1,0 +1,6 @@
+<map id="inheritance857b7a0234" name="inheritance857b7a0234">
+<area shape="rect" id="node1" href="autowisp.tests.test_diagnostics_views.html#autowisp.tests.test_diagnostics_views.DiagnosticsViewTestCase" target="_top" title="Base creating one throwaway project database holding two nights." alt="" coords="5,79,448,104"/>
+<area shape="rect" id="node3" href="#autowisp.tests.test_expression_series.SeriesValuesTestCase" target="_top" title="The two&#45;night fixture, with the keys these tests ask about." alt="" coords="19,152,434,177"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="143,5,311,31"/>
+<area shape="rect" id="node4" href="#autowisp.tests.test_expression_series.TestSeriesValues" target="_top" title="Resolving quantities, which is where expressions enter." alt="" coords="35,225,418,251"/>
+</map>

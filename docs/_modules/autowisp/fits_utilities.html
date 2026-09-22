@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.fits_utilities &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -164,7 +164,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.fits_utilities</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;General use convenience functions for working with FITS images.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""General use convenience functions for working with FITS images."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -188,7 +188,7 @@
     <span class="n">read_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">read_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read image, its error estimate, mask and header from pipeline FITS file.</span>
 
 <span class="sd">    Args:</span>
@@ -210,38 +210,38 @@
 
 <span class="sd">            2-D array:</span>
 <span class="sd">                The error estimate of image, identified by</span>
-<span class="sd">                ``IMAGETYP==&#39;error&#39;``. Set to None if none of the extensions</span>
-<span class="sd">                have ``IMAGETYP==&#39;error&#39;``. This is omitted from the output if</span>
+<span class="sd">                ``IMAGETYP=='error'``. Set to None if none of the extensions</span>
+<span class="sd">                have ``IMAGETYP=='error'``. This is omitted from the output if</span>
 <span class="sd">                ``read_error == False``.</span>
 
 <span class="sd">            2-D array:</span>
 <span class="sd">                A bitmask of quality flags for each image pixel (identified by</span>
-<span class="sd">                ``IMAGETYP=&#39;mask&#39;``). Set to None if none of the extensions have</span>
-<span class="sd">                ``IMAGETYP=&#39;mask&#39;``. This is omitted from the output if</span>
+<span class="sd">                ``IMAGETYP='mask'``). Set to None if none of the extensions have</span>
+<span class="sd">                ``IMAGETYP='mask'``. This is omitted from the output if</span>
 <span class="sd">                ``read_mask == False``.</span>
 
 <span class="sd">            astropy.io.fits.Header:</span>
 <span class="sd">                The header of the image HDU in the file. This is omitted from</span>
-<span class="sd">                the output if ``read_header == False``.&quot;&quot;&quot;</span>
+<span class="sd">                the output if ``read_header == False``."""</span>
 
     <span class="n">image</span> <span class="o">=</span> <span class="n">error</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_file</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">hdu_index</span><span class="p">,</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_file</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">image</span> <span class="o">=</span> <span class="n">hdu</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="n">read_image</span> <span class="k">else</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="n">read_header</span><span class="p">:</span>
                     <span class="n">header</span> <span class="o">=</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"IMAGETYP"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"error"</span><span class="p">:</span>
                     <span class="n">error</span> <span class="o">=</span> <span class="n">hdu</span><span class="o">.</span><span class="n">data</span>
-                <span class="k">elif</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mask&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"IMAGETYP"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"mask"</span><span class="p">:</span>
                     <span class="n">mask</span> <span class="o">=</span> <span class="n">hdu</span><span class="o">.</span><span class="n">data</span>
                     <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">BadImageError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Mask image (hdu #</span><span class="si">{</span><span class="n">hdu_index</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">) of </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">}</span><span class="s2"> &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;had data type </span><span class="si">{</span><span class="n">mask</span><span class="o">.</span><span class="n">dtype</span><span class="si">!s}</span><span class="s2"> (not int8).&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Mask image (hdu #</span><span class="si">{</span><span class="n">hdu_index</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">) of </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">}</span><span class="s2"> "</span>
+                            <span class="sa">f</span><span class="s2">"had data type </span><span class="si">{</span><span class="n">mask</span><span class="o">.</span><span class="n">dtype</span><span class="si">!s}</span><span class="s2"> (not int8)."</span>
                         <span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -261,7 +261,7 @@
 <div class="viewcode-block" id="get_primary_header">
 <a class="viewcode-back" href="../../implementation/autowisp.fits_utilities.html#autowisp.fits_utilities.get_primary_header">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_primary_header</span><span class="p">(</span><span class="n">fits_image</span><span class="p">,</span> <span class="n">add_filename_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the primary header of the given image (filename or opened).</span>
 
 <span class="sd">    Args:</span>
@@ -274,35 +274,35 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        fits.Header:</span>
 <span class="sd">            The first header in the input file with non-zero NAXIS.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fits_image</span><span class="p">,</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_image</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened_fits</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_image</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened_fits</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">opened_fits</span><span class="p">,</span> <span class="n">add_filename_keywords</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">fits_image</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">fits_image</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="n">fits_image</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;mphotref&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">"NAXIS"</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"IMAGETYP"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"mphotref"</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span>
             <span class="k">if</span> <span class="n">add_filename_keywords</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">base_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fits_image</span><span class="o">.</span><span class="n">fileinfo</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="s2">&quot;filename&quot;</span><span class="p">])</span>
-                <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.fz&quot;</span><span class="p">,</span> <span class="s2">&quot;.fits&quot;</span><span class="p">]:</span>
+                <span class="n">base_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fits_image</span><span class="o">.</span><span class="n">fileinfo</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="s2">"filename"</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">".fz"</span><span class="p">,</span> <span class="s2">".fits"</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">base_fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">):</span>
                         <span class="n">base_fname</span> <span class="o">=</span> <span class="n">base_fname</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">ext</span><span class="p">)]</span>
 
-                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_fname</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">"RAWFNAME"</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_fname</span>
             <span class="k">return</span> <span class="n">result</span>
-    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No valid HDU found in </span><span class="si">{</span><span class="n">fits_image</span><span class="si">!r}</span><span class="s2">!&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No valid HDU found in </span><span class="si">{</span><span class="n">fits_image</span><span class="si">!r}</span><span class="s2">!"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="update_stack_header">
 <a class="viewcode-back" href="../../implementation/autowisp.fits_utilities.html#autowisp.fits_utilities.update_stack_header">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_stack_header</span><span class="p">(</span><span class="n">master_header</span><span class="p">,</span> <span class="n">frame_header</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">first_time</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Update the master header per header from one of the individual frames.</span>
 
 <span class="sd">    Should be called once for each frame participating in the stack with the</span>
@@ -329,14 +329,14 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">first_time</span><span class="p">:</span>
         <span class="n">master_header</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">frame_header</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+            <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span> <span class="n">frame_header</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking master header against </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Checking master header against </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="n">mismatch_keys</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">k</span>
@@ -344,20 +344,20 @@
             <span class="k">if</span> <span class="n">master_header</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">!=</span> <span class="n">frame_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">nan</span><span class="p">)</span>
         <span class="p">}</span> <span class="o">|</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">master_header</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">frame_header</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="s2">&quot;IMAGEYP&quot;</span> <span class="ow">in</span> <span class="n">mismatch_keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"IMAGEYP"</span> <span class="ow">in</span> <span class="n">mismatch_keys</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ImageMismatchError</span><span class="p">(</span>
-                <span class="s2">&quot;Attempting to combine images with &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;IMAGETYP = </span><span class="si">{</span><span class="n">master_header</span><span class="p">[</span><span class="s1">&#39;IMAGETYP&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> and &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;IMAGETYP=</span><span class="si">{</span><span class="n">frame_header</span><span class="p">[</span><span class="s1">&#39;IMAGETYP&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;into a master!&quot;</span>
+                <span class="s2">"Attempting to combine images with "</span>
+                <span class="sa">f</span><span class="s2">"IMAGETYP = </span><span class="si">{</span><span class="n">master_header</span><span class="p">[</span><span class="s1">'IMAGETYP'</span><span class="p">]</span><span class="si">}</span><span class="s2"> and "</span>
+                <span class="sa">f</span><span class="s2">"IMAGETYP=</span><span class="si">{</span><span class="n">frame_header</span><span class="p">[</span><span class="s1">'IMAGETYP'</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="s2">"into a master!"</span>
             <span class="p">)</span>
 
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Deleting:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mismatch_keys</span><span class="p">))</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Deleting:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mismatch_keys</span><span class="p">))</span>
 
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting with </span><span class="si">%d</span><span class="s2"> cards&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">master_header</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Starting with </span><span class="si">%d</span><span class="s2"> cards"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">master_header</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mismatch_keys</span><span class="p">:</span>
             <span class="n">master_header</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">remove_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> cards remain&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">master_header</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span></div>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"</span><span class="si">%d</span><span class="s2"> cards remain"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">master_header</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span></div>
 
 </pre></div>
 

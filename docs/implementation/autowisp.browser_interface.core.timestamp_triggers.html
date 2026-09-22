@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autowisp.browser_interface.core.timestamp_triggers module &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -173,7 +173,7 @@
 <span id="autowisp-browser-interface-core-timestamp-triggers-module"></span><h1>autowisp.browser_interface.core.timestamp_triggers module<a class="headerlink" href="#module-autowisp.browser_interface.core.timestamp_triggers" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-6ef6af2e5fbc4a3ba4d6dfdf4f963c84121be233.png" alt="Inheritance diagram of FieldDoesNotExist" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-4921c2e0da45167f083ba33ce955cd7cc0aef719.png" alt="Inheritance diagram of FieldDoesNotExist" class="inheritance graphviz" /></div>
 <p>Keep <code class="docutils literal notranslate"><span class="pre">modified</span></code> current for writes that bypass Django’s ORM.</p>
 <p><code class="docutils literal notranslate"><span class="pre">auto_now</span></code> only fires where Django is doing the writing, and not even
 everywhere it is (see <code class="xref py py-class docutils literal notranslate"><span class="pre">core.models.BuiModelBase</span></code>).  A per-table
@@ -186,7 +186,7 @@ the primary key the model actually declares, never on an assumed <code class="do
 </section>
 <dl class="py data">
 <dt class="sig sig-object py" id="autowisp.browser_interface.core.timestamp_triggers._column">
-<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.core.timestamp_triggers.</span></span><span class="sig-name descname"><span class="pre">_column</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'modified'</span></em><a class="headerlink" href="#autowisp.browser_interface.core.timestamp_triggers._column" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.browser_interface.core.timestamp_triggers.</span></span><span class="sig-name descname"><span class="pre">_column</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'modified'</span></span><a class="headerlink" href="#autowisp.browser_interface.core.timestamp_triggers._column" title="Link to this definition"></a></dt>
 <dd><p>The column these triggers maintain.  Models get it from
 <code class="xref py py-class docutils literal notranslate"><span class="pre">core.models.BuiModelBase</span></code>, but the trigger is installed on the
 strength of the column being present rather than of where it came from.
