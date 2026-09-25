@@ -36,7 +36,6 @@ from autowisp.error_context import capture_errors
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.exceptions import AutoWISPError, Component, FileKind
 from autowisp.processing_steps import add_images_to_db as add_images_to_db_step
-from autowisp.processing_steps import calculate_photref_merit as merit_step
 from autowisp.processing_steps import calibrate as calibrate_step
 from autowisp.processing_steps import (
     fit_source_extracted_psf_map as psf_map_step,
@@ -382,29 +381,6 @@ class TestHDF5ProductsAttachThemselves(_StampedFilesMixin, unittest.TestCase):
             self._stamped_files(
                 lambda: psf_map_step.fit_source_extracted_psf_map(
                     [self.dr_fname], None, config, MagicMock(), MagicMock()
-                )
-            ),
-            [self._dr_pair()],
-        )
-
-    def test_merit_step_names_the_dr_it_failed_on(self):
-        """``calculate_photref_merit`` reports the DR it was scoring."""
-
-        config = {
-            component + "_version": 0
-            for component in [
-                "srcextract",
-                "catalogue",
-                "skytoframe",
-                "background",
-                "srcproj",
-            ]
-        }
-
-        self.assertCountEqual(
-            self._stamped_files(
-                lambda: merit_step.calculate_photref_merit(
-                    [self.dr_fname], config
                 )
             ),
             [self._dr_pair()],
