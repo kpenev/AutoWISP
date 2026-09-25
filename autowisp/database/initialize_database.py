@@ -299,7 +299,7 @@ def init_processing(step_dependencies, master_info):
         ):
             if step_name not in db_steps:
                 db_steps[step_name] = add_processing_step(step_name, db_session)
-            if step_name not in ["add_images_to_db", "calculate_photref_merit"]:
+            if step_name != "add_images_to_db":
                 db_session.add(
                     ProcessingSequence(
                         id=processing_id,

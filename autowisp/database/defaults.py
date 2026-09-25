@@ -183,17 +183,6 @@ step_dependencies = [
         ],
     ),
     (
-        "calculate_photref_merit",
-        "object",
-        [
-            ("calibrate", "object"),
-            ("find_stars", "object"),
-            ("solve_astrometry", "object"),
-            ("fit_star_shape", "object"),
-            ("fit_source_extracted_psf_map", "object"),
-        ],
-    ),
-    (
         "epd",
         "object",
         [
