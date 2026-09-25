@@ -5,7 +5,8 @@ src = [
   'progress_bar.css',
   'select_images.css',
   'select_photref.css',
-  'checkboxes.css'
+  'checkboxes.css',
+  'tune_starfind.css'
 ]
 
 py.install_sources(
