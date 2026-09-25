@@ -100,8 +100,12 @@ suite is too slow to run after every edit, but `python -m autowisp.tests
 failed_test -v -k TestCalibrate` still imports `__main__`, which is where the
 suite collects from and the first thing CI trips over. `python -m unittest
 autowisp.tests.test_x` costs about the same and skips that entirely, so it
-passes happily while the suite cannot even start. Run the whole thing before
-pushing for CI.
+passes happily while the suite cannot even start.
+
+**Run the whole suite, or dispatch CI, before merging into master.** CI is
+`workflow_dispatch` only, so a push runs nothing. On a feature branch the
+tests covering the change are enough before a push; the full suite, slow as
+it is, gates the merge.
 
 The `<failed_test_dir>` argument is **required** — it's where artifacts from failed tests are preserved for debugging. Tests run in a temporary directory, copy test data there, and clean up on success.
 
@@ -240,6 +244,15 @@ build does not, each guarding a failure that is silent rather than loud:
   and ignores `_static/`, `_sources/` and `_images/`.
 
 Keep the rebuild as its own commit; it rewrites every page.
+
+**Rebuild once per branch, when its development is finished** — just before
+merging into master, not after each story or sub-task. Every rebuild is a
+huge commit, so rebuilding along the way scatters several of them through
+the branch's history and buries the real changes. In Jira, the rebuild is a
+single sub-task of the branch's main story, not a sub-task of each story
+that changes documented code. Editing the documentation *sources*
+(`documentation/source/`, docstrings) alongside the code is fine. It's the
+generated `docs/` that waits.
 
 The toolchain is an extra, `pip install .[docs]`, and belongs in **the same
 environment as autowisp** — `sphinx-build` imports every module it documents,
