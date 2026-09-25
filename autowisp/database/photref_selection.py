@@ -58,10 +58,9 @@ def compute_photref_candidates(processing, db_session):
     falling back to "demo" mode where *every* candidate is treated as
     pending), strips images whose ``solve_astrometry`` prerequisite
     failed, groups the survivors by master-condition values, and for
-    each non-empty group produces a ``(master_values,
-    calculate_photref_merit_config, batch)`` tuple where ``batch`` is
-    the list of ``(calibrated_fname, dr_fname, image_id, channel)``
-    entries :func:`bind_images_to_photref` expects.
+    each non-empty group produces a ``(master_values, batch)`` tuple
+    where ``batch`` is the list of ``(calibrated_fname, dr_fname,
+    image_id, channel)`` entries :func:`bind_images_to_photref` expects.
 
     Args:
         processing:    A fresh ``ImageProcessingManager``. Its
@@ -86,7 +85,7 @@ def compute_photref_candidates(processing, db_session):
                 * ``"master_expressions"`` (list[str]) -- the condition
                   expressions defining a photref's identity.
                 * ``"groups"`` (list[tuple]) -- a tuple of
-                  ``(list(master_values), config, batch)`` per group of
+                  ``(list(master_values), batch)`` per group of
                   images sharing the same master-condition values.
     """
 
@@ -162,17 +161,9 @@ def compute_photref_candidates(processing, db_session):
                 ]
             if not unbound_images:
                 continue
-            config = processing.get_config(
-                matched_expressions=None,
-                db_session=db_session,
-                image_id=unbound_images[0][0].id,
-                channel=unbound_images[0][1],
-                step_name="calculate_photref_merit",
-            )[0]
             groups.append(
                 (
                     list(master_values),
-                    config,
                     [
                         (
                             processing.get_step_input(

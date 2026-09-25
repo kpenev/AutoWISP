@@ -182,7 +182,7 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
 
         photref_batch = None
         for candidate in result["candidates"]:
-            for _, _, batch in candidate["groups"]:
+            for _, batch in candidate["groups"]:
                 if any(entry[1] == self._photref_dr_path for entry in batch):
                     photref_batch = batch
                     break

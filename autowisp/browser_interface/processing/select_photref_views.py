@@ -120,7 +120,7 @@ def _get_merit_data(request, target_index):
     if str(target_index) not in request.session["merit_info"]:
         _logger.debug("Calculating merit for target %s", target_index)
         batch = request.session["need_photref"]["master_values"][target_index][
-            2
+            1
         ]
         photref_group = [(entry[1], entry[2], entry[3]) for entry in batch]
         with start_db_session() as db_session:
@@ -304,7 +304,7 @@ def select_photref_image(request, *, target_index, recalculate=False):
     merit_data = pandas.read_json(
         StringIO(request.session["merit_info"][str(target_index)])
     )
-    batch = request.session["need_photref"]["master_values"][target_index][2]
+    batch = request.session["need_photref"]["master_values"][target_index][1]
     fits_fname = batch[
         # False positive
         # pylint:disable=no-member
@@ -383,7 +383,7 @@ def select_photref_target(request, recalc=False):
             ]
             + ["Num. Images"],
             "master_values": [
-                target[0] + [len(target[2])]
+                target[0] + [len(target[1])]
                 for target in request.session["need_photref"]["master_values"]
             ],
             "merit_function": request.session["merit_function"],
@@ -411,7 +411,7 @@ def record_photref_selection(request, target_index, image_index):
     merit_data = pandas.read_json(
         StringIO(request.session["merit_info"][str(target_index)])
     )
-    batch = request.session["need_photref"]["master_values"][target_index][2]
+    batch = request.session["need_photref"]["master_values"][target_index][1]
     dr_fname = batch[
         # False positive
         # pylint:disable=no-member
