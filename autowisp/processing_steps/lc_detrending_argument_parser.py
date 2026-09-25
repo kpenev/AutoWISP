@@ -406,7 +406,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "--tfa-observation-id",
             type=str,
             nargs="+",
-            default=("fitsheader.fnum",),
+            default=("fitsheader.fnum", "fitsheader.cfg.clrchnl"),
             help="The datasets to use for matching observations across light "
             "curves. For example, the following works for HAT: "
             "fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.",
