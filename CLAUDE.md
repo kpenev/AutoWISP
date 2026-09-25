@@ -282,7 +282,6 @@ afterwards. The epics available in `SUP`:
 | `SUP-160` | Documentation |
 | `SUP-167` | Tests |
 | `SUP-200` | Non-development related tasks |
-| `SUP-526` | Image Quality Control |
 
 Note that `SUP-37` and `SUP-128` divide by *surface*, not by subject: the
 BUI-facing half of a concern goes under `SUP-128` and its engine half under
