@@ -2,7 +2,7 @@
 
 Also where the stored expression library is fetched and handed to the
 plotting code.  That code takes it as an argument and never looks it up, so
-that it needs no browser-interface database -- the same reason the tiers
+that its tests can write the library they need -- the same reason the tiers
 below it take one too -- which leaves this module, already the app's Django
 side, as the place the two meet.
 """

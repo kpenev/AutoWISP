@@ -596,8 +596,9 @@ class TestCrossChannelValues(unittest.TestCase):
     def test_a_channel_never_recorded_is_undefined(self):
         """Not an error: the expression is simply NaN throughout.
 
-        One library is shared by every project, so an expression naming a
-        channel this camera does not have is an ordinary thing to meet.
+        Expressions move between projects, and their slots are bound to
+        channels in the table, so reading a channel this camera does not
+        have is an ordinary thing to meet.
         """
 
         with start_db_session() as db_session:

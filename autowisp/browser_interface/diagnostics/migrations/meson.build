@@ -1,5 +1,6 @@
 py_src = [
   '0001_initial.py',
+  '0002_delete_diagnosticexpression.py',
   '__init__.py'
 ]
 

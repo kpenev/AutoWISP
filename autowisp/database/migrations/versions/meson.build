@@ -13,6 +13,7 @@ py_src = [
   '0008_widen_lc_status_id.py',
   '0009_float_columns_to_double.py',
   '0010_unique_image_type_name.py',
+  '0011_diagnostic_expression.py',
 ]
 
 py.install_sources(

@@ -5,8 +5,8 @@ what order a library of them has to be evaluated in, and what is wrong with
 one. It deliberately knows about no database of any kind. The library
 arrives as a ``{name: expression}`` dictionary and the data as a
 ``{diagnostic_name: array}`` dictionary, so the same rules apply whether the
-caller is the browser interface reading its own database or a pipeline step
-handed a library from a file.
+caller is the browser interface or the pipeline, both of which read the
+project's library through :mod:`autowisp.diagnostics.expression_library`.
 
 Passing the values in rather than fetching them is what keeps this module
 free of a database and cheap to test exhaustively; it is not a facility for
@@ -923,8 +923,8 @@ def check_expression(name, expression, current_library):
     project creation or created by the ``pixel_q*`` branch of
     ``_save_image_diagnostics``, which refuses every other name. So no
     project can contain a diagnostic this does not know, and an expression
-    means the same thing everywhere -- which is what lets one library be
-    shared by every project.
+    means the same thing everywhere -- which is what lets expressions be
+    exported from one project and imported into another.
 
     Whether an expression is *usable* in a particular project is a
     different question, about whether rows have been recorded, and is

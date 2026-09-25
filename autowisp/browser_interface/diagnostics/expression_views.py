@@ -1,38 +1,36 @@
 """Views for defining, listing and moving diagnostic expressions.
 
-The library is global -- one set of expressions shared by every project --
-because an expression is a way of *looking* at data rather than data
-itself.  That is also why this page works with no project open: validity
-does not depend on one (see
-:mod:`autowisp.diagnostics.diagnostic_types`), and the only thing that
-does -- whether the diagnostics an expression needs are recorded here --
-is reported as availability rather than as brokenness.  Today's single
-status conflates "meaningless" with "nothing recorded yet"; these are not
-the same complaint and do not read as one here.
+The library belongs to the open project, stored in its database, because
+exclusion rules make expressions part of how a project is processed.
+Projects share expressions by exporting and importing them.
+
+Validity does not depend on the project (see
+:mod:`autowisp.diagnostics.diagnostic_types`); what does -- whether the
+diagnostics an expression needs have been recorded -- is reported as
+availability rather than as brokenness.  "Meaningless" and "nothing
+recorded yet" are not the same complaint and do not read as one here.
 """
 
 import json
 from io import StringIO
 
 from django.contrib import messages
-from django.db import transaction
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse
+from django.shortcuts import redirect, render
 
 from autowisp.database.interface import start_db_session
+from autowisp.diagnostics import expression_library
 from autowisp.diagnostics.diagnostic_types import time_quantity
 from autowisp.diagnostics.expressions import (
     check_expression,
     get_expression_dependents,
     get_expression_names,
     order_expressions,
-    rename_references,
 )
 
 from .expression_data import get_expressions
 from .forms import DiagnosticExpressionForm
 from .quantities import get_recorded_diagnostics
-from .models import DiagnosticExpression
 
 #: Marks an export file as ours and says which shape it is in.  A file
 #: without the key, or carrying a version this code does not know, is
@@ -117,8 +115,7 @@ def describe_expression(name, expressions, recorded):
 
         expressions(dict):    The library, ``{name: expression}``.
 
-        recorded(set):    The diagnostic names in use in the open project,
-            or ``None`` if no project is open.
+        recorded(set):    The diagnostic names in use in the open project.
 
     Returns:
         dict:    The fields ``diagnostic_expressions.html`` renders.
@@ -127,7 +124,7 @@ def describe_expression(name, expressions, recorded):
     problems = check_expression(name, expressions[name], expressions)
 
     missing = None
-    if not problems and recorded is not None:
+    if not problems:
         _, needed = order_expressions([name], expressions)
         # jd is known for every image of the canonical list, so it never
         # counts against availability.
@@ -163,22 +160,15 @@ def _render_list(request, form, edit_name=""):
 
     expressions = form.expressions
 
-    # Availability is the one thing here that needs a project; validity is
-    # not, so with none open the page still lists and still validates, and
-    # simply says nothing about what has been recorded.
-    recorded = None
-    if request.session.get("project_home"):
-        with start_db_session() as db_session:
-            recorded = set(get_recorded_diagnostics(db_session))
-
-    # The description is the one stored column no rule is derived from, so
-    # it is merged in here rather than threaded through the library, which
-    # is a name-to-expression mapping everywhere else in the feature.
-    # pylint: disable=no-member
-    descriptions = dict(
-        DiagnosticExpression.objects.values_list("name", "description")
-    )
-    # pylint: enable=no-member
+    with start_db_session() as db_session:
+        recorded = set(get_recorded_diagnostics(db_session))
+        # The description is the one stored column no rule is derived from,
+        # so it is merged in here rather than threaded through the library,
+        # which is a name-to-expression mapping everywhere else in the
+        # feature.
+        descriptions = expression_library.get_expression_descriptions(
+            db_session
+        )
 
     return render(
         request,
@@ -186,7 +176,6 @@ def _render_list(request, form, edit_name=""):
         {
             "form": form,
             "edit_name": edit_name,
-            "have_project": recorded is not None,
             "expression_rows": [
                 dict(
                     describe_expression(name, expressions, recorded),
@@ -215,60 +204,24 @@ def list_expressions(request, name=None):
             show the blank form.
     """
 
-    instance = (
-        None
-        if name is None
-        else get_object_or_404(DiagnosticExpression, name=name)
-    )
+    expressions = get_expressions()
+    initial = None
+    if name is not None:
+        with start_db_session() as db_session:
+            entries = expression_library.get_expression_entries(
+                [name], db_session
+            )
+        if not entries:
+            raise Http404(f"No diagnostic expression named {name}.")
+        initial = entries[0]
 
     return _render_list(
         request,
         DiagnosticExpressionForm(
-            instance=instance, expressions=get_expressions()
+            initial=initial, expressions=expressions, replacing=name
         ),
         edit_name=name or "",
     )
-
-
-def _carry_dependents_through_rename(old_name, new_name, expressions):
-    """
-    Rewrite everything referencing *old_name* to reference *new_name*.
-
-    A rename would otherwise orphan its dependents -- the delete guard's
-    hazard reached from the other side -- and refusing it, as deletion is
-    refused, is not a workable answer: unlike a delete there is no gesture
-    that makes it legal, because pointing a dependent at the new name will
-    not validate while that name does not yet exist.  So the rename carries
-    them with it, and the caller says which ones moved.
-
-    Args:
-        old_name(str):    The name as it was.
-
-        new_name(str):    The name as it now is.
-
-        expressions(dict):    The library as it was *before* the rename,
-            which is what the dependents are read from.
-
-    Returns:
-        list:    The names updated, alphabetically; empty if nothing
-            referenced *old_name*.
-    """
-
-    updated = []
-    for dependent in sorted(get_expression_dependents(old_name, expressions)):
-        # QuerySet.update rather than save(): `modified` is maintained by a
-        # database trigger precisely so that it survives this, see
-        # core.models.BuiModelBase.
-        # pylint: disable=no-member
-        DiagnosticExpression.objects.filter(name=dependent).update(
-            expression=rename_references(
-                expressions[dependent], old_name, new_name
-            )
-        )
-        # pylint: enable=no-member
-        updated.append(dependent)
-
-    return updated
 
 
 def save_expression(request):
@@ -277,19 +230,17 @@ def save_expression(request):
 
     Editing is keyed by ``edit_name`` rather than by primary key, so that
     the page is driven entirely by the names it displays and a rename is an
-    edit rather than a delete followed by a create.
+    edit rather than a delete followed by a create.  A rename carries the
+    expressions referencing the old name with it (see
+    :func:`~autowisp.diagnostics.expression_library.store_expression`), and
+    says which ones moved.
     """
 
     assert request.method == "POST"
 
-    expressions = get_expressions()
     edit_name = request.POST.get("edit_name", "")
-    # pylint: disable=no-member
-    instance = DiagnosticExpression.objects.filter(name=edit_name).first()
-    # pylint: enable=no-member
-
     form = DiagnosticExpressionForm(
-        request.POST, instance=instance, expressions=expressions
+        request.POST, expressions=get_expressions(), replacing=edit_name
     )
     if not form.is_valid():
         # Re-rendered rather than redirected, so the complaints stay
@@ -297,20 +248,20 @@ def save_expression(request):
         # mode, so correcting one does not silently create a second row.
         return _render_list(request, form, edit_name=edit_name)
 
-    with transaction.atomic():
-        expression = form.save()
-        updated = (
-            _carry_dependents_through_rename(
-                edit_name, expression.name, expressions
-            )
-            if edit_name and edit_name != expression.name
-            else []
+    name = form.cleaned_data["name"]
+    with start_db_session() as db_session:
+        updated = expression_library.store_expression(
+            db_session,
+            name=name,
+            expression=form.cleaned_data["expression"],
+            description=form.cleaned_data["description"],
+            replacing=edit_name or None,
         )
 
     if updated:
         messages.info(
             request,
-            f"Renamed {edit_name} to {expression.name}, and updated "
+            f"Renamed {edit_name} to {name}, and updated "
             + ", ".join(updated)
             + " to match.",
         )
@@ -318,8 +269,8 @@ def save_expression(request):
     for aggregate in sorted(form.bare_aggregates):
         messages.warning(
             request,
-            f"{expression.name} calls {aggregate}(), which goes NaN as soon "
-            f"as one image of a series lacks a diagnostic. Did you mean "
+            f"{name} calls {aggregate}(), which goes NaN as soon as one "
+            f"image of a series lacks a diagnostic. Did you mean "
             f"nan{aggregate}()?",
         )
 
@@ -360,9 +311,8 @@ def delete_expressions(request):
             + ".",
         )
     else:
-        # pylint: disable=no-member
-        DiagnosticExpression.objects.filter(name__in=selected).delete()
-        # pylint: enable=no-member
+        with start_db_session() as db_session:
+            expression_library.delete_expressions(selected, db_session)
 
     return redirect("diagnostics:list_expressions")
 
@@ -391,17 +341,14 @@ def export_expressions(request):
         _reachable(selected, expressions) if selected else sorted(expressions)
     )
 
-    # pylint: disable=no-member
-    rows = DiagnosticExpression.objects.filter(name__in=names).values(
-        "name", "expression", "description"
-    )
-    # pylint: enable=no-member
+    with start_db_session() as db_session:
+        entries = expression_library.get_expression_entries(names, db_session)
 
     with StringIO() as export_stream:
         json.dump(
             {
                 _format_key: _format_version,
-                "expressions": sorted(rows, key=lambda row: row["name"]),
+                "expressions": entries,
             },
             export_stream,
             indent=4,
@@ -453,19 +400,8 @@ def _staged_expressions(entries):
 def _write_expressions(entries):
     """Store *entries*, returning how many were new and how many replaced."""
 
-    added, updated = 0, 0
-    for name, entry in entries.items():
-        # pylint: disable=no-member
-        _, created = DiagnosticExpression.objects.update_or_create(
-            name=name, defaults=entry
-        )
-        # pylint: enable=no-member
-        if created:
-            added += 1
-        else:
-            updated += 1
-
-    return added, updated
+    with start_db_session() as db_session:
+        return expression_library.write_expressions(entries, db_session)
 
 
 def import_expressions(request):

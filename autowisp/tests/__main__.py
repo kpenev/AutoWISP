@@ -194,6 +194,9 @@ from autowisp.tests.test_diagnostic_expressions import (
     TestNameSpace,
     TestStoredFields,
     TestLibraryAccess,
+    TestStoreExpression,
+    TestDeleteAndWrite,
+    TestExpressionForm,
 )
 from autowisp.tests.test_bui_db_config import (
     TestDiscovery,

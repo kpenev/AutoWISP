@@ -532,7 +532,7 @@ rather than image by image, which is what makes aggregates work::
 Every diagnostic is recorded once per channel, so its bare name does not
 name a number; ``bg_center[0]`` does. What the subscript holds is not a
 channel but a *slot*, filled in from the table when you plot -- and it
-has to be, because one library is shared by every project and one
+has to be, because expressions move between projects and one
 camera's channels are called ``B,G1,G2,R`` where another's are
 ``B0,G0,G1,R0``. An expression naming ``R`` would mean a different thing
 in each, or nothing at all.
@@ -642,9 +642,11 @@ That is availability rather than breakage: the expression is perfectly
 valid, and the management page distinguishes the two -- an unrecorded
 input is reported separately from a name that means nothing at all.
 
-Expressions belong to the interface rather than to any one project, so
-they follow you between projects, and **Export** and **Import** move them
-between installations as a JSON file. Exporting a selection brings along
+Expressions belong to the project, stored in its database alongside the
+diagnostics they are built from, since the pipeline uses them too:
+editing one in a project never changes what another project sees.
+**Export** and **Import** move them between projects, or installations,
+as a JSON file. Exporting a selection brings along
 whatever it is built from, so the file always stands on its own. A file
 naming an expression you already have is the one thing importing cannot
 decide for you: everything else in it is imported, and it then shows you

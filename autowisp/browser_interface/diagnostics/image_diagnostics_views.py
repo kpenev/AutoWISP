@@ -75,7 +75,7 @@ def get_series_data(series, x_quantity, expressions, db_session):
 
         expressions(dict):    The library, ``{name: expression}``, passed in
             rather than fetched so that nothing below the view has to know
-            it came from the browser-interface database.
+            where it is stored.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -728,15 +728,14 @@ def display_diagnostics(
             order they take their markers in.
 
         expressions(dict):    The library.  It arrives as an argument
-            rather than being fetched here because it comes from the
-            browser-interface database, and keeping that out means
-            everything in this module can be tested against a project
-            database alone.  ``views.py`` supplies it.
+            rather than being fetched here, so that everything in this
+            module can be tested with a library written by the test.
+            ``views.py`` supplies it.
 
         expression_descriptions(dict):    What each expression is for,
-            from the same database and passed in for the same reason. The
-            recorded diagnostics describe themselves in the project one,
-            and the two are merged here.
+            passed in for the same reason. The recorded diagnostics
+            describe themselves in the project database, and the two are
+            merged here.
     """
 
     with start_db_session() as db_session:

@@ -691,7 +691,7 @@ def get_available_series(
 
         expressions(dict):    The library, ``{name: expression}``, passed in
             rather than fetched so that nothing below the view has to know
-            it came from the browser-interface database.
+            where it is stored.
 
         db_session:    An active SQLAlchemy database session.
 
