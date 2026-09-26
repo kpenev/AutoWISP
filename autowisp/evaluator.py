@@ -54,6 +54,37 @@ def eval_iterative_rej_smoothing_spline(x, *args, **kwargs):
     return spline(x)
 
 
+def nanrank(x):
+    """
+    Return each entry's rank as a fraction of the finite entries.
+
+    The smallest of *n* finite values ranks ``1/n`` and the largest ``1``;
+    ties share the average of the ranks they span, and NaN stays NaN
+    without counting towards *n*. This is pandas' ``rank(pct=True)``, which
+    is what the photometric reference merit's ``qnt_<name>`` columns used,
+    so a merit rewritten in terms of this ranks candidates the same way.
+
+    Unlike the aggregates in :attr:`EvaluatorBase.nan_aggregates`, the
+    result has one entry per input entry, so it composes element-wise with
+    the values it ranks.
+
+    Args:
+        x(array-like):    The values to rank.
+
+    Returns:
+        numpy.ndarray:    The ranks, as floats in ``(0, 1]``, shaped like
+            *x*.
+    """
+
+    values = numpy.asarray(x, dtype=float)
+    return (
+        pandas.Series(values.ravel())
+        .rank(pct=True)
+        .to_numpy()
+        .reshape(values.shape)
+    )
+
+
 class EvaluatorBase(asteval.Interpreter):
     """Asteval interpreter with the symbols all AutoWISP expressions share."""
 
@@ -104,6 +135,7 @@ class EvaluatorBase(asteval.Interpreter):
         super().__init__()
         for func_name in self.nan_aggregates:
             self.symtable[func_name] = getattr(numpy, func_name)
+        self.symtable["nanrank"] = nanrank
         for func_name in self.removed_names:
             # Absent rather than asserted, so that an asteval release which
             # drops one of these on its own is not an error here.

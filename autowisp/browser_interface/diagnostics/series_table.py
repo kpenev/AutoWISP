@@ -11,6 +11,12 @@ fill them would be work proportional to the whole image collection; every
 question asked here is answered by a SQL aggregate instead.
 """
 
+# Over pylint's 1000-line default, and left there: everything here answers
+# one question -- what a row may bind and how many images that draws -- and
+# splitting the counting from the rows would leave each half importing most
+# of the other.
+# pylint: disable=too-many-lines
+
 from sqlalchemy import select
 
 from django.template.loader import render_to_string
@@ -23,6 +29,7 @@ from autowisp.diagnostics.expression_series import (
 )
 from autowisp.diagnostics.expressions import (
     get_expression_parameters,
+    get_first_quoted_channel,
     get_needed_values,
     get_quantity_arity,
 )
@@ -191,9 +198,15 @@ def next_row_id(row, row_ids):
 # Six things a row is made of, each named at the call site. Grouping them
 # would only move the list somewhere less visible.
 # pylint: disable=too-many-arguments
-def make_series(row_id, series_key, options, slots, count, *, marker):
+def make_series(
+    row_id, series_key, options, slots, count, *, marker, quoted_channel
+):
     """
     Build the entry describing one row of the series table.
+
+    Its default colour is that of the channel it is shown in: the first it
+    binds, wherever it has a column to bind one in, and otherwise -- every
+    channel it reads being quoted -- the first its quantities quote.
 
     Args:
         row_id(str):    What :func:`make_id` returned for this row.
@@ -217,6 +230,9 @@ def make_series(row_id, series_key, options, slots, count, *, marker):
             shape, as the colour tells channels apart. Editable
             afterwards, like the colour.
 
+        quoted_channel(str):    What :func:`get_quoted_channel` returned
+            for the row's axes, which it is shown in if *slots* is empty.
+
     Returns:
         dict:    A series entry with the keys expected by
             ``diagnostics/_series_row.html`` and
@@ -225,12 +241,13 @@ def make_series(row_id, series_key, options, slots, count, *, marker):
 
     pair = make_id(series_key.session_id, series_key.image_type)
     chosen = next(option for option in options if option["value"] == pair)
+    shown = series_key.channel if slots else quoted_channel
 
     return {
         "id": row_id,
         "channels": list(series_key.channels),
         "color": channel_colors.get(
-            series_key.channel[0].upper() if series_key.channel else "",
+            shown[0].upper() if shown else "",
             "#ffffff",
         ),
         "marker": marker,
@@ -258,6 +275,57 @@ def make_series(row_id, series_key, options, slots, count, *, marker):
 # pylint: enable=too-many-arguments
 
 
+def _walk_axis(quantity, expressions):
+    """Return what one axis reads: per column, and in quoted channels.
+
+    Walked with a *column index* standing in for each channel. A
+    reference's arguments are matched against the definition's parameters
+    positionally, so whatever is passed here is what comes back at the
+    leaves: passing columns asks which column each diagnostic is read in,
+    whatever numbers the expression happened to write.
+    ``bg_center[3] / pixel_q99[7]`` reports column 0 and column 1.
+
+    A quoted channel comes back as itself rather than as a column, which
+    is what tells the two apart: ``bg_center[3] / bg_center['G0']`` reads
+    ``bg_center`` in column 0 and, fixed, in ``G0``.
+
+    Returns:
+        tuple:
+            tuple:    The quantity's parameters, as the definition numbers
+                them; ``None`` each for a diagnostic, which has no
+                numbering of its own.
+
+            dict:    ``{column: set of diagnostic names}``.
+
+            set:    ``(diagnostic, channel)`` pairs read in a quoted
+                channel, whatever the columns are bound to.
+    """
+
+    if quantity in expressions:
+        parameters = get_expression_parameters(expressions[quantity])
+    else:
+        # A diagnostic binds one channel and numbers it nothing; the time
+        # binds none. Asked rather than derived, neither arity coming from
+        # a definition -- and asking is also what refuses a name that
+        # resolves to nothing at all.
+        parameters = (None,) * get_quantity_arity(quantity, expressions)
+
+    columns = tuple(range(len(parameters)))
+    reads = {column: set() for column in columns}
+    fixed = set()
+    for name, bindings in get_needed_values(
+        {quantity: {columns}}, expressions
+    ).items():
+        for binding in bindings:
+            for channel in binding:
+                if isinstance(channel, str):
+                    fixed.add((name, channel))
+                else:
+                    reads[channel].add(name)
+
+    return parameters, reads, fixed
+
+
 def get_axis_slots(quantity, expressions):
     """
     Return the diagnostics read in each channel one axis binds.
@@ -278,38 +346,70 @@ def get_axis_slots(quantity, expressions):
             column order: the slot number the definition writes, which
             names the column, and the diagnostics read in it. The
             parameter is ``None`` for a diagnostic, which has no numbering
-            of its own. Empty for an axis over the time alone, which binds
-            nothing.
+            of its own. Empty for an axis binding nothing: one over the
+            time, or over quoted channels alone.
     """
 
-    if quantity in expressions:
-        parameters = get_expression_parameters(expressions[quantity])
-    else:
-        # A diagnostic binds one channel and numbers it nothing; the time
-        # binds none. Asked rather than derived, neither arity coming from
-        # a definition -- and asking is also what refuses a name that
-        # resolves to nothing at all.
-        parameters = (None,) * get_quantity_arity(quantity, expressions)
+    parameters, reads, _ = _walk_axis(quantity, expressions)
 
-    if not parameters:
-        return []
+    return [
+        (parameter, frozenset(reads[column]))
+        for column, parameter in enumerate(parameters)
+    ]
 
-    # Walked with a *column index* standing in for each channel. A
-    # reference's arguments are matched against the definition's
-    # parameters positionally, so whatever is passed here is what comes
-    # back at the leaves: passing columns asks which column each
-    # diagnostic is read in, whatever numbers the expression happened to
-    # write. ``bg_center[3] / pixel_q99[7]`` reports column 0 and column 1.
-    columns = tuple(range(len(parameters)))
-    reads = {column: set() for column in columns}
-    for name, bindings in get_needed_values(
-        {quantity: {columns}}, expressions
-    ).items():
-        for binding in bindings:
-            for column in binding:
-                reads[column].add(name)
 
-    return list(zip(parameters, (frozenset(reads[c]) for c in columns)))
+def get_fixed_reads(x_quantity, y_quantity, expressions):
+    """
+    Return what the two axes read in channels no column binds.
+
+    A quoted channel is already bound, so it offers no choice and gets no
+    column; but what is read in it still has to be recorded for an image
+    to be drawn. So it narrows the (session, image type) pairs a row may
+    name, and every count, exactly as a column's reads do -- and is what
+    gives a table any rows at all when neither axis binds a column.
+
+    Args:
+        x_quantity(str):    Quantity on the X axis.
+
+        y_quantity(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        frozenset:    ``(diagnostic, channel)`` pairs, as
+            :func:`count_images_with_channels` takes them.
+    """
+
+    return frozenset(
+        read
+        for quantity in (x_quantity, y_quantity)
+        for read in _walk_axis(quantity, expressions)[2]
+    )
+
+
+def get_quoted_channel(x_quantity, y_quantity, expressions):
+    """
+    Return the channel a row is shown in when it binds none of its own.
+
+    The first the x quantity quotes, and failing that the y's -- the axes
+    in the order their columns would be, had they any.
+
+    Args:
+        x_quantity(str):    Quantity on the X axis.
+
+        y_quantity(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        str:    The channel, or ``""`` where neither quotes one.
+    """
+
+    for quantity in (x_quantity, y_quantity):
+        found = get_first_quoted_channel(quantity, expressions)
+        if found is not None:
+            return found
+    return ""
 
 
 def get_slot_headings(axis, axis_name, slots):
@@ -342,18 +442,21 @@ def get_slot_headings(axis, axis_name, slots):
     return [f"{axis}: {axis_name}[{parameter}]" for parameter, _ in slots]
 
 
-def get_slot_options(slot_needs, db_session):
+def get_slot_options(slot_needs, fixed, db_session):
     """
     Return what each slot of the table may be bound to, and the labels.
 
     One aggregate per *distinct* set of diagnostics among the slots --
     usually one for the whole table, since the commonest axis pairs read
-    the same diagnostics in every slot. Nothing is evaluated: which
-    channels a slot may offer is a question about rows.
+    the same diagnostics in every slot -- and one more for the fixed reads,
+    if any. Nothing is evaluated: which channels a slot may offer is a
+    question about rows.
 
     Args:
         slot_needs(list):    What each slot reads, from
             :func:`get_axis_slots` for each axis in turn.
+
+        fixed(frozenset):    What :func:`get_fixed_reads` returned.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -363,6 +466,10 @@ def get_slot_options(slot_needs, db_session):
                 ``{(session_id, image_type): {channel: count}}``.
 
             dict:    ``{session_id: label}``, the same whatever is read.
+
+            dict:    ``{(session_id, image_type): count}`` of the images
+                recording every fixed read, or ``None`` where there are
+                none, which constrains nothing.
     """
 
     labels = {}
@@ -380,10 +487,19 @@ def get_slot_options(slot_needs, db_session):
             by_group.setdefault((session_id, image_type), {})[channel] = count
         options[needed] = by_group
 
-    return options, labels
+    fixed_groups = None
+    if fixed:
+        fixed_groups = {}
+        for label, session_id, image_type, count in count_images_with_channels(
+            fixed, db_session
+        ):
+            labels[session_id] = label
+            fixed_groups[(session_id, image_type)] = count
+
+    return options, labels, fixed_groups
 
 
-def count_bound_images(slot_needs, channels, db_session):
+def count_bound_images(slot_needs, channels, fixed, db_session):
     """
     Count the images one binding draws on, for every group at once.
 
@@ -403,6 +519,9 @@ def count_bound_images(slot_needs, channels, db_session):
 
         channels(tuple):    The channel bound in each of those slots.
 
+        fixed(frozenset):    What is read in quoted channels, from
+            :func:`get_fixed_reads`, required as well.
+
         db_session:    An active SQLAlchemy database session.
 
     Returns:
@@ -417,7 +536,8 @@ def count_bound_images(slot_needs, channels, db_session):
                 (name, channel)
                 for needed, channel in zip(slot_needs, channels)
                 for name in needed
-            },
+            }
+            | fixed,
             db_session,
         )
     }
@@ -536,13 +656,13 @@ def make_slot_cells(available, channels):
     return cells
 
 
-def get_pair_options(slot_needs, options, labels, db_session):
+def get_pair_options(slot_needs, options, labels, fixed_groups, db_session):
     """
     Return the (session, image type) pairs a row may be drawn for.
 
     A pair is offered where every channel column has at least one channel
-    to bind: unless each of them can be read somewhere in that session's
-    frames of that type, a row on it could name no data at all.  Which
+    to bind, and where some image records everything read in a quoted
+    channel: otherwise a row on it could name no data at all.  Which
     channel a column takes is chosen in the row afterwards, so a pair is
     offered once rather than once per binding it could carry.
 
@@ -554,20 +674,27 @@ def get_pair_options(slot_needs, options, labels, db_session):
 
         labels(dict):    The session labels from the same call.
 
+        fixed_groups(dict):    The fixed reads' counts from the same call,
+            or ``None`` where nothing is read in a quoted channel.
+
         db_session:    An active SQLAlchemy database session.
 
     Returns:
         list:    ``{"value", "text", "start", "end"}`` per pair, by session
             start time and then image type -- which is the order the
             dropdown lists them in, and why the first of them is the
-            earliest session. Empty where the axes bind no channel at all,
-            there being nothing to draw and so nothing to offer.
+            earliest session. Empty where the axes read no diagnostic at
+            all -- the time against the time -- there being nothing to
+            constrain the pairs, and nothing worth drawing.
     """
 
-    if not slot_needs:
+    constraints = [set(options[needed]) for needed in slot_needs]
+    if fixed_groups is not None:
+        constraints.append(set(fixed_groups))
+    if not constraints:
         return []
 
-    pairs = set.intersection(*(set(options[needed]) for needed in slot_needs))
+    pairs = set.intersection(*constraints)
     times = get_session_times(
         {session_id for session_id, _ in pairs}, db_session
     )
@@ -597,6 +724,8 @@ def make_row_for_pair(
     series_key,
     *,
     slot_needs,
+    fixed,
+    quoted_channel,
     options,
     pair_options,
     marker,
@@ -617,6 +746,10 @@ def make_row_for_pair(
             it would keep -- those the pair does not offer are dropped.
 
         slot_needs(list):    What each channel column reads.
+
+        fixed(frozenset):    What is read in quoted channels.
+
+        quoted_channel(str):    What :func:`get_quoted_channel` returned.
 
         options(dict):    What :func:`get_slot_options` returned.
 
@@ -639,10 +772,12 @@ def make_row_for_pair(
     )
 
     channels = tuple(slot["value"] for slot in slots)
-    if not all(channels):
+    # Vacuously so for a row with no columns at all, whose axes bind no
+    # channel: there is nothing left to choose, so it is counted at once.
+    bound = all(channels)
+    if not bound:
         # A partly bound row binds nothing: it names no data to read, and
-        # an empty binding is what the colour, the label and the count all
-        # branch on.
+        # an empty binding is what the colour and the label branch on.
         channels = ()
 
     return make_series(
@@ -651,13 +786,14 @@ def make_row_for_pair(
         pair_options,
         slots,
         (
-            None
-            if not channels
-            else count_bound_images(slot_needs, channels, db_session).get(
+            count_bound_images(slot_needs, channels, fixed, db_session).get(
                 pair, 0
             )
+            if bound
+            else None
         ),
         marker=marker,
+        quoted_channel=quoted_channel,
     )
 
 
@@ -724,23 +860,23 @@ def get_available_series(
         )
         for heading in get_slot_headings(axis, axis_name, slots)
     ]
-    slot_needs = [needed for slots in per_axis for _, needed in slots]
-
-    options, labels = (
-        get_slot_options(slot_needs, db_session) if slot_needs else ({}, {})
+    row_options = get_row_options(
+        y_quantity,
+        x_quantity=x_quantity,
+        expressions=expressions,
+        db_session=db_session,
     )
-    pair_options = get_pair_options(slot_needs, options, labels, db_session)
 
     rows = []
-    if pair_options:
-        session_id, image_type = split_pair_id(pair_options[0]["value"])
+    if row_options["pair_options"]:
+        session_id, image_type = split_pair_id(
+            row_options["pair_options"][0]["value"]
+        )
         rows.append(
             make_row_for_pair(
                 make_id(y_quantity, 0),
                 SeriesKey(session_id, image_type, ()),
-                slot_needs=slot_needs,
-                options=options,
-                pair_options=pair_options,
+                **row_options,
                 marker=marker,
                 db_session=db_session,
             )
@@ -752,7 +888,7 @@ def get_available_series(
             + headings
             + ["Count"]
         ),
-        "pair_options": pair_options,
+        "pair_options": row_options["pair_options"],
         "diagnostics_list": rows,
     }
 
@@ -786,9 +922,10 @@ def get_row_options(y_quantity, *, x_quantity, expressions, db_session):
     """
     Return what a row drawing one quantity against the page's x is built from.
 
-    The three things that have to be worked out before any row can be
-    built: what each channel column reads, what each may be bound to, and
-    the (session, image type) pairs the row may name.
+    The four things that have to be worked out before any row can be
+    built: what each channel column reads, what is read in quoted channels,
+    what each column may be bound to, and the (session, image type) pairs
+    the row may name.
 
     Args:
         y_quantity(str):    The quantity the row draws, from its id.
@@ -800,21 +937,30 @@ def get_row_options(y_quantity, *, x_quantity, expressions, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        tuple:    ``(slot_needs, options, pair_options)``, as
-            :func:`get_axes_slot_needs`, :func:`get_slot_options` and
-            :func:`get_pair_options` return them.
+        dict:    ``slot_needs``, ``fixed``, ``quoted_channel``, ``options``
+            and ``pair_options``, as :func:`get_axes_slot_needs`,
+            :func:`get_fixed_reads`, :func:`get_quoted_channel`,
+            :func:`get_slot_options` and :func:`get_pair_options` return
+            them -- keyed as :func:`make_row_for_pair` takes them.
     """
 
     slot_needs = get_axes_slot_needs(x_quantity, y_quantity, expressions)
-    options, labels = (
-        get_slot_options(slot_needs, db_session) if slot_needs else ({}, {})
+    fixed = get_fixed_reads(x_quantity, y_quantity, expressions)
+    options, labels, fixed_groups = get_slot_options(
+        slot_needs, fixed, db_session
     )
 
-    return (
-        slot_needs,
-        options,
-        get_pair_options(slot_needs, options, labels, db_session),
-    )
+    return {
+        "slot_needs": slot_needs,
+        "fixed": fixed,
+        "quoted_channel": get_quoted_channel(
+            x_quantity, y_quantity, expressions
+        ),
+        "options": options,
+        "pair_options": get_pair_options(
+            slot_needs, options, labels, fixed_groups, db_session
+        ),
+    }
 
 
 def get_table_response(post_data, *, x_quantity, expressions, db_session):
@@ -876,14 +1022,14 @@ def get_table_response(post_data, *, x_quantity, expressions, db_session):
 
     source = {"id": edited, **datasets[edited]}
     series_key = get_series_key(source)
-    slot_needs, options, pair_options = get_row_options(
+    row_options = get_row_options(
         split_row_id(edited)[0],
         x_quantity=x_quantity,
         expressions=expressions,
         db_session=db_session,
     )
     if make_id(series_key.session_id, series_key.image_type) not in {
-        option["value"] for option in pair_options
+        option["value"] for option in row_options["pair_options"]
     }:
         # The row names a pair this table cannot offer, the project having
         # changed since the table was rendered.
@@ -892,9 +1038,7 @@ def get_table_response(post_data, *, x_quantity, expressions, db_session):
     entry = make_row_for_pair(
         next_row_id(source, datasets) if adding else edited,
         series_key,
-        slot_needs=slot_needs,
-        options=options,
-        pair_options=pair_options,
+        **row_options,
         # A copy starts with its section's marker rather than the marker
         # of the row it was copied from, which may have been set by hand:
         # the client posts what the section's is. A rebound row keeps

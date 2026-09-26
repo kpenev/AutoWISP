@@ -8,6 +8,9 @@ arrives as a ``{name: expression}`` dictionary and the data as a
 caller is the browser interface or the pipeline, both of which read the
 project's library through :mod:`autowisp.diagnostics.expression_library`.
 
+An exclusion rule is one more expression, taking at most one channel slot
+and evaluated alongside the library under :data:`rule_quantity`.
+
 Passing the values in rather than fetching them is what keeps this module
 free of a database and cheap to test exhaustively; it is not a facility for
 supplying diagnostics by hand. Building those arrays -- NaN-padded onto one
@@ -92,12 +95,19 @@ def get_indexed_names(expression):
     when something is plotted. So this reports the *shape* of what the
     text asks for, and says nothing about channels.
 
+    A slot may instead be a quoted channel name, ``bg_center['G0']``,
+    which binding passes through unchanged: it is already bound. That ties
+    the text to a camera's channel naming, which is the point in an
+    exclusion rule and a convenience in a project whose cameras all name
+    their channels alike.
+
     Args:
         expression(str):    The expression text.
 
     Returns:
         list:    ``(name, slots)`` pairs in the order they appear, *slots*
-            always a tuple however many were written. Repeats are kept:
+            always a tuple however many were written, each an ``int`` or a
+            quoted channel ``str``. Repeats are kept:
             ``sky_color[0,1] - sky_color[1,2]`` reads one name at two
             different slot pairs, which is the whole point of the
             parameters being formal.
@@ -106,42 +116,69 @@ def get_indexed_names(expression):
         SyntaxError:    As for :func:`get_expression_names`.
 
         PipelineError:    If a subscript is not a plain name indexed by
-            integer literals. Anything else -- ``bg_center[i]``,
+            integer or string literals. Anything else -- ``bg_center[i]``,
             ``bg_center[1:2]``, ``sky_color[1][2]`` -- cannot name a
             channel slot, and saying so here is clearer than letting it
             fail as an unresolvable name later.
     """
 
     references = []
-    for node in ast.walk(ast.parse(expression, mode="eval")):
-        if not isinstance(node, ast.Subscript):
-            continue
-        if not isinstance(node.value, ast.Name):
-            raise PipelineError(
-                f"{ast.unparse(node)!r} does not name a channel slot: only "
-                "a diagnostic or an expression can take one.",
-                details={"subscript": ast.unparse(node)},
-            )
-        try:
-            slots = ast.literal_eval(node.slice)
-        except ValueError:
-            # Non-literal channel indices is a sub-case of what is handled
-            # below.
-            slots = None
-        if not isinstance(slots, tuple):
-            slots = (slots,)
-        if not slots or not all(
-            isinstance(slot, int) and not isinstance(slot, bool)
-            for slot in slots
-        ):
-            raise PipelineError(
-                f"{ast.unparse(node)!r} does not name a channel slot: a "
-                "slot is written as a whole number, as in bg_center[0].",
-                details={"subscript": ast.unparse(node)},
-            )
-        references.append((node.value.id, slots))
-
+    for node in _in_written_order(ast.parse(expression, mode="eval")):
+        if isinstance(node, ast.Subscript):
+            # The slots first: reading them is what checks that the name
+            # being subscripted is a plain one.
+            slots = _get_subscript_slots(node)
+            references.append((node.value.id, slots))
     return references
+
+
+def _in_written_order(tree):
+    """Return the nodes of *tree* in the order their text starts.
+
+    Rather than the breadth-first order of ``ast.walk``, which puts
+    ``y['R']`` before ``x['B']`` in ``2 * x['B'] + y['R']``, being
+    shallower.
+    """
+
+    return sorted(
+        (node for node in ast.walk(tree) if hasattr(node, "col_offset")),
+        key=lambda node: (node.lineno, node.col_offset),
+    )
+
+
+def _get_subscript_slots(node):
+    """Return the slots one subscript writes, as a tuple.
+
+    Raises:
+        PipelineError:    As described in :func:`get_indexed_names`.
+    """
+
+    if not isinstance(node.value, ast.Name):
+        raise PipelineError(
+            f"{ast.unparse(node)!r} does not name a channel slot: only "
+            "a diagnostic or an expression can take one.",
+            details={"subscript": ast.unparse(node)},
+        )
+    try:
+        slots = ast.literal_eval(node.slice)
+    except ValueError:
+        # Non-literal channel indices is a sub-case of what is handled
+        # below.
+        slots = None
+    if not isinstance(slots, tuple):
+        slots = (slots,)
+    if not slots or not all(
+        isinstance(slot, str)
+        or (isinstance(slot, int) and not isinstance(slot, bool))
+        for slot in slots
+    ):
+        raise PipelineError(
+            f"{ast.unparse(node)!r} does not name a channel slot: a "
+            "slot is written as a whole number, as in bg_center[0], or "
+            "as a quoted channel name, as in bg_center['G0'].",
+            details={"subscript": ast.unparse(node)},
+        )
+    return slots
 
 
 def _get_bare_names(expression):
@@ -181,12 +218,16 @@ def get_expression_parameters(expression):
     its slots out of sequence -- and the order matters, since a reference's
     arguments are matched onto these positionally.
 
+    A quoted channel is not a parameter: it is already bound. So
+    ``x[0] - x['G0']`` takes ``(0,)``, and ``sky_color['B', 'R']`` takes
+    none.
+
     Args:
         expression(str):    The expression text.
 
     Returns:
         tuple:    The distinct slot numbers, ascending. Empty for an
-            expression that reads no channel at all.
+            expression that reads no channel at all, or only quoted ones.
 
     Raises:
         SyntaxError, PipelineError:    As for
@@ -199,8 +240,20 @@ def get_expression_parameters(expression):
                 slot
                 for _, slots in get_indexed_names(expression)
                 for slot in slots
+                if not isinstance(slot, str)
             }
         )
+    )
+
+
+def _bind(slots, binding):
+    """Return the channels *slots* name under *binding*.
+
+    A slot number is looked up; a quoted channel is already one.
+    """
+
+    return tuple(
+        slot if isinstance(slot, str) else binding[slot] for slot in slots
     )
 
 
@@ -274,6 +327,36 @@ def get_bare_aggregates(expression):
         and isinstance(node.func, ast.Name)
         and node.func.id in bare
     }
+
+
+def get_logical_keywords(expression):
+    """
+    Return the Python logical keywords an expression uses.
+
+    ``and``, ``or`` and ``not`` ask for the truth value of their operands,
+    which an array of more than one element refuses to have ("the truth
+    value of an array is ambiguous"): element-wise logic is ``|``, ``&``
+    and ``~``. On a quantity with one value, though, the keywords are
+    legitimate, so -- like :func:`get_bare_aggregates` -- this is for
+    callers to warn with, never to refuse.
+
+    Args:
+        expression(str):    The expression text.
+
+    Returns:
+        set:    Those of ``"and"``, ``"or"`` and ``"not"`` that appear.
+
+    Raises:
+        SyntaxError:    As for :func:`get_expression_names`.
+    """
+
+    keywords = set()
+    for node in ast.walk(ast.parse(expression, mode="eval")):
+        if isinstance(node, ast.BoolOp):
+            keywords.add("and" if isinstance(node.op, ast.And) else "or")
+        elif isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            keywords.add("not")
+    return keywords
 
 
 def rename_references(expression, old_name, new_name):
@@ -610,23 +693,27 @@ class QuantityLookUp:
         symtable.update(lookups)
 
         # A quantity binding no channels -- the time, and any expression
-        # over it alone -- is written without a subscript, there being
-        # nothing to subscript it with. A lookup resolves on
-        # ``__getitem__`` and a bare name never calls one, so such a
-        # quantity has to be its *values* here, or it would reach the
+        # whose channels, if any, are all quoted -- is written without a
+        # subscript, there being nothing to subscript it with. A lookup
+        # resolves on ``__getitem__`` and a bare name never calls one, so
+        # such a quantity has to be its *values* here, or it would reach the
         # arithmetic as the object itself. The time first, then the
         # expressions over it, each after what it reads.
         for name, by_channels in values.items():
             if () in by_channels:
                 symtable[name] = by_channels[()]
 
-        channel_free = [
+        channel_free = {
             name
             for name, text in expressions.items()
             if not get_expression_parameters(text)
-        ]
+        }
+        # The order also holds what they reach by subscript, such as
+        # ``sky_color`` in ``sky_color['B', 'R']``, which has parameters to
+        # bind and stays a lookup.
         for name in _evaluation_order(channel_free, expressions):
-            symtable[name] = lookups[name].at(())
+            if name in channel_free:
+                symtable[name] = lookups[name].at(())
 
         return lookups
 
@@ -638,12 +725,12 @@ class QuantityLookUp:
         the shapes take care of themselves. The binding read is the top of
         the stack, which is always the body asking: a nested evaluation
         finishes in here before the outer body's next operand is touched.
+        A quoted channel, ``x['G0']``, is not looked up in it.
         """
 
         if not isinstance(slots, tuple):
             slots = (slots,)
-        binding = self._stack[-1]
-        return self.at(tuple(binding[slot] for slot in slots))
+        return self.at(_bind(slots, self._stack[-1]))
 
     def at(self, channels):
         """
@@ -689,7 +776,14 @@ class QuantityLookUp:
 
 
 def _visit_needed(name, channels, expressions, needed):
-    """Add what *name* bound to *channels* reads, recursively."""
+    """Add what *name* bound to *channels* reads, recursively.
+
+    Both kinds of reference are followed. A subscripted one is bound
+    through *channels*; a bare one takes no channel, being the time or an
+    expression whose channels, if any, are all quoted -- and the latter
+    still reads diagnostics, so stopping at bare names would leave them
+    unfetched. Other bare names are functions.
+    """
 
     expected = get_quantity_arity(name, expressions)
     if len(channels) != expected:
@@ -707,12 +801,10 @@ def _visit_needed(name, channels, expressions, needed):
     text = expressions[name]
     binding = dict(zip(get_expression_parameters(text), channels))
     for referenced, slots in get_indexed_names(text):
-        _visit_needed(
-            referenced,
-            tuple(binding[slot] for slot in slots),
-            expressions,
-            needed,
-        )
+        _visit_needed(referenced, _bind(slots, binding), expressions, needed)
+    for referenced in _get_bare_names(text):
+        if referenced in expressions or referenced == time_quantity:
+            _visit_needed(referenced, (), expressions, needed)
 
 
 def get_needed_values(wanted, expressions):
@@ -732,7 +824,7 @@ def get_needed_values(wanted, expressions):
 
     It walks what evaluation walks, resolving each reference's arguments
     through the binding of the body holding it, and stops at the
-    diagnostics.
+    diagnostics and the time.
 
     Args:
         wanted(dict):    ``{quantity: set of channel tuples}``, each tuple
@@ -757,20 +849,9 @@ def get_needed_values(wanted, expressions):
 
     # Refuses a cycle and an unresolvable name, so the walk below cannot
     # recurse for ever and neither it nor the evaluation need check again.
-    _, channel_free = order_expressions(list(wanted), expressions)
+    order_expressions(list(wanted), expressions)
 
     needed = {}
-
-    # The time is the one quantity read without a subscript, so the walk
-    # below never reaches it however deep it lies: ``bg_center[0] * night``
-    # reads it only through ``night``. Taking no channel is also why no
-    # walk is needed -- order_expressions already reports it, having
-    # flattened bare and subscripted names alike -- and why nothing else
-    # can hide behind a bare reference, reading a diagnostic taking a
-    # subscript that would give its expression a parameter.
-    if time_quantity in channel_free:
-        needed[time_quantity] = {()}
-
     for quantity, bindings in wanted.items():
         for channels in bindings:
             _visit_needed(quantity, tuple(channels), expressions, needed)
@@ -882,7 +963,7 @@ def _slot_problems(expression, library):
     for referenced, slots in get_indexed_names(expression):
         if not is_quantity(referenced):
             continue
-        written = f"{referenced}[{', '.join(str(slot) for slot in slots)}]"
+        written = f"{referenced}[{', '.join(repr(slot) for slot in slots)}]"
         arity = get_quantity_arity(referenced, library)
         if arity == 0:
             problems.append(
@@ -961,6 +1042,30 @@ def check_expression(name, expression, current_library):
             "lets a selector and a URL treat them alike."
         )
 
+    return problems + _body_problems(name, expression, current_library)
+
+
+def _body_problems(name, expression, current_library):
+    """
+    Return what is wrong with the text of an expression or a rule.
+
+    Everything :func:`check_expression` judges apart from the name, which
+    is the whole of what applies to an exclusion rule as well.
+
+    Args:
+        name(str):    What the text is evaluated under: the proposed name,
+            or :data:`rule_quantity`.
+
+        expression(str):    The proposed text.
+
+        current_library(dict):    As for :func:`check_expression`.
+
+    Returns:
+        list:    Descriptions of the problems; empty if there are none.
+    """
+
+    problems = []
+
     try:
         referenced = get_expression_names(expression)
     except SyntaxError as error:
@@ -1005,5 +1110,128 @@ def check_expression(name, expression, current_library):
         order_expressions([name], new_library)
     except PipelineError as error:
         problems.append(str(error))
+
+    return problems
+
+
+#: What an exclusion rule is evaluated under, as one more entry in the
+#: library: ``dict(library, **{rule_quantity: rule})``. A rule taking a
+#: parameter (see :func:`get_expression_parameters`) is bound to each
+#: channel being decided for, ``(channel,)``, and excludes per channel;
+#: one taking none reads only quoted channels, is bound to ``()``, and its
+#: verdict applies to every channel of the image. Not a slug, so
+#: :func:`check_expression` lets no stored expression take the name, and it
+#: reads sensibly in an error message.
+rule_quantity = "<exclusion rule>"
+
+
+def get_quoted_channels(expression):
+    """
+    Return the channels *expression* names by quoting them.
+
+    Only its own text: the expressions it references quote channels of
+    their own, and each is judged when it is saved. Callers use this to
+    warn when a camera has no such channel.
+
+    Args:
+        expression(str):    The expression text.
+
+    Returns:
+        set:    The quoted channel names.
+
+    Raises:
+        SyntaxError, PipelineError:    As for :func:`get_indexed_names`.
+    """
+
+    return {
+        slot
+        for _, slots in get_indexed_names(expression)
+        for slot in slots
+        if isinstance(slot, str)
+    }
+
+
+def get_first_quoted_channel(quantity, expressions):
+    """
+    Return the first channel *quantity* quotes, as its text is written.
+
+    Following the expressions it references where they come, whether read
+    bare or through a subscript: ``gcol = sky_color['B', 'R']`` quotes
+    ``B`` first, and so does anything reading ``gcol``. A series whose
+    channels are all quoted binds none of its own, and is shown in this one
+    -- its colour, and the frame a click on a point opens -- which is why
+    the order is the text's rather than any other.
+
+    Args:
+        quantity(str):    A diagnostic, an expression, or the time.
+
+        expressions(dict):    The library, ``{name: expression}``, which
+            :func:`order_expressions` has found free of cycles.
+
+    Returns:
+        str:    The channel, or ``None`` if nothing *quantity* reaches
+            quotes one -- as for anything but an expression.
+
+    Raises:
+        SyntaxError, PipelineError:    As for :func:`get_indexed_names`.
+    """
+
+    if quantity not in expressions:
+        return None
+
+    # A subscript starts where its name does and comes first, so its own
+    # quoted slots are looked at before the expression it subscripts.
+    for node in _in_written_order(
+        ast.parse(expressions[quantity], mode="eval")
+    ):
+        if isinstance(node, ast.Subscript):
+            for slot in _get_subscript_slots(node):
+                if isinstance(slot, str):
+                    return slot
+        elif isinstance(node, ast.Name):
+            found = get_first_quoted_channel(node.id, expressions)
+            if found is not None:
+                return found
+
+    return None
+
+
+def check_rule(rule, library):
+    """
+    Return what is wrong with a proposed exclusion rule, as plain strings.
+
+    A rule is judged as an expression would be, apart from having no name
+    of its own, and with one more constraint: it takes at most one channel
+    slot, which is bound to the channel being decided for. Any other
+    channel it reads is named by quoting it.
+
+    Whether the quoted channels exist is a question about the cameras of a
+    project, and is not answered here.
+
+    Args:
+        rule(str):    The proposed rule text.
+
+        library(dict):    The project's library, ``{name: expression}``.
+
+    Returns:
+        list:    Descriptions of the problems; empty if there are none.
+    """
+
+    problems = _body_problems(rule_quantity, rule, library)
+
+    try:
+        slots = get_expression_parameters(rule)
+    except SyntaxError, PipelineError:
+        # Reported above already.
+        return problems
+
+    if len(slots) > 1:
+        problems.append(
+            "An exclusion rule takes at most one channel slot, for the "
+            "channel being decided for, not "
+            + ", ".join(str(slot) for slot in slots)
+            + ": name any other channel by quoting it, as in "
+            "bg_center['G0']."
+        )
 
     return problems

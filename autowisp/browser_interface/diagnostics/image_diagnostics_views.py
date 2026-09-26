@@ -47,6 +47,7 @@ from .quantities import (
 )
 from .series_table import (
     get_available_series,
+    get_quoted_channel,
     get_series_key,
     posted_rows,
     split_row_id,
@@ -174,6 +175,9 @@ def plot_image_diagnostic_series(axes, x_values, y_values, image_ids, config):
         c=config["color"],
         label=config["label"],
     )
+    if not config["channel"]:
+        # Nothing to open a frame in: the series reads no channel at all.
+        return
     collection.set_urls(
         [
             reverse(
@@ -300,6 +304,7 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
             series having at least one point where both axes are finite.
     """
 
+    x_arity = get_quantity_arity(x_quantity, expressions)
     series_data = []
     for series in series_list:
         # Defaulting to selected, so that a payload from before the table
@@ -308,14 +313,22 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
             continue
         if not series.get("marker", "").strip():
             continue
-        # ``not channels`` as well as ``all``, which an empty list passes:
-        # a page whose script predates the channel columns posts none at
-        # all, and binding nothing is not a binding.  A payload predating
-        # the chosen pair names no population either.  Both are skipped
-        # rather than refused -- a stale page should draw nothing, not
-        # turn the response into an error page.
+        # As many channels as the two axes take between them, rather than
+        # merely some: a page whose script predates the channel columns
+        # posts none at all, which is not a binding -- unless neither axis
+        # takes a channel, when none is exactly what a bound row posts.  A
+        # payload predating the chosen pair names no population either.
+        # Both are skipped rather than refused -- a stale page should draw
+        # nothing, not turn the response into an error page.
         channels = series.get("channels", ())
-        if not channels or not all(channels) or not series.get("pair"):
+        expected = x_arity + get_quantity_arity(
+            split_row_id(series["id"])[0], expressions
+        )
+        if (
+            len(channels) != expected
+            or not all(channels)
+            or not series.get("pair")
+        ):
             continue
         x_values, y_values, image_ids = get_series_data(
             series, x_quantity, expressions, db_session
@@ -328,12 +341,18 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
             # Two things the figure reads off the binding rather than off
             # the client: the channel a click on a point opens the frame
             # in -- the first of them, for want of a better answer once a
-            # series can bind several -- and the quantity the row draws,
-            # which its y axis is labelled for.
+            # series can bind several, or where it binds none the first
+            # its quantities quote, as the table colours it -- and the
+            # quantity the row draws, which its y axis is labelled for.
+            quantity = split_row_id(series["id"])[0]
             drawn = {
                 **series,
-                "channel": channels[0] if channels else "",
-                "quantity": split_row_id(series["id"])[0],
+                "channel": (
+                    channels[0]
+                    if channels
+                    else get_quoted_channel(x_quantity, quantity, expressions)
+                ),
+                "quantity": quantity,
             }
             series_data.append((drawn, x_values, y_values, image_ids))
 
@@ -376,7 +395,7 @@ def assign_y_axes(drawn, requested):
     for quantity in dict.fromkeys(drawn):
         try:
             number = int(requested.get(quantity, 1))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             number = 1
         wanted.setdefault(number, []).append(quantity)
 

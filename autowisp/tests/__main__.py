@@ -154,6 +154,7 @@ from autowisp.tests.test_channel_binding import (
     TestChannelColumns,
     TestRebinding,
     TestAddedRow,
+    TestFixedChannelReads,
     TestTwoChannelSeriesValues,
 )
 from autowisp.tests.test_expression_series import (
@@ -166,6 +167,7 @@ from autowisp.tests.test_expression_series import (
 )
 from autowisp.tests.test_evaluator import (
     TestNanAggregates,
+    TestNanRank,
     TestRemovedNames,
     TestIterativeRejection,
     TestErrorHandling,
@@ -173,6 +175,7 @@ from autowisp.tests.test_evaluator import (
 from autowisp.tests.test_expressions import (
     TestReferencedNames,
     TestBareAggregates,
+    TestLogicalKeywords,
     TestDependents,
     TestRenamingReferences,
     TestOrdering,
@@ -183,6 +186,8 @@ from autowisp.tests.test_expressions import (
     TestSlotSyntax,
     TestNeededValues,
     TestSlotEvaluation,
+    TestQuotedChannels,
+    TestRules,
 )
 from autowisp.tests.test_diagnostic_types import (
     TestCatalogue,
