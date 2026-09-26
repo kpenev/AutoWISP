@@ -23,6 +23,7 @@ from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.database.image_processing import (
     ImageProcessingManager,
     get_master_expression_ids,
+    record_photref_bindings,
     remove_failed_prerequisite,
 )
 from autowisp.database.interface import start_db_session
@@ -276,6 +277,7 @@ def bind_images_to_photref(dr_fname, batch):
             * pf_diags["diagonal_fov"]
         )
 
+        new_bindings = []
         for _, _, image_id, channel in batch:
             img_diags = dict(
                 db_session.execute(
@@ -302,11 +304,5 @@ def bind_images_to_photref(dr_fname, batch):
                 pf_center.separation(img_center).to_value(astropy_units.deg)
                 <= threshold_deg
             ):
-                db_session.merge(
-                    ImageMasterSelection(
-                        image_id=image_id,
-                        channel=channel,
-                        master_type_id=master_file.type_id,
-                        master_file_id=master_file.id,
-                    )
-                )
+                new_bindings.append((image_id, channel, master_file.id))
+        record_photref_bindings(new_bindings, master_file.type_id, db_session)

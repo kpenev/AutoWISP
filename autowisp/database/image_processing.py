@@ -23,7 +23,6 @@ from autowisp.evaluator import Evaluator
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
-from autowisp.astrometry import Transformation
 from autowisp.database.data_model import (
     StepDependencies,
     ImageProcessingProgress,
@@ -226,6 +225,38 @@ def remove_failed_prerequisite(
             dropped.append(pending.pop(i))
 
     return dropped
+
+
+def record_photref_bindings(bindings, photref_type_id, db_session):
+    """Record which single photometric reference each image/channel uses.
+
+    The one place ``ImageMasterSelection`` gets its photref rows, whether the
+    reference was picked by separation, selected by the condition expressions
+    alone, or chosen in the BUI. Every image ``fit_magnitudes`` sees has one,
+    so anything grouping images by reference needs no other source.
+
+    Args:
+        bindings:    Iterable of ``(image_id, channel, master_file_id)``, the
+            last being the ``MasterFile`` ID of the ``single_photref`` to use.
+
+        photref_type_id(int):    The ID of the ``single_photref`` master
+            type.
+
+        db_session:    The database session to write the bindings in.
+
+    Returns:
+        None. An image/channel already bound is re-bound to the given photref.
+    """
+
+    for image_id, channel, master_file_id in bindings:
+        db_session.merge(
+            ImageMasterSelection(
+                image_id=image_id,
+                channel=channel,
+                master_type_id=photref_type_id,
+                master_file_id=master_file_id,
+            )
+        )
 
 
 # pylint: disable=too-many-instance-attributes
@@ -1161,36 +1192,8 @@ class ImageProcessingManager(ProcessingManager):
             for pf_id in photref_ids
         }
 
-    def _select_photref_for_image(
-        self,
-        image,
-        channel,
-        photref_type,
-        expressions,
-        photrefs_by_expr,
-        photref_diagnostics,
-        binding_counts,
-        max_sep,
-        db_session,
-    ):
-        """Pick and record the best photref binding for one image/channel.
-
-        Returns True if bound (either pre-existing or newly written), False if
-        no suitable photref is found.
-        The distance threshold is max_sep * diagonal_fov of the photref.
-        """
-
-        if (
-            db_session.scalar(
-                select(ImageMasterSelection.master_file_id).where(
-                    ImageMasterSelection.image_id == image.id,
-                    ImageMasterSelection.channel == channel,
-                    ImageMasterSelection.master_type_id == photref_type.id,
-                )
-            )
-            is not None
-        ):
-            return True
+    def _get_image_center(self, image, channel, db_session):
+        """Return the sky position of an image/channel's center, or None."""
 
         image_diags = dict(
             db_session.execute(
@@ -1213,19 +1216,38 @@ class ImageProcessingManager(ProcessingManager):
                 image.id,
                 channel,
             )
-            return False
+            return None
 
-        image_coord = SkyCoord(
+        return SkyCoord(
             ra=image_diags["ra_center"] * astropy_units.deg,
             dec=image_diags["dec_center"] * astropy_units.deg,
             frame="icrs",
         )
 
-        image_expr_values = tuple(
-            self._evaluated_expressions[image.id][channel]["values"][expr_id]
-            for expr_id, _ in expressions
-        )
-        candidates = photrefs_by_expr.get(image_expr_values, [])
+    @staticmethod
+    def _select_photref_for_image(
+        image_coord, candidates, photref_diagnostics, binding_counts, max_sep
+    ):
+        """Pick the best photref for one unbound image/channel.
+
+        Args:
+            image_coord(SkyCoord):    The center of the image/channel.
+
+            candidates([MasterFile]):    The photrefs whose condition
+                expression values match those of the image/channel.
+
+            photref_diagnostics(dict):    See :meth:`_get_photref_diagnostics`.
+
+            binding_counts(dict):    See :meth:`_get_photref_binding_counts`.
+
+            max_sep(float):    The ``max_photref_separation`` configured for
+                ``fit_magnitudes``.
+
+        Returns:
+            MasterFile or None:
+                The candidate within ``max_sep * diagonal_fov`` of the image
+                with the most images bound to it, if any.
+        """
 
         best_pf = None
         best_count = -1
@@ -1246,24 +1268,64 @@ class ImageProcessingManager(ProcessingManager):
                 best_count = binding_counts[pf.id]
                 best_pf = pf
 
-        if best_pf is None:
-            self._logger.info(
-                "No suitable photref for image %d channel %s; leaving pending.",
-                image.id,
-                channel,
-            )
-            return False
+        return best_pf
 
-        db_session.merge(
-            ImageMasterSelection(
-                image_id=image.id,
-                channel=channel,
-                master_type_id=photref_type.id,
-                master_file_id=best_pf.id,
-            )
+    @staticmethod
+    def _get_bound_entries(pending_images, photref_type_id, db_session):
+        """Return the ``(image ID, channel)`` pending entries with a photref."""
+
+        return set(
+            db_session.execute(
+                select(
+                    ImageMasterSelection.image_id, ImageMasterSelection.channel
+                ).where(
+                    ImageMasterSelection.master_type_id == photref_type_id,
+                    ImageMasterSelection.image_id.in_(
+                        {image.id for image, _, _ in pending_images}
+                    ),
+                )
+            ).all()
         )
-        binding_counts[best_pf.id] += 1
-        return True
+
+    def _get_condition_bindings(self, unbound, photref_type_id, db_session):
+        """Return the bindings to the photrefs the conditions select.
+
+        Args:
+            unbound:    The ``(Image, channel, status)`` pending entries to
+                bind.
+
+            photref_type_id(int):    The ID of the ``single_photref`` master
+                type.
+
+            db_session:    The database session to look up photrefs in.
+
+        Returns:
+            [(int, str, int)]:
+                The ``(image ID, channel, MasterFile ID)`` bindings, for the
+                entries the conditions select a photref for.
+        """
+
+        photref_fnames = {
+            (image.id, channel): self.get_master_fname(
+                image.id, channel, "single_photref"
+            )
+            for image, channel, _ in unbound
+        }
+        photref_ids = dict(
+            db_session.execute(
+                select(MasterFile.filename, MasterFile.id).where(
+                    MasterFile.type_id == photref_type_id,
+                    MasterFile.filename.in_(
+                        set(photref_fnames.values()) - {None}
+                    ),
+                )
+            ).all()
+        )
+        return [
+            (image_id, channel, photref_ids[fname])
+            for (image_id, channel), fname in photref_fnames.items()
+            if fname is not None
+        ]
 
     def _bind_photref_for_pending(self, pending_images, step, db_session):
         """Bind unbound fit_magnitudes pending images to photrefs.
@@ -1274,6 +1336,11 @@ class ImageProcessingManager(ProcessingManager):
         diagonal_fov + most existing bindings). Returns only the images that
         have a valid binding; the rest are silently left pending until a
         suitable photref is registered via the BUI.
+
+        If max_photref_separation is unlimited, the photref is the one the
+        condition expressions select, as for any other master. That is
+        recorded as the binding too, and every image is returned: those
+        without a photref are excluded when the batches are configured.
         """
 
         if not pending_images:
@@ -1287,14 +1354,65 @@ class ImageProcessingManager(ProcessingManager):
         )[0]
 
         max_sep = config.get("max_photref_separation", 0.2)
-        if max_sep is None or max_sep == inf:
-            return pending_images
+        unlimited = max_sep is None or max_sep == inf
 
         photref_type = db_session.scalar(
             select(MasterType).filter_by(name="single_photref")
         )
         if photref_type is None:
-            return []
+            return pending_images if unlimited else []
+
+        bound = self._get_bound_entries(
+            pending_images, photref_type.id, db_session
+        )
+        unbound = [
+            entry
+            for entry in pending_images
+            if (entry[0].id, entry[1]) not in bound
+        ]
+        if unlimited:
+            new_bindings = self._get_condition_bindings(
+                unbound, photref_type.id, db_session
+            )
+        else:
+            new_bindings = self._get_separation_bindings(
+                unbound, photref_type, max_sep, db_session
+            )
+        record_photref_bindings(new_bindings, photref_type.id, db_session)
+        db_session.flush()
+
+        if unlimited:
+            return pending_images
+        bound.update(
+            (image_id, channel) for image_id, channel, _ in new_bindings
+        )
+        return [
+            entry
+            for entry in pending_images
+            if (entry[0].id, entry[1]) in bound
+        ]
+
+    def _get_separation_bindings(
+        self, unbound, photref_type, max_sep, db_session
+    ):
+        """Return the bindings to the nearest suitable photrefs.
+
+        Args:
+            unbound:    The ``(Image, channel, status)`` pending entries to
+                bind.
+
+            photref_type(MasterType):    The ``single_photref`` master type.
+
+            max_sep(float):    The ``max_photref_separation`` configured for
+                ``fit_magnitudes``.
+
+            db_session:    The database session to look up photrefs in.
+
+        Returns:
+            [(int, str, int)]:
+                The ``(image ID, channel, MasterFile ID)`` bindings, for the
+                entries a suitable photref is found for.
+        """
 
         expressions = db_session.execute(
             select(ConditionExpression.id, ConditionExpression.expression)
@@ -1325,21 +1443,35 @@ class ImageProcessingManager(ProcessingManager):
         )
 
         result = []
-        for image, channel, status in pending_images:
-            if self._select_photref_for_image(
-                image,
-                channel,
-                photref_type,
-                expressions,
-                photrefs_by_expr,
+        for image, channel, _ in unbound:
+            image_coord = self._get_image_center(image, channel, db_session)
+            if image_coord is None:
+                continue
+            best_pf = self._select_photref_for_image(
+                image_coord,
+                photrefs_by_expr.get(
+                    tuple(
+                        self._evaluated_expressions[image.id][channel][
+                            "values"
+                        ][expr_id]
+                        for expr_id, _ in expressions
+                    ),
+                    [],
+                ),
                 photref_diagnostics,
                 binding_counts,
                 max_sep,
-                db_session,
-            ):
-                result.append((image, channel, status))
-
-        db_session.flush()
+            )
+            if best_pf is None:
+                self._logger.info(
+                    "No suitable photref for image %d channel %s; leaving "
+                    "pending.",
+                    image.id,
+                    channel,
+                )
+                continue
+            binding_counts[best_pf.id] += 1
+            result.append((image.id, channel, best_pf.id))
         return result
 
     def _prepare_processing(self, step, image_type, limit_to_steps):

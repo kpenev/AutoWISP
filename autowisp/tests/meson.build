@@ -43,6 +43,7 @@ py_src = [
   'test_measure_aperture_photometry.py',
   'test_parameter_description_length.py',
   'test_parse_config_overwrites.py',
+  'test_photref_binding.py',
   'test_project_creation_guard.py',
   'test_provenance_resolver.py',
   'test_related_files.py',
