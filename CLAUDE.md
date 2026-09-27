@@ -121,6 +121,24 @@ rather than remembered. Two test classes may not share a name across modules:
 the imports land in one namespace, where the second silently replaces the
 first.
 
+**Writing tests:**
+
+- *Mix the cases in one population.* Rather than one test per rule over data
+  built to trip only that rule, give the fixture entries that fail different
+  rules side by side and assert that exactly the right ones survive: each is
+  then a control for the others.
+- *Include the rare case that would go unnoticed*, e.g. a frame bound to
+  different photometric references in two channels. It is what breaks long
+  after the code was written, and what nobody thinks to try by hand.
+- *Don't pin behaviour for states real use cannot reach*, e.g. an image
+  without astrometry reaching magnitude fitting. Asserting what happens there
+  requires behaviour that is better left undefined.
+- *Keep a fixture's data private* (`_` prefix on class attributes the tests
+  read), and keep data only one method uses local to it rather than global.
+- *Never let one name mean two things* in a fixture: references named `A` and
+  `B` next to a channel `B` make every assertion ambiguous to read. Use
+  `ref1`, `ref2`, etc.
+
 ## Linting
 
 ```bash
@@ -336,6 +354,16 @@ work being abandoned.
   defensible only for a bulk *mechanical* transform — re-indenting a block after
   wrapping it, or the same substitution across 10+ files — and even then, show
   `git diff -w` afterwards as the reviewable artifact and say why.
+
+- **One edit per tool call, never a batch of them.** Each edit is reviewed as
+  it is proposed, and rejecting one must stop everything after it; edits sent
+  together are all presented anyway, including those built on the rejected
+  one.
+
+- **Say which function an edit touches, and where, before proposing it.** The
+  edit preview numbers lines relative to the snippet, so on its own it does not
+  show where in the file the change lands — give `file:line` and the function
+  name, as they are *now* (an earlier edit in the same file moves them).
 
 - **Don't commit unless asked.** Leave work uncommitted. It gets several rounds
   of edits and corrections on top, and committing each intermediate state makes
