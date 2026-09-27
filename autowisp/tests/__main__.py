@@ -169,6 +169,12 @@ from autowisp.tests.test_expression_series import (
     TestCrossChannelCounts,
     TestTiedJulianDates,
 )
+from autowisp.tests.test_series_references import (
+    TestSeriesKeyReferences,
+    TestReferenceRestriction,
+    TestSplitSeries,
+    TestCountUnboundImages,
+)
 from autowisp.tests.test_evaluator import (
     TestNanAggregates,
     TestNanRank,

@@ -47,6 +47,7 @@ py_src = [
   'test_project_creation_guard.py',
   'test_provenance_resolver.py',
   'test_related_files.py',
+  'test_series_references.py',
   'test_solve_astrometry.py',
   'test_source_finder.py',
   'test_stack_to_master.py',

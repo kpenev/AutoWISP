@@ -18,6 +18,12 @@ The list deliberately does not depend on the channel, which is what makes
 reading one diagnostic in several of them cheap: the columns arrive side by
 side against the same images, so a quantity comparing channels is ordinary
 arithmetic rather than a join.
+
+It does depend on the photometric references a series names. A diagnostic
+``fit_magnitudes`` produces depends on the reference an image was fit
+against, so a series reading one is restricted to the images bound to one
+reference in each channel it reads it in, and :func:`split_series` finds
+which such populations a session holds.
 """
 
 from typing import NamedTuple
@@ -32,16 +38,22 @@ from autowisp.database.data_model import (
     DiagnosticType,
     Image,
     ImageDiagnostics,
+    ImageMasterSelection,
     ImageType,
+    MasterType,
     ObservingSession,
 )
 
 # pylint: enable=no-name-in-module
-from autowisp.diagnostics.diagnostic_types import time_quantity
+from autowisp.diagnostics.diagnostic_types import (
+    magfit_diagnostic_names,
+    time_quantity,
+)
 from autowisp.diagnostics.expressions import (
     evaluate_quantities,
     get_needed_values,
 )
+from autowisp.exceptions import PipelineError
 
 
 class _SeriesKeyFields(NamedTuple):
@@ -55,6 +67,30 @@ class _SeriesKeyFields(NamedTuple):
     session_id: int
     image_type: str
     channels: tuple
+    photrefs: tuple
+
+
+def _normalize_photrefs(channels, photrefs):
+    """Return *photrefs* with every slot on a channel given its reference.
+
+    A slot left ``None`` takes the reference another slot on its channel
+    has, where there is exactly one; a channel given two different ones is
+    left alone, selecting nothing, as it would anyway.
+    """
+
+    by_channel = {}
+    for channel, photref in zip(channels, photrefs):
+        if photref is not None:
+            by_channel.setdefault(channel, set()).add(photref)
+
+    return tuple(
+        (
+            next(iter(by_channel[channel]))
+            if photref is None and len(by_channel.get(channel, ())) == 1
+            else photref
+        )
+        for channel, photref in zip(channels, photrefs)
+    )
 
 
 class SeriesKey(_SeriesKeyFields):
@@ -70,7 +106,22 @@ class SeriesKey(_SeriesKeyFields):
     ``channels`` holds one channel per parameter of what the series draws,
     in the order those parameters are numbered: one for an ordinary
     diagnostic, several where an expression compares channels, and none for
-    a quantity over the time alone.
+    a quantity over the time alone. After them come the quoted channels a
+    diagnostic of :func:`magfit_diagnostic_names` is read in, if any, in
+    the order the text first quotes them: they bind nothing, but need a
+    reference like any other channel magfit is read in, and so a slot to
+    hold it. Whatever turns ``channels`` into bindings slices it from the
+    front, by arity, and never reaches them.
+
+    ``photrefs`` holds, per slot, the ``single_photref`` master file the
+    series' images are bound to in that slot's channel, restricting the
+    population to the images fit against it there; ``None`` where the
+    population is not restricted in that channel. A reference is a
+    property of a channel, not of a slot -- an image has one binding per
+    channel -- so slots on one channel carry the same one. A channel
+    something reads a magfit diagnostic in must have one (see
+    :func:`get_diagnostic_values`), since its values then depend on the
+    reference as well as on the image.
 
     Every function here takes one of these rather than the fields
     separately, so a caller cannot pair a channel with the wrong session by
@@ -79,20 +130,27 @@ class SeriesKey(_SeriesKeyFields):
 
     __slots__ = ()
 
-    def __new__(cls, session_id, image_type, channels):
+    def __new__(cls, session_id, image_type, channels, photrefs=None):
         """
-        Build the key, refusing a bare string where a tuple belongs.
+        Build the key, coercing what arrives in the wrong shape.
 
         ``__new__`` rather than a check further on because it has to
         *coerce* as well: bindings reach this from a JSON post as a list,
         and a list in that field makes the key unhashable, which is how it
         is used everywhere.
 
-        The string case is worth refusing loudly because it fails silently
-        and selectively: ``channels="R"`` leaves ``channels[0]`` reading
-        ``"R"`` and joins to the same id, so a one-character channel
-        behaves correctly, while ``"G1"`` becomes the two channels ``G``
-        and ``1`` somewhere much later.
+        A bare string for the channels is refused loudly because it fails
+        silently and selectively: ``channels="R"`` leaves ``channels[0]``
+        reading ``"R"`` and joins to the same id, so a one-character
+        channel behaves correctly, while ``"G1"`` becomes the two channels
+        ``G`` and ``1`` somewhere much later.
+
+        Omitted, *photrefs* is ``None`` in every slot, so a key built
+        without it equals one spelling that out. Given, it must be as long
+        as *channels*, and a slot left ``None`` on a channel another slot
+        has a reference for takes it: a producer filling only the slots
+        that read magfit then builds the same key as one filling every
+        slot on the channel.
         """
 
         if isinstance(channels, str):
@@ -100,7 +158,54 @@ class SeriesKey(_SeriesKeyFields):
                 f"channels={channels!r} is a string: a series binds a "
                 "*tuple* of channels, one per parameter of what it draws."
             )
-        return super().__new__(cls, session_id, image_type, tuple(channels))
+        channels = tuple(channels)
+
+        if photrefs is None:
+            photrefs = (None,) * len(channels)
+        photrefs = tuple(
+            None if photref is None else int(photref) for photref in photrefs
+        )
+        if len(photrefs) != len(channels):
+            raise ValueError(
+                f"photrefs={photrefs!r} gives {len(photrefs)} references for "
+                f"{len(channels)} channels {channels!r}: a series has one "
+                "per slot, None where it is not restricted by reference."
+            )
+
+        return super().__new__(
+            cls,
+            session_id,
+            image_type,
+            channels,
+            _normalize_photrefs(channels, photrefs),
+        )
+
+    # False positive: pylint models the inherited method as taking each field
+    # as a parameter, where it really takes ``self, /, **kwargs`` like this.
+    def _replace(self, /, **changes):  # pylint: disable=arguments-differ
+        """Build through :meth:`__new__`, which the inherited one skips."""
+
+        return type(self)(**{**self._asdict(), **changes})
+
+    @property
+    def reference_pairs(self):
+        """
+        The ``(channel, photref)`` pairs restricting the population.
+
+        One per distinct pair with a reference, sorted so that the joins
+        built from them come out the same every time. A channel given two
+        references contributes both, which between them select nothing.
+        """
+
+        return tuple(
+            sorted(
+                {
+                    (channel, photref)
+                    for channel, photref in zip(self.channels, self.photrefs)
+                    if photref is not None
+                }
+            )
+        )
 
     @property
     def channel(self):
@@ -128,6 +233,46 @@ def _of_one_type(series_key):
         Image.jd.is_not(None),
         # pylint: enable=no-member
     )
+
+
+def _photref_binding(binding, channel):
+    """Return the ON terms matching *binding* to an image's photref row.
+
+    Everything but the master file, which is what the callers vary: pinned
+    to one, or read out to see which it is. All three columns of the
+    primary key are pinned, so each probe is one index lookup.
+    """
+
+    return (
+        (binding.image_id == Image.id)  # pylint: disable=no-member
+        & (binding.channel == channel)
+        & (
+            binding.master_type_id
+            == select(MasterType.id)
+            .where(MasterType.name == "single_photref")
+            .scalar_subquery()
+        )
+    )
+
+
+def _restrict_to_references(query, series_key):
+    """
+    Return *query* keeping only images bound to the key's references.
+
+    One inner join per pair of :attr:`SeriesKey.reference_pairs`, so an
+    image stays only if it was fit against every one of them in its
+    channel. series_key.reference_pairs skips slots with no reference, so such a
+    slot adds no join, and a key with none at all comes back unchanged.
+    """
+
+    for channel, photref in series_key.reference_pairs:
+        binding = aliased(ImageMasterSelection)
+        query = query.join(
+            binding,
+            _photref_binding(binding, channel)
+            & (binding.master_file_id == photref),
+        )
+    return query
 
 
 #: The canonical order, by Julian date and then by id. The id is not
@@ -160,10 +305,12 @@ def get_canonical_images(series_key, db_session):
     Every array built for this series is padded onto this list, so index *i*
     is the same image in each of them and alignment needs no join.
 
-    The channel of *series_key* is deliberately not used -- the list is the
-    same for every channel -- but the image type is: frames of different
+    The channels of *series_key* are deliberately not used -- the list is
+    the same for every channel -- but the image type is: frames of different
     types are different populations, and mixing them would put a flat frame
-    and an object frame in one array for an aggregate to average over.
+    and an object frame in one array for an aggregate to average over. Its
+    references are used too, for the same reason: images fit against
+    different references are different populations of magfit values.
 
     Args:
         series_key(SeriesKey):    The series to list the images of.
@@ -176,13 +323,16 @@ def get_canonical_images(series_key, db_session):
 
     return _as_arrays(
         db_session.execute(
-            select(Image.id, Image.jd)  # pylint: disable=no-member
-            .select_from(Image)
-            .join(
-                ImageType,
-                # pylint: disable=no-member
-                ImageType.id == Image.image_type_id,
-                # pylint: enable=no-member
+            _restrict_to_references(
+                select(Image.id, Image.jd)  # pylint: disable=no-member
+                .select_from(Image)
+                .join(
+                    ImageType,
+                    # pylint: disable=no-member
+                    ImageType.id == Image.image_type_id,
+                    # pylint: enable=no-member
+                ),
+                series_key,
             )
             .where(*_of_one_type(series_key))
             .order_by(*_image_order)
@@ -200,7 +350,8 @@ def _diagnostic_values_query(series_key, names, channels):
     to get right, unlike which index a particular server then chooses.
 
     Args:
-        series_key(SeriesKey):    The series, for its session and type.
+        series_key(SeriesKey):    The series, for its session, type and
+            references.
 
         names(list):    The ``diagnostic_type`` names to read.
 
@@ -218,7 +369,7 @@ def _diagnostic_values_query(series_key, names, channels):
     # row, which is both wrong and a scan.
     reads = {channel: aliased(ImageDiagnostics) for channel in channels}
 
-    query = (
+    query = _restrict_to_references(
         select(
             Image.id,  # pylint: disable=no-member
             Image.jd,  # pylint: disable=no-member
@@ -230,12 +381,13 @@ def _diagnostic_values_query(series_key, names, channels):
         .select_from(Image).join(
             ImageType,
             ImageType.id == Image.image_type_id,  # pylint: disable=no-member
-        )
-        # No ON condition but the name filter: this is the cross join that
-        # turns "the values that exist" into "one row per image per name",
-        # which is what makes the result paddable.
-        .join(DiagnosticType, DiagnosticType.name.in_(names))
+        ),
+        series_key,
     )
+    # No ON condition but the name filter: this is the cross join that
+    # turns "the values that exist" into "one row per image per name",
+    # which is what makes the result paddable.
+    query = query.join(DiagnosticType, DiagnosticType.name.in_(names))
 
     for channel in channels:
         read = reads[channel]
@@ -256,6 +408,70 @@ def _diagnostic_values_query(series_key, names, channels):
         # the image order would sort within it instead of above it.
         .order_by(DiagnosticType.name, *_image_order)
     )
+
+
+def _magfit_channels(needed):
+    """Return the channels *needed* reads a magfit diagnostic in, sorted.
+
+    Args:
+        needed(dict):    ``{name: set of channel tuples}``, from
+            :func:`~autowisp.diagnostics.expressions.get_needed_values`,
+            which has already resolved slots, quoted channels and library
+            expressions alike, so a channel is here whichever way it is read.
+    """
+
+    magfit = magfit_diagnostic_names()
+    return sorted(
+        {
+            channel
+            for name, bindings in needed.items()
+            if name in magfit
+            for binding in bindings
+            for channel in binding
+        }
+    )
+
+
+def _unreferenced_magfit_channels(series_key, needed):
+    """Return the channels *needed* reads magfit in with no reference."""
+
+    referenced = {channel for channel, _ in series_key.reference_pairs}
+    return [
+        channel
+        for channel in _magfit_channels(needed)
+        if channel not in referenced
+    ]
+
+
+def _check_references(series_key, needed):
+    """
+    Refuse to read magfit diagnostics over images fit against unknown refs.
+
+    A magfit diagnostic depends on the reference an image was fit against
+    as well as on the image, so read in a channel the key names no
+    reference for, the population could mix images fit against several,
+    and an aggregate over it -- or a jump in a plot of it -- would mean
+    nothing. A reference on a channel nothing magfit reads is fine: it
+    merely restricts the population.
+
+    Raises:
+        PipelineError:    If a channel *needed* reads a magfit diagnostic in
+            has no reference in *series_key*.
+    """
+
+    unreferenced = _unreferenced_magfit_channels(series_key, needed)
+    if unreferenced:
+        raise PipelineError(
+            "Magnitude fitting diagnostics are read in "
+            + ", ".join(unreferenced)
+            + ", but the series names no photometric reference there: "
+            "their values depend on the reference each image was fit "
+            "against, so the series would mix references.",
+            details={
+                "channels": unreferenced,
+                "series": series_key._asdict(),
+            },
+        )
 
 
 def get_diagnostic_values(series_key, needed, db_session):
@@ -311,7 +527,13 @@ def get_diagnostic_values(series_key, needed, db_session):
                 ``diagnostic_type`` has is all ``NaN``.
 
             numpy.ndarray:    The image ids, in canonical order.
+
+    Raises:
+        PipelineError:    If *needed* reads a magfit diagnostic in a
+            channel *series_key* names no reference for.
     """
+
+    _check_references(series_key, needed)
 
     names = sorted(set(needed) - {time_quantity})
     channels = sorted(
@@ -409,8 +631,9 @@ def get_quantity_values(series_key, wanted, expressions, db_session):
 
     Raises:
         PipelineError:    If a quantity names nothing, if the expressions
-            reference each other in a cycle, or if a binding is the wrong
-            length for what it binds.
+            reference each other in a cycle, if a binding is the wrong
+            length for what it binds, or if a magfit diagnostic is read in
+            a channel *series_key* names no reference for.
     """
 
     values, image_ids = get_diagnostic_values(
@@ -418,6 +641,183 @@ def get_quantity_values(series_key, wanted, expressions, db_session):
     )
 
     return evaluate_quantities(wanted, expressions, values), image_ids
+
+
+def split_series(series_key, wanted, expressions, db_session):
+    """
+    Return the fit populations of a series: one key per reference combination.
+
+    A session may have been fit against several photometric references --
+    split by the separation limit, say -- and a quantity reading a magfit
+    diagnostic means something only within one of them. This finds which
+    references the series' images were actually bound to, in every channel
+    *wanted* reads a magfit diagnostic in, and returns one key per
+    combination that occurs, each restricted to the images having it.
+
+    If the first 200 images of a session were fit against A and the rest
+    against B, ``photometry_mag_offset[0]`` bound to ``R`` splits into keys
+    with ``photrefs=(A_R,)`` and ``(B_R,)``. Read in ``R`` and ``B`` it
+    normally splits into ``(A_R, A_B)`` and ``(B_R, B_B)``: only
+    combinations some image has, never every pairing of the references
+    found per channel.
+
+    References the key already names are kept, so the split happens within
+    the images bound to them. Each slot on a split channel gets that
+    channel's reference.
+
+    An image bound in none of those channels -- only possible from
+    processing before every magfit-ed image was bound -- is in none of the
+    keys; :func:`count_unbound_images` says how many there are.
+
+    Args:
+        series_key(SeriesKey):    The series to split. It needs a slot for
+            every channel a magfit diagnostic is read in, those read only
+            in quoted channels included, since that is where the reference
+            goes.
+
+        wanted(dict):    ``{quantity: set of channel tuples}``, as for
+            :func:`get_quantity_values`.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        list:    :class:`SeriesKey` per combination present, ordered by the
+            references. *series_key* alone where there is nothing to split
+            by.
+
+    Raises:
+        PipelineError:    If a channel *wanted* reads a magfit diagnostic in
+            has no slot in *series_key*, or as
+            :func:`~autowisp.diagnostics.expressions.get_needed_values`
+            does.
+    """
+
+    needed = get_needed_values(wanted, expressions)
+    slotless = [
+        channel
+        for channel in _magfit_channels(needed)
+        if channel not in series_key.channels
+    ]
+    if slotless:
+        raise PipelineError(
+            "Magnitude fitting diagnostics are read in "
+            + ", ".join(slotless)
+            + ", which the series has no slot for to hold a photometric "
+            "reference: a channel read only by quoting it needs one after "
+            "the parameters' slots.",
+            details={"channels": slotless, "series": series_key._asdict()},
+        )
+
+    split_by = _unreferenced_magfit_channels(series_key, needed)
+    if not split_by:
+        return [series_key]
+
+    bindings = {channel: aliased(ImageMasterSelection) for channel in split_by}
+    photref_columns = [bindings[channel].master_file_id for channel in split_by]
+    query = _restrict_to_references(
+        select(*photref_columns)
+        .select_from(Image)
+        .join(
+            ImageType,
+            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
+        ),
+        series_key,
+    )
+    for channel in split_by:
+        query = query.join(
+            bindings[channel], _photref_binding(bindings[channel], channel)
+        )
+
+    result = []
+    for combination in db_session.execute(
+        query.where(*_of_one_type(series_key))
+        .distinct()
+        .order_by(*photref_columns)
+    ).all():
+        found = dict(zip(split_by, combination))
+        result.append(
+            SeriesKey(
+                series_key.session_id,
+                series_key.image_type,
+                series_key.channels,
+                tuple(
+                    found.get(channel, photref)
+                    for channel, photref in zip(
+                        series_key.channels, series_key.photrefs
+                    )
+                ),
+            )
+        )
+    return result
+
+
+def count_unbound_images(series_key, wanted, expressions, db_session):
+    """
+    Count the images :func:`split_series` leaves out for want of a binding.
+
+    Those with a magfit diagnostic recorded in a channel *wanted* reads one
+    in and *series_key* names no reference for, but no photref bound there:
+    magfit-ed, so their values depend on a reference, with nothing saying
+    which. Only processing from before every magfit-ed image was bound
+    leaves any. Counted rather than listed, for the engine to log and the
+    browser interface to show.
+
+    Args:
+        series_key(SeriesKey):    The series, as given to
+            :func:`split_series`.
+
+        wanted(dict):    ``{quantity: set of channel tuples}``.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        int:    The number of images, each counted once however many
+            channels it lacks a binding in.
+    """
+
+    split_by = _unreferenced_magfit_channels(
+        series_key, get_needed_values(wanted, expressions)
+    )
+    if not split_by:
+        return 0
+
+    recorded = aliased(ImageDiagnostics)
+    binding = aliased(ImageMasterSelection)
+    return db_session.scalar(
+        _restrict_to_references(
+            select(
+                func.count(Image.id.distinct())  # pylint: disable=not-callable
+            )
+            .select_from(Image)
+            .join(
+                ImageType,
+                # pylint: disable=no-member
+                ImageType.id == Image.image_type_id,
+                # pylint: enable=no-member
+            ),
+            series_key,
+        )
+        .join(
+            recorded,
+            (recorded.image_id == Image.id)  # pylint: disable=no-member
+            & recorded.channel.in_(split_by),
+        )
+        .join(
+            DiagnosticType,
+            (DiagnosticType.id == recorded.diagnostic_id)
+            & DiagnosticType.name.in_(magfit_diagnostic_names()),
+        )
+        .join(
+            binding,
+            _photref_binding(binding, recorded.channel),
+            isouter=True,
+        )
+        .where(*_of_one_type(series_key), binding.image_id.is_(None))
+    )
 
 
 def _count_images(matching, required, per_channel, db_session):

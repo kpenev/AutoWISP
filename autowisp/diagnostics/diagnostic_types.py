@@ -132,6 +132,25 @@ def standard_diagnostic_names():
     return frozenset(standard_diagnostic_types())
 
 
+@functools.lru_cache(maxsize=1)
+def magfit_diagnostic_names():
+    """
+    Return the diagnostics ``fit_magnitudes`` produces.
+
+    Their values depend on the photometric reference each image was fit
+    against, not only on the image, so a population they are read over has
+    to be split by reference as well. Everything deciding that asks here.
+
+    Returns:
+        frozenset:    The names, a subset of
+            :func:`standard_diagnostic_names`.
+    """
+
+    return frozenset(
+        ("photometry_mag_offset", "magfit_residual", "mag_fit_num_stars")
+    )
+
+
 #: The one diagnostic family created at run time rather than seeded.
 #: ``calibrate`` records one per configured quantile, so which exist
 #: depends on how a project was configured and cannot be listed ahead of
