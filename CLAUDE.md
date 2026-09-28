@@ -375,6 +375,10 @@ work being abandoned.
   of edits and corrections on top, and committing each intermediate state makes
   noise that then has to be squashed. Wait for an explicit "commit".
 
+- **A commit need not be a working version on its own.** Work is split into
+  several commits to make it readable, not to leave a checkpoint per commit,
+  so test the final state only; don't build or test the intermediate commits.
+
 - **Plans are drafted as a file, then filed in Jira — never committed.** While
   a design is still being argued over, keep it as an uncommitted Markdown plan
   in the working tree: rereading and editing a local file beats reloading a
