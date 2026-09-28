@@ -19,12 +19,11 @@ from autowisp.diagnostics.expressions import (
     get_expression_dependents,
     get_expression_names,
     get_expression_parameters,
-    get_first_quoted_channel,
     get_indexed_names,
     get_logical_keywords,
     get_needed_values,
     get_quantity_arity,
-    get_quoted_channels,
+    get_quoted_channel_order,
     order_expressions,
     rename_references,
     rule_quantity,
@@ -821,33 +820,38 @@ class TestQuotedChannels(SlotTestCase):
         problems = check_expression("bad", "fixed[1] * 2", self.library)
         self.assertTrue(any("fixed" in problem for problem in problems))
 
-    def test_quoted_channels_are_listed(self):
-        """Only the text's own, not those of what it references."""
+    def test_quoted_channels_come_as_first_written(self):
+        """Its own and its references', each once, where first quoted.
 
-        self.assertEqual(get_quoted_channels(self.library["relative"]), {"G0"})
-        self.assertEqual(get_quoted_channels("bg_center[1] * fixed"), set())
+        ``R`` first, quoted before ``fixed`` is reached; ``fixed`` then adds
+        ``B`` but not its ``R`` again; ``G0`` last, the final ``B`` being a
+        repeat. ``ast.walk`` alone, going shallowest first, would give
+        ``B``, ``G0``, ``R``.
+        """
 
-    def test_the_first_quoted_is_the_first_written(self):
-        """Not the shallowest: ``ast.walk`` alone would give ``R`` here."""
-
-        library = dict(self.library, deep="2 * bg_center['B'] + bg_center['R']")
-
-        self.assertEqual(get_first_quoted_channel("deep", library), "B")
-
-    def test_the_first_quoted_is_found_through_references(self):
-        """``over_fixed`` quotes nothing itself; ``fixed`` quotes ``B``."""
-
-        self.assertEqual(
-            get_first_quoted_channel("over_fixed", self.library), "B"
+        library = dict(
+            self.library,
+            mix="2 * bg_center['R'] * fixed + bg_center['G0'] + bg_center['B']",
         )
 
-    def test_nothing_quoted_has_no_first(self):
-        """Nor has anything but an expression."""
+        self.assertEqual(
+            get_quoted_channel_order("mix", library), ["R", "B", "G0"]
+        )
+
+    def test_quoted_channels_are_found_through_references(self):
+        """``over_fixed`` quotes nothing itself; ``fixed`` quotes both."""
+
+        self.assertEqual(
+            get_quoted_channel_order("over_fixed", self.library), ["B", "R"]
+        )
+
+    def test_nothing_quoted_is_an_empty_order(self):
+        """Nor does anything but an expression quote."""
 
         for quantity in ("sky_color", "bg_center", time_quantity):
             with self.subTest(quantity=quantity):
-                self.assertIsNone(
-                    get_first_quoted_channel(quantity, self.library)
+                self.assertEqual(
+                    get_quoted_channel_order(quantity, self.library), []
                 )
 
     def test_references_are_listed_as_written(self):

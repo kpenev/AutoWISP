@@ -29,9 +29,9 @@ from autowisp.diagnostics.image_counts import (
 )
 from autowisp.diagnostics.expressions import (
     get_expression_parameters,
-    get_first_quoted_channel,
     get_needed_values,
     get_quantity_arity,
+    get_quoted_channel_order,
 )
 
 # False positive due to unusual importing
@@ -406,9 +406,9 @@ def get_quoted_channel(x_quantity, y_quantity, expressions):
     """
 
     for quantity in (x_quantity, y_quantity):
-        found = get_first_quoted_channel(quantity, expressions)
-        if found is not None:
-            return found
+        found = get_quoted_channel_order(quantity, expressions)
+        if found:
+            return found[0]
     return ""
 
 

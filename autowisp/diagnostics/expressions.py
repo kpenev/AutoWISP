@@ -1125,42 +1125,21 @@ def _body_problems(name, expression, current_library):
 rule_quantity = "<exclusion rule>"
 
 
-def get_quoted_channels(expression):
+def get_quoted_channel_order(quantity, expressions):
     """
-    Return the channels *expression* names by quoting them.
-
-    Only its own text: the expressions it references quote channels of
-    their own, and each is judged when it is saved. Callers use this to
-    warn when a camera has no such channel.
-
-    Args:
-        expression(str):    The expression text.
-
-    Returns:
-        set:    The quoted channel names.
-
-    Raises:
-        SyntaxError, PipelineError:    As for :func:`get_indexed_names`.
-    """
-
-    return {
-        slot
-        for _, slots in get_indexed_names(expression)
-        for slot in slots
-        if isinstance(slot, str)
-    }
-
-
-def get_first_quoted_channel(quantity, expressions):
-    """
-    Return the first channel *quantity* quotes, as its text is written.
+    Return the channels *quantity* quotes, in the order its text is written.
 
     Following the expressions it references where they come, whether read
     bare or through a subscript: ``gcol = sky_color['B', 'R']`` quotes
-    ``B`` first, and so does anything reading ``gcol``. A series whose
-    channels are all quoted binds none of its own, and is shown in this one
-    -- its colour, and the frame a click on a point opens -- which is why
-    the order is the text's rather than any other.
+    ``B`` and then ``R``, and so does anything reading ``gcol``. Each
+    channel is listed once, where it is first quoted.
+
+    The order is the text's rather than any other because two things are
+    laid out by it. A series whose channels are all quoted binds none of
+    its own, and is shown in the first -- its colour, and the frame a click
+    on a point opens. And a quoted channel a magfit diagnostic is read in
+    gets a column of the series table to choose its photometric reference
+    in, and those columns follow the order the expression mentions them.
 
     Args:
         quantity(str):    A diagnostic, an expression, or the time.
@@ -1169,31 +1148,37 @@ def get_first_quoted_channel(quantity, expressions):
             :func:`order_expressions` has found free of cycles.
 
     Returns:
-        str:    The channel, or ``None`` if nothing *quantity* reaches
-            quotes one -- as for anything but an expression.
+        list:    The channels, empty if nothing *quantity* reaches quotes
+            one -- as for anything but an expression.
 
     Raises:
         SyntaxError, PipelineError:    As for :func:`get_indexed_names`.
     """
 
     if quantity not in expressions:
-        return None
+        return []
 
+    found = []
     # A subscript starts where its name does and comes first, so its own
     # quoted slots are looked at before the expression it subscripts.
     for node in _in_written_order(
         ast.parse(expressions[quantity], mode="eval")
     ):
         if isinstance(node, ast.Subscript):
-            for slot in _get_subscript_slots(node):
-                if isinstance(slot, str):
-                    return slot
+            quoted = [
+                slot
+                for slot in _get_subscript_slots(node)
+                if isinstance(slot, str)
+            ]
         elif isinstance(node, ast.Name):
-            found = get_first_quoted_channel(node.id, expressions)
-            if found is not None:
-                return found
+            quoted = get_quoted_channel_order(node.id, expressions)
+        else:
+            continue
+        for channel in quoted:
+            if channel not in found:
+                found.append(channel)
 
-    return None
+    return found
 
 
 def check_rule(rule, library):
