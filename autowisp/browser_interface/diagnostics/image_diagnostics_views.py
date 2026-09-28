@@ -47,6 +47,7 @@ from .quantities import (
 )
 from .series_table import (
     get_available_series,
+    get_columns,
     get_quoted_channel,
     get_series_key,
     posted_rows,
@@ -304,7 +305,6 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
             series having at least one point where both axes are finite.
     """
 
-    x_arity = get_quantity_arity(x_quantity, expressions)
     series_data = []
     for series in series_list:
         # Defaulting to selected, so that a payload from before the table
@@ -313,19 +313,19 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
             continue
         if not series.get("marker", "").strip():
             continue
-        # As many channels as the two axes take between them, rather than
-        # merely some: a page whose script predates the channel columns
-        # posts none at all, which is not a binding -- unless neither axis
-        # takes a channel, when none is exactly what a bound row posts.  A
-        # payload predating the chosen pair names no population either.
-        # Both are skipped rather than refused -- a stale page should draw
-        # nothing, not turn the response into an error page.
+        # As many channels as the table has channel columns -- one per
+        # parameter of the two axes, and one per channel a magfit
+        # diagnostic is read in by quoting it -- rather than merely some:
+        # a page whose script predates the channel columns posts none at
+        # all, which is not a binding -- unless no column exists, when
+        # none is exactly what a bound row posts.  A payload predating the
+        # chosen pair names no population either. Both are skipped rather
+        # than refused -- a stale page should draw nothing, not turn the
+        # response into an error page.
+        quantity = split_row_id(series["id"])[0]
         channels = series.get("channels", ())
-        expected = x_arity + get_quantity_arity(
-            split_row_id(series["id"])[0], expressions
-        )
         if (
-            len(channels) != expected
+            len(channels) != len(get_columns(x_quantity, quantity, expressions))
             or not all(channels)
             or not series.get("pair")
         ):
@@ -344,13 +344,13 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
             # series can bind several, or where it binds none the first
             # its quantities quote, as the table colours it -- and the
             # quantity the row draws, which its y axis is labelled for.
-            quantity = split_row_id(series["id"])[0]
             drawn = {
                 **series,
+                # From the key rather than the posted values, which name a
+                # reference as well where a column binds one.
                 "channel": (
-                    channels[0]
-                    if channels
-                    else get_quoted_channel(x_quantity, quantity, expressions)
+                    get_series_key(series).channel
+                    or get_quoted_channel(x_quantity, quantity, expressions)
                 ),
                 "quantity": quantity,
             }

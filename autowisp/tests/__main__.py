@@ -160,6 +160,7 @@ from autowisp.tests.test_channel_binding import (
     TestAddedRow,
     TestFixedChannelReads,
     TestTwoChannelSeriesValues,
+    TestReferenceColumns,
 )
 from autowisp.tests.test_expression_series import (
     TestCanonicalImages,

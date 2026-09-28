@@ -10,18 +10,25 @@ Takes one context variable, `diagnostic`, as `make_series` builds it.
 {% endcomment %}
 {% for slot in diagnostic.slots %}
 {% if slot.fixed %}
-{% comment %} A column with one channel to offer is no choice at all, so
-   the cell states what it binds rather than asking, and says so in
-   `data-channel`, which is where the client reads a settled binding from.
+{% comment %} A column with one option is no choice at all, so the cell
+   states what it binds rather than asking, and says so in `data-channel`,
+   which is where the client reads a settled binding from -- the channel,
+   and the photometric reference where the column binds one, which the text
+   need not name but the `title` shows on hover.
 {% endcomment %}
-<td class="slot-cell" data-sort="{{ slot.sort }}" data-channel="{{ slot.value }}">
-    {{ slot.value }}
+<td class="slot-cell" data-sort="{{ slot.sort }}" data-channel="{{ slot.value }}"
+    {% if slot.title %}title="{{ slot.title }}"{% endif %}>
+    {{ slot.label }}
 </td>
 {% else %}
+{% comment %} Each option's `title` is its reference's path, and the
+   dropdown's is the chosen one's, which the client keeps current as the
+   choice changes.
+{% endcomment %}
 <td class="slot-cell" data-sort="{{ slot.sort }}">
-    <select class="slot-select">
+    <select class="slot-select" title="{{ slot.title }}">
         {% for option in slot.options %}
-        <option value="{{ option.value }}"
+        <option value="{{ option.value }}" title="{{ option.title }}"
                 {% if option.value == slot.value %}selected{% endif %}>{{ option.text }}</option>
         {% endfor %}
     </select>

@@ -558,6 +558,19 @@ function refreshSortKey(event)
         cell.dataset.sort = select.options[select.selectedIndex].text.trim();
 }
 
+function refreshTooltip(event)
+{
+    // A channel column's dropdown shows on hover what its chosen option
+    // names in full -- the path of a photometric reference, which the
+    // option's text shortens -- and that has to follow the choice here:
+    // the server re-renders the cells only once every column is set.
+    // Delegated, as refreshSortKey is, so replaced cells need no wiring.
+    const select = event.target;
+    if ( !select.matches(".slot-select") || select.selectedIndex < 0 )
+        return;
+    select.title = select.options[select.selectedIndex].title;
+}
+
 function wireSlotCells(row)
 {
     // Called again whenever the server replaces these cells, which it does
@@ -615,9 +628,9 @@ function initImageDiagnostics(plotURL)
     updateFigure.callback = showDiagnosticsPlot;
     updateFigure.getParam = getSelectedDatasets;
 
-    document.getElementById("diagnostics-table-parent").addEventListener(
-        "change", refreshSortKey
-    );
+    const tableParent = document.getElementById("diagnostics-table-parent");
+    tableParent.addEventListener("change", refreshSortKey);
+    tableParent.addEventListener("change", refreshTooltip);
     document.querySelectorAll(".diagnostics-section").forEach(wireSection);
     document.querySelectorAll(".diagnostic-row").forEach(wireDiagnosticRow);
     refreshControls();

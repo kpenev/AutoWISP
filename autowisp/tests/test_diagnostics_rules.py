@@ -160,6 +160,24 @@ class TestRowId(unittest.TestCase):
             SeriesKey(7, "object", ("R", "B")),
         )
 
+    def test_posted_references_are_split_from_their_channels(self):
+        """A plain slot on a referenced channel takes that reference.
+
+        A column reading magfit posts its channel with its reference; the
+        others, the channel alone.
+        """
+
+        self.assertEqual(
+            get_series_key(
+                {
+                    "id": make_id("bg_center", 2),
+                    "pair": make_id(7, "object"),
+                    "channels": [make_id("R", 12), "R", "B"],
+                }
+            ),
+            SeriesKey(7, "object", ("R", "R", "B"), (12, 12, None)),
+        )
+
 
 class TestQuantityDescription(unittest.TestCase):
     """What a section header says about the quantity it draws.
@@ -261,10 +279,26 @@ class TestSlotCells(unittest.TestCase):
     Pure, so the rules can be checked without a database or a browser.
     """
 
+    @staticmethod
+    def _plain(**counts):
+        """Return a column binding channels alone, offering *counts*."""
+
+        return {(channel, None): count for channel, count in counts.items()}
+
+    @staticmethod
+    def _cells(available, *bindings):
+        """Return :func:`make_slot_cells`, knowing no reference's path.
+
+        What a reference is called is checked by looking at the page; what
+        is bound does not depend on it.
+        """
+
+        return make_slot_cells(available, bindings, {})
+
     def test_a_column_with_one_channel_is_settled(self):
         """Asking for a click with one possible outcome is ceremony."""
 
-        cells = make_slot_cells([{"R": 3}], ())
+        cells = self._cells([self._plain(R=3)])
 
         self.assertTrue(cells[0]["fixed"])
         self.assertEqual(cells[0]["value"], "R")
@@ -273,7 +307,7 @@ class TestSlotCells(unittest.TestCase):
     def test_a_column_with_a_choice_starts_unset(self):
         """Nothing picks one of several channels on the user's behalf."""
 
-        cells = make_slot_cells([{"R": 3, "B": 2}], ())
+        cells = self._cells([self._plain(R=3, B=2)])
 
         self.assertFalse(cells[0]["fixed"])
         self.assertEqual(cells[0]["value"], "")
@@ -283,20 +317,24 @@ class TestSlotCells(unittest.TestCase):
         """The user chose it, and it remains an answer here."""
 
         self.assertEqual(
-            make_slot_cells([{"R": 3, "B": 2}], ("B",))[0]["value"], "B"
+            self._cells([self._plain(R=3, B=2)], ("B", None))[0]["value"], "B"
         )
 
     def test_a_channel_the_pair_does_not_offer_is_cleared(self):
         """Rather than quietly bound to something the user never chose."""
 
         self.assertEqual(
-            make_slot_cells([{"R": 3, "G": 1}], ("B",))[0]["value"], ""
+            self._cells([self._plain(R=3, G=1)], ("B", None))[0]["value"], ""
         )
 
     def test_each_column_is_decided_on_its_own(self):
         """One axis may have a channel to choose where the other has none."""
 
-        cells = make_slot_cells([{"R": 3}, {"R": 3, "B": 2}], ("R", "B"))
+        cells = self._cells(
+            [self._plain(R=3), self._plain(R=3, B=2)],
+            ("R", None),
+            ("B", None),
+        )
 
         self.assertEqual([cell["fixed"] for cell in cells], [True, False])
 
@@ -306,11 +344,28 @@ class TestSlotCells(unittest.TestCase):
         self.assertEqual(
             [
                 (option["value"], option["text"])
-                for option in make_slot_cells([{"R": 3, "B": 2}], ())[0][
-                    "options"
-                ]
+                for option in self._cells([self._plain(R=3, B=2)])[0]["options"]
             ],
             [("", unset_option_text), ("B", "B (2)"), ("R", "R (3)")],
+        )
+
+    def test_a_plain_column_keeps_its_channel_beside_a_reference(self):
+        """Matched by channel: the key gave it the reference of its channel.
+
+        A key binding R with a reference in one column and without in
+        another gives both the reference, which no option of the plain
+        column names.
+        """
+
+        cell = self._cells([self._plain(R=3, B=2)], ("R", 1))[0]
+
+        self.assertEqual((cell["value"], cell["binding"]), ("R", ("R", None)))
+
+    def test_a_reference_the_pair_does_not_offer_is_cleared(self):
+        """Not taken to mean its channel, which offers two others here."""
+
+        self.assertEqual(
+            self._cells([{("R", 1): 3, ("R", 2): 2}], ("R", 5))[0]["value"], ""
         )
 
 

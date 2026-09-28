@@ -65,6 +65,7 @@ from autowisp.browser_interface.diagnostics.series_table import (
     make_id,
     split_pair_id,
 )
+from autowisp.tests.test_series_references import ReferenceProject
 
 # pylint: enable=wrong-import-position
 
@@ -775,3 +776,136 @@ class TestTwoChannelSeriesValues(TwoChannelProject):
 
         self.assertEqual(y_values.tolist(), self.values_of["B"])
         self.assertEqual(x_values.tolist(), self.jd_values())
+
+
+class TestReferenceColumns(ReferenceProject):
+    """The table over magfit diagnostics: references chosen in its columns.
+
+    On the night of :mod:`autowisp.tests.test_series_references`, fit
+    against two references in each of two channels, with one frame bound
+    differently in the two and one bound to nothing.
+    """
+
+    #: Reads the offset in its slot's channel and, by quoting it, in B, so
+    #: that a row needs a reference for each.
+    _expressions = {
+        "offset_to_b": "photometry_mag_offset[0] - photometry_mag_offset['B']"
+    }
+
+    def _table(self, y_quantity):
+        """Return the table a section drawing *y_quantity* against jd has."""
+
+        with start_db_session() as db_session:
+            return get_available_series(
+                "jd", y_quantity, self._expressions, db_session, marker="o"
+            )
+
+    def _value(self, channel, reference):
+        """Return what a column posts for *reference* in *channel*."""
+
+        return make_id(channel, self.photref[reference, channel])
+
+    def test_a_magfit_column_offers_its_references(self):
+        """Each (channel, photref) the night's frames are bound to.
+
+        What each is called, and how many frames it draws, are for the page
+        and for the counting tests respectively.
+        """
+
+        cell = self._table("photometry_mag_offset")["diagnostics_list"][0][
+            "slots"
+        ][0]
+
+        self.assertEqual(
+            [option["value"] for option in cell["options"]][1:],
+            [
+                self._value("B", "ref1"),
+                self._value("B", "ref2"),
+                self._value("R", "ref1"),
+                self._value("R", "ref2"),
+            ],
+        )
+
+    def test_a_quoted_magfit_read_gets_a_column_of_its_own(self):
+        """After the slot's, offering only the quoted channel's references."""
+
+        slots = self._table("offset_to_b")["diagnostics_list"][0]["slots"]
+
+        self.assertEqual(len(slots), 2)
+        self.assertEqual(
+            [option["value"] for option in slots[1]["options"]][1:],
+            [self._value("B", "ref1"), self._value("B", "ref2")],
+        )
+
+    def test_a_rebound_row_counts_the_frames_of_its_references(self):
+        """Only those fit against both, as the series will draw."""
+
+        row_id = make_id("offset_to_b", 0)
+        with start_db_session() as db_session:
+            _, answer = get_table_response(
+                {
+                    "datasets": {
+                        row_id: {
+                            "pair": make_id(self.session_id, "object"),
+                            "channels": [
+                                self._value("R", "ref1"),
+                                self._value("B", "ref1"),
+                            ],
+                        }
+                    },
+                    "bind": row_id,
+                },
+                x_quantity="jd",
+                expressions=self._expressions,
+                db_session=db_session,
+            )
+
+        self.assertEqual(
+            answer["count"],
+            len(self.selected(self.image_ids, R="ref1", B="ref1")),
+        )
+
+    def test_a_row_is_drawn_from_its_references(self):
+        """Its tail column posted too, and only the frames fit against both.
+
+        Here the one frame fit against ref2 in R but ref1 in B. A click on
+        a point opens it in the row's channel, R, not in ``R|…``.
+        """
+
+        with start_db_session() as db_session:
+            drawn = collect_series_data(
+                [
+                    {
+                        "id": make_id("offset_to_b", 0),
+                        "pair": make_id(self.session_id, "object"),
+                        "channels": [
+                            self._value("R", "ref2"),
+                            self._value("B", "ref1"),
+                        ],
+                        "marker": "o",
+                    }
+                ],
+                "jd",
+                self._expressions,
+                db_session,
+            )
+
+        # Drawn at all: a row posting more values than its axes take was
+        # once skipped as not fully bound.
+        self.assertEqual(len(drawn), 1)
+        series, _, y_values, image_ids = drawn[0]
+        self.assertEqual(series["channel"], "R")
+        self.assertEqual(
+            image_ids.tolist(),
+            self.selected(self.image_ids, R="ref2", B="ref1"),
+        )
+        self.assertEqual(
+            y_values.tolist(),
+            [
+                r_offset - b_offset
+                for r_offset, b_offset in zip(
+                    self.selected(self.offsets["R"], R="ref2", B="ref1"),
+                    self.selected(self.offsets["B"], R="ref2", B="ref1"),
+                )
+            ],
+        )
