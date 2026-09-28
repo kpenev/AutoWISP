@@ -17,6 +17,7 @@ py_src = [
   'test_channel_binding.py',
   'test_crash_report.py',
   'test_create_lightcurves.py',
+  'test_custom_group_values.py',
   'test_database_migration.py',
   'test_detrending_stat.py',
   'test_diagnostic_expressions.py',

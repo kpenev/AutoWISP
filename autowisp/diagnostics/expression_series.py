@@ -24,7 +24,19 @@ It does depend on the photometric references a series names. A diagnostic
 against, so a series reading one is restricted to the images bound to one
 reference in each channel it reads it in, and :func:`split_series` finds
 which such populations a session holds.
+
+A photref group is the one population not identified by a session: it is
+given as its members, ``(image, channel)`` pairs, and
+:func:`get_custom_group_values` reads and evaluates over those, one point per
+member, with the same query and evaluation.
 """
+
+# Over pylint's 1000-line default, and left there: everything here is one
+# path -- a population, one query over it, one evaluation -- which the
+# series and the custom group share, and splitting it would leave each half
+# importing the other's private helpers. Counting images, which shares none
+# of it, is already apart in :mod:`autowisp.diagnostics.image_counts`.
+# pylint: disable=too-many-lines
 
 from typing import NamedTuple
 
@@ -51,6 +63,7 @@ from autowisp.diagnostics.diagnostic_types import (
 from autowisp.diagnostics.expressions import (
     evaluate_quantities,
     get_needed_values,
+    get_quantity_arity,
 )
 from autowisp.exceptions import PipelineError
 
@@ -222,10 +235,22 @@ class SeriesKey(_SeriesKeyFields):
         return self.channels[0] if self.channels else ""
 
 
-def _of_one_type(series_key):
-    """Return the WHERE terms selecting one session's frames of one type."""
+def _in_series(query, series_key):
+    """
+    Return *query*, over ``Image``, keeping only the images of one series.
 
-    return (
+    One session's frames of one type, bound to the key's references. The
+    query must already select from ``Image``, which is what gets joined to
+    its type.
+    """
+
+    return _restrict_to_references(
+        query.join(
+            ImageType,
+            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
+        ),
+        series_key,
+    ).where(
         # pylint: disable=no-member
         Image.observing_session_id == series_key.session_id,
         ImageType.name == series_key.image_type,
@@ -320,28 +345,29 @@ def get_canonical_images(series_key, db_session):
         tuple:    Arrays of image IDs and of Julian dates, of equal length.
     """
 
-    return _as_arrays(
-        db_session.execute(
-            _restrict_to_references(
-                select(Image.id, Image.jd)  # pylint: disable=no-member
-                .select_from(Image)
-                .join(
-                    ImageType,
-                    # pylint: disable=no-member
-                    ImageType.id == Image.image_type_id,
-                    # pylint: enable=no-member
-                ),
-                series_key,
-            )
-            .where(*_of_one_type(series_key))
-            .order_by(*_image_order)
-        ).all()
-    )
+    return _list_images(lambda query: _in_series(query, series_key), db_session)
 
 
-def _diagnostic_values_query(series_key, names, channels):
+def _list_images(population, db_session):
     """
-    Return the statement reading *names* in *channels* for one series.
+    Return ``(image_ids, jd_values)`` for a population, in canonical order.
+
+    Args:
+        population:    Function restricting a query over ``Image`` to the
+            images wanted, as :func:`_in_series` does to a series'.
+
+        db_session:    An active SQLAlchemy database session.
+    """
+
+    # pylint: disable=no-member
+    query = population(select(Image.id, Image.jd).select_from(Image))
+    # pylint: enable=no-member
+    return _as_arrays(db_session.execute(query.order_by(*_image_order)).all())
+
+
+def _diagnostic_values_query(population, names, channels):
+    """
+    Return the statement reading *names* in *channels* for a population.
 
     Separate from running it so that what it asks the database for can be
     inspected without a database: the predicates below are what keep this
@@ -349,8 +375,8 @@ def _diagnostic_values_query(series_key, names, channels):
     to get right, unlike which index a particular server then chooses.
 
     Args:
-        series_key(SeriesKey):    The series, for its session, type and
-            references.
+        population:    Function restricting a query over ``Image`` to the
+            images to read, as :func:`_in_series` does to a series'.
 
         names(list):    The ``diagnostic_type`` names to read.
 
@@ -368,7 +394,7 @@ def _diagnostic_values_query(series_key, names, channels):
     # row, which is both wrong and a scan.
     reads = {channel: aliased(ImageDiagnostics) for channel in channels}
 
-    query = _restrict_to_references(
+    query = population(
         select(
             Image.id,  # pylint: disable=no-member
             Image.jd,  # pylint: disable=no-member
@@ -377,11 +403,7 @@ def _diagnostic_values_query(series_key, names, channels):
         )
         # Explicit, because diagnostic_type joins on no relation to any of
         # the others and SQLAlchemy cannot pick the left side on its own.
-        .select_from(Image).join(
-            ImageType,
-            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
-        ),
-        series_key,
+        .select_from(Image)
     )
     # No ON condition but the name filter: this is the cross join that
     # turns "the values that exist" into "one row per image per name",
@@ -400,13 +422,10 @@ def _diagnostic_values_query(series_key, names, channels):
             isouter=True,
         )
 
-    return (
-        query.where(*_of_one_type(series_key))
-        # Name first: the blocks the result is read back in are per name,
-        # and order_by appends rather than replaces, so a name added after
-        # the image order would sort within it instead of above it.
-        .order_by(DiagnosticType.name, *_image_order)
-    )
+    # Name first: the blocks the result is read back in are per name, and
+    # order_by appends rather than replaces, so a name added after the image
+    # order would sort within it instead of above it.
+    return query.order_by(DiagnosticType.name, *_image_order)
 
 
 def _magfit_channels(needed):
@@ -473,6 +492,77 @@ def _check_references(series_key, needed):
         )
 
 
+def _read_diagnostics(population, names, channels, db_session):
+    """
+    Return *names* in each of *channels* for a population, NaN-padded.
+
+    The reading :func:`get_diagnostic_values` describes, for any
+    population: one query, read back as a rectangle.
+
+    Args:
+        population:    Function restricting a query over ``Image`` to the
+            images to read, as :func:`_in_series` does to a series'.
+
+        names(list):    The ``diagnostic_type`` names to read. May be
+            empty, leaving only the images to list.
+
+        channels(list):    The channels to read every one of them in.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        tuple:
+            dict:    ``{name: {channel: array}}`` for every name and
+                channel asked for, over the images in canonical order.
+
+            numpy.ndarray:    The image ids, in canonical order.
+
+            numpy.ndarray:    Their Julian dates.
+    """
+
+    if not names:
+        return {}, *_list_images(population, db_session)
+
+    rows = db_session.execute(
+        _diagnostic_values_query(population, names, channels)
+    ).all()
+
+    # From the rows rather than from names: a name no diagnostic_type has
+    # contributes no block at all, and would otherwise throw the shape out
+    # for every other name. In the order the rows bring them, which the
+    # ordering by name makes one contiguous block each, so nothing depends
+    # on the database's collation ordering strings the way Python does.
+    read_names = list(dict.fromkeys(row[2] for row in rows))
+    per_block = len(rows) // len(read_names) if read_names else 0
+
+    columns = {
+        channel: numpy.fromiter(
+            (
+                numpy.nan if row[3 + offset] is None else row[3 + offset]
+                for row in rows
+            ),
+            dtype=float,
+            count=len(rows),
+        ).reshape(len(read_names), per_block)
+        for offset, channel in enumerate(channels)
+    }
+
+    return (
+        {
+            name: {
+                channel: (
+                    columns[channel][read_names.index(name)]
+                    if name in read_names
+                    else numpy.full(per_block, numpy.nan)
+                )
+                for channel in channels
+            }
+            for name in names
+        },
+        *_as_arrays(rows[:per_block]),
+    )
+
+
 def get_diagnostic_values(series_key, needed, db_session):
     """
     Return the wanted diagnostics for one series, NaN-padded and aligned.
@@ -494,10 +584,10 @@ def get_diagnostic_values(series_key, needed, db_session):
 
     Being a rectangle is what lets the values become arrays in one step: a
     column is read out whole and reshaped into one row per name, rather
-    than accumulated name by name. Each block's name is taken from its
-    first row rather than from a sorted list of the names asked for, so
-    nothing depends on the database's collation ordering strings the way
-    Python does.
+    than accumulated name by name. The blocks' names are taken from the
+    rows, in the order they arrive, rather than from a sorted list of the
+    names asked for, so nothing depends on the database's collation
+    ordering strings the way Python does.
 
     The image ids come back alongside, because the same query already
     carries them and a caller that needs them should not have to ask again
@@ -544,51 +634,20 @@ def get_diagnostic_values(series_key, needed, db_session):
         }
     )
 
-    if not names:
-        image_ids, jd_values = get_canonical_images(series_key, db_session)
-        return (
-            {time_quantity: {(): jd_values}} if time_quantity in needed else {},
-            image_ids,
-        )
-
-    rows = db_session.execute(
-        _diagnostic_values_query(series_key, names, channels)
-    ).all()
-
-    # From the rows rather than from len(names): a name no diagnostic_type
-    # has contributes no block at all, and would otherwise throw the shape
-    # out for every other name.
-    blocks = len({row[2] for row in rows})
-    per_block = len(rows) // blocks if blocks else 0
-
-    read_names = [
-        rows[start][2] for start in range(0, len(rows), per_block or 1)
-    ]
-    columns = {
-        channel: numpy.fromiter(
-            (
-                numpy.nan if row[3 + offset] is None else row[3 + offset]
-                for row in rows
-            ),
-            dtype=float,
-            count=len(rows),
-        ).reshape(blocks or 0, per_block)
-        for offset, channel in enumerate(channels)
-    }
+    by_channel, image_ids, jd_values = _read_diagnostics(
+        lambda query: _in_series(query, series_key),
+        names,
+        channels,
+        db_session,
+    )
 
     values = {
         name: {
-            combination: (
-                columns[combination[0]][read_names.index(name)]
-                if name in read_names
-                else numpy.full(per_block, numpy.nan)
-            )
+            combination: by_channel[name][combination[0]]
             for combination in needed[name]
         }
         for name in names
     }
-
-    image_ids, jd_values = _as_arrays(rows[:per_block])
     if time_quantity in needed:
         values[time_quantity] = {(): jd_values}
 
@@ -715,15 +774,7 @@ def split_series(series_key, wanted, expressions, db_session):
 
     bindings = {channel: aliased(ImageMasterSelection) for channel in split_by}
     photref_columns = [bindings[channel].master_file_id for channel in split_by]
-    query = _restrict_to_references(
-        select(*photref_columns)
-        .select_from(Image)
-        .join(
-            ImageType,
-            ImageType.id == Image.image_type_id,  # pylint: disable=no-member
-        ),
-        series_key,
-    )
+    query = _in_series(select(*photref_columns).select_from(Image), series_key)
     for channel in split_by:
         query = query.join(
             bindings[channel], _photref_binding(bindings[channel], channel)
@@ -731,9 +782,7 @@ def split_series(series_key, wanted, expressions, db_session):
 
     result = []
     for combination in db_session.execute(
-        query.where(*_of_one_type(series_key))
-        .distinct()
-        .order_by(*photref_columns)
+        query.distinct().order_by(*photref_columns)
     ).all():
         found = dict(zip(split_by, combination))
         result.append(
@@ -787,17 +836,10 @@ def count_unbound_images(series_key, wanted, expressions, db_session):
     recorded = aliased(ImageDiagnostics)
     binding = aliased(ImageMasterSelection)
     return db_session.scalar(
-        _restrict_to_references(
+        _in_series(
             select(
                 func.count(Image.id.distinct())  # pylint: disable=not-callable
-            )
-            .select_from(Image)
-            .join(
-                ImageType,
-                # pylint: disable=no-member
-                ImageType.id == Image.image_type_id,
-                # pylint: enable=no-member
-            ),
+            ).select_from(Image),
             series_key,
         )
         .join(
@@ -815,5 +857,164 @@ def count_unbound_images(series_key, wanted, expressions, db_session):
             _photref_binding(binding, recorded.channel),
             isouter=True,
         )
-        .where(*_of_one_type(series_key), binding.image_id.is_(None))
+        .where(binding.image_id.is_(None))
+    )
+
+
+#: The channel a member's slot is bound to while its quantities are resolved:
+#: not a channel, but a stand-in for each member's own, which the values are
+#: then read in. The angle brackets keep it from ever naming a real one.
+_own_channel = "<own channel>"
+
+
+def _custom_group_bindings(quantities, expressions):
+    """
+    Return ``wanted`` for :func:`get_custom_group_values`.
+
+    Every slot is bound to :data:`_own_channel`, the stand-in for each
+    member's own channel.
+
+    Raises:
+        PipelineError:    If a quantity takes more than one channel.
+    """
+
+    wanted = {}
+    for quantity in quantities:
+        arity = get_quantity_arity(quantity, expressions)
+        if arity > 1:
+            raise PipelineError(
+                f"{quantity} takes {arity} channels, but a photref group "
+                "binds only one: each member's own.",
+                details={"quantity": quantity, "channels": arity},
+            )
+        wanted[quantity] = {(_own_channel,) * arity}
+    return wanted
+
+
+def _read_custom_group(members, needed, db_session):
+    """
+    Return the values *needed* asks for, one entry per member.
+
+    The members' images are read as any population is, in every channel a
+    member has and every one quoted; each member then takes the column of
+    its own channel wherever *needed* asks for :data:`_own_channel`.
+
+    Returns:
+        tuple:
+            dict:    ``{name: {channels: array}}``, as
+                :func:`get_diagnostic_values` returns for a series.
+
+            list:    The members the arrays run over, in canonical order.
+    """
+
+    # Tuples, since entries kept in a Django session come back as lists.
+    members = set(map(tuple, members))
+    names = sorted(set(needed) - {time_quantity})
+    image_ids = sorted({image_id for image_id, _ in members})
+
+    by_channel, read_ids, jd_values = _read_diagnostics(
+        lambda query: query.where(
+            Image.id.in_(image_ids),  # pylint: disable=no-member
+            Image.jd.is_not(None),  # pylint: disable=no-member
+        ),
+        names,
+        sorted(
+            {
+                channel
+                for name in names
+                for combination in needed[name]
+                for channel in combination
+            }
+            - {_own_channel}
+            | {channel for _, channel in members}
+        ),
+        db_session,
+    )
+
+    position = {image_id: index for index, image_id in enumerate(read_ids)}
+    members = sorted(
+        (member for member in members if member[0] in position),
+        key=lambda member: (position[member[0]], member[1]),
+    )
+    rows = numpy.array([position[image_id] for image_id, _ in members], int)
+    own = numpy.array([channel for _, channel in members])
+
+    def read(name, channel):
+        """Return *name* in *channel* per member, or in each one's own."""
+
+        if channel != _own_channel:
+            return by_channel[name][channel][rows]
+        result = numpy.empty(len(members))
+        for channel_read in set(own):
+            mine = own == channel_read
+            result[mine] = by_channel[name][channel_read][rows[mine]]
+        return result
+
+    values = {
+        name: {
+            combination: read(name, combination[0])
+            for combination in needed[name]
+        }
+        for name in names
+    }
+    if time_quantity in needed:
+        values[time_quantity] = {(): jd_values[rows]}
+
+    return values, members
+
+
+def get_custom_group_values(members, quantities, expressions, db_session):
+    """
+    Return quantities over an explicit list of members, one point each.
+
+    The photref-group scope. A photref group -- images sharing configuration
+    conditions and ``single_photref`` ``must_match`` values, possibly across
+    sessions -- is found only by the engine's condition grouping, so it
+    arrives as its members rather than as a key. A member is an image in one
+    channel: under a ``must_match`` such as ``CLRCHNL[0].upper()``, one
+    image is a member in ``G0`` and again in ``G1``.
+
+    Each quantity takes at most one channel, bound per member to that
+    member's own, so ``nanrank(s_center[0])`` ranks every member's
+    ``s_center`` in its own channel against all the others'. A quoted
+    channel is read in that channel for every member. No reference is
+    required, as it is of a series: the group is being chosen one.
+
+    Args:
+        members:    ``(image_id, channel)`` pairs, in any order.
+
+        quantities:    The names of the diagnostics and expressions to
+            evaluate, each taking at most one channel.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        tuple:
+            dict:    ``{quantity: array}``, one entry per member.
+
+            list:    The members the arrays run over, as ``(image_id,
+                channel)`` tuples ordered by Julian date, then image id,
+                then channel. A member whose image has no Julian date is
+                left out, as it is from every series.
+
+    Raises:
+        PipelineError:    If a quantity takes more than one channel, or as
+            :func:`get_quantity_values` does.
+    """
+
+    wanted = _custom_group_bindings(quantities, expressions)
+    values, members = _read_custom_group(
+        members, get_needed_values(wanted, expressions), db_session
+    )
+
+    return (
+        {
+            quantity: next(iter(by_binding.values()))
+            for quantity, by_binding in evaluate_quantities(
+                wanted, expressions, values
+            ).items()
+        },
+        members,
     )

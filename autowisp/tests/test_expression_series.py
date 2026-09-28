@@ -35,6 +35,7 @@ from autowisp.database.data_model import (
 from autowisp.diagnostics.expression_series import (
     SeriesKey,
     _diagnostic_values_query,
+    _in_series,
     get_canonical_images,
     get_diagnostic_values,
     get_quantity_values,
@@ -241,7 +242,7 @@ class TestDiagnosticValues(SeriesValuesTestCase):
 
         statement = str(
             _diagnostic_values_query(
-                self.objects,
+                lambda query: _in_series(query, self.objects),
                 ["bg_center", "pixel_q99"],
                 ["G", "R"],
             ).compile(compile_kwargs={"literal_binds": True})
