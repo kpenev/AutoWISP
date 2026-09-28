@@ -197,6 +197,12 @@ where the rules live, and keep decisions separable from rendering so they stay
 testable there (e.g. `plan_spare_row` returns the row entry and the caller
 renders it).
 
+*Don't pin presentation even there.* Labels, headings, tooltips and other text
+a user reads are checked by looking at the page, even when a pure function
+builds them: what matters is whether they confuse, and fixing one and
+redesigning it are the same edit, so a test only freezes the current wording.
+Test what decides which data is read, counted or drawn.
+
 **Configuration view redesign pending.** The orgchart decision tree
 (`configuration/config_tree.html` +
 `static/configuration/js/autowisp.config.tree.js`) is slated for a redesign.
