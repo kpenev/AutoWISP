@@ -6,6 +6,7 @@ py_src = [
   'expression_series.py',
   'expressions.py',
   'get_from_lc.py',
+  'image_counts.py',
 ]
 
 py.install_sources(

@@ -35,11 +35,13 @@ from autowisp.database.data_model import (
 from autowisp.diagnostics.expression_series import (
     SeriesKey,
     _diagnostic_values_query,
-    count_images_with_all,
-    count_images_with_channels,
     get_canonical_images,
     get_diagnostic_values,
     get_quantity_values,
+)
+from autowisp.diagnostics.image_counts import (
+    count_images_with_all,
+    count_images_with_channels,
 )
 from autowisp.tests.test_diagnostics_views import DiagnosticsViewTestCase
 

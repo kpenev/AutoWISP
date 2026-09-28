@@ -22,8 +22,8 @@ from sqlalchemy import select
 from django.template.loader import render_to_string
 
 from autowisp.browser_interface.core.plot_utils import channel_colors
-from autowisp.diagnostics.expression_series import (
-    SeriesKey,
+from autowisp.diagnostics.expression_series import SeriesKey
+from autowisp.diagnostics.image_counts import (
     count_images_with_all,
     count_images_with_channels,
 )
