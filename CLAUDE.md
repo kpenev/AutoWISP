@@ -379,6 +379,13 @@ work being abandoned.
   the design, the reasoning and the rejected alternatives, and nothing has to
   be committed and later removed.
 
+- **Run Black itself on the files you touch** (`black -l 80 <files>`), not
+  `--check` or `--diff` followed by applying its changes by hand. Black never
+  changes behaviour and files are meant to be Black-clean, so its output needs
+  no review hunk by hunk; `git diff` shows what it did. It is an exception to
+  *Make changes with the Edit tool*. The one thing to fix up afterwards is a
+  trailing `# pylint:` comment it has moved off the line it covered.
+
 - **Don't revert incidental Black reformatting.** The repo is not uniformly
   Black-clean at 80 columns, so a directory-wide run touches unrelated files.
   Split the commits instead — functional change in one, formatting-only files in
