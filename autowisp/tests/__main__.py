@@ -174,6 +174,7 @@ from autowisp.tests.test_series_references import (
     TestReferenceRestriction,
     TestSplitSeries,
     TestCountUnboundImages,
+    TestReferenceCounts,
 )
 from autowisp.tests.test_custom_group_values import TestCustomGroupValues
 from autowisp.tests.test_evaluator import (

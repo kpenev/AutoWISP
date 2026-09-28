@@ -41,6 +41,10 @@ from autowisp.diagnostics.expression_series import (
     get_quantity_values,
     split_series,
 )
+from autowisp.diagnostics.image_counts import (
+    count_images_with_all,
+    count_images_with_channels,
+)
 from autowisp.exceptions import PipelineError
 
 
@@ -602,6 +606,80 @@ class TestCountUnboundImages(ReferenceProject):
             ),
             0,
         )
+
+
+class TestReferenceCounts(ReferenceProject):
+    """What the series table counts: per reference, and per bound row."""
+
+    #: What a row comparing the two channels' offsets reads.
+    colour_reads = {
+        ("photometry_mag_offset", "R"),
+        ("photometry_mag_offset", "B"),
+    }
+
+    def test_options_are_counted_per_reference(self):
+        """One count per (channel, photref) the frames are bound to.
+
+        The frame bound differently in its two channels counts under ref2
+        in R and under ref1 in B; the frame bound to nothing, under neither.
+        """
+
+        with start_db_session() as db_session:
+            rows = count_images_with_all(
+                {"photometry_mag_offset"}, db_session, by_reference=True
+            )
+
+        self.assertEqual(
+            [row[3:] for row in rows],
+            sorted(
+                (
+                    channel,
+                    self.photref[reference, channel],
+                    len(self.selected(self.image_ids, **{channel: reference})),
+                )
+                for channel in ("B", "R")
+                for reference in ("ref1", "ref2")
+            ),
+        )
+
+    def test_a_bound_row_counts_what_it_draws(self):
+        """For each reference population, the images its series reads.
+
+        Unrestricted, the count is the whole night, the frame bound to
+        nothing included, which no population holds.
+        """
+
+        colour = {
+            "colour": "photometry_mag_offset[0] - photometry_mag_offset[1]"
+        }
+        with start_db_session() as db_session:
+            self.assertEqual(
+                [
+                    row[3]
+                    for row in count_images_with_channels(
+                        self.colour_reads, db_session
+                    )
+                ],
+                [len(self.image_ids)],
+            )
+            for key in split_series(
+                self.key(("R", "B")),
+                {"colour": {("R", "B")}},
+                colour,
+                db_session,
+            ):
+                with self.subTest(photrefs=key.photrefs):
+                    self.assertEqual(
+                        [
+                            row[3]
+                            for row in count_images_with_channels(
+                                self.colour_reads,
+                                db_session,
+                                key.reference_pairs,
+                            )
+                        ],
+                        [get_canonical_images(key, db_session)[0].size],
+                    )
 
 
 if __name__ == "__main__":

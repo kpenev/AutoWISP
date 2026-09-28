@@ -244,12 +244,12 @@ def _in_series(query, series_key):
     its type.
     """
 
-    return _restrict_to_references(
+    return restrict_to_references(
         query.join(
             ImageType,
             ImageType.id == Image.image_type_id,  # pylint: disable=no-member
         ),
-        series_key,
+        series_key.reference_pairs,
     ).where(
         # pylint: disable=no-member
         Image.observing_session_id == series_key.session_id,
@@ -259,12 +259,21 @@ def _in_series(query, series_key):
     )
 
 
-def _photref_binding(binding, channel):
-    """Return the ON terms matching *binding* to an image's photref row.
+def photref_binding(binding, channel):
+    """
+    Return the ON terms matching *binding* to an image's photref row.
 
     Everything but the master file, which is what the callers vary: pinned
     to one, or read out to see which it is. All three columns of the
-    primary key are pinned, so each probe is one index lookup.
+    primary key are pinned, so each probe is one index lookup. Public
+    because the image counts of
+    :mod:`autowisp.diagnostics.image_counts` join the same way.
+
+    Args:
+        binding:    An alias of ``ImageMasterSelection``.
+
+        channel:    The channel to match it in: a name, or a column holding
+            one, such as the channel of the diagnostic row being read.
     """
 
     return (
@@ -279,21 +288,28 @@ def _photref_binding(binding, channel):
     )
 
 
-def _restrict_to_references(query, series_key):
+def restrict_to_references(query, reference_pairs):
     """
-    Return *query* keeping only images bound to the key's references.
+    Return *query*, over ``Image``, keeping images bound to the references.
 
-    One inner join per pair of :attr:`SeriesKey.reference_pairs`, so an
-    image stays only if it was fit against every one of them in its
-    channel. series_key.reference_pairs skips slots with no reference, so such a
-    slot adds no join, and a key with none at all comes back unchanged.
+    One inner join per pair, so an image stays only if it was fit against
+    every one of them in its channel; no pairs, and the query comes back
+    unchanged. Public because the image counts of
+    :mod:`autowisp.diagnostics.image_counts` restrict the same way.
+
+    Args:
+        query:    A select over ``Image``.
+
+        reference_pairs:    ``(channel, photref)`` pairs, the photref a
+            ``MasterFile`` id, as :attr:`SeriesKey.reference_pairs` gives
+            them for a series.
     """
 
-    for channel, photref in series_key.reference_pairs:
+    for channel, photref in reference_pairs:
         binding = aliased(ImageMasterSelection)
         query = query.join(
             binding,
-            _photref_binding(binding, channel)
+            photref_binding(binding, channel)
             & (binding.master_file_id == photref),
         )
     return query
@@ -777,7 +793,7 @@ def split_series(series_key, wanted, expressions, db_session):
     query = _in_series(select(*photref_columns).select_from(Image), series_key)
     for channel in split_by:
         query = query.join(
-            bindings[channel], _photref_binding(bindings[channel], channel)
+            bindings[channel], photref_binding(bindings[channel], channel)
         )
 
     result = []
@@ -854,7 +870,7 @@ def count_unbound_images(series_key, wanted, expressions, db_session):
         )
         .join(
             binding,
-            _photref_binding(binding, recorded.channel),
+            photref_binding(binding, recorded.channel),
             isouter=True,
         )
         .where(binding.image_id.is_(None))
