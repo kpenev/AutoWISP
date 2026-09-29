@@ -24,17 +24,6 @@ import psutil
 
 _logger = logging.getLogger(__name__)
 
-
-def _available_shared_memory():
-    """Return available bytes in Linux shared memory, or None if unavailable."""
-
-    try:
-        stats = os.statvfs("/dev/shm")
-    except OSError:
-        return None
-    return stats.f_bavail * stats.f_frsize
-
-
 # pylint: disable=too-few-public-methods
 class LCDataSliceBase(Structure):
     """A time-slice of LC data to be shared between LC dumping processes."""
