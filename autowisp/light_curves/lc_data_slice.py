@@ -1,7 +1,6 @@
 """Define a class holding a slice of LC data organize by source."""
 
 import logging
-import os
 from ctypes import (
     c_bool,
     c_int8,
@@ -21,6 +20,7 @@ from ctypes import (
 )
 
 import numpy
+import psutil
 
 _logger = logging.getLogger(__name__)
 
@@ -153,9 +153,8 @@ def create_lc_data_slice_type(
             )
             # pylint: enable=logging-not-lazy
 
-    available_shared_memory = _available_shared_memory()
-    if available_shared_memory is not None:
-        max_mem = min(max_mem, int(available_shared_memory * 0.95))
+    total_memory = psutil.virtual_memory().total
+    max_mem = min(max_mem, int(total_memory * 0.95))
 
     num_frames = min(int(max_mem / perframe_bytes), 1000)
 
