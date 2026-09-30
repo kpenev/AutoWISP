@@ -1,15 +1,17 @@
 """How many images each series would draw, read from the project database.
 
 The series table's question, asked before anything is read or evaluated:
-which sessions, image types and channels a quantity could be bound to, and
-how many images a binding would draw. Answered by counting
-``image_diagnostics`` rows alone, never by evaluating an expression, since
-there is a table row per observing session and image type and evaluating
-per row would be work proportional to the whole image collection. Reading
-the values of a series is :mod:`autowisp.diagnostics.expression_series`.
+which sessions, image types, channels and photometries a quantity could be
+bound to, and how many images a binding would draw. Answered by counting
+diagnostic rows alone -- in ``image_diagnostics``, or in
+``photometry_diagnostics`` for a diagnostic recorded per photometry --
+never by evaluating an expression, since there is a table row per observing
+session and image type and evaluating per row would be work proportional to
+the whole image collection. Reading the values of a series is
+:mod:`autowisp.diagnostics.expression_series`.
 """
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, func, or_, select, union_all
 from sqlalchemy.orm import aliased
 
 # False positive due to unusual importing
@@ -21,68 +23,125 @@ from autowisp.database.data_model import (
     ImageMasterSelection,
     ImageType,
     ObservingSession,
+    PhotometryDiagnostics,
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.diagnostics.diagnostic_types import photometry_diagnostic_names
 from autowisp.diagnostics.expression_series import (
     photref_binding,
     restrict_to_references,
 )
 
 
-def _count_images(
-    restrict, required, per_channel, db_session, *, by_reference=False
-):
+def _recorded(per_image, per_photometry, columns=(), *, distinct=False):
     """
-    Count images whose diagnostic rows *restrict* keeps, per series.
+    Return the diagnostic rows the counts are made of, as one subquery.
 
-    The shared half of the two counting questions below, which differ in
-    which rows count, how many of them an image owes, and whether a channel
-    -- and with it a photometric reference -- is part of the answer or
-    fixed by the caller.
-
-    Counting rows rather than distinct diagnostics is sound for both,
-    because the unique index on ``(image_id, channel, diagnostic_id)``
-    admits no duplicate: an image satisfying *n* of what was asked for
-    contributes exactly *n* rows to its group. Joining the image's binding
-    in a row's channel keeps that so, there being at most one.
+    The rows of ``image_diagnostics`` *per_image* keeps, and those of
+    ``photometry_diagnostics`` *per_photometry* keeps, side by side. Each
+    table is filtered before the union rather than after it, so each branch
+    is a probe of its own table's indexes, whatever a database makes of a
+    filter over a union.
 
     Args:
-        restrict:    Function restricting a query over ``image_diagnostics``
-            rows, joined to their ``image`` and ``diagnostic_type``, to the
-            rows that count.
+        per_image:    The condition, over ``image_diagnostics`` and the
+            ``diagnostic_type`` it is joined to, keeping the rows that
+            count; ``None`` where none does. At least one of the two
+            conditions must be given.
 
-        required(int):    How many rows an image must have kept.
+        per_photometry:    The same, over ``photometry_diagnostics``.
 
-        per_channel(bool):    Whether an image has to satisfy the
-            requirement **within one channel** -- which also makes the
-            channel something the result varies over -- or may satisfy it
-            across several.
+        columns:    The columns carried besides ``image_id`` and
+            ``diagnostic_id``: those the count varies over, and no others,
+            since which columns a row has decides which rows are alike.
+
+        distinct(bool):    Whether rows alike in every column carried are
+            one row: those of one diagnostic in several photometries, where
+            the photometry is not carried and any of them will do.
+
+    Returns:
+        The subquery, with ``image_id``, ``diagnostic_id`` and *columns*.
+    """
+
+    branches = []
+    for table, condition in (
+        (ImageDiagnostics, per_image),
+        (PhotometryDiagnostics, per_photometry),
+    ):
+        if condition is None:
+            continue
+        branch = (
+            select(
+                table.image_id,
+                table.diagnostic_id,
+                *(getattr(table, column) for column in columns),
+            )
+            .join(DiagnosticType, DiagnosticType.id == table.diagnostic_id)
+            .where(condition)
+        )
+        branches.append(branch.distinct() if distinct else branch)
+
+    return (
+        union_all(*branches) if len(branches) > 1 else branches[0]
+    ).subquery()
+
+
+# Each keyword is named at every call site, and bundling them would only
+# move the list somewhere less visible.
+# pylint: disable=too-many-arguments
+def _count_images(
+    rows, required, split_by, db_session, *, by_reference=False, references=()
+):
+    """
+    Count images with *required* of *rows* each, per series.
+
+    The shared half of the three counting questions below, which differ in
+    which rows count, how many of them an image owes, and what the result
+    varies over besides the session and the type: the channel -- and with
+    it, possibly, a photometric reference -- the photometry, or neither.
+
+    Counting rows rather than distinct diagnostics is sound for all three,
+    because each makes a row stand for one requirement: the unique index of
+    each table admits no duplicate, and rows of several photometries that
+    stand for one are merged by :func:`_recorded`. An image satisfying *n*
+    of what was asked for contributes exactly *n* rows to its group. Joining
+    the image's binding in a row's channel keeps that so, there being at
+    most one.
+
+    Args:
+        rows:    What :func:`_recorded` returned: the rows that count.
+
+        required(int):    How many rows an image must have.
+
+        split_by(tuple):    The columns of *rows* the result varies over,
+            which an image then has to satisfy the requirement within:
+            ``()``, ``("channel",)`` or ``("photometry_id",)``.
 
         db_session:    An active SQLAlchemy database session.
 
         by_reference(bool):    Whether the result varies over the
             photometric reference as well: the one each image is bound to
-            in the channel of its rows, so only with *per_channel*. An
+            in the channel of its rows, so only when split by channel. An
             image bound to none there is not counted.
+
+        references:    ``(channel, photref)`` pairs an image must also be
+            bound to, as :func:`count_images_with_channels` takes them.
 
     Returns:
         list:    One tuple per series, holding the session label, the
-            session id, the image type, the channel where *per_channel*,
-            the photref's ``MasterFile`` id where *by_reference*, and the
-            count.
+            session id, the image type, the *split_by* columns, the
+            photref's ``MasterFile`` id where *by_reference*, and the count.
     """
 
-    grouped = [ImageDiagnostics.image_id]
+    grouped = [rows.c.image_id, *(rows.c[column] for column in split_by)]
     carried = [
         Image.observing_session_id.label(  # pylint: disable=no-member
             "session_id"
         ),
         Image.image_type_id.label("image_type_id"),  # pylint: disable=no-member
+        *(rows.c[column] for column in split_by),
     ]
-    if per_channel:
-        grouped.append(ImageDiagnostics.channel)
-        carried.append(ImageDiagnostics.channel.label("channel"))
     binding = aliased(ImageMasterSelection)
     if by_reference:
         grouped.append(binding.master_file_id)
@@ -91,25 +150,19 @@ def _count_images(
     per_image = (
         select(*carried)
         # Explicit, because which columns are selected varies with
-        # *per_channel* and SQLAlchemy would otherwise infer the left side
-        # from them -- and infer ``image`` when the channel is not among
+        # *split_by* and SQLAlchemy would otherwise infer the left side
+        # from them -- and infer ``image`` when none of *rows* is among
         # them, leaving it nothing to join ``image`` to.
-        .select_from(ImageDiagnostics)
-        .join(
-            Image,
-            Image.id == ImageDiagnostics.image_id,  # pylint: disable=no-member
-        )
-        .join(
-            DiagnosticType,
-            DiagnosticType.id == ImageDiagnostics.diagnostic_id,
+        .select_from(rows).join(
+            Image, Image.id == rows.c.image_id  # pylint: disable=no-member
         )
     )
     if by_reference:
         per_image = per_image.join(
-            binding, photref_binding(binding, ImageDiagnostics.channel)
+            binding, photref_binding(binding, rows.c.channel)
         )
     per_image = (
-        restrict(per_image)
+        restrict_to_references(per_image, references)
         .where(Image.jd.is_not(None))  # pylint: disable=no-member
         .group_by(*grouped)
         .having(func.count() == required)  # pylint: disable=not-callable
@@ -117,9 +170,9 @@ def _count_images(
     )
 
     # What the result varies over besides the session and the type -- the
-    # channel, then the reference -- is a column, a grouping and an
-    # ordering of it, or none of the three.
-    split = [per_image.c.channel] if per_channel else []
+    # channel or the photometry, then the reference -- is a column, a
+    # grouping and an ordering of it, or none of the three.
+    split = [per_image.c[column] for column in split_by]
     if by_reference:
         split.append(per_image.c.photref)
 
@@ -139,6 +192,9 @@ def _count_images(
     ).all()
 
 
+# pylint: enable=too-many-arguments
+
+
 def count_images_with_all(needed, db_session, *, by_reference=False):
     """
     Count images holding all of *needed*, per (session, type, channel).
@@ -150,6 +206,11 @@ def count_images_with_all(needed, db_session, *, by_reference=False):
     images carrying the diagnostic. That is a standing limit rather than
     something an index could remove: enumerating the sessions *is* the
     question being asked.
+
+    The photometry is not among what the result varies over: it is chosen
+    apart from the channel, and :func:`count_images_per_photometry` counts
+    its options. So a diagnostic recorded per photometry is there when it
+    is there in any photometry of the channel.
 
     Args:
         needed(set):    ``DiagnosticType`` names that must all be recorded
@@ -176,10 +237,21 @@ def count_images_with_all(needed, db_session, *, by_reference=False):
     if not needed:
         return []
 
+    per_photometry = set(needed) & photometry_diagnostic_names()
+    per_image = set(needed) - per_photometry
     return _count_images(
-        lambda query: query.where(DiagnosticType.name.in_(needed)),
+        _recorded(
+            DiagnosticType.name.in_(per_image) if per_image else None,
+            (
+                DiagnosticType.name.in_(per_photometry)
+                if per_photometry
+                else None
+            ),
+            ("channel",),
+            distinct=True,
+        ),
         len(needed),
-        True,
+        ("channel",),
         db_session,
         by_reference=by_reference,
     )
@@ -187,20 +259,24 @@ def count_images_with_all(needed, db_session, *, by_reference=False):
 
 def count_images_with_channels(requirements, db_session, references=()):
     """
-    Count images holding every ``(diagnostic, channel)`` pair, per series.
+    Count images holding every diagnostic read, per series.
 
-    What a *binding* actually draws, once the channels are chosen -- the
-    exact question, where :func:`count_images_with_all` answers the looser
-    one that fills the dropdowns. The difference is a line of SQL and the
-    whole of the meaning: an image counts when its rows cover every pair
-    *between them*, so one requirement may be met in R and another in B,
-    which is what a quantity comparing channels needs.
+    What a *binding* actually draws, once the channels and photometries are
+    chosen -- the exact question, where :func:`count_images_with_all` and
+    :func:`count_images_per_photometry` answer the looser ones that fill
+    the dropdowns. The difference is a line of SQL and the whole of the
+    meaning: an image counts when its rows cover every read *between them*,
+    so one requirement may be met in R and another in B, or one in aperture
+    0 and another in aperture 2, which is what a quantity comparing
+    channels or photometries needs.
 
     Args:
-        requirements:    ``(diagnostic_name, channel)`` pairs that must all
-            be recorded for an image to count. Deduplicated here, since the
-            two axes of one plot may read the same diagnostic in the same
-            channel. Empty means nothing constrains the result.
+        requirements:    ``(diagnostic_name, channel, photometry)`` reads
+            that must all be recorded for an image to count, the photometry
+            an id for a diagnostic recorded per photometry and ``None`` for
+            one recorded per image. Deduplicated here, since the two axes of
+            one plot may read the same diagnostic in the same channel and
+            photometry. Empty means nothing constrains the result.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -212,27 +288,77 @@ def count_images_with_channels(requirements, db_session, references=()):
 
     Returns:
         list:    ``(session_label, session_id, image_type, count)`` tuples.
-            No channel among them: the binding names the channels, so they
-            are not what the rows vary over.
+            No channel or photometry among them: the binding names those,
+            so they are not what the rows vary over.
     """
 
-    requirements = {tuple(pair) for pair in requirements}
+    requirements = {tuple(read) for read in requirements}
     if not requirements:
         return []
 
+    per_image = [
+        and_(DiagnosticType.name == name, ImageDiagnostics.channel == channel)
+        for name, channel, photometry in requirements
+        if photometry is None
+    ]
+    per_photometry = [
+        and_(
+            DiagnosticType.name == name,
+            PhotometryDiagnostics.channel == channel,
+            PhotometryDiagnostics.photometry_id == photometry,
+        )
+        for name, channel, photometry in requirements
+        if photometry is not None
+    ]
     return _count_images(
-        lambda query: restrict_to_references(query, references).where(
-            or_(
-                *(
-                    and_(
-                        DiagnosticType.name == name,
-                        ImageDiagnostics.channel == channel,
-                    )
-                    for name, channel in requirements
-                )
-            )
+        _recorded(
+            or_(*per_image) if per_image else None,
+            or_(*per_photometry) if per_photometry else None,
         ),
         len(requirements),
-        False,
+        (),
+        db_session,
+        references=references,
+    )
+
+
+def count_images_per_photometry(needed, db_session):
+    """
+    Count images holding all of *needed*, per (session, type, photometry).
+
+    What a photometry column **may** be bound to: the photometries a
+    quantity could be read in, and how many images each would draw -- the
+    photometry's counterpart of :func:`count_images_with_all`. Which
+    channels the reads are in is for the channel columns to choose, so an
+    image counts in a photometry where it records every one of *needed*,
+    in whichever channels. Only the names of
+    :func:`~autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names`
+    are recorded per photometry, so no other can be among them.
+
+    Args:
+        needed(set):    Diagnostic names that must all be recorded in the
+            same photometry for an image to count. Empty means nothing is
+            read per photometry, and there is nothing to count.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        list:    ``(session_label, session_id, image_type, photometry,
+            count)`` tuples, the photometry an id as ``fit_magnitudes``
+            records it.
+    """
+
+    if not needed:
+        return []
+
+    return _count_images(
+        _recorded(
+            None,
+            DiagnosticType.name.in_(needed),
+            ("photometry_id",),
+            distinct=True,
+        ),
+        len(needed),
+        ("photometry_id",),
         db_session,
     )

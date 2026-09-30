@@ -47,10 +47,14 @@ from autowisp.diagnostics.expression_series import (
     split_series,
 )
 from autowisp.diagnostics.image_counts import (
+    count_images_per_photometry,
     count_images_with_all,
     count_images_with_channels,
 )
 from autowisp.exceptions import PipelineError
+from autowisp.browser_interface.diagnostics.quantities import (
+    get_recorded_diagnostics,
+)
 
 
 class TestSeriesKeyReferences(unittest.TestCase):
@@ -736,13 +740,23 @@ class TestCountUnboundImages(ReferenceProject):
 
 
 class TestReferenceCounts(ReferenceProject):
-    """What the series table counts: per reference, and per bound row."""
+    """What the series table offers and counts: per reference, per
+    photometry, and per bound row."""
 
-    #: What a row comparing the two channels' offsets reads.
+    #: What a row comparing the two channels' offsets in aperture 0 reads.
     colour_reads = {
-        ("photometry_mag_offset", "R"),
-        ("photometry_mag_offset", "B"),
+        ("photometry_mag_offset", "R", 0),
+        ("photometry_mag_offset", "B", 0),
     }
+
+    def test_both_tables_are_recorded(self):
+        """The offset, recorded per photometry, is offered like the rest."""
+
+        with start_db_session() as db_session:
+            self.assertEqual(
+                get_recorded_diagnostics(db_session),
+                ["bg_center", "photometry_mag_offset"],
+            )
 
     def test_options_are_counted_per_reference(self):
         """One count per (channel, photref) the frames are bound to.
@@ -768,6 +782,55 @@ class TestReferenceCounts(ReferenceProject):
                 for reference in ("ref1", "ref2")
             ),
         )
+
+    def test_options_are_counted_per_photometry(self):
+        """Every frame in both apertures, and once each.
+
+        A frame recorded in two channels is still one image per aperture.
+        The frame aperture 2 did not record in R records it in B, and so is
+        counted there: which channel it is read in is for the channel
+        columns to decide.
+        """
+
+        with start_db_session() as db_session:
+            rows = count_images_per_photometry(
+                {"photometry_mag_offset"}, db_session
+            )
+
+        self.assertEqual(
+            [row[3:] for row in rows],
+            [
+                (photometry, len(self.image_ids))
+                for photometry in sorted(self.shifts)
+            ],
+        )
+
+    def test_a_bound_row_counts_its_photometries(self):
+        """R's offset in either aperture, with B's in 0 and R's background.
+
+        Aperture 2 draws one frame fewer: the one whose offset it did not
+        record in R. The background, recorded per image, is required
+        beside the offsets, recorded per photometry.
+        """
+
+        expected = {0: len(self.image_ids), 2: len(self.image_ids) - 1}
+        with start_db_session() as db_session:
+            for photometry, count in expected.items():
+                with self.subTest(photometry=photometry):
+                    self.assertEqual(
+                        [
+                            row[3]
+                            for row in count_images_with_channels(
+                                {
+                                    ("photometry_mag_offset", "R", photometry),
+                                    ("photometry_mag_offset", "B", 0),
+                                    ("bg_center", "R", None),
+                                },
+                                db_session,
+                            )
+                        ],
+                        [count],
+                    )
 
     def test_a_bound_row_counts_what_it_draws(self):
         """For each reference population, the images its series reads.

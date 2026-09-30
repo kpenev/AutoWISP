@@ -694,11 +694,14 @@ class TestCrossChannelCounts(TestCrossChannelValues):
         with start_db_session() as db_session:
             both = self.counts_of(
                 count_images_with_channels(
-                    {("bg_center", "R"), ("bg_center", "B")}, db_session
+                    {("bg_center", "R", None), ("bg_center", "B", None)},
+                    db_session,
                 )
             )
             red = self.counts_of(
-                count_images_with_channels({("bg_center", "R")}, db_session)
+                count_images_with_channels(
+                    {("bg_center", "R", None)}, db_session
+                )
             )
 
         for hole in self.hole_positions:
@@ -711,7 +714,7 @@ class TestCrossChannelCounts(TestCrossChannelValues):
 
         with start_db_session() as db_session:
             rows = count_images_with_channels(
-                {("bg_center", self.missing_channel)}, db_session
+                {("bg_center", self.missing_channel, None)}, db_session
             )
 
         self.assertEqual(rows, [])
@@ -726,7 +729,9 @@ class TestCrossChannelCounts(TestCrossChannelValues):
 
         with start_db_session() as db_session:
             across = self.counts_of(
-                count_images_with_channels({("bg_center", "B")}, db_session)
+                count_images_with_channels(
+                    {("bg_center", "B", None)}, db_session
+                )
             )
             within = {
                 row[0]: row[-1]

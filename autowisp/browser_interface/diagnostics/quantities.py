@@ -15,13 +15,18 @@ asked here is only which names are on offer.
 
 from sqlalchemy import select
 
+from autowisp.diagnostics.diagnostic_types import photometry_diagnostic_names
 from autowisp.diagnostics.expression_series import time_quantity
 from autowisp.diagnostics.expressions import order_expressions
 from autowisp.exceptions import PipelineError
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import DiagnosticType, ImageDiagnostics
+from autowisp.database.data_model import (
+    DiagnosticType,
+    ImageDiagnostics,
+    PhotometryDiagnostics,
+)
 
 # pylint: enable=no-name-in-module
 
@@ -31,8 +36,14 @@ def get_recorded_diagnostics(db_session):
     Return the ``DiagnosticType`` names anything has recorded in this project.
 
     A per-type ``EXISTS`` probe rather than a ``GROUP BY`` over the whole of
-    ``image_diagnostics``: the question is only which names are in use, and
-    the grouped form has to walk every row to answer it.
+    the diagnostics tables: the question is only which names are in use,
+    and the grouped form has to walk every row to answer it.
+
+    Each name is probed in the table it is recorded in:
+    ``photometry_diagnostics`` for those of
+    :func:`~autowisp.diagnostics.diagnostic_types.photometry_diagnostic_names`,
+    ``image_diagnostics`` for the rest. That is where a series reads it
+    from, so a name found anywhere else could be offered and draw nothing.
 
     The names come back raw, individual ``pixel_q*`` entries included --
     before :func:`get_available_diagnostics` collapses them into the family
@@ -46,17 +57,21 @@ def get_recorded_diagnostics(db_session):
         list:    The names in use, in ``DiagnosticType`` order.
     """
 
+    per_photometry = photometry_diagnostic_names()
     names = []
     for type_id, name in db_session.execute(
         select(DiagnosticType.id, DiagnosticType.name).order_by(
             DiagnosticType.id
         )
     ).all():
+        table = (
+            PhotometryDiagnostics
+            if name in per_photometry
+            else ImageDiagnostics
+        )
         in_use = db_session.execute(
             select(
-                select(ImageDiagnostics.id)
-                .where(ImageDiagnostics.diagnostic_id == type_id)
-                .exists()
+                select(table.id).where(table.diagnostic_id == type_id).exists()
             )
         ).scalar()
         if in_use:
