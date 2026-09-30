@@ -175,7 +175,7 @@ class TestRowId(unittest.TestCase):
                     "channels": [make_id("R", 12), "R", "B"],
                 }
             ),
-            SeriesKey(7, "object", ("R", "R", "B"), (12, 12, None)),
+            SeriesKey(7, "object", ("R", "R", "B"), photrefs=(12, 12, None)),
         )
 
 

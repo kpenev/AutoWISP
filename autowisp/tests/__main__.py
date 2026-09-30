@@ -173,6 +173,7 @@ from autowisp.tests.test_expression_series import (
 from autowisp.tests.test_series_references import (
     TestSeriesKeyReferences,
     TestReferenceRestriction,
+    TestPhotometryReads,
     TestSplitSeries,
     TestCountUnboundImages,
     TestReferenceCounts,

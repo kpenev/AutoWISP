@@ -56,6 +56,9 @@ class SeriesValuesTestCase(DiagnosticsViewTestCase):
     #: The same night's flats: two, recording ``bg_center`` and no quantile.
     flats = SeriesKey(2, "flat", ("R",))
 
+    #: The binding a diagnostic is read in, in the keys' channel.
+    bound = (("R",), ())
+
 
 class TestCanonicalImages(SeriesValuesTestCase):
     """The list every array is padded onto."""
@@ -97,8 +100,8 @@ class TestDiagnosticValues(SeriesValuesTestCase):
     more than one channel at once.
     """
 
-    #: The fixture records everything in this one channel.
-    recorded = ("R",)
+    #: The fixture records everything in this one channel, per image.
+    recorded = SeriesValuesTestCase.bound
 
     def test_values_land_against_their_own_images(self):
         """The fixture makes each value say which image it belongs to."""
@@ -151,11 +154,11 @@ class TestDiagnosticValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, image_ids = get_diagnostic_values(
                 self.objects,
-                {"bg_center": {self.recorded, ("no-such-channel",)}},
+                {"bg_center": {self.recorded, (("no-such-channel",), ())}},
                 db_session,
             )
 
-        missing = values["bg_center"][("no-such-channel",)]
+        missing = values["bg_center"][("no-such-channel",), ()]
         self.assertEqual(missing.size, image_ids.size)
         self.assertTrue(numpy.all(numpy.isnan(missing)))
         self.assertEqual(
@@ -172,11 +175,13 @@ class TestDiagnosticValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, image_ids = get_diagnostic_values(
                 self.objects,
-                {"bg_center": {("R",), ("G",)}},
+                {"bg_center": {(("R",), ()), (("G",), ())}},
                 db_session,
             )
 
-        self.assertEqual(sorted(values["bg_center"]), [("G",), ("R",)])
+        self.assertEqual(
+            sorted(values["bg_center"]), [(("G",), ()), (("R",), ())]
+        )
         for array in values["bg_center"].values():
             self.assertEqual(array.size, image_ids.size)
 
@@ -190,7 +195,7 @@ class TestDiagnosticValues(SeriesValuesTestCase):
                     "bg_center": {self.recorded},
                     "pixel_q99": {self.recorded},
                     "pixel_q999": {self.recorded},
-                    "jd": {()},
+                    "jd": {((), ())},
                 },
                 db_session,
             )
@@ -204,13 +209,13 @@ class TestDiagnosticValues(SeriesValuesTestCase):
 
         with start_db_session() as db_session:
             values, image_ids = get_diagnostic_values(
-                self.objects, {"jd": {()}}, db_session
+                self.objects, {"jd": {((), ())}}, db_session
             )
             _, jd_values = get_canonical_images(self.objects, db_session)
 
         self.assertEqual(sorted(values), ["jd"])
-        self.assertEqual(list(values["jd"][()]), list(jd_values))
-        self.assertEqual(values["jd"][()].size, image_ids.size)
+        self.assertEqual(list(values["jd"][(), ()]), list(jd_values))
+        self.assertEqual(values["jd"][(), ()].size, image_ids.size)
 
     def test_asking_for_nothing_still_gives_the_images(self):
         """The caller needs the image list even with no diagnostic wanted."""
@@ -223,16 +228,18 @@ class TestDiagnosticValues(SeriesValuesTestCase):
         self.assertEqual(values, {})
         self.assertEqual(list(image_ids), self.images_of[1, "object"])
 
-    def test_each_channel_is_asked_for_by_its_whole_key(self):
+    def test_each_binding_is_asked_for_by_its_whole_key(self):
         """The shape that keeps this affordable however big the archive.
 
         A session holds a manageable number of images; the ``image`` table
         will not, so the feature rests on anchoring to one observing
-        session and reaching ``image_diagnostics`` by its unique index on
-        ``(image_id, channel, diagnostic_id)``. Reading several channels
-        adds a join each, and every one has to pin all three columns --
-        drop the channel and the join matches every channel's row, which
-        is both wrong and a scan.
+        session and reaching each diagnostic by its table's unique index:
+        ``(image_id, channel, diagnostic_id)`` on ``image_diagnostics``,
+        and the photometry too on ``photometry_diagnostics``. Reading
+        several bindings adds a join each, and every one has to pin all of
+        its index's columns -- drop the channel or the photometry and the
+        join matches every channel's or photometry's row, which is both
+        wrong and a scan.
 
         Asserted on the statement rather than on a query plan, because the
         predicates are what this module decides; which index to use is the
@@ -243,8 +250,8 @@ class TestDiagnosticValues(SeriesValuesTestCase):
         statement = str(
             _diagnostic_values_query(
                 lambda query: _in_series(query, self.objects),
-                ["bg_center", "pixel_q99"],
-                ["G", "R"],
+                ["bg_center", "magfit_residual"],
+                [(("G",), ()), (("R",), ()), (("R",), (2,))],
             ).compile(compile_kwargs={"literal_binds": True})
         )
 
@@ -253,16 +260,24 @@ class TestDiagnosticValues(SeriesValuesTestCase):
         # Read the alias names out rather than assuming them: what
         # SQLAlchemy calls an anonymous alias is its own business and has
         # changed before.
-        aliases = re.findall(
-            r"LEFT OUTER JOIN image_diagnostics AS (\w+)", statement
-        )
-        self.assertEqual(len(aliases), 2, statement)
+        for table, count, columns in (
+            ("image_diagnostics", 2, ("image_id", "diagnostic_id", "channel")),
+            (
+                "photometry_diagnostics",
+                1,
+                ("image_id", "diagnostic_id", "channel", "photometry_id"),
+            ),
+        ):
+            aliases = re.findall(
+                rf"LEFT OUTER JOIN {table} AS (\w+)", statement
+            )
+            self.assertEqual(len(aliases), count, statement)
 
-        for alias in aliases:
-            for column in ("image_id", "diagnostic_id", "channel"):
-                self.assertEqual(
-                    statement.count(f"{alias}.{column} ="), 1, statement
-                )
+            for alias in aliases:
+                for column in columns:
+                    self.assertEqual(
+                        statement.count(f"{alias}.{column} ="), 1, statement
+                    )
 
 
 class TestSeriesValues(SeriesValuesTestCase):
@@ -274,7 +289,7 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, image_ids = get_quantity_values(
                 self.objects,
-                {"jd": {()}, "bg_center": {self.objects.channels}},
+                {"jd": {((), ())}, "bg_center": {self.bound}},
                 {},
                 db_session,
             )
@@ -293,14 +308,12 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, _ = get_quantity_values(
                 self.objects,
-                {"rel_bg": {self.objects.channels}},
+                {"rel_bg": {self.bound}},
                 {"rel_bg": "bg_center[1] - nanmedian(bg_center[1])"},
                 db_session,
             )
 
-        self.assertEqual(
-            list(values["rel_bg"][self.objects.channels]), [-1.0, 0.0, 1.0]
-        )
+        self.assertEqual(list(values["rel_bg"][self.bound]), [-1.0, 0.0, 1.0])
 
     def test_both_axes_resolve_together(self):
         """Two quantities, one call -- the point of asking for both."""
@@ -308,15 +321,14 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, _ = get_quantity_values(
                 self.objects,
-                {"jd": {()}, "twice_bg": {self.objects.channels}},
+                {"jd": {((), ())}, "twice_bg": {self.bound}},
                 {"twice_bg": "bg_center[1] * 2"},
                 db_session,
             )
 
         self.assertEqual(sorted(values), ["jd", "twice_bg"])
         self.assertEqual(
-            list(values["twice_bg"][self.objects.channels]),
-            [200.0, 202.0, 204.0],
+            list(values["twice_bg"][self.bound]), [200.0, 202.0, 204.0]
         )
 
     def test_a_composed_expression_resolves_its_dependency(self):
@@ -325,7 +337,7 @@ class TestSeriesValues(SeriesValuesTestCase):
         with start_db_session() as db_session:
             values, _ = get_quantity_values(
                 self.objects,
-                {"scaled": {self.objects.channels}},
+                {"scaled": {self.bound}},
                 {
                     "rel_bg": "bg_center[1] - nanmedian(bg_center[1])",
                     "scaled": "rel_bg[1] * 10",
@@ -333,9 +345,7 @@ class TestSeriesValues(SeriesValuesTestCase):
                 db_session,
             )
 
-        self.assertEqual(
-            list(values["scaled"][self.objects.channels]), [-10.0, 0.0, 10.0]
-        )
+        self.assertEqual(list(values["scaled"][self.bound]), [-10.0, 0.0, 10.0])
 
 
 class TestCrossChannelValues(unittest.TestCase):
@@ -471,11 +481,12 @@ class TestCrossChannelValues(unittest.TestCase):
         binding, since two axes may be one quantity in two channels.
         """
 
+        binding = (channels, ())
         values, _ = get_quantity_values(
-            self.key(channels), {quantity: {channels}}, expressions, db_session
+            self.key(channels), {quantity: {binding}}, expressions, db_session
         )
 
-        return values[quantity][channels]
+        return values[quantity][binding]
 
     def test_a_value_stays_with_its_own_image(self):
         """The gap moved through the column, one session per position.
@@ -491,14 +502,14 @@ class TestCrossChannelValues(unittest.TestCase):
             with self.subTest(hole=hole), start_db_session() as db_session:
                 values, image_ids = get_diagnostic_values(
                     self.key(("R", "B"), hole),
-                    {"bg_center": {("R",), ("B",)}},
+                    {"bg_center": {(("R",), ()), (("B",), ())}},
                     db_session,
                 )
 
                 self.assertEqual(image_ids.size, len(self.values_of["R"]))
                 for channel in ("R", "B"):
                     numpy.testing.assert_allclose(
-                        values["bg_center"][(channel,)],
+                        values["bg_center"][(channel,), ()],
                         self.expected(channel, hole),
                         equal_nan=True,
                     )
@@ -541,14 +552,14 @@ class TestCrossChannelValues(unittest.TestCase):
         with start_db_session() as db_session:
             values, _ = get_quantity_values(
                 self.key(("R", "B")),
-                {"bg_center": {("R",), ("B",)}},
+                {"bg_center": {(("R",), ()), (("B",), ())}},
                 {},
                 db_session,
             )
 
         for channel in ("R", "B"):
             numpy.testing.assert_allclose(
-                values["bg_center"][(channel,)],
+                values["bg_center"][(channel,), ()],
                 self.expected(channel, self.hole),
                 equal_nan=True,
             )
@@ -633,16 +644,21 @@ class TestCrossChannelValues(unittest.TestCase):
             try:
                 values, image_ids = get_quantity_values(
                     self.key(("R", "B")),
-                    {"bg_center": {("R",)}, "sky_color": {("R", "B")}},
+                    {
+                        "bg_center": {(("R",), ())},
+                        "sky_color": {(("R", "B"), ())},
+                    },
                     {"sky_color": "bg_center[1] / bg_center[2]"},
                     db_session,
                 )
             finally:
                 event.remove(db_session.bind, "before_cursor_execute", record)
 
-        self.assertEqual(list(values["bg_center"][("R",)]), self.values_of["R"])
+        self.assertEqual(
+            list(values["bg_center"][("R",), ()]), self.values_of["R"]
+        )
         numpy.testing.assert_allclose(
-            values["sky_color"][("R", "B")],
+            values["sky_color"][("R", "B"), ()],
             numpy.divide(
                 self.expected("R", self.hole), self.expected("B", self.hole)
             ),
@@ -817,11 +833,11 @@ class TestTiedJulianDates(unittest.TestCase):
         key = SeriesKey(self.session_id, "object", ("R",))
         with start_db_session() as db_session:
             values, image_ids = get_diagnostic_values(
-                key, {"bg_center": {("R",)}}, db_session
+                key, {"bg_center": {(("R",), ())}}, db_session
             )
 
         self.assertEqual(
-            list(values["bg_center"][("R",)]),
+            list(values["bg_center"][("R",), ()]),
             [self.value_of[image_id] for image_id in image_ids],
         )
 
@@ -832,7 +848,7 @@ class TestTiedJulianDates(unittest.TestCase):
         with start_db_session() as db_session:
             first, _ = get_canonical_images(key, db_session)
             _, second_ids = get_diagnostic_values(
-                key, {"bg_center": {("R",)}}, db_session
+                key, {"bg_center": {(("R",), ())}}, db_session
             )
 
         self.assertEqual(list(first), list(second_ids))

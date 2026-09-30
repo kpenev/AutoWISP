@@ -12,12 +12,16 @@ in both of its channels, ``R`` and ``B``: the first three frames against
 ``ref1``, the next two against ``ref2``, one frame against ``ref2`` in ``R``
 but ``ref1`` in ``B`` -- rare, and exactly what a split has to keep apart --
 and a last frame magfit-ed but bound to nothing, as processing before every
-magfit-ed image was bound could leave one.
+magfit-ed image was bound could leave one. The magfit diagnostic is recorded
+per photometry, as ``fit_magnitudes`` records it, in two apertures, with one
+value missing in one of them only.
 """
 
 import tempfile
 import unittest
 from datetime import datetime
+
+import numpy
 
 from autowisp.database.interface import set_project_home, start_db_session
 
@@ -31,6 +35,7 @@ from autowisp.database.data_model import (
     MasterFile,
     MasterType,
     ObservingSession,
+    PhotometryDiagnostics,
 )
 
 # pylint: enable=no-name-in-module
@@ -57,22 +62,42 @@ class TestSeriesKeyReferences(unittest.TestCase):
         key = SeriesKey(3, "object", ("R", "B"))
 
         self.assertEqual(key.photrefs, (None, None))
-        self.assertEqual(key, SeriesKey(3, "object", ("R", "B"), (None, None)))
+        self.assertEqual(
+            key, SeriesKey(3, "object", ("R", "B"), photrefs=(None, None))
+        )
         self.assertEqual(key.reference_pairs, ())
 
     def test_one_reference_per_slot(self):
         """A length differing from the channels' is refused."""
 
         with self.assertRaises(ValueError):
-            SeriesKey(3, "object", ("R", "B"), (12,))
+            SeriesKey(3, "object", ("R", "B"), photrefs=(12,))
 
     def test_coerced_to_a_hashable_key(self):
-        """References posted as a list of strings still make a usable key."""
+        """References and photometries posted as lists of strings still make
+        a usable key."""
 
-        key = SeriesKey(3, "object", ["R"], ["12"])
+        key = SeriesKey(3, "object", ["R"], photometries=["2"], photrefs=["12"])
 
         self.assertEqual(key.photrefs, (12,))
-        self.assertEqual({key: 1}[SeriesKey(3, "object", ("R",), (12,))], 1)
+        self.assertEqual(key.photometries, (2,))
+        self.assertEqual(
+            {key: 1}[
+                SeriesKey(
+                    3, "object", ("R",), photometries=(2,), photrefs=(12,)
+                )
+            ],
+            1,
+        )
+
+    def test_references_and_photometries_by_keyword_only(self):
+        """Both are tuples of ids, so one in the other's place is refused
+        rather than read wrongly."""
+
+        with self.assertRaises(TypeError):
+            # pylint: disable-next=too-many-function-args
+            SeriesKey(3, "object", ("R",), (12,))
+        self.assertEqual(SeriesKey(3, "object", ("R",)).photometries, ())
 
     def test_a_channel_carries_one_reference(self):
         """A slot left None takes the reference another slot on its channel has.
@@ -82,14 +107,16 @@ class TestSeriesKeyReferences(unittest.TestCase):
         """
 
         self.assertEqual(
-            SeriesKey(3, "object", ("R", "R", "B"), (12, None, None)).photrefs,
+            SeriesKey(
+                3, "object", ("R", "R", "B"), photrefs=(12, None, None)
+            ).photrefs,
             (12, 12, None),
         )
 
     def test_two_references_on_a_channel_are_left_alone(self):
         """Nothing could be meant by filling from one of them."""
 
-        key = SeriesKey(3, "object", ("R", "R", "R"), (12, 15, None))
+        key = SeriesKey(3, "object", ("R", "R", "R"), photrefs=(12, 15, None))
 
         self.assertEqual(key.photrefs, (12, 15, None))
         self.assertEqual(key.reference_pairs, (("R", 12), ("R", 15)))
@@ -129,6 +156,15 @@ class ReferenceProject(unittest.TestCase):
         "R": [1.0, 2.0, 3.0, 10.0, 20.0, 50.0, 99.0],
         "B": [4.0, 5.0, 6.0, 30.0, 40.0, 60.0, 98.0],
     }
+
+    #: The photometries the offsets are recorded in, each shifted by its own
+    #: amount so that a read in the wrong one cannot pass by luck: aperture
+    #: 0 as above, aperture 2 a thousand higher.
+    shifts = {0: 0.0, 2: 1000.0}
+
+    #: ``(channel, frame, photometry)`` of the one offset not recorded, as
+    #: ``fit_magnitudes`` skips a non-finite one: in one photometry only.
+    unrecorded = ("R", 1, 2)
 
     #: ``bg_center`` in ``R``, which does not depend on the reference.
     backgrounds = [100.0, 101.0, 102.0, 103.0, 104.0, 105.0, 106.0]
@@ -218,15 +254,13 @@ class ReferenceProject(unittest.TestCase):
                         value=background,
                     )
                 )
-                for channel, values in cls.offsets.items():
-                    db_session.add(
-                        ImageDiagnostics(
-                            image_id=image.id,
-                            channel=channel,
-                            diagnostic_id=diagnostic_ids[
-                                "photometry_mag_offset"
-                            ],
-                            value=values[index],
+                for channel in cls.offsets:
+                    db_session.add_all(
+                        cls._offset_rows(
+                            image.id,
+                            index,
+                            channel,
+                            diagnostic_ids["photometry_mag_offset"],
                         )
                     )
                     reference = cls.bound_to[channel][index]
@@ -241,18 +275,40 @@ class ReferenceProject(unittest.TestCase):
                         )
         # pylint: enable=not-callable
 
-    def key(self, channels, *references):
+    @classmethod
+    def _offset_rows(cls, image_id, index, channel, diagnostic_id):
+        """Return one frame's ``photometry_mag_offset`` rows in *channel*.
+
+        One per photometry, less the one :attr:`unrecorded` names.
+        """
+
+        return [
+            PhotometryDiagnostics(  # pylint: disable=not-callable
+                image_id=image_id,
+                channel=channel,
+                photometry_id=photometry,
+                diagnostic_id=diagnostic_id,
+                value=cls.offsets[channel][index] + shift,
+            )
+            for photometry, shift in cls.shifts.items()
+            if (channel, index, photometry) != cls.unrecorded
+        ]
+
+    def key(self, channels, *references, photometries=()):
         """Return the night's series binding *channels* to *references*.
 
         Each reference is ``"ref1"``, ``"ref2"`` or ``None``, per slot, and
-        is looked up in that slot's channel.
+        is looked up in that slot's channel. What is read, and in which
+        photometry, is up to ``wanted``; the key's *photometries* only name
+        the series.
         """
 
         return SeriesKey(
             self.session_id,
             "object",
             channels,
-            (
+            photometries=photometries,
+            photrefs=(
                 tuple(
                     (
                         None
@@ -307,10 +363,10 @@ class TestReferenceRestriction(ReferenceProject):
         with start_db_session() as db_session:
             values, image_ids = get_quantity_values(
                 self.key(("R",), "ref1"),
-                {"rel_offset": {("R",)}},
+                {"rel_offset": {(("R",), (0,))}},
                 {
-                    "rel_offset": "photometry_mag_offset[0]"
-                    " - nanmedian(photometry_mag_offset[0])"
+                    "rel_offset": "photometry_mag_offset[0][0]"
+                    " - nanmedian(photometry_mag_offset[0][0])"
                 },
                 db_session,
             )
@@ -318,7 +374,9 @@ class TestReferenceRestriction(ReferenceProject):
         self.assertEqual(
             list(image_ids), self.selected(self.image_ids, R="ref1")
         )
-        self.assertEqual(list(values["rel_offset"][("R",)]), [-1.0, 0.0, 1.0])
+        self.assertEqual(
+            list(values["rel_offset"][("R",), (0,)]), [-1.0, 0.0, 1.0]
+        )
 
     def test_a_magfit_read_needs_a_reference(self):
         """Without one, the series would mix the night's two references."""
@@ -329,7 +387,7 @@ class TestReferenceRestriction(ReferenceProject):
         ):
             get_quantity_values(
                 self.key(("R",)),
-                {"photometry_mag_offset": {("R",)}},
+                {"photometry_mag_offset": {(("R",), (0,))}},
                 {},
                 db_session,
             )
@@ -343,10 +401,10 @@ class TestReferenceRestriction(ReferenceProject):
         ):
             get_quantity_values(
                 self.key(("R", "B"), "ref1", None),
-                {"colour": {("R", "B")}},
+                {"colour": {(("R", "B"), (0,))}},
                 {
-                    "colour": "photometry_mag_offset[0]"
-                    " - photometry_mag_offset[1]"
+                    "colour": "photometry_mag_offset[0][0]"
+                    " - photometry_mag_offset[1][0]"
                 },
                 db_session,
             )
@@ -357,7 +415,7 @@ class TestReferenceRestriction(ReferenceProject):
         with start_db_session() as db_session:
             values, image_ids = get_quantity_values(
                 self.key(("R",), "ref2"),
-                {"bg_center": {("R",)}},
+                {"bg_center": {(("R",), ())}},
                 {},
                 db_session,
             )
@@ -366,7 +424,7 @@ class TestReferenceRestriction(ReferenceProject):
             list(image_ids), self.selected(self.image_ids, R="ref2")
         )
         self.assertEqual(
-            list(values["bg_center"][("R",)]),
+            list(values["bg_center"][("R",), ()]),
             self.selected(self.backgrounds, R="ref2"),
         )
 
@@ -380,8 +438,8 @@ class TestReferenceRestriction(ReferenceProject):
         with start_db_session() as db_session:
             values, image_ids = get_quantity_values(
                 self.key(("B",), "ref1"),
-                {"offset_b": {()}},
-                {"offset_b": "photometry_mag_offset['B']"},
+                {"offset_b": {((), (0,))}},
+                {"offset_b": "photometry_mag_offset['B'][0]"},
                 db_session,
             )
 
@@ -389,7 +447,7 @@ class TestReferenceRestriction(ReferenceProject):
             list(image_ids), self.selected(self.image_ids, B="ref1")
         )
         self.assertEqual(
-            list(values["offset_b"][()]),
+            list(values["offset_b"][(), (0,)]),
             self.selected(self.offsets["B"], B="ref1"),
         )
 
@@ -402,8 +460,8 @@ class TestReferenceRestriction(ReferenceProject):
         ):
             get_quantity_values(
                 self.key(()),
-                {"offset_b": {()}},
-                {"offset_b": "photometry_mag_offset['B']"},
+                {"offset_b": {((), (0,))}},
+                {"offset_b": "photometry_mag_offset['B'][0]"},
                 db_session,
             )
 
@@ -418,11 +476,73 @@ class TestReferenceRestriction(ReferenceProject):
         self.assertEqual(image_ids.size, 0)
 
 
+class TestPhotometryReads(ReferenceProject):
+    """A per-photometry diagnostic, read in the photometry each read binds."""
+
+    def recorded(self, channel, photometry):
+        """Return the offsets *photometry* holds per frame, NaN if missing."""
+
+        return [
+            (
+                numpy.nan
+                if (channel, index, photometry) == self.unrecorded
+                else offset + self.shifts[photometry]
+            )
+            for index, offset in enumerate(self.offsets[channel])
+        ]
+
+    def test_each_read_is_in_its_own_photometry(self):
+        """Both apertures, and their difference, in one evaluation.
+
+        The difference is the shift throughout, except on the frame whose
+        offset aperture 2 did not record: undefined there, rather than
+        taken from the other aperture.
+        """
+
+        with start_db_session() as db_session:
+            values, _ = get_quantity_values(
+                self.key(("R",), "ref1"),
+                {
+                    "photometry_mag_offset": {(("R",), (0,)), (("R",), (2,))},
+                    "apertures": {(("R",), (2, 0))},
+                },
+                {
+                    "apertures": "photometry_mag_offset[0][0]"
+                    " - photometry_mag_offset[0][1]"
+                },
+                db_session,
+            )
+
+        expected = {
+            photometry: numpy.array(
+                self.selected(self.recorded("R", photometry), R="ref1")
+            )
+            for photometry in self.shifts
+        }
+        for photometry, offsets in expected.items():
+            with self.subTest(photometry=photometry):
+                numpy.testing.assert_allclose(
+                    values["photometry_mag_offset"][("R",), (photometry,)],
+                    offsets,
+                    equal_nan=True,
+                )
+        numpy.testing.assert_allclose(
+            values["apertures"][("R",), (2, 0)],
+            expected[2] - expected[0],
+            equal_nan=True,
+        )
+
+
 class TestSplitSeries(ReferenceProject):
     """Finding the reference populations a session holds."""
 
     #: Read in both channels, so split by the references of both.
-    colour = {"colour": "photometry_mag_offset[0] - photometry_mag_offset[1]"}
+    colour = {
+        "colour": "photometry_mag_offset[0][0] - photometry_mag_offset[1][0]"
+    }
+
+    #: How :attr:`colour` is bound: R and B, in aperture 0.
+    colour_bound = {"colour": {(("R", "B"), (0,))}}
 
     def split(self, key, wanted, expressions=None):
         """Return :func:`split_series` for *key*, in a session of its own."""
@@ -431,11 +551,20 @@ class TestSplitSeries(ReferenceProject):
             return split_series(key, wanted, expressions or {}, db_session)
 
     def test_one_key_per_reference(self):
-        """The night splits into the frames fit against ref1 and ref2."""
+        """The night splits into the frames fit against ref1 and ref2.
+
+        Each key keeps the photometry the series is drawn in.
+        """
 
         self.assertEqual(
-            self.split(self.key(("R",)), {"photometry_mag_offset": {("R",)}}),
-            [self.key(("R",), "ref1"), self.key(("R",), "ref2")],
+            self.split(
+                self.key(("R",), photometries=(0,)),
+                {"photometry_mag_offset": {(("R",), (0,))}},
+            ),
+            [
+                self.key(("R",), "ref1", photometries=(0,)),
+                self.key(("R",), "ref2", photometries=(0,)),
+            ],
         )
 
     def test_a_frame_fit_differently_per_channel_is_its_own_population(self):
@@ -447,9 +576,7 @@ class TestSplitSeries(ReferenceProject):
         has come back -- never ref1 in R with ref2 in B.
         """
 
-        keys = self.split(
-            self.key(("R", "B")), {"colour": {("R", "B")}}, self.colour
-        )
+        keys = self.split(self.key(("R", "B")), self.colour_bound, self.colour)
 
         self.assertEqual(
             keys,
@@ -468,7 +595,7 @@ class TestSplitSeries(ReferenceProject):
     def test_each_key_draws_its_own_population(self):
         """What the engine does with the keys: one evaluation each."""
 
-        wanted = {"photometry_mag_offset": {("R",)}}
+        wanted = {"photometry_mag_offset": {(("R",), (0,))}}
         with start_db_session() as db_session:
             for key, reference in zip(
                 split_series(self.key(("R",)), wanted, {}, db_session),
@@ -477,7 +604,7 @@ class TestSplitSeries(ReferenceProject):
                 with self.subTest(reference=reference):
                     values, _ = get_quantity_values(key, wanted, {}, db_session)
                     self.assertEqual(
-                        list(values["photometry_mag_offset"][("R",)]),
+                        list(values["photometry_mag_offset"][("R",), (0,)]),
                         self.selected(self.offsets["R"], R=reference),
                     )
 
@@ -491,7 +618,7 @@ class TestSplitSeries(ReferenceProject):
         self.assertEqual(
             self.split(
                 self.key(("R", "B"), None, "ref1"),
-                {"colour": {("R", "B")}},
+                self.colour_bound,
                 self.colour,
             ),
             [
@@ -506,8 +633,8 @@ class TestSplitSeries(ReferenceProject):
         self.assertEqual(
             self.split(
                 self.key(("R", "R")),
-                {"mixed": {("R", "R")}},
-                {"mixed": "photometry_mag_offset[0] - bg_center[1]"},
+                {"mixed": {(("R", "R"), (0,))}},
+                {"mixed": "photometry_mag_offset[0][0] - bg_center[1]"},
             ),
             [
                 self.key(("R", "R"), "ref1", "ref1"),
@@ -520,7 +647,7 @@ class TestSplitSeries(ReferenceProject):
 
         key = self.key(("R",))
 
-        self.assertEqual(self.split(key, {"bg_center": {("R",)}}), [key])
+        self.assertEqual(self.split(key, {"bg_center": {(("R",), ())}}), [key])
 
     def test_a_quoted_channel_needs_its_tail_slot(self):
         """Its reference would have nowhere to go."""
@@ -528,8 +655,8 @@ class TestSplitSeries(ReferenceProject):
         with self.assertRaises(PipelineError):
             self.split(
                 self.key(()),
-                {"offset_b": {()}},
-                {"offset_b": "photometry_mag_offset['B']"},
+                {"offset_b": {((), (0,))}},
+                {"offset_b": "photometry_mag_offset['B'][0]"},
             )
 
     def test_a_quoted_channel_is_split_in_its_tail_slot(self):
@@ -538,8 +665,8 @@ class TestSplitSeries(ReferenceProject):
         self.assertEqual(
             self.split(
                 self.key(("B",)),
-                {"offset_b": {()}},
-                {"offset_b": "photometry_mag_offset['B']"},
+                {"offset_b": {((), (0,))}},
+                {"offset_b": "photometry_mag_offset['B'][0]"},
             ),
             [self.key(("B",), "ref1"), self.key(("B",), "ref2")],
         )
@@ -562,10 +689,10 @@ class TestCountUnboundImages(ReferenceProject):
         self.assertEqual(
             self.count(
                 self.key(("R", "B")),
-                {"colour": {("R", "B")}},
+                {"colour": {(("R", "B"), (0,))}},
                 {
-                    "colour": "photometry_mag_offset[0]"
-                    " - photometry_mag_offset[1]"
+                    "colour": "photometry_mag_offset[0][0]"
+                    " - photometry_mag_offset[1][0]"
                 },
             ),
             1,
@@ -574,7 +701,7 @@ class TestCountUnboundImages(ReferenceProject):
     def test_it_is_in_none_of_the_split_keys(self):
         """Which is what makes it worth reporting."""
 
-        wanted = {"photometry_mag_offset": {("R",)}}
+        wanted = {"photometry_mag_offset": {(("R",), (0,))}}
         with start_db_session() as db_session:
             drawn = {
                 image_id
@@ -593,7 +720,7 @@ class TestCountUnboundImages(ReferenceProject):
         """Nothing is split, so nothing is left out."""
 
         self.assertEqual(
-            self.count(self.key(("R",)), {"bg_center": {("R",)}}), 0
+            self.count(self.key(("R",)), {"bg_center": {(("R",), ())}}), 0
         )
 
     def test_nothing_is_counted_where_the_key_names_the_reference(self):
@@ -602,7 +729,7 @@ class TestCountUnboundImages(ReferenceProject):
         self.assertEqual(
             self.count(
                 self.key(("R",), "ref1"),
-                {"photometry_mag_offset": {("R",)}},
+                {"photometry_mag_offset": {(("R",), (0,))}},
             ),
             0,
         )
@@ -650,7 +777,8 @@ class TestReferenceCounts(ReferenceProject):
         """
 
         colour = {
-            "colour": "photometry_mag_offset[0] - photometry_mag_offset[1]"
+            "colour": "photometry_mag_offset[0][0]"
+            " - photometry_mag_offset[1][0]"
         }
         with start_db_session() as db_session:
             self.assertEqual(
@@ -664,7 +792,7 @@ class TestReferenceCounts(ReferenceProject):
             )
             for key in split_series(
                 self.key(("R", "B")),
-                {"colour": {("R", "B")}},
+                {"colour": {(("R", "B"), (0,))}},
                 colour,
                 db_session,
             ):

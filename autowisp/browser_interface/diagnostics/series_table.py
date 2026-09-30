@@ -187,7 +187,7 @@ def get_series_key(series):
         session_id,
         image_type,
         tuple(channel for channel, _ in bindings),
-        tuple(photref for _, photref in bindings),
+        photrefs=tuple(photref for _, photref in bindings),
     )
 
 
@@ -1027,7 +1027,7 @@ def make_row_for_pair(
         SeriesKey(
             *pair,
             tuple(channel for channel, _ in bindings),
-            tuple(photref for _, photref in bindings),
+            photrefs=tuple(photref for _, photref in bindings),
         ),
         pair_options,
         slots,

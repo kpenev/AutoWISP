@@ -4,8 +4,9 @@ Tier 2 of the expression layer: it knows the project database and nothing
 else. Above it, the browser interface adds Django and a way of editing the
 library; below it, :mod:`autowisp.diagnostics.expressions` knows what an
 expression *means* and has no database at all. This module is the join
-between them -- it turns a session, an image type and the channels a series
-binds into the ``{name: {channels: array}}`` that tier 1 evaluates against.
+between them -- it turns a session, an image type and the channels and
+photometries a series binds into the ``{name: {(channels, photometries):
+array}}`` that tier 1 evaluates against.
 
 Everything here is built on **one canonical image list per session and image
 type**, ordered by Julian date, with ``NaN`` wherever a value is not
@@ -40,7 +41,7 @@ member, with the same query and evaluation.
 
 from typing import NamedTuple
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, union_all
 from sqlalchemy.orm import aliased
 import numpy
 
@@ -53,6 +54,7 @@ from autowisp.database.data_model import (
     ImageMasterSelection,
     ImageType,
     MasterType,
+    PhotometryDiagnostics,
 )
 
 # pylint: enable=no-name-in-module
@@ -62,8 +64,9 @@ from autowisp.diagnostics.diagnostic_types import (
 )
 from autowisp.diagnostics.expressions import (
     evaluate_quantities,
-    get_needed_values,
     get_channel_arity,
+    get_needed_values,
+    get_photometry_arity,
 )
 from autowisp.exceptions import PipelineError
 
@@ -79,6 +82,7 @@ class _SeriesKeyFields(NamedTuple):
     session_id: int
     image_type: str
     channels: tuple
+    photometries: tuple
     photrefs: tuple
 
 
@@ -125,6 +129,12 @@ class SeriesKey(_SeriesKeyFields):
     hold it. Whatever turns ``channels`` into bindings slices it from the
     front, by arity, and never reaches them.
 
+    ``photometries`` holds one photometry id per photometry parameter of
+    what the series draws, in the same order -- the axes' parameters laid
+    end to end -- and is empty where nothing it draws is read per
+    photometry. It is independent of ``channels``: a photometry belongs to
+    no channel slot, every image having every photometry in every channel.
+
     ``photrefs`` holds, per slot, the ``single_photref`` master file the
     series' images are bound to in that slot's channel, restricting the
     population to the images fit against it there; ``None`` where the
@@ -142,7 +152,9 @@ class SeriesKey(_SeriesKeyFields):
 
     __slots__ = ()
 
-    def __new__(cls, session_id, image_type, channels, photrefs=None):
+    def __new__(
+        cls, session_id, image_type, channels, *, photometries=(), photrefs=None
+    ):
         """
         Build the key, coercing what arrives in the wrong shape.
 
@@ -156,6 +168,10 @@ class SeriesKey(_SeriesKeyFields):
         reading ``"R"`` and joins to the same id, so a one-character
         channel behaves correctly, while ``"G1"`` becomes the two channels
         ``G`` and ``1`` somewhere much later.
+
+        *photometries* and *photrefs* are keyword-only: both are tuples of
+        ids, so one passed in the other's place would be accepted and read
+        wrongly rather than refused.
 
         Omitted, *photrefs* is ``None`` in every slot, so a key built
         without it equals one spelling that out. Given, it must be as long
@@ -189,6 +205,7 @@ class SeriesKey(_SeriesKeyFields):
             session_id,
             image_type,
             channels,
+            tuple(int(photometry) for photometry in photometries),
             _normalize_photrefs(channels, photrefs),
         )
 
@@ -381,9 +398,9 @@ def _list_images(population, db_session):
     return _as_arrays(db_session.execute(query.order_by(*_image_order)).all())
 
 
-def _diagnostic_values_query(population, names, channels):
+def _diagnostic_values_query(population, names, bindings):
     """
-    Return the statement reading *names* in *channels* for a population.
+    Return the statement reading *names* in each of *bindings*.
 
     Separate from running it so that what it asks the database for can be
     inspected without a database: the predicates below are what keep this
@@ -396,26 +413,34 @@ def _diagnostic_values_query(population, names, channels):
 
         names(list):    The ``diagnostic_type`` names to read.
 
-        channels(list):    The channels to read them in, one outer join
-            each.
+        bindings(list):    The diagnostic bindings to read them in, one
+            outer join each: ``((channel,), ())`` on ``image_diagnostics``,
+            and ``((channel,), (photometry,))`` on
+            ``photometry_diagnostics``. A diagnostic takes one channel and
+            at most one photometry, so there is nothing else a binding here
+            can be.
 
     Returns:
         The SQLAlchemy select, ordered by name and then canonically.
     """
 
-    # One alias per channel, so a diagnostic wanted in several arrives as
+    # One alias per binding, so a diagnostic wanted in several arrives as
     # several columns of the one row rather than as several queries. Each
-    # pins all three columns of the unique index -- image, channel and
-    # diagnostic -- since dropping the channel would match every channel's
-    # row, which is both wrong and a scan.
-    reads = {channel: aliased(ImageDiagnostics) for channel in channels}
+    # pins every column of its table's unique index -- image, channel and
+    # diagnostic, and the photometry where there is one -- since dropping
+    # the channel or the photometry would match every channel's or every
+    # photometry's row, which is both wrong and a scan.
+    aliases = [
+        aliased(PhotometryDiagnostics if photometries else ImageDiagnostics)
+        for _, photometries in bindings
+    ]
 
     query = population(
         select(
             Image.id,  # pylint: disable=no-member
             Image.jd,  # pylint: disable=no-member
             DiagnosticType.name,
-            *(reads[channel].value for channel in channels),
+            *(alias.value for alias in aliases),
         )
         # Explicit, because diagnostic_type joins on no relation to any of
         # the others and SQLAlchemy cannot pick the left side on its own.
@@ -426,17 +451,15 @@ def _diagnostic_values_query(population, names, channels):
     # which is what makes the result paddable.
     query = query.join(DiagnosticType, DiagnosticType.name.in_(names))
 
-    for channel in channels:
-        read = reads[channel]
-        query = query.join(
-            read,
-            (
-                (read.image_id == Image.id)  # pylint: disable=no-member
-                & (read.diagnostic_id == DiagnosticType.id)
-                & (read.channel == channel)
-            ),
-            isouter=True,
+    for ((channel,), photometries), alias in zip(bindings, aliases):
+        condition = (
+            (alias.image_id == Image.id)  # pylint: disable=no-member
+            & (alias.diagnostic_id == DiagnosticType.id)
+            & (alias.channel == channel)
         )
+        if photometries:
+            condition &= alias.photometry_id == photometries[0]
+        query = query.join(alias, condition, isouter=True)
 
     # Name first: the blocks the result is read back in are per name, and
     # order_by appends rather than replaces, so a name added after the image
@@ -448,7 +471,7 @@ def _magfit_channels(needed):
     """Return the channels *needed* reads a magfit diagnostic in, sorted.
 
     Args:
-        needed(dict):    ``{name: set of channel tuples}``, from
+        needed(dict):    ``{name: set of (channels, photometries)}``, from
             :func:`~autowisp.diagnostics.expressions.get_needed_values`,
             which has already resolved slots, quoted channels and library
             expressions alike, so a channel is here whichever way it is read.
@@ -460,8 +483,8 @@ def _magfit_channels(needed):
             channel
             for name, bindings in needed.items()
             if name in magfit
-            for binding in bindings
-            for channel in binding
+            for channels, _ in bindings
+            for channel in channels
         }
     )
 
@@ -508,9 +531,9 @@ def _check_references(series_key, needed):
         )
 
 
-def _read_diagnostics(population, names, channels, db_session):
+def _read_diagnostics(population, names, bindings, db_session):
     """
-    Return *names* in each of *channels* for a population, NaN-padded.
+    Return *names* in each of *bindings* for a population, NaN-padded.
 
     The reading :func:`get_diagnostic_values` describes, for any
     population: one query, read back as a rectangle.
@@ -522,14 +545,15 @@ def _read_diagnostics(population, names, channels, db_session):
         names(list):    The ``diagnostic_type`` names to read. May be
             empty, leaving only the images to list.
 
-        channels(list):    The channels to read every one of them in.
+        bindings(list):    The diagnostic bindings to read every one of
+            them in, as :func:`_diagnostic_values_query` takes them.
 
         db_session:    An active SQLAlchemy database session.
 
     Returns:
         tuple:
-            dict:    ``{name: {channel: array}}`` for every name and
-                channel asked for, over the images in canonical order.
+            dict:    ``{name: {binding: array}}`` for every name and
+                binding asked for, over the images in canonical order.
 
             numpy.ndarray:    The image ids, in canonical order.
 
@@ -540,7 +564,7 @@ def _read_diagnostics(population, names, channels, db_session):
         return {}, *_list_images(population, db_session)
 
     rows = db_session.execute(
-        _diagnostic_values_query(population, names, channels)
+        _diagnostic_values_query(population, names, bindings)
     ).all()
 
     # From the rows rather than from names: a name no diagnostic_type has
@@ -552,7 +576,7 @@ def _read_diagnostics(population, names, channels, db_session):
     per_block = len(rows) // len(read_names) if read_names else 0
 
     columns = {
-        channel: numpy.fromiter(
+        binding: numpy.fromiter(
             (
                 numpy.nan if row[3 + offset] is None else row[3 + offset]
                 for row in rows
@@ -560,18 +584,18 @@ def _read_diagnostics(population, names, channels, db_session):
             dtype=float,
             count=len(rows),
         ).reshape(len(read_names), per_block)
-        for offset, channel in enumerate(channels)
+        for offset, binding in enumerate(bindings)
     }
 
     return (
         {
             name: {
-                channel: (
-                    columns[channel][read_names.index(name)]
+                binding: (
+                    columns[binding][read_names.index(name)]
                     if name in read_names
                     else numpy.full(per_block, numpy.nan)
                 )
-                for channel in channels
+                for binding in bindings
             }
             for name in names
         },
@@ -587,16 +611,19 @@ def get_diagnostic_values(series_key, needed, db_session):
     wanted diagnostic with every image of the series, and an outer join
     attaches the values, leaving ``NULL`` where nothing was recorded -- so
     the padding is what the database returns rather than something assembled
-    from it. The unique index on ``(image_id, channel, diagnostic_id)`` is
-    what makes that sound: no image contributes two rows for one diagnostic
-    in one channel, so the result is exactly one row per image per name.
+    from it. The unique indices make that sound: on ``(image_id, channel,
+    diagnostic_id)`` for a diagnostic recorded per image, and on
+    ``(image_id, channel, photometry_id, diagnostic_id)`` for one recorded
+    per photometry. No image contributes two rows for one diagnostic in one
+    binding, so the result is exactly one row per image per name.
 
-    **Several channels at once, still one query.** An expression comparing
-    channels needs the same diagnostic read more than once, so there is one
-    outer join per distinct channel, each with the channel pinned. That
-    keeps the result a rectangle -- the joins only widen it, adding a value
-    column per channel rather than rows -- and keeps every probe on the
-    unique index, whose second column is exactly what is being pinned.
+    **Several bindings at once, still one query.** An expression comparing
+    channels or photometries needs the same diagnostic read more than once,
+    so there is one outer join per distinct binding, each with its channel,
+    and its photometry where it has one, pinned. That keeps the result a
+    rectangle -- the joins only widen it, adding a value column per binding
+    rather than rows -- and keeps every probe on a unique index, whose
+    columns are exactly what is being pinned.
 
     Being a rectangle is what lets the values become arrays in one step: a
     column is read out whole and reshaped into one row per name, rather
@@ -617,19 +644,19 @@ def get_diagnostic_values(series_key, needed, db_session):
             a quantity may be bound to channels other than the series'
             own.
 
-        needed(dict):    ``{name: set of channel tuples}``, from
+        needed(dict):    ``{name: set of (channels, photometries)}``, from
             :func:`~autowisp.diagnostics.expressions.get_needed_values`.
-            May include :data:`time_quantity` at the empty tuple, which is
-            taken from the image row rather than from ``image_diagnostics``.
+            May include :data:`time_quantity` at ``((), ())``, which is
+            taken from the image row rather than from a diagnostics table.
 
         db_session:    An active SQLAlchemy database session.
 
     Returns:
         tuple:
-            dict:    ``{name: {channels: array}}``, keyed exactly as
-                *needed* asked, every array the length of the canonical
-                image list and ``NaN`` where nothing is recorded. A name no
-                ``diagnostic_type`` has is all ``NaN``.
+            dict:    ``{name: {(channels, photometries): array}}``, keyed
+                exactly as *needed* asked, every array the length of the
+                canonical image list and ``NaN`` where nothing is recorded.
+                A name no ``diagnostic_type`` has is all ``NaN``.
 
             numpy.ndarray:    The image ids, in canonical order.
 
@@ -641,31 +668,19 @@ def get_diagnostic_values(series_key, needed, db_session):
     _check_references(series_key, needed)
 
     names = sorted(set(needed) - {time_quantity})
-    channels = sorted(
-        {
-            channel
-            for name in names
-            for combination in needed[name]
-            for channel in combination
-        }
-    )
-
-    by_channel, image_ids, jd_values = _read_diagnostics(
+    by_binding, image_ids, jd_values = _read_diagnostics(
         lambda query: _in_series(query, series_key),
         names,
-        channels,
+        sorted({binding for name in names for binding in needed[name]}),
         db_session,
     )
 
     values = {
-        name: {
-            combination: by_channel[name][combination[0]]
-            for combination in needed[name]
-        }
+        name: {binding: by_binding[name][binding] for binding in needed[name]}
         for name in names
     }
     if time_quantity in needed:
-        values[time_quantity] = {(): jd_values}
+        values[time_quantity] = {((), ()): jd_values}
 
     return values, image_ids
 
@@ -685,10 +700,11 @@ def get_quantity_values(series_key, wanted, expressions, db_session):
     Args:
         series_key(SeriesKey):    The series to read the values of.
 
-        wanted(dict):    ``{quantity: set of channel tuples}``, each tuple
-            holding one channel per parameter of that quantity. A set of
-            them because the two axes may be one quantity read in two
-            channels, which is how a diagnostic is compared between them.
+        wanted(dict):    ``{quantity: set of (channels, photometries)}``,
+            each holding one channel per channel parameter of that quantity
+            and one photometry id per photometry parameter. A set of them
+            because the two axes may be one quantity read in two channels,
+            which is how a diagnostic is compared between them.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -696,7 +712,8 @@ def get_quantity_values(series_key, wanted, expressions, db_session):
 
     Returns:
         tuple:
-            dict:    ``{quantity: {channels: array}}``, all of the same
+            dict:    ``{quantity: {(channels, photometries): array}}``, all
+                of the same
                 length, and unmasked -- dropping the non-finite entries is
                 the caller's business, since the mask has to be taken
                 across both axes at once and the image ids masked with it.
@@ -749,7 +766,7 @@ def split_series(series_key, wanted, expressions, db_session):
             in quoted channels included, since that is where the reference
             goes.
 
-        wanted(dict):    ``{quantity: set of channel tuples}``, as for
+        wanted(dict):    ``{quantity: set of (channels, photometries)}``, as for
             :func:`get_quantity_values`.
 
         expressions(dict):    The library, ``{name: expression}``.
@@ -801,19 +818,18 @@ def split_series(series_key, wanted, expressions, db_session):
         query.distinct().order_by(*photref_columns)
     ).all():
         found = dict(zip(split_by, combination))
+        # pylint: disable=no-member
         result.append(
-            SeriesKey(
-                series_key.session_id,
-                series_key.image_type,
-                series_key.channels,
-                tuple(
+            series_key._replace(
+                photrefs=tuple(
                     found.get(channel, photref)
                     for channel, photref in zip(
                         series_key.channels, series_key.photrefs
                     )
-                ),
+                )
             )
         )
+        # pylint: enable=no-member
     return result
 
 
@@ -832,7 +848,7 @@ def count_unbound_images(series_key, wanted, expressions, db_session):
         series_key(SeriesKey):    The series, as given to
             :func:`split_series`.
 
-        wanted(dict):    ``{quantity: set of channel tuples}``.
+        wanted(dict):    ``{quantity: set of (channels, photometries)}``.
 
         expressions(dict):    The library, ``{name: expression}``.
 
@@ -849,7 +865,15 @@ def count_unbound_images(series_key, wanted, expressions, db_session):
     if not split_by:
         return 0
 
-    recorded = aliased(ImageDiagnostics)
+    # A magfit diagnostic is recorded per image or per photometry, depending
+    # on which it is; a row in either says the image was magfit-ed in that
+    # channel.
+    recorded = union_all(
+        *(
+            select(table.image_id, table.channel, table.diagnostic_id)
+            for table in (ImageDiagnostics, PhotometryDiagnostics)
+        )
+    ).subquery()
     binding = aliased(ImageMasterSelection)
     return db_session.scalar(
         _in_series(
@@ -860,17 +884,17 @@ def count_unbound_images(series_key, wanted, expressions, db_session):
         )
         .join(
             recorded,
-            (recorded.image_id == Image.id)  # pylint: disable=no-member
-            & recorded.channel.in_(split_by),
+            (recorded.c.image_id == Image.id)  # pylint: disable=no-member
+            & recorded.c.channel.in_(split_by),
         )
         .join(
             DiagnosticType,
-            (DiagnosticType.id == recorded.diagnostic_id)
+            (DiagnosticType.id == recorded.c.diagnostic_id)
             & DiagnosticType.name.in_(magfit_diagnostic_names()),
         )
         .join(
             binding,
-            photref_binding(binding, recorded.channel),
+            photref_binding(binding, recorded.c.channel),
             isouter=True,
         )
         .where(binding.image_id.is_(None))
@@ -891,7 +915,8 @@ def _custom_group_bindings(quantities, expressions):
     member's own channel.
 
     Raises:
-        PipelineError:    If a quantity takes more than one channel.
+        PipelineError:    If a quantity takes more than one channel, or any
+            photometry.
     """
 
     wanted = {}
@@ -903,7 +928,13 @@ def _custom_group_bindings(quantities, expressions):
                 "binds only one: each member's own.",
                 details={"quantity": quantity, "channels": arity},
             )
-        wanted[quantity] = {(_own_channel,) * arity}
+        if get_photometry_arity(quantity, expressions):
+            raise PipelineError(
+                f"{quantity} is read per photometry, but a photref group has "
+                "not been magnitude-fit, so it has no photometry to bind.",
+                details={"quantity": quantity},
+            )
+        wanted[quantity] = {((_own_channel,) * arity, ())}
     return wanted
 
 
@@ -911,13 +942,14 @@ def _read_custom_group(members, needed, db_session):
     """
     Return the values *needed* asks for, one entry per member.
 
-    The members' images are read as any population is, in every channel a
-    member has and every one quoted; each member then takes the column of
-    its own channel wherever *needed* asks for :data:`_own_channel`.
+    The members' images are read as any population is, in every binding
+    *needed* asks for, one on :data:`_own_channel` in every channel a member
+    has; each member then takes the column of its own channel wherever
+    *needed* asks for :data:`_own_channel`.
 
     Returns:
         tuple:
-            dict:    ``{name: {channels: array}}``, as
+            dict:    ``{name: {(channels, photometries): array}}``, as
                 :func:`get_diagnostic_values` returns for a series.
 
             list:    The members the arrays run over, in canonical order.
@@ -927,8 +959,10 @@ def _read_custom_group(members, needed, db_session):
     members = set(map(tuple, members))
     names = sorted(set(needed) - {time_quantity})
     image_ids = sorted({image_id for image_id, _ in members})
+    member_channels = {channel for _, channel in members}
 
-    by_channel, read_ids, jd_values = _read_diagnostics(
+    # Each name a diagnostic, so each binding holds exactly one channel.
+    by_binding, read_ids, jd_values = _read_diagnostics(
         lambda query: query.where(
             Image.id.in_(image_ids),  # pylint: disable=no-member
             Image.jd.is_not(None),  # pylint: disable=no-member
@@ -936,13 +970,13 @@ def _read_custom_group(members, needed, db_session):
         names,
         sorted(
             {
-                channel
+                ((channel_read,), photometries)
                 for name in names
-                for combination in needed[name]
-                for channel in combination
+                for (channel,), photometries in needed[name]
+                for channel_read in (
+                    member_channels if channel == _own_channel else (channel,)
+                )
             }
-            - {_own_channel}
-            | {channel for _, channel in members}
         ),
         db_session,
     )
@@ -955,26 +989,27 @@ def _read_custom_group(members, needed, db_session):
     rows = numpy.array([position[image_id] for image_id, _ in members], int)
     own = numpy.array([channel for _, channel in members])
 
-    def read(name, channel):
-        """Return *name* in *channel* per member, or in each one's own."""
+    def read(name, binding):
+        """Return *name* in *binding* per member, in each one's own channel
+        where it is bound to :data:`_own_channel`."""
 
+        (channel,), photometries = binding
         if channel != _own_channel:
-            return by_channel[name][channel][rows]
+            return by_binding[name][binding][rows]
         result = numpy.empty(len(members))
         for channel_read in set(own):
             mine = own == channel_read
-            result[mine] = by_channel[name][channel_read][rows[mine]]
+            result[mine] = by_binding[name][(channel_read,), photometries][
+                rows[mine]
+            ]
         return result
 
     values = {
-        name: {
-            combination: read(name, combination[0])
-            for combination in needed[name]
-        }
+        name: {binding: read(name, binding) for binding in needed[name]}
         for name in names
     }
     if time_quantity in needed:
-        values[time_quantity] = {(): jd_values[rows]}
+        values[time_quantity] = {((), ()): jd_values[rows]}
 
     return values, members
 
