@@ -151,6 +151,28 @@ def magfit_diagnostic_names():
     )
 
 
+@functools.lru_cache(maxsize=1)
+def photometry_diagnostic_names():
+    """
+    Return the diagnostics recorded per photometry.
+
+    Stored in ``photometry_diagnostics``, one value per shape fit and per
+    aperture, rather than in ``image_diagnostics``, so an expression reads
+    one in a photometry as well as a channel. Not the same question as
+    :func:`magfit_diagnostic_names`, although today the same names answer
+    both: a diagnostic ``fit_magnitudes`` recorded once per image would
+    depend on the reference and still take no photometry.
+
+    Returns:
+        frozenset:    The names, a subset of
+            :func:`magfit_diagnostic_names`.
+    """
+
+    return frozenset(
+        ("photometry_mag_offset", "magfit_residual", "mag_fit_num_stars")
+    )
+
+
 #: The photometry id of the shape fit. Apertures are numbered by their index,
 #: from 0, so the shape fit takes a value no aperture can have.
 shapefit_photometry = -1
@@ -181,6 +203,36 @@ def get_photometry_id(position, has_shape_fit):
     if not has_shape_fit:
         return position
     return shapefit_photometry if position == 0 else position - 1
+
+
+def parse_photometry_literal(literal):
+    """
+    Return the photometry id a quoted photometry names, or ``None``.
+
+    An expression quotes a photometry as ``'shapefit'`` or as ``'ap'``
+    followed by the aperture index, ``'ap4'``, just as it quotes a channel
+    by name. :func:`photometry_literal` spells an id the same way.
+
+    Args:
+        literal(str):    The quoted text.
+
+    Returns:
+        int or None:    The id, or ``None`` if *literal* names no
+            photometry.
+    """
+
+    if literal == "shapefit":
+        return shapefit_photometry
+    aperture = re.fullmatch(r"ap([0-9]+)", literal)
+    return int(aperture.group(1)) if aperture else None
+
+
+def photometry_literal(photometry_id):
+    """Return how an expression quotes the photometry *photometry_id*."""
+
+    if photometry_id == shapefit_photometry:
+        return "shapefit"
+    return f"ap{photometry_id}"
 
 
 #: The one diagnostic family created at run time rather than seeded.

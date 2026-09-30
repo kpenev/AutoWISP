@@ -202,6 +202,7 @@ from autowisp.tests.test_expressions import (
     TestQuotedChannels,
     TestRules,
 )
+from autowisp.tests.test_photometry_slots import TestPhotometrySlots
 from autowisp.tests.test_diagnostic_types import (
     TestCatalogue,
     TestRuntimePatterns,

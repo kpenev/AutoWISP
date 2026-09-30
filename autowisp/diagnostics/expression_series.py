@@ -63,7 +63,7 @@ from autowisp.diagnostics.diagnostic_types import (
 from autowisp.diagnostics.expressions import (
     evaluate_quantities,
     get_needed_values,
-    get_quantity_arity,
+    get_channel_arity,
 )
 from autowisp.exceptions import PipelineError
 
@@ -896,7 +896,7 @@ def _custom_group_bindings(quantities, expressions):
 
     wanted = {}
     for quantity in quantities:
-        arity = get_quantity_arity(quantity, expressions)
+        arity = get_channel_arity(quantity, expressions)
         if arity > 1:
             raise PipelineError(
                 f"{quantity} takes {arity} channels, but a photref group "

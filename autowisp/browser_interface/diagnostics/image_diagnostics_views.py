@@ -35,7 +35,7 @@ from autowisp.diagnostics.expression_series import (
     get_quantity_values,
     time_quantity,
 )
-from autowisp.diagnostics.expressions import get_quantity_arity
+from autowisp.diagnostics.expressions import get_channel_arity
 
 from .quantities import (
     describe_quantity,
@@ -95,7 +95,7 @@ def get_series_data(series, x_quantity, expressions, db_session):
     bindings = []
     taken = 0
     for quantity in quantities:
-        arity = get_quantity_arity(quantity, expressions)
+        arity = get_channel_arity(quantity, expressions)
         bindings.append(series_key.channels[taken : taken + arity])
         taken += arity
 

@@ -16,13 +16,13 @@ from autowisp.diagnostics.expressions import (
     check_rule,
     evaluate_quantities,
     get_bare_aggregates,
+    get_channel_arity,
+    get_channel_parameters,
     get_expression_dependents,
     get_expression_names,
-    get_expression_parameters,
     get_indexed_names,
     get_logical_keywords,
     get_needed_values,
-    get_quantity_arity,
     get_quoted_channel_order,
     order_expressions,
     rename_references,
@@ -495,12 +495,12 @@ class SlotTestCase(unittest.TestCase):
 
         return {
             name: {
-                channels: (
+                (channels, photometries): (
                     self.jd if name == time_quantity else self.bg[channels[0]]
                 )
-                for channels in channel_set
+                for channels, photometries in bindings
             }
-            for name, channel_set in self.needed(wanted).items()
+            for name, bindings in self.needed(wanted).items()
         }
 
     def evaluate(self, wanted):
@@ -508,7 +508,7 @@ class SlotTestCase(unittest.TestCase):
 
         return evaluate_quantities(wanted, self.library, self.fetch(wanted))
 
-    def evaluate_one(self, quantity, channels):
+    def evaluate_one(self, quantity, channels, photometries=()):
         """Return the values of a single instantiation.
 
         Sugar for the common case: everything takes and returns one
@@ -516,9 +516,8 @@ class SlotTestCase(unittest.TestCase):
         quantity in two channels, and most cases here want neither.
         """
 
-        return self.evaluate({quantity: {tuple(channels)}})[quantity][
-            tuple(channels)
-        ]
+        binding = (tuple(channels), tuple(photometries))
+        return self.evaluate({quantity: {binding}})[quantity][binding]
 
 
 class TestSlotSyntax(SlotTestCase):
@@ -529,29 +528,29 @@ class TestSlotSyntax(SlotTestCase):
 
         self.assertEqual(
             get_indexed_names(self.library["silly"]),
-            [("sky_color", (1, 2)), ("sky_color", (2, 3))],
+            [("sky_color", (1, 2), ()), ("sky_color", (2, 3), ())],
         )
 
     def test_one_slot_is_still_a_tuple(self):
         """So no caller has to care how many were written."""
 
         self.assertEqual(
-            get_indexed_names("bg_center[1]"), [("bg_center", (1,))]
+            get_indexed_names("bg_center[1]"), [("bg_center", (1,), ())]
         )
 
     def test_parameters_are_derived_and_ordered(self):
         """Nothing is declared, so nothing can drift out of step."""
 
         self.assertEqual(
-            get_expression_parameters(self.library["silly"]), (1, 2, 3)
+            get_channel_parameters(self.library["silly"]), (1, 2, 3)
         )
-        self.assertEqual(get_expression_parameters("jd * 2"), ())
+        self.assertEqual(get_channel_parameters("jd * 2"), ())
 
     def test_parameters_are_sorted_whatever_order_the_body_uses(self):
         """The order is what a reference's arguments are matched onto."""
 
         self.assertEqual(
-            get_expression_parameters("bg_center[3] - bg_center[1]"), (1, 3)
+            get_channel_parameters("bg_center[3] - bg_center[1]"), (1, 3)
         )
 
     def test_a_slot_must_be_a_whole_number(self):
@@ -562,7 +561,8 @@ class TestSlotSyntax(SlotTestCase):
             "bg_center[i]",
             "bg_center[1.5]",
             "bg_center[1:2]",
-            "bg_center[1][2]",
+            "bg_center[1][2][3]",
+            "bg_center[()]",
         ):
             with self.subTest(text=text):
                 with self.assertRaises(PipelineError):
@@ -571,11 +571,11 @@ class TestSlotSyntax(SlotTestCase):
     def test_arity_is_a_rule_not_a_table(self):
         """Two of the three answers are constants."""
 
-        self.assertEqual(get_quantity_arity("bg_center", self.library), 1)
-        self.assertEqual(get_quantity_arity(time_quantity, self.library), 0)
-        self.assertEqual(get_quantity_arity("silly", self.library), 3)
+        self.assertEqual(get_channel_arity("bg_center", self.library), 1)
+        self.assertEqual(get_channel_arity(time_quantity, self.library), 0)
+        self.assertEqual(get_channel_arity("silly", self.library), 3)
         with self.assertRaises(PipelineError):
-            get_quantity_arity("no_such", self.library)
+            get_channel_arity("no_such", self.library)
 
 
 class TestNeededValues(SlotTestCase):
@@ -593,8 +593,8 @@ class TestNeededValues(SlotTestCase):
         """The channels come from resolving each reference's arguments."""
 
         self.assertEqual(
-            self.needed({"silly": {("B", "R", "G0")}}),
-            {"bg_center": {("B",), ("R",), ("G0",)}},
+            self.needed({"silly": {(("B", "R", "G0"), ())}}),
+            {"bg_center": {(("B",), ()), (("R",), ()), (("G0",), ())}},
         )
 
     def test_one_quantity_asked_for_at_two_bindings(self):
@@ -606,16 +606,16 @@ class TestNeededValues(SlotTestCase):
         """
 
         self.assertEqual(
-            self.needed({"sky_color": {("B", "R"), ("R", "G0")}}),
-            {"bg_center": {("B",), ("R",), ("G0",)}},
+            self.needed({"sky_color": {(("B", "R"), ()), (("R", "G0"), ())}}),
+            {"bg_center": {(("B",), ()), (("R",), ()), (("G0",), ())}},
         )
 
     def test_slots_bound_the_other_way_round_are_followed(self):
         """``inner[2,1]`` reads the outer binding reversed."""
 
         self.assertEqual(
-            self.needed({"outer": {("R", "B")}}),
-            {"bg_center": {("R",), ("B",)}},
+            self.needed({"outer": {(("R", "B"), ())}}),
+            {"bg_center": {(("R",), ()), (("B",), ())}},
         )
 
     def test_the_time_is_found_through_a_bare_reference(self):
@@ -626,8 +626,8 @@ class TestNeededValues(SlotTestCase):
         """
 
         self.assertEqual(
-            self.needed({"mixed": {("B",)}}),
-            {time_quantity: {()}, "bg_center": {("B",)}},
+            self.needed({"mixed": {(("B",), ())}}),
+            {time_quantity: {((), ())}, "bg_center": {(("B",), ())}},
         )
 
     def test_a_binding_of_the_wrong_length_is_refused(self):
@@ -640,7 +640,7 @@ class TestNeededValues(SlotTestCase):
         for channels in (("B",), ("B", "R", "G0")):
             with self.subTest(channels=channels):
                 with self.assertRaises(PipelineError):
-                    self.needed({"sky_color": {channels}})
+                    self.needed({"sky_color": {(channels, ())}})
 
 
 class TestSlotEvaluation(SlotTestCase):
@@ -682,22 +682,26 @@ class TestSlotEvaluation(SlotTestCase):
 
         lookups = QuantityLookUp.library(
             {"sky_color": self.library["sky_color"]},
-            {"bg_center": {("B",): self.bg["B"], ("R",): self.bg["R"]}},
+            {
+                "bg_center": {
+                    (("B",), ()): self.bg["B"],
+                    (("R",), ()): self.bg["R"],
+                }
+            },
         )
 
         self.assertIs(
-            lookups["sky_color"].at(("B", "R")),
-            lookups["sky_color"].at(("B", "R")),
+            lookups["sky_color"].at(("B", "R"), ()),
+            lookups["sky_color"].at(("B", "R"), ()),
         )
 
     def test_both_axes_at_once_share_their_instantiations(self):
         """Which is why the two are resolved in one call, not one each."""
 
-        drawn = self.evaluate(
-            {"sky_color": {("B", "R")}, "twice": {("B", "R")}}
-        )
+        binding = (("B", "R"), ())
+        drawn = self.evaluate({"sky_color": {binding}, "twice": {binding}})
         numpy.testing.assert_allclose(
-            drawn["twice"][("B", "R")], 2 * drawn["sky_color"][("B", "R")]
+            drawn["twice"][binding], 2 * drawn["sky_color"][binding]
         )
 
     def test_one_diagnostic_drawn_in_two_channels(self):
@@ -708,10 +712,12 @@ class TestSlotEvaluation(SlotTestCase):
         on both axes, which looks like a perfectly good plot.
         """
 
-        drawn = self.evaluate({"bg_center": {("B",), ("R",)}})
+        drawn = self.evaluate({"bg_center": {(("B",), ()), (("R",), ())}})
 
-        numpy.testing.assert_allclose(drawn["bg_center"][("B",)], self.bg["B"])
-        numpy.testing.assert_allclose(drawn["bg_center"][("R",)], self.bg["R"])
+        for channel in ("B", "R"):
+            numpy.testing.assert_allclose(
+                drawn["bg_center"][(channel,), ()], self.bg[channel]
+            )
 
     def test_a_quantity_over_the_time_alone(self):
         """Written bare, there being no channel to subscript it with."""
@@ -757,7 +763,7 @@ class TestSlotEvaluation(SlotTestCase):
         """
 
         self.assertNotIn(
-            time_quantity, self.fetch({"silly": {("B", "R", "G0")}})
+            time_quantity, self.fetch({"silly": {(("B", "R", "G0"), ())}})
         )
         self.evaluate_one("silly", ("B", "R", "G0"))
 
@@ -767,9 +773,9 @@ class TestSlotEvaluation(SlotTestCase):
 
         with self.assertRaises(PipelineError):
             evaluate_quantities(
-                {"sky_color": {("B", "R")}},
+                {"sky_color": {(("B", "R"), ())}},
                 self.library,
-                {"bg_center": {("B",): self.bg["B"]}},
+                {"bg_center": {(("B",), ()): self.bg["B"]}},
             )
 
 
@@ -784,17 +790,16 @@ class TestQuotedChannels(SlotTestCase):
         """Read out as written, in its place among the numbered ones."""
 
         self.assertEqual(
-            get_indexed_names("sky_color['B', 1]"), [("sky_color", ("B", 1))]
+            get_indexed_names("sky_color['B', 1]"),
+            [("sky_color", ("B", 1), ())],
         )
 
     def test_a_quoted_channel_is_not_a_parameter(self):
         """It is already bound, so there is nothing for a caller to bind."""
 
-        self.assertEqual(
-            get_expression_parameters(self.library["relative"]), (1,)
-        )
-        self.assertEqual(get_expression_parameters(self.library["fixed"]), ())
-        self.assertEqual(get_quantity_arity("fixed", self.library), 0)
+        self.assertEqual(get_channel_parameters(self.library["relative"]), (1,))
+        self.assertEqual(get_channel_parameters(self.library["fixed"]), ())
+        self.assertEqual(get_channel_arity("fixed", self.library), 0)
 
     def test_other_literals_are_still_refused(self):
         """Only a string names a channel."""
@@ -859,7 +864,7 @@ class TestQuotedChannels(SlotTestCase):
 
         self.assertEqual(
             get_indexed_names("2 * bg_center[1] + sky_color[2, 3]"),
-            [("bg_center", (1,)), ("sky_color", (2, 3))],
+            [("bg_center", (1,), ()), ("sky_color", (2, 3), ())],
         )
 
     def test_needed_through_a_bare_reference(self):
@@ -870,8 +875,8 @@ class TestQuotedChannels(SlotTestCase):
         """
 
         self.assertEqual(
-            self.needed({"over_fixed": {("G0",)}}),
-            {"bg_center": {("G0",), ("B",), ("R",)}},
+            self.needed({"over_fixed": {(("G0",), ())}}),
+            {"bg_center": {(("G0",), ()), (("B",), ()), (("R",), ())}},
         )
 
     def test_evaluated_through_a_bare_reference(self):
@@ -906,13 +911,14 @@ class TestRules(SlotTestCase):
         """Return what *rule* decides when bound to *channels*."""
 
         library = self.rule_library(rule)
-        wanted = {rule_quantity: {channels}}
+        binding = (channels, ())
+        wanted = {rule_quantity: {binding}}
         values = {
-            name: {bound: self.bg[bound[0]] for bound in channel_set}
-            for name, channel_set in get_needed_values(wanted, library).items()
+            name: {bound: self.bg[bound[0][0]] for bound in bindings}
+            for name, bindings in get_needed_values(wanted, library).items()
         }
         return evaluate_quantities(wanted, library, values)[rule_quantity][
-            channels
+            binding
         ]
 
     def test_any_one_slot_number_will_do(self):

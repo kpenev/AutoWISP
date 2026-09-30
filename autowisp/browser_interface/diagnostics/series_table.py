@@ -32,9 +32,9 @@ from autowisp.diagnostics.image_counts import (
     count_images_with_channels,
 )
 from autowisp.diagnostics.expressions import (
-    get_expression_parameters,
+    get_channel_parameters,
     get_needed_values,
-    get_quantity_arity,
+    get_channel_arity,
     get_quoted_channel_order,
 )
 
@@ -382,13 +382,13 @@ def _walk_axis(quantity, expressions):
     """
 
     if quantity in expressions:
-        parameters = get_expression_parameters(expressions[quantity])
+        parameters = get_channel_parameters(expressions[quantity])
     else:
         # A diagnostic binds one channel and numbers it nothing; the time
         # binds none. Asked rather than derived, neither arity coming from
         # a definition -- and asking is also what refuses a name that
         # resolves to nothing at all.
-        parameters = (None,) * get_quantity_arity(quantity, expressions)
+        parameters = (None,) * get_channel_arity(quantity, expressions)
 
     columns = tuple(range(len(parameters)))
     reads = {column: set() for column in columns}
