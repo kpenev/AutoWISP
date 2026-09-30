@@ -1,6 +1,6 @@
 ---
 name: python-conventions
-description: Conventions for python code
+description: Conventions for python code. Load before writing or editing any Python in this repository.
 ---
 # Python Conventions
 
@@ -12,3 +12,6 @@ description: Conventions for python code
 
 - Avoid variable names that differ only by a single letter e.g. (positon and
   positions)
+
+- Keep a value local to its only user; a module-level constant is for
+  something shared.
