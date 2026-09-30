@@ -151,6 +151,38 @@ def magfit_diagnostic_names():
     )
 
 
+#: The photometry id of the shape fit. Apertures are numbered by their index,
+#: from 0, so the shape fit takes a value no aperture can have.
+shapefit_photometry = -1
+
+
+def get_photometry_id(position, has_shape_fit):
+    """
+    Return the id recorded for the photometry at *position* in magfit's arrays.
+
+    ``fit_magnitudes`` holds an image's photometries in one array: the shape
+    fit first, where the image has a usable one, and then every aperture.
+    So a position is the shape fit on one image and aperture 0 on the next,
+    and recording it would let a series pinned to one id mix photometries
+    without saying so. The id is the same on every image instead: the
+    aperture index, which is what the DR files number apertures by, or
+    :data:`shapefit_photometry`.
+
+    Args:
+        position(int):    The index into magfit's photometry arrays.
+
+        has_shape_fit(bool):    Whether those arrays start with a shape fit,
+            as ``get_magfit_sources`` decided when building them.
+
+    Returns:
+        int:    The photometry id.
+    """
+
+    if not has_shape_fit:
+        return position
+    return shapefit_photometry if position == 0 else position - 1
+
+
 #: The one diagnostic family created at run time rather than seeded.
 #: ``calibrate`` records one per configured quantile, so which exist
 #: depends on how a project was configured and cannot be listed ahead of

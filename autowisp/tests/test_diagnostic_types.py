@@ -18,9 +18,11 @@ from autowisp.database.data_model import DiagnosticType
 
 # pylint: enable=no-name-in-module
 from autowisp.diagnostics.diagnostic_types import (
+    get_photometry_id,
     is_diagnostic,
     is_known_quantity,
     is_quantile_diagnostic,
+    shapefit_photometry,
     standard_diagnostic_names,
     standard_diagnostic_types,
     time_quantity,
@@ -120,6 +122,28 @@ class TestVocabulary(unittest.TestCase):
         for name in ("bg_centre", "no_such_thing", ""):
             with self.subTest(name=name):
                 self.assertFalse(is_known_quantity(name))
+
+
+class TestPhotometryId(unittest.TestCase):
+    """The id each photometry of magfit's arrays is recorded under."""
+
+    def test_same_photometry_same_id(self):
+        """With and without a shape fit, an aperture keeps its index."""
+
+        #: ``(position, has_shape_fit, id)``: the same apertures laid out
+        #: with and without a shape fit in front of them.
+        layouts = [
+            (0, True, shapefit_photometry),
+            (1, True, 0),
+            (4, True, 3),
+            (0, False, 0),
+            (3, False, 3),
+        ]
+        for position, has_shape_fit, expected in layouts:
+            with self.subTest(position=position, has_shape_fit=has_shape_fit):
+                self.assertEqual(
+                    get_photometry_id(position, has_shape_fit), expected
+                )
 
 
 class TestSeeding(unittest.TestCase):

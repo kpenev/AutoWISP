@@ -206,6 +206,7 @@ from autowisp.tests.test_diagnostic_types import (
     TestCatalogue,
     TestRuntimePatterns,
     TestVocabulary,
+    TestPhotometryId,
     TestSeeding,
 )
 from autowisp.tests.test_diagnostic_expressions import (

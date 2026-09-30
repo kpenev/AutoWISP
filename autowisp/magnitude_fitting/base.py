@@ -10,6 +10,7 @@ from numpy.lib import recfunctions
 import numpy
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.diagnostics.diagnostic_types import get_photometry_id
 from autowisp.evaluator import Evaluator
 from autowisp.magnitude_fitting.util import get_magfit_sources
 
@@ -417,7 +418,7 @@ class MagnitudeFit(ABC):
         """
 
     def _build_magfit_diagnostics(
-        self, fit_results, fit_statistics, fit_base, header
+        self, fit_results, fit_statistics, fit_base, header, has_shape_fit
     ):
         """Build per-photometry diagnostic tuples from magnitude fitting.
 
@@ -434,31 +435,35 @@ class MagnitudeFit(ABC):
             header:    The FITS header of the frame, passed through to
                 ``_compute_mag_offset()``.
 
+            has_shape_fit(bool):    Whether the photometries being fit start
+                with a shape fit, which decides the id each is recorded
+                under.
+
         Returns:
             list or None:
-                A list of ``(name, value, photometry_id)`` tuples, or None
-                if no diagnostics could be computed.
+                A list of ``(name, value, photometry_id)`` tuples, the id as
+                :func:`~autowisp.diagnostics.diagnostic_types.get_photometry_id`
+                gives it, or None if no diagnostics could be computed.
         """
 
         diagnostics = []
         for phot_ind, phot_fit_results in enumerate(fit_results):
+            phot_id = get_photometry_id(phot_ind, has_shape_fit)
             residual = fit_statistics["residual"][phot_ind]
             if numpy.isfinite(residual):
                 diagnostics.append(
-                    ("magfit_residual", float(residual), phot_ind)
+                    ("magfit_residual", float(residual), phot_id)
                 )
 
             num_stars = int(fit_statistics["final_src_count"][phot_ind])
-            diagnostics.append(
-                ("mag_fit_num_stars", num_stars, phot_ind)
-            )
+            diagnostics.append(("mag_fit_num_stars", num_stars, phot_id))
 
             mag_offset = self._compute_mag_offset(
                 phot_fit_results, fit_base, header
             )
             if mag_offset is not None and numpy.isfinite(mag_offset):
                 diagnostics.append(
-                    ("photometry_mag_offset", mag_offset, phot_ind)
+                    ("photometry_mag_offset", mag_offset, phot_id)
                 )
         return diagnostics or None
 
@@ -641,14 +646,19 @@ class MagnitudeFit(ABC):
                         phot["mag"].shape[0],
                         phot["mag"].shape[2],
                     )
-                    fit_statistics = self._combine_fit_statistics(
-                        fit_results
-                    )
+                    fit_statistics = self._combine_fit_statistics(fit_results)
                     header = data_reduction.get_frame_header(
                         **dr_path_substitutions
                     )
                     diagnostics = self._build_magfit_diagnostics(
-                        fit_results, fit_statistics, fit_base, header
+                        fit_results,
+                        fit_statistics,
+                        fit_base,
+                        header,
+                        # What get_magfit_sources asked when laying out phot.
+                        data_reduction.has_shape_fit(
+                            accept_zeropsf=False, **dr_path_substitutions
+                        ),
                     )
                     self.logger.debug("Adding to DR file.")
                     mark_start(dr_fname)
@@ -659,9 +669,7 @@ class MagnitudeFit(ABC):
                         missing_indices=deleted_phot_indices,
                         **dr_path_substitutions,
                     )
-                    mark_end(
-                        dr_fname, photometry_diagnostics=diagnostics
-                    )
+                    mark_end(dr_fname, photometry_diagnostics=diagnostics)
                     self.logger.debug("Updating calibration status.")
                     return phot[fit_indices], fitted[fit_indices]
                 return None, None
