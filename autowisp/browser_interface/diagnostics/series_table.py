@@ -706,34 +706,34 @@ def get_quoted_channel(x_quantity, y_quantity, expressions):
     return ""
 
 
-def get_slot_headings(axis, axis_name, slots):
+def get_slot_headings(axis, kind, slots):
     """
-    Return the column heading for each channel one axis binds.
+    Return the column heading for each channel or photometry one axis binds.
 
-    Named for the axis as well as the quantity because the two axes may
-    name one quantity -- comparing a diagnostic between channels is
-    exactly that -- and two columns headed alike would say nothing. Where
-    an axis binds several channels the heading is the reference as the
-    definition writes it, so a column can be matched to the text it fills
-    in.
+    Named for the axis, since the two axes' slots are unrelated however
+    alike they are written, and for what the column binds. Not for the
+    quantity: the section header and the x selector name those already,
+    and the column is only as wide as its heading needs. Where an axis
+    binds several the heading is the slot as the definition writes it, so
+    a column can be matched to the text it fills in.
 
     Args:
         axis(str):    Which axis these columns belong to.
 
-        axis_name(str):    The quantity as the selector names it, which
-            for the quantile family is the family rather than a member:
-            the table has one header for all of them.
+        kind(str):    What the columns bind: ``channel`` or
+            ``photometry``.
 
-        slots(list):    What :func:`get_axis_slots` returned for the axis.
+        slots(list):    What :func:`get_axis_slots` returned for the axis,
+            for that kind.
 
     Returns:
-        list:    One heading per channel to bind.
+        list:    One heading per slot to bind.
     """
 
     if len(slots) == 1:
-        return [f"{axis}: {axis_name}"]
+        return [f"{axis}: {kind}"]
 
-    return [f"{axis}: {axis_name}[{parameter}]" for parameter, _ in slots]
+    return [f"{axis}: {kind}[{parameter}]" for parameter, _ in slots]
 
 
 def get_slot_options(columns, fixed, db_session):
@@ -1410,20 +1410,18 @@ def get_available_series(
     # either way -- it is known for every image of the session and so
     # constrains nothing.
     per_axis = [
-        (axis, quantity_name, *get_axis_slots(quantity_name, expressions))
+        (axis, *get_axis_slots(quantity_name, expressions))
         for axis, quantity_name in (("x", x_quantity), ("y", y_quantity))
     ]
     channel_headings = [
         heading
-        for axis, axis_name, channel_slots, _ in per_axis
-        for heading in get_slot_headings(axis, axis_name, channel_slots)
+        for axis, channel_slots, _ in per_axis
+        for heading in get_slot_headings(axis, "channel", channel_slots)
     ]
     photometry_headings = [
         heading
-        for axis, axis_name, _, photometry_slots in per_axis
-        for heading in get_slot_headings(
-            f"{axis} photometry", axis_name, photometry_slots
-        )
+        for axis, _, photometry_slots in per_axis
+        for heading in get_slot_headings(axis, "photometry", photometry_slots)
     ]
     row_options = get_row_options(
         y_quantity,
