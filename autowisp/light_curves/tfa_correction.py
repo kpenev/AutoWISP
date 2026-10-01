@@ -431,9 +431,7 @@ class TFACorrection(Correction):
 
         result = []
         for photometry_index in range(num_photometries):
-            selected = select_template_stars(
-                allowed_stars[:, photometry_index]
-            )
+            selected = select_template_stars(allowed_stars[:, photometry_index])
             result.append(selected)
 
             # Stages 5-7 (remaining per-channel cuts) at debug.
@@ -503,6 +501,19 @@ class TFACorrection(Correction):
 
         return result
 
+    @staticmethod
+    def _add_intercept(templates):
+        """
+        Return the templates with a constant template appended as last column.
+
+        Template and target are each centred by their median, which, unlike
+        the mean, does not carry through a linear combination: even a target
+        that is exactly a combination of templates is off by a constant
+        once centred, which only an intercept can fit.
+        """
+
+        return numpy.column_stack((templates, numpy.ones(templates.shape[0])))
+
     def _get_observation_ids(self, light_curve, substitutions):
         """Return the observation IDs from the given light curve."""
 
@@ -547,12 +558,12 @@ class TFACorrection(Correction):
 
         try:
             return self._configuration["lc_fname"].format(
-                *source_id, PROJHOME=self._configuration['project_home']
-                )
+                *source_id, PROJHOME=self._configuration["project_home"]
+            )
         except TypeError:
             return self._configuration["lc_fname"].format(
-                source_id, PROJHOME=self._configuration['project_home']
-                )
+                source_id, PROJHOME=self._configuration["project_home"]
+            )
 
     # Organized into pieces as much as I could figure out how to.
     # pylint: disable=too-many-locals
@@ -1009,7 +1020,9 @@ class TFACorrection(Correction):
         # pylint: disable=unexpected-keyword-arg
         self._template_qrp = [
             scipy.linalg.qr(
-                template_measurements, mode="economic", pivoting=True
+                self._add_intercept(template_measurements),
+                mode="economic",
+                pivoting=True,
             )
             for template_measurements in self.template_measurements
         ]
@@ -1152,15 +1165,19 @@ class TFACorrection(Correction):
                         self._template_qrp[fit_index][2], exclude_template_index
                     ),
                 )
-                fit_templates = numpy.delete(
-                    self.template_measurements[fit_index],
-                    exclude_template_index,
-                    axis=1,
+                fit_templates = self._add_intercept(
+                    numpy.delete(
+                        self.template_measurements[fit_index],
+                        exclude_template_index,
+                        axis=1,
+                    )
                 )
             else:
                 exclude_template_index = None
                 apply_qrp = self._template_qrp[fit_index]
-                fit_templates = self.template_measurements[fit_index]
+                fit_templates = self._add_intercept(
+                    self.template_measurements[fit_index]
+                )
 
             self._logger.debug(
                 "Fitting using QRP: %s",
