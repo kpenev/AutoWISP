@@ -206,6 +206,13 @@
     cursor: default;
 }
 
+/* A marker scale is a factor of a few significant figures. Left alone,
+ * a text field takes the browser's default of twenty characters, and the
+ * table that width. */
+#diagnostics-table-parent .scale-input {
+    width: 4em;
+}
+
 #diagnostics-table-parent tbody tr.active {
     opacity: 1.0;
     background-color: #336;
