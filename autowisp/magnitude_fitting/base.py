@@ -590,7 +590,7 @@ class MagnitudeFit(ABC):
                 self._dr_fname = dr_fname
                 phot = get_magfit_sources(
                     data_reduction,
-                    magfit_iterations=[-1],
+                    magfit_iterations=[0],
                     **dr_path_substitutions,
                 )
                 self.logger.debug("Starting photometry: %s", repr(phot))
