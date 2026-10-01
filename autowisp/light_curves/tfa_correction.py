@@ -1139,30 +1139,35 @@ class TFACorrection(Correction):
                 exclude_template_index = int(
                     numpy.nonzero(exclude_template)[0][0]
                 )
-                permutted_index = numpy.where(
-                    self._template_qrp[fit_index][2] == exclude_template_index
-                )[0]
+                # [0] first: NumPy 2.4 errors on int() of a 1-element
+                # (non-0-d) array, which numpy.where(...)[0] returns.
+                permutted_index = int(
+                    numpy.where(
+                        self._template_qrp[fit_index][2]
+                        == exclude_template_index
+                    )[0][0]
+                )
                 self._logger.debug(
-                    "Excluding template with index %d (permuted index %s) from "
+                    "Excluding template with index %d (permuted index %d) from "
                     "QRP: %s",
                     exclude_template_index,
-                    repr(permutted_index),
+                    permutted_index,
                     repr(self._template_qrp[fit_index]),
                 )
                 downdated_qrp = scipy.linalg.qr_delete(
                     self._template_qrp[fit_index][0],
                     self._template_qrp[fit_index][1],
-                    # [0] first: NumPy 2.4 errors on int() of a 1-element
-                    # (non-0-d) array, which numpy.where(...)[0] returns.
-                    int(permutted_index[0]),
+                    permutted_index,
                     which="col",
                 )
                 self._logger.debug("Downdated QRP: %s", repr(downdated_qrp))
+                # The QR is of the pivoted columns, so the column deleted
+                # from it is the pivot's entry at the permuted index.
                 apply_qrp = (
                     downdated_qrp[0],
                     downdated_qrp[1],
                     numpy.delete(
-                        self._template_qrp[fit_index][2], exclude_template_index
+                        self._template_qrp[fit_index][2], permutted_index
                     ),
                 )
                 fit_templates = self._add_intercept(
