@@ -23,7 +23,7 @@ def parse_command_line(*args):
     """Parse the commandline optinos to a dictionary."""
 
     return LCDetrendingArgumentParser(
-        mode="TFA", description=__doc__, input_type=("" if args else "lc")
+        mode="TFA", description=__doc__, pipeline=bool(args)
     ).parse_args(*args)
 
 

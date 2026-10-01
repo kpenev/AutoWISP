@@ -24,7 +24,7 @@ def parse_command_line(*args):
         mode="EPDstat",
         description=__doc__,
         add_reconstructive=False,
-        input_type=("" if args else "lc"),
+        pipeline=bool(args),
     ).parse_args(*args)
 
 

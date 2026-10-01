@@ -58,6 +58,7 @@ py_src = [
   'test_templates.py',
   'test_timestamp_triggers.py',
   'test_tfa.py',
+  'test_tfa_multi_channel.py',
   'test_tfa_num_templates.py',
 ]
 

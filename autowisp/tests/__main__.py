@@ -39,6 +39,7 @@ from autowisp.tests.test_fit_magnitudes import TestFitMagnitudes
 from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
 from autowisp.tests.test_epd import TestEPD
 from autowisp.tests.test_tfa import TestTFA
+from autowisp.tests.test_tfa_multi_channel import TestTFAMultiChannel
 from autowisp.tests.test_tfa_num_templates import (
     TestTemplateSourceIdsVlen,
     TestTemplateSelectionDiagnostics,

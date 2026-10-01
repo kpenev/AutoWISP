@@ -139,6 +139,8 @@ class StepCreator:
                     "extra-config-file",
                     "split-channels",
                     "project-home",
+                    # Set by the engine for each run, never configured.
+                    "qc-exclude-file",
                 ]
                 and not param.endswith("-only-if")
                 and not param.endswith("-version")

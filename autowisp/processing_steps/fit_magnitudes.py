@@ -214,6 +214,28 @@ def parse_command_line(*args):
         "deviating by more than this many times the median absolute deviation "
         "from the median across frames are rejected. Default: %(default)s",
     )
+    parser.add_argument(
+        "--qc-exclude-file",
+        default=None,
+        help="A file listing the DR files to leave out of the master "
+        "photometric reference, one per line. Excluded DR files are still "
+        "fit. The pipeline writes this file from the step's exclusion rule; a "
+        "stand-alone run may supply one written by hand. If unspecified, "
+        "nothing is excluded.",
+    )
+    if args:
+        parser.add_argument(
+            "--magfit-exclusion-rule",
+            default=None,
+            help="A boolean expression over the image diagnostics and the "
+            "project's diagnostic expressions, true for the images to leave "
+            "out of the master photometric reference, e.g. ``(cloud[0] > 0.3)"
+            " | (srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript "
+            "stands for the channel being decided for, a quoted channel name "
+            "for that channel. The pipeline evaluates it to produce the "
+            "exclusion list. Excluded images are still fit. If unset, nothing "
+            "is excluded.",
+        )
     return parser.parse_args(*args)
 
 
