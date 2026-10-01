@@ -52,12 +52,13 @@ function selectSymbol(event)
         updateFigure();
 }
 
-function getRowChannels(row)
+function getRowBindings(row, kind)
 {
-    // A fixed channel is text rather than a dropdown, since there is
-    // nothing to choose; either way the cell says what the row binds.
-    return Array.from(row.querySelectorAll(".slot-cell")).map(
-        (cell) => cell.dataset.channel
+    // What the row's channel or photometry cells, as *kind* says, bind. A
+    // settled cell is text rather than a dropdown, since there is nothing
+    // to choose; either way the cell says what the row binds.
+    return Array.from(row.querySelectorAll("." + kind + "-cell")).map(
+        (cell) => cell.dataset.value
                   ?? (cell.querySelector("select") || {}).value
                   ?? ""
     );
@@ -65,8 +66,9 @@ function getRowChannels(row)
 
 function isRowBound(row)
 {
-    const channels = getRowChannels(row);
-    return channels.every((channel) => channel !== "");
+    return ["channel", "photometry"].every(
+        (kind) => getRowBindings(row, kind).every((value) => value !== "")
+    );
 }
 
 function getSelectedDatasets()
@@ -88,7 +90,8 @@ function getSelectedDatasets()
             // posts back what the dropdown says and the server takes it
             // apart, as it does the row id.
             "pair": row.querySelector(".pair-select").value,
-            "channels": getRowChannels(row),
+            "channels": getRowBindings(row, "channel"),
+            "photometries": getRowBindings(row, "photometry"),
             "color": color.value,
             "marker": marker,
             "scale": document.getElementById(
@@ -191,11 +194,12 @@ function applyTableResponse(data)
 
     if ( data.slot_cells !== undefined && count ) {
         // Replaced rather than edited: the number of columns never
-        // changes, but which channels each may offer does, and the server
-        // renders them so that the page keeps one renderer for a cell.
-        // They sit between the session times and the count, which is what
-        // the count cell is used to find.
-        for ( const cell of row.querySelectorAll(".slot-cell") )
+        // changes, but which channels and photometries each may offer
+        // does, and the server renders them so that the page keeps one
+        // renderer for a cell. They sit between the session times and the
+        // count, which is what the count cell is used to find.
+        for ( const cell of
+              row.querySelectorAll(".channel-cell, .photometry-cell") )
             cell.remove();
         count.insertAdjacentHTML("beforebegin", data.slot_cells);
         wireSlotCells(row);
@@ -566,7 +570,7 @@ function refreshTooltip(event)
     // the server re-renders the cells only once every column is set.
     // Delegated, as refreshSortKey is, so replaced cells need no wiring.
     const select = event.target;
-    if ( !select.matches(".slot-select") || select.selectedIndex < 0 )
+    if ( !select.matches(".channel-select") || select.selectedIndex < 0 )
         return;
     select.title = select.options[select.selectedIndex].title;
 }
@@ -575,7 +579,8 @@ function wireSlotCells(row)
 {
     // Called again whenever the server replaces these cells, which it does
     // every time the row's pair changes.
-    for ( const select of row.querySelectorAll(".slot-cell select") ) {
+    for ( const select of
+          row.querySelectorAll(".channel-cell select, .photometry-cell select") ) {
         select.addEventListener("click", stopClick);
         select.addEventListener("change", onRowChange);
     }

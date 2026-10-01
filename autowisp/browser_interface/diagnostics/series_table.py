@@ -25,9 +25,13 @@ from sqlalchemy import select
 from django.template.loader import render_to_string
 
 from autowisp.browser_interface.core.plot_utils import channel_colors
-from autowisp.diagnostics.diagnostic_types import magfit_diagnostic_names
+from autowisp.diagnostics.diagnostic_types import (
+    magfit_diagnostic_names,
+    photometry_literal,
+)
 from autowisp.diagnostics.expression_series import SeriesKey
 from autowisp.diagnostics.image_counts import (
+    count_images_per_photometry,
     count_images_with_all,
     count_images_with_channels,
 )
@@ -35,6 +39,8 @@ from autowisp.diagnostics.expressions import (
     get_channel_parameters,
     get_needed_values,
     get_channel_arity,
+    get_photometry_arity,
+    get_photometry_parameters,
     get_quoted_channel_order,
 )
 
@@ -125,7 +131,7 @@ def split_pair_id(pair_id):
     return int(session_id), image_type
 
 
-def make_slot_value(channel, photref):
+def make_channel_value(channel, photref):
     """
     Return what one option of a channel column posts.
 
@@ -145,7 +151,7 @@ def make_slot_value(channel, photref):
     return channel if photref is None else make_id(channel, photref)
 
 
-def split_slot_value(value):
+def split_channel_value(value):
     """
     Return ``(channel, photref)`` from what a channel column posted.
 
@@ -158,6 +164,18 @@ def split_slot_value(value):
     return channel, (int(photref) if photref else None)
 
 
+def parse_photometry_value(value):
+    """
+    Return the photometry id a photometry column posted, or ``None``.
+
+    An option posts its id as text, and an unset column ``""``, which is
+    ``None`` here: every id, the shape fit's ``-1`` and aperture ``0``
+    included, is a valid binding, so nothing but ``None`` can mean unset.
+    """
+
+    return int(value) if value != "" else None
+
+
 def get_series_key(series):
     """
     Return the population one posted row draws from, and what it binds.
@@ -168,26 +186,36 @@ def get_series_key(series):
     reading a stale value.  What the id carries instead is the quantity,
     which the row cannot change.
 
-    Each channel column posts what :func:`make_slot_value` built: its
+    Each channel column posts what :func:`make_channel_value` built: its
     channel, and its photometric reference where it has one. They are
-    split here into the key's channels and references.
+    split here into the key's channels and references. Each photometry
+    column posts a photometry id.
 
     Args:
         series(dict):    One row as the client posted it back.
 
     Returns:
         SeriesKey:    What the row identifies, with empty channels where
-            its dropdowns are still unset.
+            its dropdowns are still unset, and no photometries where any
+            photometry column is: a key holds ids, and there is no id
+            meaning unset.
     """
 
     session_id, image_type = split_pair_id(series["pair"])
-    bindings = [split_slot_value(value) for value in series.get("channels", ())]
+    channel_bindings = [
+        split_channel_value(value) for value in series.get("channels", ())
+    ]
+    photometries = [
+        parse_photometry_value(value)
+        for value in series.get("photometries", ())
+    ]
 
     return SeriesKey(
         session_id,
         image_type,
-        tuple(channel for channel, _ in bindings),
-        photrefs=tuple(photref for _, photref in bindings),
+        tuple(channel for channel, _ in channel_bindings),
+        photometries=(() if None in photometries else photometries),
+        photrefs=tuple(photref for _, photref in channel_bindings),
     )
 
 
@@ -238,11 +266,19 @@ def next_row_id(row, row_ids):
     return make_id(quantity, max(taken, default=-1) + 1)
 
 
-# Six things a row is made of, each named at the call site. Grouping them
+# Seven things a row is made of, each named at the call site. Grouping them
 # would only move the list somewhere less visible.
 # pylint: disable=too-many-arguments
 def make_series(
-    row_id, series_key, options, slots, count, *, marker, quoted_channel
+    row_id,
+    series_key,
+    options,
+    channel_slots,
+    count,
+    *,
+    photometry_slots,
+    marker,
+    quoted_channel,
 ):
     """
     Build the entry describing one row of the series table.
@@ -262,11 +298,14 @@ def make_series(
             the row rather than read from the page's context, so that a row
             can be rendered on its own.
 
-        slots(list):    One cell per channel the axes bind, as
-            :func:`make_slot_cells` builds them.
+        channel_slots(list):    One cell per channel the axes bind, as
+            :func:`make_channel_cells` builds them.
 
         count(int):    The number of images contributing, or ``None``
             where nothing is bound yet and there is nothing to count.
+
+        photometry_slots(list):    One cell per photometry the axes bind,
+            as :func:`make_photometry_cells` builds them.
 
         marker(str):    What the row is drawn with to begin with, which
             its section decides: the default tells quantities apart by
@@ -274,7 +313,8 @@ def make_series(
             afterwards, like the colour.
 
         quoted_channel(str):    What :func:`get_quoted_channel` returned
-            for the row's axes, which it is shown in if *slots* is empty.
+            for the row's axes, which it is shown in if *channel_slots* is
+            empty.
 
     Returns:
         dict:    A series entry with the keys expected by
@@ -284,11 +324,15 @@ def make_series(
 
     pair = make_id(series_key.session_id, series_key.image_type)
     chosen = next(option for option in options if option["value"] == pair)
-    shown = series_key.channel if slots else quoted_channel
+    shown = series_key.channel if channel_slots else quoted_channel
 
     return {
         "id": row_id,
-        "channels": list(series_key.channels),
+        # What the row's cells post, as the client would post them: the
+        # entry of an added row is drawn before the client has posted it,
+        # and a bare channel would drop the reference its cell binds.
+        "channels": [slot["value"] for slot in channel_slots],
+        "photometries": [cell["value"] for cell in photometry_slots],
         "color": channel_colors.get(
             shown[0].upper() if shown else "",
             "#ffffff",
@@ -300,14 +344,15 @@ def make_series(
         # redundant, but prefixing always keeps the rule simple, and the
         # label is the user's to rewrite either way. Then what each channel
         # cell says it binds, which names a reference as far as the table
-        # does -- enough to tell two rows differing only in it apart.
+        # does -- enough to tell two rows differing only in it apart -- and
+        # what each photometry cell does.
         "label": " ".join(
             [
                 split_row_id(row_id)[0],
                 chosen["text"],
                 *(
-                    [slot["label"] for slot in slots]
-                    if series_key.channels
+                    [slot["label"] for slot in channel_slots + photometry_slots]
+                    if count is not None
                     else []
                 ),
             ]
@@ -320,7 +365,8 @@ def make_series(
         "start": chosen["start"],
         "end": chosen["end"],
         "options": options,
-        "slots": slots,
+        "channel_slots": channel_slots,
+        "photometry_slots": photometry_slots,
         "count": "-" if count is None else count,
     }
 
@@ -328,7 +374,7 @@ def make_series(
 # pylint: enable=too-many-arguments
 
 
-class Column(NamedTuple):
+class ChannelColumn(NamedTuple):
     """
     One channel column of the series table: what it reads, and where.
 
@@ -354,12 +400,92 @@ class Column(NamedTuple):
 
         return not self.needed.isdisjoint(magfit_diagnostic_names())
 
+    def count_options(self, db_session):
+        """
+        Yield each option the column has, with how many images it draws.
+
+        Each (channel, photref) the images recording :attr:`needed` are
+        bound to, where the column reads a diagnostic ``fit_magnitudes``
+        produces, and each channel alone otherwise; of a quoted column,
+        only those of its channel.
+
+        Yields:
+            tuple:    ``(session_label, session_id, image_type, option,
+                count)``, the option ``(channel, photref)``, the photref
+                ``None`` for a column binding channels alone.
+        """
+
+        for (
+            label,
+            session_id,
+            image_type,
+            channel,
+            *photref,
+            count,
+        ) in count_images_with_all(
+            self.needed, db_session, by_reference=self.by_reference
+        ):
+            if self.quoted in (None, channel):
+                yield label, session_id, image_type, (
+                    channel,
+                    photref[0] if photref else None,
+                ), count
+
+
+class PhotometryColumn(NamedTuple):
+    """
+    One photometry column of the series table: what it reads.
+
+    One per photometry parameter of the two axes. Apart from the channel
+    columns rather than folded into their options: a photometry belongs to
+    no channel, every image having every photometry in every channel, so
+    two reads in one channel may be bound to two photometries.
+
+    Hashable, being what a table's options are keyed by.
+    """
+
+    #: The diagnostics read in the column's photometry, in whichever
+    #: channels.
+    needed: frozenset
+
+    def count_options(self, db_session):
+        """
+        Yield each option the column has, with how many images it draws.
+
+        Each photometry the images record every one of :attr:`needed` in.
+
+        Yields:
+            tuple:    ``(session_label, session_id, image_type, option,
+                count)``, the option a photometry id.
+        """
+
+        yield from count_images_per_photometry(self.needed, db_session)
+
+
+class _PhotometryParameter(NamedTuple):
+    """
+    A photometry column, standing in for the photometry it binds.
+
+    What an axis is walked with where it takes photometries, as it is
+    walked with a column index where it takes channels. A type of its own
+    rather than the index, because the walk resolves a quoted photometry
+    to its id, an int: walked with indices,
+    ``magfit_residual[0][0] - magfit_residual[0]['ap0']`` would come back
+    as two reads in photometry ``0``, one bound by column 0 and one quoted,
+    and nothing would tell them apart. Channels need no such thing, a
+    quoted channel staying a string.
+    """
+
+    #: The column's position among the photometry columns.
+    column: int
+
 
 def _walk_axis(quantity, expressions):
-    """Return what one axis reads: per column, and in quoted channels.
+    """Return what one axis reads, and in which columns.
 
-    Walked with a *column index* standing in for each channel. A
-    reference's arguments are matched against the definition's parameters
+    Walked with a *column index* standing in for each channel, and a
+    :class:`_PhotometryParameter` for each photometry. A reference's
+    arguments are matched against the definition's parameters
     positionally, so whatever is passed here is what comes back at the
     leaves: passing columns asks which column each diagnostic is read in,
     whatever numbers the expression happened to write.
@@ -367,53 +493,71 @@ def _walk_axis(quantity, expressions):
 
     A quoted channel comes back as itself rather than as a column, which
     is what tells the two apart: ``bg_center[3] / bg_center['G0']`` reads
-    ``bg_center`` in column 0 and, fixed, in ``G0``.
+    ``bg_center`` in column 0 and, fixed, in ``G0``. A quoted photometry
+    comes back as its id.
 
     Returns:
         tuple:
-            tuple:    The quantity's parameters, as the definition numbers
-                them; ``None`` each for a diagnostic, which has no
+            tuple:    The quantity's channel parameters, as the definition
+                numbers them; ``None`` each for a diagnostic, which has no
                 numbering of its own.
 
-            dict:    ``{column: set of diagnostic names}``.
+            tuple:    Its photometry parameters, likewise.
 
-            set:    ``(diagnostic, channel)`` pairs read in a quoted
-                channel, whatever the columns are bound to.
+            set:    ``(diagnostic, channel, photometry)`` reads: the
+                channel a column index or a quoted channel, and the
+                photometry ``None`` for a diagnostic recorded per image, a
+                :class:`_PhotometryParameter` or a quoted photometry's id.
     """
 
     if quantity in expressions:
-        parameters = get_channel_parameters(expressions[quantity])
+        channel_parameters = get_channel_parameters(expressions[quantity])
+        photometry_parameters = get_photometry_parameters(expressions[quantity])
     else:
-        # A diagnostic binds one channel and numbers it nothing; the time
-        # binds none. Asked rather than derived, neither arity coming from
-        # a definition -- and asking is also what refuses a name that
+        # A diagnostic binds one channel and numbers it nothing, and one
+        # photometry where it is recorded per photometry; the time binds
+        # neither. Asked rather than derived, no arity coming from a
+        # definition -- and asking is also what refuses a name that
         # resolves to nothing at all.
-        parameters = (None,) * get_channel_arity(quantity, expressions)
+        channel_parameters = (None,) * get_channel_arity(quantity, expressions)
+        photometry_parameters = (None,) * get_photometry_arity(
+            quantity, expressions
+        )
 
-    columns = tuple(range(len(parameters)))
-    reads = {column: set() for column in columns}
-    fixed = set()
-    for name, bindings in get_needed_values(
-        {quantity: {columns}}, expressions
+    walked_with = (
+        tuple(range(len(channel_parameters))),
+        tuple(map(_PhotometryParameter, range(len(photometry_parameters)))),
+    )
+    reads = set()
+    for name, read_in in get_needed_values(
+        {quantity: {walked_with}}, expressions
     ).items():
-        for binding in bindings:
-            for channel in binding:
-                if isinstance(channel, str):
-                    fixed.add((name, channel))
-                else:
-                    reads[channel].add(name)
+        for channel_refs, photometry_refs in read_in:
+            # The time, which reads nothing worth counting. Anything else
+            # is a diagnostic, taking one channel and at most one
+            # photometry.
+            if not channel_refs:
+                continue
+            reads.add(
+                (
+                    name,
+                    channel_refs[0],
+                    photometry_refs[0] if photometry_refs else None,
+                )
+            )
 
-    return parameters, reads, fixed
+    return channel_parameters, photometry_parameters, reads
 
 
 def get_axis_slots(quantity, expressions):
     """
-    Return the diagnostics read in each channel one axis binds.
+    Return the diagnostics read in each channel and photometry one axis binds.
 
-    An axis binds one channel per parameter of the quantity it draws, and
-    two axes never share one: their numbers are formal parameters, so the
-    first slot of the x quantity and the first of the y quantity are
-    unrelated, and tying them together would silently couple the axes.
+    An axis binds one channel per channel parameter of the quantity it
+    draws, and one photometry per photometry parameter, and two axes never
+    share one: their numbers are formal parameters, so the first slot of
+    the x quantity and the first of the y quantity are unrelated, and
+    tying them together would silently couple the axes.
 
     Args:
         quantity(str):    The concrete quantity the axis draws, the
@@ -422,31 +566,57 @@ def get_axis_slots(quantity, expressions):
         expressions(dict):    The library, ``{name: expression}``.
 
     Returns:
-        list:    One ``(parameter, needed)`` pair per channel to bind, in
-            column order: the slot number the definition writes, which
-            names the column, and the diagnostics read in it. The
-            parameter is ``None`` for a diagnostic, which has no numbering
-            of its own. Empty for an axis binding nothing: one over the
-            time, or over quoted channels alone.
+        tuple:
+            list:    One ``(parameter, needed)`` pair per channel to bind,
+                in column order: the slot number the definition writes,
+                which names the column, and the diagnostics read in it. The
+                parameter is ``None`` for a diagnostic, which has no
+                numbering of its own. Empty for an axis binding no channel:
+                one over the time, or over quoted channels alone.
+
+            list:    The same per photometry to bind, the diagnostics read
+                in it in whichever channels. Empty for an axis reading
+                nothing per photometry, or only in quoted photometries.
     """
 
-    parameters, reads, _ = _walk_axis(quantity, expressions)
+    channel_parameters, photometry_parameters, reads = _walk_axis(
+        quantity, expressions
+    )
 
-    return [
-        (parameter, frozenset(reads[column]))
-        for column, parameter in enumerate(parameters)
-    ]
+    def slots(parameters, position, stand_in):
+        """Return a ``(parameter, needed)`` pair per column of *parameters*.
+
+        *position* is where a read holds what it is read in, among the
+        channel and the photometry, and *stand_in* what the walk put there
+        for a column.
+        """
+
+        return [
+            (
+                parameter,
+                frozenset(
+                    name
+                    for name, *where in reads
+                    if where[position] == stand_in(column)
+                ),
+            )
+            for column, parameter in enumerate(parameters)
+        ]
+
+    return (
+        slots(channel_parameters, 0, lambda column: column),
+        slots(photometry_parameters, 1, _PhotometryParameter),
+    )
 
 
-def get_fixed_reads(x_quantity, y_quantity, expressions):
+def get_table_reads(x_quantity, y_quantity, expressions):
     """
-    Return what the two axes read in channels no column binds.
+    Return everything the two axes read, in the table's columns.
 
-    A quoted channel is already bound, so it offers no choice and gets no
-    column; but what is read in it still has to be recorded for an image
-    to be drawn. So it narrows the (session, image type) pairs a row may
-    name, and every count, exactly as a column's reads do -- and is what
-    gives a table any rows at all when neither axis binds a column.
+    The axes' reads laid end to end, as their columns are: a column of the
+    y axis comes after all of the x axis's, among the channel columns and
+    among the photometry columns alike. What a row's binding is resolved
+    against, to count what it draws.
 
     Args:
         x_quantity(str):    Quantity on the X axis.
@@ -456,14 +626,58 @@ def get_fixed_reads(x_quantity, y_quantity, expressions):
         expressions(dict):    The library, ``{name: expression}``.
 
     Returns:
-        frozenset:    ``(diagnostic, channel)`` pairs, as
+        frozenset:    ``(diagnostic, channel, photometry)`` reads, as
+            :func:`_walk_axis` returns them, numbering the table's columns
+            rather than an axis's.
+    """
+
+    reads = set()
+    channel_offset = photometry_offset = 0
+    for quantity in (x_quantity, y_quantity):
+        channel_parameters, photometry_parameters, axis_reads = _walk_axis(
+            quantity, expressions
+        )
+        for name, channel, photometry in axis_reads:
+            if not isinstance(channel, str):
+                channel += channel_offset
+            if isinstance(photometry, _PhotometryParameter):
+                photometry = _PhotometryParameter(
+                    photometry.column + photometry_offset
+                )
+            reads.add((name, channel, photometry))
+        channel_offset += len(channel_parameters)
+        photometry_offset += len(photometry_parameters)
+
+    return frozenset(reads)
+
+
+def get_fixed_reads(reads):
+    """
+    Return what the two axes read where no column binds anything.
+
+    A quoted channel is already bound, so it offers no choice and gets no
+    column; but what is read in it still has to be recorded for an image
+    to be drawn. So it narrows the (session, image type) pairs a row may
+    name, exactly as a column's reads do -- and is what gives a table any
+    rows at all when neither axis binds a column.
+
+    A read in a quoted channel and a photometry a column binds is not
+    among them: until the column is bound, there is no photometry to look
+    for it in. The column's options narrow the pairs instead.
+
+    Args:
+        reads(frozenset):    What :func:`get_table_reads` returned.
+
+    Returns:
+        frozenset:    ``(diagnostic, channel, photometry)`` reads, as
             :func:`count_images_with_channels` takes them.
     """
 
     return frozenset(
-        read
-        for quantity in (x_quantity, y_quantity)
-        for read in _walk_axis(quantity, expressions)[2]
+        (name, channel, photometry)
+        for name, channel, photometry in reads
+        if isinstance(channel, str)
+        and not isinstance(photometry, _PhotometryParameter)
     )
 
 
@@ -529,14 +743,17 @@ def get_slot_options(columns, fixed, db_session):
     One aggregate per *distinct* column -- usually one for the whole
     table, since the commonest axis pairs read the same diagnostics in
     every slot -- and one more for the fixed reads, if any. Nothing is
-    evaluated: which channels a column may offer is a question about rows.
+    evaluated: which channels and photometries a column may offer is a
+    question about rows.
 
-    A column reading a diagnostic ``fit_magnitudes`` produces offers each
-    (channel, photref) its images are bound to, counted apart; a quoted
-    column, only those of its channel.
+    What a column offers, and how it is counted, is the column's own:
+    see :meth:`ChannelColumn.count_options` and
+    :meth:`PhotometryColumn.count_options`.
 
     Args:
-        columns(list):    The table's columns, from :func:`get_columns`.
+        columns(list):    The table's columns, channel and photometry
+            columns alike, from :func:`get_channel_columns` and
+            :func:`get_photometry_columns`.
 
         fixed(frozenset):    What :func:`get_fixed_reads` returned.
 
@@ -545,8 +762,8 @@ def get_slot_options(columns, fixed, db_session):
     Returns:
         tuple:
             dict:    One entry per distinct column, holding
-                ``{(session_id, image_type): {(channel, photref): count}}``,
-                the photref ``None`` for a column binding channels alone.
+                ``{(session_id, image_type): {option: count}}``, the
+                options as the column's ``count_options`` gives them.
 
             dict:    ``{session_id: label}``, the same whatever is read.
 
@@ -559,16 +776,15 @@ def get_slot_options(columns, fixed, db_session):
     options = {}
     for column in set(columns):
         by_group = {}
-        for row in count_images_with_all(
-            column.needed, db_session, by_reference=column.by_reference
-        ):
-            label, session_id, image_type, channel = row[:4]
-            if column.quoted not in (None, channel):
-                continue
+        for (
+            label,
+            session_id,
+            image_type,
+            option,
+            count,
+        ) in column.count_options(db_session):
             labels[session_id] = label
-            by_group.setdefault((session_id, image_type), {})[
-                channel, row[4] if column.by_reference else None
-            ] = row[-1]
+            by_group.setdefault((session_id, image_type), {})[option] = count
         options[column] = by_group
 
     fixed_groups = None
@@ -583,16 +799,18 @@ def get_slot_options(columns, fixed, db_session):
     return options, labels, fixed_groups
 
 
-def count_bound_images(columns, bindings, fixed, db_session):
+def count_bound_images(
+    reads, channel_bindings, photometry_bindings, db_session
+):
     """
     Count the images one binding draws on, for every group at once.
 
     The exact question, where :func:`get_slot_options` answers the looser
     one that fills the dropdowns: an image counts when its rows cover
-    every (diagnostic, channel) pair *between them*, which is what a
-    quantity comparing channels needs and what reading each channel on its
-    own cannot say -- and, where the binding names references, when it was
-    fit against each of them, as the series will be restricted to.
+    every read *between them*, which is what a quantity comparing channels
+    or photometries needs and what reading each column on its own cannot
+    say -- and, where the binding names references, when it was fit
+    against each of them, as the series will be restricted to.
 
     Every group is counted in one aggregate rather than one per row, since
     a binding is usually shared -- by every row of a monochrome project at
@@ -600,13 +818,14 @@ def count_bound_images(columns, bindings, fixed, db_session):
     time.
 
     Args:
-        columns(list):    The table's columns, in order.
+        reads(frozenset):    What :func:`get_table_reads` returned.
 
-        bindings(list):    The ``(channel, photref)`` bound in each of
-            those columns, the photref ``None`` where there is none.
+        channel_bindings(list):    The ``(channel, photref)`` bound in each
+            channel column, in order, the photref ``None`` where there is
+            none.
 
-        fixed(frozenset):    What is read in quoted channels, from
-            :func:`get_fixed_reads`, required as well.
+        photometry_bindings(list):    The photometry id bound in each
+            photometry column, in order.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -615,17 +834,20 @@ def count_bound_images(columns, bindings, fixed, db_session):
             groups with anything to draw.
     """
 
+    requirements = set()
+    for name, channel, photometry in reads:
+        if not isinstance(channel, str):
+            channel = channel_bindings[channel][0]
+        if isinstance(photometry, _PhotometryParameter):
+            photometry = photometry_bindings[photometry.column]
+        requirements.add((name, channel, photometry))
+
     return {
         (session_id, image_type): count
         for _, session_id, image_type, count in count_images_with_channels(
-            {
-                (name, channel)
-                for column, (channel, _) in zip(columns, bindings)
-                for name in column.needed
-            }
-            | fixed,
+            requirements,
             db_session,
-            {binding for binding in bindings if binding[1] is not None},
+            {binding for binding in channel_bindings if binding[1] is not None},
         )
     }
 
@@ -681,7 +903,9 @@ def get_reference_paths(options, db_session):
     What a reference is labelled from, and what hovering over it shows.
 
     Args:
-        options(dict):    What :func:`get_slot_options` returned first.
+        options(dict):    What :func:`get_slot_options` returned first,
+            for the channel columns alone: a photometry column's options
+            name no reference.
 
         db_session:    An active SQLAlchemy database session.
 
@@ -787,27 +1011,87 @@ def _label_options(offered, paths):
     return labels
 
 
-def _chosen_option(offered, current):
+def _chosen_option(offered, *candidate_list):
     """
-    Return the option of one column *current* chooses, or ``None``.
+    Return the option of one column the row chooses, or ``None``.
 
-    A column with one option has it chosen, whatever *current* says. A
-    column binding channels alone is matched by the channel: the row's key
-    gives such a slot the reference of another slot on its channel, which
-    names no option of this column.
+    A column with one option has it chosen, whatever the row says.
+    Otherwise the first of *candidate_list* the column offers: what the row
+    binds now, and for a channel column also the channel alone, since the
+    row's key gives a column binding channels alone the reference of
+    another slot on its channel, which names no option of this column.
     """
 
     if len(offered) == 1:
         return next(iter(offered))
 
-    channel, photref = current
-    for candidate in ((channel, photref), (channel, None)):
-        if candidate in offered:
-            return candidate
-    return None
+    return next(
+        (candidate for candidate in candidate_list if candidate in offered),
+        None,
+    )
 
 
-def make_slot_cells(available, bindings, paths):
+def _make_cell(offered, chosen, *, labels, posted, titles):
+    """
+    Return one slot cell of a row, as ``_slot_cell.html`` renders it.
+
+    What a channel column's cell and a photometry column's share: one
+    offering a single option is settled and states it as text, any other
+    is a dropdown starting with an unset entry, and either sorts by what it
+    shows.
+
+    Args:
+        offered(dict):    ``{option: count}``, what the column may bind
+            under the row's pair.
+
+        chosen:    The option the cell binds, or ``None``.
+
+        labels(dict):    ``{option: text}``, what the cell says it binds.
+
+        posted(dict):    ``{option: text}``, what the cell posts for it.
+
+        titles(dict):    ``{option: text}``, what hovering over it shows,
+            missing where nothing does.
+
+    Returns:
+        dict:    The cell, ``binding`` holding *chosen* and ``label`` what
+            the cell says it binds.
+    """
+
+    settled = len(offered) == 1
+    menu = [{"value": "", "text": unset_option_text, "title": ""}] + [
+        {
+            "value": posted[option],
+            "text": f"{labels[option]} ({count})",
+            "title": titles.get(option, ""),
+        }
+        for option, count in sorted(offered.items())
+    ]
+    chosen_value = "" if chosen is None else posted[chosen]
+
+    return {
+        "options": menu,
+        "value": chosen_value,
+        "binding": chosen,
+        "label": "" if chosen is None else labels[chosen],
+        "title": "" if chosen is None else titles.get(chosen, ""),
+        "fixed": settled,
+        # What the column sorts by: what the cell shows, so that sorting
+        # follows the options chosen rather than the run-together text of
+        # a dropdown.
+        "sort": (
+            labels[chosen]
+            if settled
+            else next(
+                entry["text"]
+                for entry in menu
+                if entry["value"] == chosen_value
+            )
+        ),
+    }
+
+
+def make_channel_cells(available, bindings, paths):
     """
     Return what each channel column of one row offers, and what it says.
 
@@ -846,66 +1130,83 @@ def make_slot_cells(available, bindings, paths):
         paths(dict):    ``{photref: path}`` for every reference offered.
 
     Returns:
-        list:    One cell per column, as ``_slot_cells.html`` renders it,
+        list:    One cell per column, as :func:`_make_cell` builds it,
             ``binding`` holding the ``(channel, photref)`` chosen, or
             ``None``, and ``label`` what the cell says it binds.
     """
 
     cells = []
     for column, offered in enumerate(available):
-        labels = _label_options(offered, paths)
-        chosen = _chosen_option(
-            offered, bindings[column] if column < len(bindings) else ("", None)
+        channel, photref = (
+            bindings[column] if column < len(bindings) else ("", None)
         )
-        settled = len(offered) == 1
-
-        options = [{"value": "", "text": unset_option_text, "title": ""}] + [
-            {
-                "value": make_slot_value(*option),
-                "text": f"{labels[option]} ({count})",
-                "title": paths.get(option[1], ""),
-            }
-            for option, count in sorted(offered.items())
-        ]
-        value = "" if chosen is None else make_slot_value(*chosen)
         cells.append(
-            {
-                "options": options,
-                "value": value,
-                "binding": chosen,
-                "label": "" if chosen is None else labels[chosen],
-                "title": "" if chosen is None else paths.get(chosen[1], ""),
-                "fixed": settled,
-                # What the column sorts by: what the cell shows, so that
-                # sorting follows the options chosen rather than the
-                # run-together text of a dropdown.
-                "sort": (
-                    labels[chosen]
-                    if settled
-                    else next(
-                        option["text"]
-                        for option in options
-                        if option["value"] == value
-                    )
-                ),
-            }
+            _make_cell(
+                offered,
+                _chosen_option(offered, (channel, photref), (channel, None)),
+                labels=_label_options(offered, paths),
+                posted={
+                    option: make_channel_value(*option) for option in offered
+                },
+                titles={option: paths.get(option[1], "") for option in offered},
+            )
         )
 
     return cells
+
+
+def make_photometry_cells(available, bindings):
+    """
+    Return what each photometry column of one row offers, and what it says.
+
+    By the rules of :func:`make_channel_cells`: settled where there is a
+    single option, and keeping what the row binds where the row's pair
+    still offers it. An option is a photometry id, called what an
+    expression quotes it as, ``shapefit`` or ``ap2``.
+
+    Pure, so that these rules can be tested without a database or a
+    browser.
+
+    Args:
+        available(list):    What each photometry column may be bound to
+            under this row's pair, ``{photometry: count}`` in column order.
+
+        bindings(tuple):    The photometry id the row binds now per column,
+            ``None`` where it binds none. Empty, or short, for a row whose
+            columns are not all set.
+
+    Returns:
+        list:    One cell per column, as :func:`make_channel_cells` returns
+            them, ``binding`` holding the photometry id chosen.
+    """
+
+    return [
+        _make_cell(
+            offered,
+            _chosen_option(
+                offered, bindings[column] if column < len(bindings) else None
+            ),
+            labels={option: photometry_literal(option) for option in offered},
+            posted={option: str(option) for option in offered},
+            titles={},
+        )
+        for column, offered in enumerate(available)
+    ]
 
 
 def get_pair_options(columns, options, labels, fixed_groups, db_session):
     """
     Return the (session, image type) pairs a row may be drawn for.
 
-    A pair is offered where every channel column has at least one channel
-    to bind, and where some image records everything read in a quoted
-    channel: otherwise a row on it could name no data at all.  Which
-    channel a column takes is chosen in the row afterwards, so a pair is
-    offered once rather than once per binding it could carry.
+    A pair is offered where every column has at least one channel or
+    photometry to bind, and where some image records everything read
+    where no column binds anything: otherwise a row on it could name no
+    data at all.  What a column takes is chosen in the row afterwards, so
+    a pair is offered once rather than once per binding it could carry.
 
     Args:
-        columns(list):    The table's channel columns, in order.
+        columns(list):    The table's columns, channel and photometry
+            columns alike.
 
         options(dict):    What :func:`get_slot_options` returned.
 
@@ -953,15 +1254,17 @@ def get_pair_options(columns, options, labels, fixed_groups, db_session):
     return listed
 
 
-# Six things, none derivable from the others here, and both callers hold
-# all of them. Bundling them would hide what a row depends on.
-# pylint: disable=too-many-arguments
+# Its arguments, none derivable from the others here, and both callers hold
+# all of them. Bundling them would hide what a row depends on; they are
+# also most of its locals.
+# pylint: disable=too-many-arguments,too-many-locals
 def make_row_for_pair(
     row_id,
     series_key,
     *,
     columns,
-    fixed,
+    photometry_columns,
+    reads,
     quoted_channel,
     options,
     paths,
@@ -974,19 +1277,21 @@ def make_row_for_pair(
 
     Shared by the first row of a table and by a row whose pair has just
     changed, both asking the same question: what a row on this pair
-    offers, which of the channels and references it names survive there,
-    and how many images the result draws.
+    offers, which of the channels, references and photometries it names
+    survive there, and how many images the result draws.
 
     Args:
         row_id(str):    What :func:`make_id` returned for this row.
 
-        series_key(SeriesKey):    The pair the row names, and the channels
-            and references it would keep -- those the pair does not offer
-            are dropped.
+        series_key(SeriesKey):    The pair the row names, and the channels,
+            references and photometries it would keep -- those the pair
+            does not offer are dropped.
 
         columns(list):    The table's channel columns.
 
-        fixed(frozenset):    What is read in quoted channels.
+        photometry_columns(list):    Its photometry columns.
+
+        reads(frozenset):    What :func:`get_table_reads` returned.
 
         quoted_channel(str):    What :func:`get_quoted_channel` returned.
 
@@ -1007,43 +1312,52 @@ def make_row_for_pair(
     """
 
     pair = (series_key.session_id, series_key.image_type)
-    slots = make_slot_cells(
+    channel_slots = make_channel_cells(
         [options[column][pair] for column in columns],
         tuple(zip(series_key.channels, series_key.photrefs)),
         paths,
     )
+    photometry_slots = make_photometry_cells(
+        [options[column][pair] for column in photometry_columns],
+        series_key.photometries,
+    )
 
-    bindings = [slot["binding"] for slot in slots]
-    # Vacuously so for a row with no columns at all, whose axes bind no
-    # channel: there is nothing left to choose, so it is counted at once.
-    bound = all(bindings)
+    channel_bindings = [slot["binding"] for slot in channel_slots]
+    photometry_bindings = [slot["binding"] for slot in photometry_slots]
+    # Vacuously so for a row with no columns at all, whose axes bind
+    # nothing: there is nothing left to choose, so it is counted at once.
+    # Compared with None, aperture 0's id being false.
+    bound = all(channel_bindings) and None not in photometry_bindings
     if not bound:
         # A partly bound row binds nothing: it names no data to read, and
         # an empty binding is what the colour and the label branch on.
-        bindings = []
+        channel_bindings = []
+        photometry_bindings = []
 
     return make_series(
         row_id,
         SeriesKey(
             *pair,
-            tuple(channel for channel, _ in bindings),
-            photrefs=tuple(photref for _, photref in bindings),
+            tuple(channel for channel, _ in channel_bindings),
+            photometries=photometry_bindings,
+            photrefs=tuple(photref for _, photref in channel_bindings),
         ),
         pair_options,
-        slots,
+        channel_slots,
         (
-            count_bound_images(columns, bindings, fixed, db_session).get(
-                pair, 0
-            )
+            count_bound_images(
+                reads, channel_bindings, photometry_bindings, db_session
+            ).get(pair, 0)
             if bound
             else None
         ),
+        photometry_slots=photometry_slots,
         marker=marker,
         quoted_channel=quoted_channel,
     )
 
 
-# pylint: enable=too-many-arguments
+# pylint: enable=too-many-arguments,too-many-locals
 
 
 def get_available_series(
@@ -1096,15 +1410,20 @@ def get_available_series(
     # either way -- it is known for every image of the session and so
     # constrains nothing.
     per_axis = [
-        get_axis_slots(quantity_name, expressions)
-        for quantity_name in (x_quantity, y_quantity)
+        (axis, quantity_name, *get_axis_slots(quantity_name, expressions))
+        for axis, quantity_name in (("x", x_quantity), ("y", y_quantity))
     ]
-    headings = [
+    channel_headings = [
         heading
-        for axis, axis_name, slots in zip(
-            ("x", "y"), (x_quantity, y_quantity), per_axis
+        for axis, axis_name, channel_slots, _ in per_axis
+        for heading in get_slot_headings(axis, axis_name, channel_slots)
+    ]
+    photometry_headings = [
+        heading
+        for axis, axis_name, _, photometry_slots in per_axis
+        for heading in get_slot_headings(
+            f"{axis} photometry", axis_name, photometry_slots
         )
-        for heading in get_slot_headings(axis, axis_name, slots)
     ]
     row_options = get_row_options(
         y_quantity,
@@ -1131,7 +1450,7 @@ def get_available_series(
     return {
         "diagnostics_fields": (
             ["Session and Type", "Start (UTC)", "End (UTC)"]
-            + headings
+            + channel_headings
             # Named for the channel alone: one serves every read quoting
             # it, on either axis, however deep in the library.
             + [
@@ -1139,6 +1458,7 @@ def get_available_series(
                 for column in row_options["columns"]
                 if column.quoted is not None
             ]
+            + photometry_headings
             + ["Count"]
         ),
         "pair_options": row_options["pair_options"],
@@ -1146,7 +1466,7 @@ def get_available_series(
     }
 
 
-def get_columns(x_quantity, y_quantity, expressions):
+def get_channel_columns(x_quantity, y_quantity, expressions):
     """Return the channel columns of the table, in order.
 
     The x quantity's slots followed by the y quantity's, concatenated
@@ -1168,37 +1488,65 @@ def get_columns(x_quantity, y_quantity, expressions):
         expressions(dict):    The library, ``{name: expression}``.
 
     Returns:
-        list:    One :class:`Column` per channel column.
+        list:    One :class:`ChannelColumn` per channel column.
     """
 
     magfit = magfit_diagnostic_names()
     quoted = {}
     for quantity_name in (x_quantity, y_quantity):
-        fixed = _walk_axis(quantity_name, expressions)[2]
+        reads = _walk_axis(quantity_name, expressions)[2]
         for channel in get_quoted_channel_order(quantity_name, expressions):
-            read = {
+            magfit_read = {
                 name
-                for name, read_in in fixed
+                for name, read_in, _ in reads
                 if read_in == channel and name in magfit
             }
-            if read:
-                quoted.setdefault(channel, set()).update(read)
+            if magfit_read:
+                quoted.setdefault(channel, set()).update(magfit_read)
 
     return [
-        Column(needed)
+        ChannelColumn(needed)
         for quantity_name in (x_quantity, y_quantity)
-        for _, needed in get_axis_slots(quantity_name, expressions)
-    ] + [Column(frozenset(read), channel) for channel, read in quoted.items()]
+        for _, needed in get_axis_slots(quantity_name, expressions)[0]
+    ] + [
+        ChannelColumn(frozenset(magfit_read), channel)
+        for channel, magfit_read in quoted.items()
+    ]
+
+
+def get_photometry_columns(x_quantity, y_quantity, expressions):
+    """Return the photometry columns of the table, in order.
+
+    The x quantity's photometry slots followed by the y quantity's, as
+    :func:`get_channel_columns` lays out the channel slots. A quoted
+    photometry gets none: it is already bound.
+
+    Args:
+        x_quantity(str):    Quantity on the X axis.
+
+        y_quantity(str):    Quantity on the Y axis.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        list:    One :class:`PhotometryColumn` per photometry column.
+    """
+
+    return [
+        PhotometryColumn(needed)
+        for quantity_name in (x_quantity, y_quantity)
+        for _, needed in get_axis_slots(quantity_name, expressions)[1]
+    ]
 
 
 def get_row_options(y_quantity, *, x_quantity, expressions, db_session):
     """
     Return what a row drawing one quantity against the page's x is built from.
 
-    The four things that have to be worked out before any row can be
-    built: what each channel column reads, what is read in quoted channels,
-    what each column may be bound to, and the (session, image type) pairs
-    the row may name.
+    The things that have to be worked out before any row can be built:
+    what each channel and photometry column reads, what the axes read
+    altogether, what each column may be bound to, and the (session, image
+    type) pairs the row may name.
 
     Args:
         y_quantity(str):    The quantity the row draws, from its id.
@@ -1210,26 +1558,37 @@ def get_row_options(y_quantity, *, x_quantity, expressions, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        dict:    ``columns``, ``fixed``, ``quoted_channel``, ``options``,
-            ``paths`` and ``pair_options``, as :func:`get_columns`,
-            :func:`get_fixed_reads`, :func:`get_quoted_channel`,
-            :func:`get_slot_options`, :func:`get_reference_paths` and
-            :func:`get_pair_options` return them -- keyed as
-            :func:`make_row_for_pair` takes them.
+        dict:    ``columns``, ``photometry_columns``, ``reads``,
+            ``quoted_channel``, ``options``, ``paths`` and
+            ``pair_options``, as :func:`get_channel_columns`,
+            :func:`get_photometry_columns`, :func:`get_table_reads`,
+            :func:`get_quoted_channel`, :func:`get_slot_options`,
+            :func:`get_reference_paths` and :func:`get_pair_options` return
+            them -- keyed as :func:`make_row_for_pair` takes them.
     """
 
-    columns = get_columns(x_quantity, y_quantity, expressions)
-    fixed = get_fixed_reads(x_quantity, y_quantity, expressions)
-    options, labels, fixed_groups = get_slot_options(columns, fixed, db_session)
+    columns = get_channel_columns(x_quantity, y_quantity, expressions)
+    channel_count = len(columns)
+    columns += get_photometry_columns(x_quantity, y_quantity, expressions)
+    reads = get_table_reads(x_quantity, y_quantity, expressions)
+    options, labels, fixed_groups = get_slot_options(
+        columns, get_fixed_reads(reads), db_session
+    )
 
     return {
-        "columns": columns,
-        "fixed": fixed,
+        "columns": columns[:channel_count],
+        "photometry_columns": columns[channel_count:],
+        "reads": reads,
         "quoted_channel": get_quoted_channel(
             x_quantity, y_quantity, expressions
         ),
         "options": options,
-        "paths": get_reference_paths(options, db_session),
+        # The channel columns alone: a photometry column's options name
+        # no reference.
+        "paths": get_reference_paths(
+            {column: options[column] for column in columns[:channel_count]},
+            db_session,
+        ),
         "pair_options": get_pair_options(
             columns, options, labels, fixed_groups, db_session
         ),

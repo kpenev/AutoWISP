@@ -48,6 +48,7 @@ py_src = [
   'test_photref_binding.py',
   'test_project_creation_guard.py',
   'test_provenance_resolver.py',
+  'test_reference_columns.py',
   'test_related_files.py',
   'test_series_references.py',
   'test_solve_astrometry.py',

@@ -36,7 +36,7 @@ from autowisp.browser_interface.diagnostics.quantities import (
 from autowisp.browser_interface.diagnostics.series_table import (
     get_series_key,
     make_id,
-    make_slot_cells,
+    make_channel_cells,
     next_row_id,
     split_pair_id,
     split_row_id,
@@ -273,7 +273,7 @@ class TestSectionMarkers(unittest.TestCase):
         )
 
 
-class TestSlotCells(unittest.TestCase):
+class TestChannelCells(unittest.TestCase):
     """What each channel column of a row offers, and what a move keeps.
 
     Pure, so the rules can be checked without a database or a browser.
@@ -287,13 +287,13 @@ class TestSlotCells(unittest.TestCase):
 
     @staticmethod
     def _cells(available, *bindings):
-        """Return :func:`make_slot_cells`, knowing no reference's path.
+        """Return :func:`make_channel_cells`, knowing no reference's path.
 
         What a reference is called is checked by looking at the page; what
         is bound does not depend on it.
         """
 
-        return make_slot_cells(available, bindings, {})
+        return make_channel_cells(available, bindings, {})
 
     def test_a_column_with_one_channel_is_settled(self):
         """Asking for a click with one possible outcome is ceremony."""

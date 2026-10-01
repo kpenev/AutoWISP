@@ -1,0 +1,33 @@
+{% comment %} One slot cell of a row of the series table: a channel
+column's, or a photometry column's, which behave alike.
+
+Takes two context variables: `slot`, as `_make_cell` builds it, and
+`kind`, `channel` or `photometry`, which names the cell's classes -- the
+client reads a row's channels from its `channel-cell`s and its
+photometries from its `photometry-cell`s.
+{% endcomment %}
+{% if slot.fixed %}
+{% comment %} A column with one option is no choice at all, so the cell
+   states what it binds rather than asking, and says so in `data-value`,
+   which is where the client reads a settled binding from -- for a channel
+   column the channel, and the photometric reference where the column
+   binds one, which the text need not name but the `title` shows on hover.
+{% endcomment %}
+<td class="{{ kind }}-cell" data-sort="{{ slot.sort }}" data-value="{{ slot.value }}"
+    {% if slot.title %}title="{{ slot.title }}"{% endif %}>
+    {{ slot.label }}
+</td>
+{% else %}
+{% comment %} Each option's `title` is its reference's path, and the
+   dropdown's is the chosen one's, which the client keeps current as the
+   choice changes. Empty for a photometry column, which has none.
+{% endcomment %}
+<td class="{{ kind }}-cell" data-sort="{{ slot.sort }}">
+    <select class="{{ kind }}-select" title="{{ slot.title }}">
+        {% for option in slot.options %}
+        <option value="{{ option.value }}" title="{{ option.title }}"
+                {% if option.value == slot.value %}selected{% endif %}>{{ option.text }}</option>
+        {% endfor %}
+    </select>
+</td>
+{% endif %}

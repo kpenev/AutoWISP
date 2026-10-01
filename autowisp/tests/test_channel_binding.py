@@ -65,7 +65,6 @@ from autowisp.browser_interface.diagnostics.series_table import (
     make_id,
     split_pair_id,
 )
-from autowisp.tests.test_series_references import ReferenceProject
 
 # pylint: enable=wrong-import-position
 
@@ -283,12 +282,12 @@ class TestChannelColumns(TwoChannelProject):
         row = self.first_row("jd", "bg_center")
 
         self.assertEqual(split_pair_id(row["pair"])[0], self.session_id)
-        self.assertEqual(len(row["slots"]), 1)
-        self.assertFalse(row["slots"][0]["fixed"])
+        self.assertEqual(len(row["channel_slots"]), 1)
+        self.assertFalse(row["channel_slots"][0]["fixed"])
         self.assertEqual(
             [
                 (option["value"], option["text"])
-                for option in row["slots"][0]["options"]
+                for option in row["channel_slots"][0]["options"]
                 if option["value"]
             ],
             [
@@ -302,7 +301,7 @@ class TestChannelColumns(TwoChannelProject):
         """Two axes over a diagnostic ask for two channels, not one."""
 
         self.assertEqual(
-            len(self.first_row("bg_center", "bg_center")["slots"]), 2
+            len(self.first_row("bg_center", "bg_center")["channel_slots"]), 2
         )
 
 
@@ -364,7 +363,7 @@ class TestRebinding(TwoChannelProject):
 
         response = self.rebind(self.first_row("jd", "bg_center"), "")
 
-        self.assertIn('data-channel="R"', response["slot_cells"])
+        self.assertIn('data-value="R"', response["slot_cells"])
         self.assertEqual(response["count"], len(self.mono_values))
 
     def test_a_rebinding_carries_the_session_times(self):
@@ -407,7 +406,7 @@ class TestRebinding(TwoChannelProject):
         response = self.rebind(self.first_row("jd", "bg_center"), "B")
 
         self.assertNotIn("B", response["slot_cells"])
-        self.assertIn('data-channel="R"', response["slot_cells"])
+        self.assertIn('data-value="R"', response["slot_cells"])
 
     def test_nothing_is_answered_without_a_rebound_row(self):
         """Which is every other redraw: a colour, a marker, a row toggled.
@@ -563,7 +562,7 @@ class TestAddedRow(TwoChannelProject):
             'class="add-row"',
             'class="remove-row"',
             'class="pair-select"',
-            'class="slot-cell"',
+            'class="channel-cell"',
             'class="series-count"',
         ):
             self.assertIn(expected, fields["added_row"])
@@ -599,7 +598,7 @@ class TestFixedChannelReads(TwoChannelProject):
 
         row = self.table("jd", "against_b")["diagnostics_list"][0]
 
-        self.assertEqual(len(row["slots"]), 1)
+        self.assertEqual(len(row["channel_slots"]), 1)
 
     def test_a_quoted_channel_narrows_the_pairs(self):
         """The monochrome session records no ``B``, so is not offered."""
@@ -619,7 +618,7 @@ class TestFixedChannelReads(TwoChannelProject):
 
         self.assertEqual(len(table["diagnostics_list"]), 1)
         row = table["diagnostics_list"][0]
-        self.assertEqual(row["slots"], [])
+        self.assertEqual(row["channel_slots"], [])
         self.assertEqual(row["count"], len(self.values_of["B"]))
         self.assertEqual(split_pair_id(row["pair"])[0], self.session_id)
 
@@ -679,10 +678,10 @@ class TestFixedChannelReads(TwoChannelProject):
 class TestTwoChannelSeriesValues(TwoChannelProject):
     """Which of the posted rows are drawn, and what each one reads.
 
-    Named for its fixture rather than for its subject, ``test_expression_series``
-    having a ``TestSeriesValues`` of its own: the suite gathers every test class
-    into one module namespace, where two of a name means one silently replacing
-    the other.
+    Named for its fixture rather than for its subject,
+    ``test_expression_series`` having a ``TestSeriesValues`` of its own: the
+    suite gathers every test class into one module namespace, where two of a
+    name means one silently replacing the other.
     """
 
     def test_which_rows_are_drawn(self):
@@ -776,136 +775,3 @@ class TestTwoChannelSeriesValues(TwoChannelProject):
 
         self.assertEqual(y_values.tolist(), self.values_of["B"])
         self.assertEqual(x_values.tolist(), self.jd_values())
-
-
-class TestReferenceColumns(ReferenceProject):
-    """The table over magfit diagnostics: references chosen in its columns.
-
-    On the night of :mod:`autowisp.tests.test_series_references`, fit
-    against two references in each of two channels, with one frame bound
-    differently in the two and one bound to nothing.
-    """
-
-    #: Reads the offset in its slot's channel and, by quoting it, in B, so
-    #: that a row needs a reference for each.
-    _expressions = {
-        "offset_to_b": "photometry_mag_offset[0] - photometry_mag_offset['B']"
-    }
-
-    def _table(self, y_quantity):
-        """Return the table a section drawing *y_quantity* against jd has."""
-
-        with start_db_session() as db_session:
-            return get_available_series(
-                "jd", y_quantity, self._expressions, db_session, marker="o"
-            )
-
-    def _value(self, channel, reference):
-        """Return what a column posts for *reference* in *channel*."""
-
-        return make_id(channel, self.photref[reference, channel])
-
-    def test_a_magfit_column_offers_its_references(self):
-        """Each (channel, photref) the night's frames are bound to.
-
-        What each is called, and how many frames it draws, are for the page
-        and for the counting tests respectively.
-        """
-
-        cell = self._table("photometry_mag_offset")["diagnostics_list"][0][
-            "slots"
-        ][0]
-
-        self.assertEqual(
-            [option["value"] for option in cell["options"]][1:],
-            [
-                self._value("B", "ref1"),
-                self._value("B", "ref2"),
-                self._value("R", "ref1"),
-                self._value("R", "ref2"),
-            ],
-        )
-
-    def test_a_quoted_magfit_read_gets_a_column_of_its_own(self):
-        """After the slot's, offering only the quoted channel's references."""
-
-        slots = self._table("offset_to_b")["diagnostics_list"][0]["slots"]
-
-        self.assertEqual(len(slots), 2)
-        self.assertEqual(
-            [option["value"] for option in slots[1]["options"]][1:],
-            [self._value("B", "ref1"), self._value("B", "ref2")],
-        )
-
-    def test_a_rebound_row_counts_the_frames_of_its_references(self):
-        """Only those fit against both, as the series will draw."""
-
-        row_id = make_id("offset_to_b", 0)
-        with start_db_session() as db_session:
-            _, answer = get_table_response(
-                {
-                    "datasets": {
-                        row_id: {
-                            "pair": make_id(self.session_id, "object"),
-                            "channels": [
-                                self._value("R", "ref1"),
-                                self._value("B", "ref1"),
-                            ],
-                        }
-                    },
-                    "bind": row_id,
-                },
-                x_quantity="jd",
-                expressions=self._expressions,
-                db_session=db_session,
-            )
-
-        self.assertEqual(
-            answer["count"],
-            len(self.selected(self.image_ids, R="ref1", B="ref1")),
-        )
-
-    def test_a_row_is_drawn_from_its_references(self):
-        """Its tail column posted too, and only the frames fit against both.
-
-        Here the one frame fit against ref2 in R but ref1 in B. A click on
-        a point opens it in the row's channel, R, not in ``R|…``.
-        """
-
-        with start_db_session() as db_session:
-            drawn = collect_series_data(
-                [
-                    {
-                        "id": make_id("offset_to_b", 0),
-                        "pair": make_id(self.session_id, "object"),
-                        "channels": [
-                            self._value("R", "ref2"),
-                            self._value("B", "ref1"),
-                        ],
-                        "marker": "o",
-                    }
-                ],
-                "jd",
-                self._expressions,
-                db_session,
-            )
-
-        # Drawn at all: a row posting more values than its axes take was
-        # once skipped as not fully bound.
-        self.assertEqual(len(drawn), 1)
-        series, _, y_values, image_ids = drawn[0]
-        self.assertEqual(series["channel"], "R")
-        self.assertEqual(
-            image_ids.tolist(),
-            self.selected(self.image_ids, R="ref2", B="ref1"),
-        )
-        self.assertEqual(
-            y_values.tolist(),
-            [
-                r_offset - b_offset
-                for r_offset, b_offset in zip(
-                    self.selected(self.offsets["R"], R="ref2", B="ref1"),
-                    self.selected(self.offsets["B"], R="ref2", B="ref1"),
-                )
-            ],
-        )

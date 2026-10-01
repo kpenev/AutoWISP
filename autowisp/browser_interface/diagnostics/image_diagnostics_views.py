@@ -35,7 +35,10 @@ from autowisp.diagnostics.expression_series import (
     get_quantity_values,
     time_quantity,
 )
-from autowisp.diagnostics.expressions import get_channel_arity
+from autowisp.diagnostics.expressions import (
+    get_channel_arity,
+    get_photometry_arity,
+)
 
 from .quantities import (
     describe_quantity,
@@ -47,12 +50,54 @@ from .quantities import (
 )
 from .series_table import (
     get_available_series,
-    get_columns,
+    get_channel_columns,
+    get_photometry_columns,
     get_quoted_channel,
     get_series_key,
     posted_rows,
     split_row_id,
 )
+
+
+def _bind_axes(series_key, quantities, expressions):
+    """
+    Return what each of *quantities* is bound to by one row.
+
+    The row's channels are the two axes' channel bindings laid end to end,
+    in the order the columns are, and its photometries likewise, so each
+    axis takes as many of each as the quantity it draws has parameters.
+
+    Args:
+        series_key(SeriesKey):    What the row binds.
+
+        quantities(list):    The quantities on its axes, x first.
+
+        expressions(dict):    The library, ``{name: expression}``.
+
+    Returns:
+        list:    ``(channels, photometries)`` per quantity, as
+            :func:`get_quantity_values` takes them.
+    """
+
+    axis_bindings = []
+    channels_taken = photometries_taken = 0
+    for quantity in quantities:
+        channel_arity = get_channel_arity(quantity, expressions)
+        photometry_arity = get_photometry_arity(quantity, expressions)
+        axis_bindings.append(
+            (
+                series_key.channels[
+                    channels_taken : channels_taken + channel_arity
+                ],
+                series_key.photometries[
+                    photometries_taken : photometries_taken + photometry_arity
+                ],
+            )
+        )
+        channels_taken += channel_arity
+        photometries_taken += photometry_arity
+
+    return axis_bindings
 
 
 def get_series_data(series, x_quantity, expressions, db_session):
@@ -89,30 +134,22 @@ def get_series_data(series, x_quantity, expressions, db_session):
     y_quantity, _ = split_row_id(series["id"])
     quantities = [x_quantity, y_quantity]
 
-    # The row's channels are the two axes' bindings laid end to end, in
-    # the order the columns are, so each axis takes as many as the
-    # quantity it draws has parameters.
-    bindings = []
-    taken = 0
-    for quantity in quantities:
-        arity = get_channel_arity(quantity, expressions)
-        bindings.append(series_key.channels[taken : taken + arity])
-        taken += arity
+    axis_bindings = _bind_axes(series_key, quantities, expressions)
 
     wanted = {}
-    for quantity, channels in zip(quantities, bindings):
-        wanted.setdefault(quantity, set()).add(channels)
+    for quantity, binding in zip(quantities, axis_bindings):
+        wanted.setdefault(quantity, set()).add(binding)
 
     values, image_ids = get_quantity_values(
         series_key, wanted, expressions, db_session
     )
 
     # By quantity *and* binding: the two axes may name one quantity, read
-    # either in the same channels -- a plot of it against itself -- or in
-    # two, which is how it is compared between them.
+    # either in the same channels and photometries -- a plot of it against
+    # itself -- or in two, which is how it is compared between them.
     return (
-        values[quantities[0]][bindings[0]],
-        values[quantities[1]][bindings[1]],
+        values[quantities[0]][axis_bindings[0]],
+        values[quantities[1]][axis_bindings[1]],
         image_ids,
     )
 
@@ -318,15 +355,21 @@ def collect_series_data(series_list, x_quantity, expressions, db_session):
         # diagnostic is read in by quoting it -- rather than merely some:
         # a page whose script predates the channel columns posts none at
         # all, which is not a binding -- unless no column exists, when
-        # none is exactly what a bound row posts.  A payload predating the
-        # chosen pair names no population either. Both are skipped rather
-        # than refused -- a stale page should draw nothing, not turn the
-        # response into an error page.
+        # none is exactly what a bound row posts. Likewise as many
+        # photometries as it has photometry columns, all set. A payload
+        # predating the chosen pair names no population either. All are
+        # skipped rather than refused -- a stale page should draw nothing,
+        # not turn the response into an error page.
         quantity = split_row_id(series["id"])[0]
         channels = series.get("channels", ())
+        photometries = series.get("photometries", ())
         if (
-            len(channels) != len(get_columns(x_quantity, quantity, expressions))
+            len(channels)
+            != len(get_channel_columns(x_quantity, quantity, expressions))
             or not all(channels)
+            or len(photometries)
+            != len(get_photometry_columns(x_quantity, quantity, expressions))
+            or "" in photometries
             or not series.get("pair")
         ):
             continue

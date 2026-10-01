@@ -150,7 +150,7 @@ from autowisp.tests.test_diagnostics_rules import (
     TestRowId,
     TestQuantityDescription,
     TestSectionMarkers,
-    TestSlotCells,
+    TestChannelCells,
     TestYAxisAssignment,
     TestSeriesGrouping,
 )
@@ -160,8 +160,8 @@ from autowisp.tests.test_channel_binding import (
     TestAddedRow,
     TestFixedChannelReads,
     TestTwoChannelSeriesValues,
-    TestReferenceColumns,
 )
+from autowisp.tests.test_reference_columns import TestReferenceColumns
 from autowisp.tests.test_expression_series import (
     TestCanonicalImages,
     TestDiagnosticValues,
