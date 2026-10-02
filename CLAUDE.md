@@ -121,6 +121,12 @@ checked before it is published. Zenodo records are permanent: they cannot be
 unpublished or replaced. So batch bundle changes, publish one new version
 once they are final, and then point `get_test_data.py` at it.
 
+**Pass `--test-data` while iterating, whichever tests are selected.** The
+bundle is a 226 MB zip, and the download happens at start-up, before `-k` is
+looked at, so even tests that never open it, such as the migration ones, wait
+several minutes for it. Keep an unzipped copy and point every run at it. A
+run that prints nothing for minutes is downloading, not testing.
+
 **Regenerating expected outputs cascades.** Each step test reads its inputs
 from the bundle and compares its outputs with it, and one step's outputs are
 the next step's inputs: the DR fits feed `TestCreateLightcurves`, whose
@@ -202,6 +208,34 @@ CLI tools are prefixed `wisp-*` (e.g., `wisp-calibrate`, `wisp-fit-magnitudes`).
 - `image_processing.py` / `lightcurve_processing.py` — Orchestrate pipeline step execution with dependency tracking
 - `data_model/` — 25+ ORM models (Image, Target, ObservingSession, PipelineRun, HDF5 products, provenance tracking for telescope/camera/instrument)
 - Database is auto-initialized on first access when `autowisp.db` doesn't exist
+
+**Changing what project creation writes needs a revision for existing
+projects.** Creating a project fills its database with definitions: the
+steps, their parameters with their help and defaults, the dependencies and
+processing sequence, the master types, and the layout of the HDF5 products
+(`initialize_database.py`, `initialize_*_structure.py`, and the steps'
+command-line parsers, whose options become the parameters). A project
+created earlier keeps what it was given, so adding, removing or rewording
+any of these is not done until a revision in `database/migrations/versions/`
+does the same to existing projects.
+
+- *The test that enforces it* is
+  `test_every_release_ends_up_holding_what_a_new_project_does`
+  (`tests/test_upgrade_from_release.py`): each released version creates a
+  project with its own code, and after migration every table must hold what
+  a new project's does. It compares all tables, so nothing needs registering
+  for a new one.
+- *A changed default is the one exception*, because the value a project
+  stores is its own. Either migrate it, or decide that existing projects keep
+  theirs and add the parameter to `stored_values_kept` in that test, with the
+  reason.
+- *A revision that changes rows carries its own copy* of the names, help
+  texts and row definitions it writes, reflects tables from the database
+  instead of importing the models, looks before each insert so that it can
+  be run twice, and has a downgrade. `0012`–`0014` are the examples.
+- *List the revision in `versions/meson.build`.* `TestRevisionChain` checks
+  that from a checkout; an installed package that lacks the newest revision
+  looks valid and stamps projects at the wrong head.
 
 ### Data Flow
 
