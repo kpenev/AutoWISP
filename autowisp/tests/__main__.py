@@ -69,8 +69,8 @@ from autowisp.tests.test_database_migration import (
     TestConcurrentMigration,
     TestSchemaDrift,
     TestTimestampTriggers,
-    TestUpgradeFromRelease,
 )
+from autowisp.tests.test_upgrade_from_release import TestUpgradeFromRelease
 from autowisp.tests.test_project_creation_guard import TestNewProjectGuard
 from autowisp.tests.test_error_persistence import (
     TestPersistError,

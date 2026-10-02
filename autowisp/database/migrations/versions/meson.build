@@ -1,7 +1,8 @@
 # Every revision must be listed here. One that is missing is absent from an
 # installed build while still working from a source checkout, so the chain
 # would end early and a project would be stamped at the wrong head. The
-# revision-chain test catches this when run against an installed package.
+# revision-chain tests compare this list with the directory, which they can
+# only do from a checkout: an installed chain that ends early looks valid.
 py_src = [
   '0001_baseline.py',
   '0002_image_session_index.py',
@@ -14,6 +15,9 @@ py_src = [
   '0009_float_columns_to_double.py',
   '0010_unique_image_type_name.py',
   '0011_diagnostic_expression.py',
+  '0012_lc_qc_excluded_datasets.py',
+  '0013_exclusion_rule_parameters.py',
+  '0014_drop_photref_merit_step.py',
 ]
 
 py.install_sources(

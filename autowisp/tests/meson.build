@@ -63,6 +63,7 @@ py_src = [
   'test_tfa.py',
   'test_tfa_multi_channel.py',
   'test_tfa_num_templates.py',
+  'test_upgrade_from_release.py',
 ]
 
 py.install_sources(
