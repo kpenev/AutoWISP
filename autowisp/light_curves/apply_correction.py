@@ -166,13 +166,21 @@ def recalculate_correction_statistics(
     """
     Extract the performance metrics for a de-trending step directly from LCs.
 
+    Only the points selected by ``lc_points_filter_expression`` that the fit
+    did not leave out as excluded contribute.
+
     Args:
         lc_fnames([str]):    The filenames of the light curves that were
             corrected.
 
         fit_datasets:    See Correction.__init__().
 
-        extra_predictors:    See EPDCorrection.__init__().
+        variables:    The variables ``lc_points_filter_expression`` uses.
+            See ``used_variables`` argument to EPDCorrection.__init__().
+
+        lc_points_filter_expression(str or None):    See
+            ``fit_points_filter_expression`` argument to
+            EPDCorrection.__init__(). None selects every point.
 
         calculate__scatter_config:    Arguments passed directly to
             calculate_iterative_rejection_scatter().
@@ -193,18 +201,34 @@ def recalculate_correction_statistics(
                 fit_datasets
             ):
                 try:
-                    stat_points = lightcurve.evaluate_expression(
-                        variables, lc_points_filter_expression
+                    values = lightcurve.get_dataset(to_dset, **substitutions)
+                    # Points the fit left out are corrected, but say nothing
+                    # about how well the correction works. Lightcurves
+                    # detrended before fits recorded them have none.
+                    stat_points = numpy.logical_not(
+                        numpy.broadcast_to(
+                            lightcurve.get_dataset(
+                                to_dset.rsplit(".", 1)[0] + ".qc_excluded",
+                                default_value=False,
+                                **substitutions,
+                            ),
+                            values.shape,
+                        )
                     )
+                    if lc_points_filter_expression is not None:
+                        stat_points = numpy.logical_and(
+                            stat_points,
+                            lightcurve.evaluate_expression(
+                                variables, lc_points_filter_expression
+                            ),
+                        )
                     # False positive
                     # pylint: disable=unbalanced-tuple-unpacking
                     (
                         result["rms"][lc_index][fit_index],
                         result["num_finite"][lc_index][fit_index],
                     ) = calculate_iterative_rejection_scatter(
-                        lightcurve.get_dataset(to_dset, **substitutions)[
-                            stat_points
-                        ],
+                        values[stat_points],
                         **calculate_scatter_config,
                     )
                     # pylint: enable=unbalanced-tuple-unpacking

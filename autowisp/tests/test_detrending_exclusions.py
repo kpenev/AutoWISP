@@ -7,6 +7,9 @@ from os import path
 
 import numpy
 
+from autowisp.light_curves.apply_correction import (
+    recalculate_correction_statistics,
+)
 from autowisp.light_curves.epd_correction import EPDCorrection
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.tests.synthetic_light_curve_test_case import (
@@ -37,11 +40,28 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
     _rule = "(cloud[0] > 0.3) | (sky['G0'] > 100)"
 
     @classmethod
-    def _read_result(cls, source_id, mode):
-        """Return what the given mode's fit left in a source's lightcurve."""
+    def _read_result(cls, source_id, mode, variables, points_filter):
+        """
+        Return what a fit left in a source's lightcurve, and its statistics.
+
+        Args:
+            source_id(int):    The source whose lightcurve to read.
+
+            mode(str):    Either ``'epd'`` or ``'tfa'``.
+
+            variables(dict):    The variables ``points_filter`` uses.
+
+            points_filter(str or None):    Selects the points the fit
+                corrected. None if it corrected them all.
+
+        Returns:
+            dict:
+                The fit's datasets by the tail of their pipeline key, and
+                under ``'statistics'`` the performance of the fit.
+        """
 
         with LightCurveFile(cls._get_lc_fname(source_id), "r") as light_curve:
-            return {
+            result = {
                 quantity: light_curve.get_dataset(
                     f"apphot.{mode}.{quantity}", **cls._dataset[1]
                 )
@@ -54,6 +74,17 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
                     "cfg.exclusion_rule",
                 ]
             }
+        result["statistics"] = recalculate_correction_statistics(
+            [cls._get_lc_fname(source_id)],
+            fit_datasets=[cls._dataset + (f"apphot.{mode}.magnitude",)],
+            variables=variables,
+            lc_points_filter_expression=points_filter,
+            calculate_average=numpy.nanmedian,
+            calculate_scatter=numpy.nanmean,
+            outlier_threshold=1e3,
+            max_outlier_rejections=1,
+        )[0]
+        return result
 
     @classmethod
     def _run_epd(cls, exclusions):
@@ -97,7 +128,7 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
                     **corrector_exclusions,
                 )(cls._get_lc_fname(source_id))
             cls._epd_result[bool(corrector_exclusions)] = cls._read_result(
-                source_id, "epd"
+                source_id, "epd", {"h": ("skypos.hour_angle", {})}, "h < 0"
             )
 
     @classmethod
@@ -140,8 +171,9 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
                     fit_identifier="TFA",
                     mark_progress=lambda *_: None,
                 )(cls._get_lc_fname(source_id))
+            # No filter, as for the fit: TFA corrected every point.
             cls._tfa_result[bool(corrector_exclusions)] = cls._read_result(
-                source_id, "tfa"
+                source_id, "tfa", {}, None
             )
 
     @classmethod
@@ -190,6 +222,29 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
         numpy.testing.assert_allclose(
             result["magnitude"][corrected], level + extra[corrected], atol=1e-4
         )
+        # Flat only without the bad points, which are corrected to the extra.
+        self.assertLess(result["statistics"]["rms"][0], 1e-4)
+
+    def _assert_deviates_from_model(self, result, corrected, bad, extra):
+        """
+        Check that the fit missed the model the points that are not bad follow.
+
+        Every way _assert_corrected_to_model() checks for the model must
+        show the miss, each on its own.
+
+        Args:
+            See _assert_corrected_to_model().
+        """
+
+        self.assertGreater(result["fit_residual"].item(), 0.01)
+        level = numpy.median(result["magnitude"][corrected & ~bad])
+        self.assertGreater(
+            numpy.abs(
+                result["magnitude"][corrected] - level - extra[corrected]
+            ).max(),
+            0.01,
+        )
+        self.assertGreater(result["statistics"]["rms"][0], 0.01)
 
     def _assert_recorded(self, result, corrected, excluded, rule):
         """
@@ -207,6 +262,10 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
 
         self.assertEqual(
             result["num_fit_points"].item(), (corrected & ~excluded).sum()
+        )
+        self.assertEqual(
+            result["statistics"]["num_finite"][0],
+            (corrected & ~excluded).sum(),
         )
         numpy.testing.assert_array_equal(result["qc_excluded"], excluded)
         self.assertEqual(
@@ -230,10 +289,9 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
 
         result = self._epd_result[False]
         corrected = numpy.logical_not(self._outside_filter)
-        with self.assertRaises(AssertionError):
-            self._assert_corrected_to_model(
-                result, corrected, self._bad, self._epd_extra
-            )
+        self._assert_deviates_from_model(
+            result, corrected, self._bad, self._epd_extra
+        )
         self._assert_recorded(
             result, corrected, numpy.zeros(corrected.shape, dtype=bool), ""
         )
@@ -254,13 +312,12 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
 
         result = self._tfa_result[False]
         corrected = numpy.ones(self._tfa_points.sum(), dtype=bool)
-        with self.assertRaises(AssertionError):
-            self._assert_corrected_to_model(
-                result,
-                corrected,
-                self._listed[self._tfa_points],
-                self._tfa_extra[self._tfa_points],
-            )
+        self._assert_deviates_from_model(
+            result,
+            corrected,
+            self._listed[self._tfa_points],
+            self._tfa_extra[self._tfa_points],
+        )
         self._assert_recorded(
             result, corrected, numpy.zeros(corrected.shape, dtype=bool), ""
         )
