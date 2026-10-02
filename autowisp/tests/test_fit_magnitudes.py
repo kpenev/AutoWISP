@@ -2,11 +2,14 @@
 
 import re
 from glob import glob
-from os import path
+from os import makedirs, path
+from shutil import copy, move
 
 import h5py
 import numpy
+from astropy.io import fits
 
+from autowisp.magnitude_fitting import get_master_photref
 from autowisp.tests.h5_test_case import DRTestCase
 
 
@@ -107,3 +110,177 @@ class TestFitMagnitudes(DRTestCase):
             numpy.testing.assert_allclose(
                 refits[fit_path][1], residual, rtol=1e-8, err_msg=fit_path
             )
+
+    def _assert_master_reads(self, master_fname):
+        """Assert the master reads as exactly its photometry tables."""
+
+        reference = get_master_photref(master_fname)
+        with fits.open(master_fname) as master:
+            tables = [
+                hdu.data
+                for hdu in master[1:]
+                if "magnitude" in hdu.columns.names
+            ]
+            self.assertEqual(
+                next(iter(reference.values()))["mag"].shape,
+                (1, len(tables)),
+                master_fname,
+            )
+            for phot_ind, table in enumerate(tables):
+                for source_id, magnitude in zip(
+                    table["source_id"], table["magnitude"]
+                ):
+                    self.assertEqual(
+                        reference[source_id]["mag"][0, phot_ind], magnitude
+                    )
+
+    def _assert_masters_match(self, subset_fname, excluding_fname):
+        """Assert two masters match, apart from the record of exclusions."""
+
+        with (
+            fits.open(subset_fname) as subset,
+            fits.open(excluding_fname) as excluding,
+        ):
+            qc_keywords = {"QCRULE", "QCNIMG", "QCNEXCL"}
+            self.assertEqual(
+                {
+                    key: value
+                    for key, value in subset[0].header.items()
+                    if key not in qc_keywords
+                },
+                {
+                    key: value
+                    for key, value in excluding[0].header.items()
+                    if key not in qc_keywords
+                },
+            )
+            self.assertEqual(
+                [hdu.name for hdu in subset], [hdu.name for hdu in excluding]
+            )
+            for subset_hdu, excluding_hdu in zip(subset[1:], excluding[1:]):
+                if subset_hdu.name != "MPHOTREF":
+                    continue
+                # Rows follow the order in which images finished fitting.
+                subset_data, excluding_data = (
+                    numpy.sort(hdu.data, order="source_id")
+                    for hdu in (subset_hdu, excluding_hdu)
+                )
+                for column in subset_data.dtype.names:
+                    numpy.testing.assert_allclose(
+                        excluding_data[column],
+                        subset_data[column],
+                        rtol=1e-8,
+                        atol=0 if column == "source_id" else 1e-8,
+                        err_msg=f"{excluding_fname}: {column}",
+                    )
+
+    def test_exclusions_kept_out_of_master(self):
+        """Excluding images gives the master the kept images give alone.
+
+        Fits the kept images by themselves, then all images with the others
+        excluded, and compares: the masters and the kept images' fits must
+        be the same, the excluded images fit at the last pass, and the
+        exclusions recorded. The list names one input by a relative path,
+        one by an absolute path, and a file that is not among the inputs,
+        which must not be recorded. Both the new master and one written
+        before exclusions were recorded must read as their photometry tables
+        alone.
+        """
+
+        self.get_inputs(["DR"])
+        dr_dir = path.join(self.processing_directory, "DR")
+        subset_dir = path.join(self.processing_directory, "DR_subset")
+        makedirs(subset_dir)
+        excluded = [
+            path.join(dr_dir, "10-465241_2_center.h5"),
+            path.join(dr_dir, "10-465243_2_center.h5"),
+        ]
+        num_images = 0
+        for dr_fname in glob(path.join(dr_dir, "*.h5")):
+            with h5py.File(dr_fname, "a") as dr_file:
+                num_images += self._fitted_magnitudes[0] in dr_file
+                for group in self._fitted_magnitudes:
+                    if group in dr_file:
+                        del dr_file[group]
+            if dr_fname not in excluded:
+                copy(dr_fname, subset_dir)
+
+        masters_dir = path.join(self.processing_directory, "MASTERS")
+        subset_masters_dir = path.join(masters_dir, "subset")
+        makedirs(subset_masters_dir)
+        self.run_step(["wisp-fit-magnitudes", "-c", "test.cfg", subset_dir])
+        # Only the masters move: MASTERS/Gaia caches the catalog.
+        for pattern in ["mphotref_*.fits", "mfit_stat_*.txt"]:
+            for master_fname in glob(path.join(masters_dir, pattern)):
+                move(master_fname, subset_masters_dir)
+
+        exclusion_fname = path.join(self.processing_directory, "exclude.txt")
+        with open(exclusion_fname, "w", encoding="utf-8") as exclusion_list:
+            exclusion_list.write(
+                "\n".join(
+                    [
+                        path.relpath(excluded[0], self.processing_directory),
+                        excluded[1],
+                        path.join(dr_dir, "not_an_input.h5"),
+                    ]
+                )
+                + "\n"
+            )
+        self.run_step(
+            [
+                "wisp-fit-magnitudes",
+                "-c",
+                "test.cfg",
+                "--qc-exclude-file",
+                exclusion_fname,
+                dr_dir,
+            ]
+        )
+
+        for pattern in ["mphotref_*.fits", "mfit_stat_*.txt"]:
+            self.assertEqual(
+                sorted(
+                    map(
+                        path.basename,
+                        glob(path.join(subset_masters_dir, pattern)),
+                    )
+                ),
+                sorted(
+                    map(path.basename, glob(path.join(masters_dir, pattern)))
+                ),
+            )
+        masters = sorted(glob(path.join(masters_dir, "mphotref_*.fits")))
+        for master_fname in masters:
+            self._assert_masters_match(
+                path.join(subset_masters_dir, path.basename(master_fname)),
+                master_fname,
+            )
+            with fits.open(master_fname) as master:
+                self.assertEqual(master[0].header["QCRULE"], "")
+                self.assertEqual(master[0].header["QCNIMG"], num_images)
+                self.assertEqual(master[0].header["QCNEXCL"], len(excluded))
+                self.assertEqual(
+                    sorted(master["QCEXCL"].data["dr_fname"]), sorted(excluded)
+                )
+
+        for subset_fname in glob(path.join(subset_dir, "*.h5")):
+            dr_fname = path.join(dr_dir, path.basename(subset_fname))
+            for group in self._fitted_magnitudes:
+                self.assert_groups_match(subset_fname, dr_fname, group, None)
+                self.assert_groups_match(dr_fname, subset_fname, group, None)
+
+        last_pass = int(re.search(r"iter(\d+)\.fits$", masters[-1])[1]) + 1
+        for dr_fname in excluded:
+            self.assertEqual(
+                max(
+                    int(fit_path[-3:]) for fit_path in self._read_fits(dr_fname)
+                ),
+                last_pass,
+                dr_fname,
+            )
+
+        self._assert_master_reads(masters[-1])
+        for legacy_master in glob(
+            path.join(self.test_directory, "legacy_masters", "*.fits")
+        ):
+            self._assert_master_reads(legacy_master)

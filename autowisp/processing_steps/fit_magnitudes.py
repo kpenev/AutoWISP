@@ -15,7 +15,12 @@ from sqlalchemy import func, select
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_cli import cli_entry_point
 from autowisp.error_context import error_context
-from autowisp.exceptions import Component, FileKind, RelatedFile
+from autowisp.exceptions import (
+    Component,
+    ConfigurationError,
+    FileKind,
+    RelatedFile,
+)
 from autowisp import magnitude_fitting
 from autowisp.astrometry.transformation import (
     Transformation,
@@ -298,6 +303,30 @@ def get_dr_fnames_and_catalog(
     return dr_fnames, catalog_sources, catalog_fname
 
 
+def read_exclusions(exclusion_fname):
+    """
+    Return the DR files an exclusion list names, as resolved paths.
+
+    Args:
+        exclusion_fname(str or None):    The exclusion list: one DR file per
+            line, blank lines ignored. None excludes nothing.
+
+    Returns:
+        set:
+            The ``os.path.realpath`` of each listed DR file, so that a file
+            matches however its path is spelled.
+    """
+
+    if exclusion_fname is None:
+        return set()
+    with open(exclusion_fname, encoding="utf-8") as exclusion_list:
+        return {
+            os.path.realpath(line.strip())
+            for line in exclusion_list
+            if line.strip()
+        }
+
+
 def fit_magnitudes(
     dr_collection, start_status, configuration, mark_start, mark_end
 ):
@@ -360,6 +389,27 @@ def fit_magnitudes(
                 **kwargs,
             )
             return None
+
+        excluded = read_exclusions(configuration["qc_exclude_file"])
+        kwargs["excluded_dr_filenames"] = [
+            dr_fname
+            for dr_fname in dr_fnames
+            if os.path.realpath(dr_fname) in excluded
+        ]
+        kwargs["fit_dr_filenames"] = [
+            dr_fname
+            for dr_fname in dr_fnames
+            if os.path.realpath(dr_fname) not in excluded
+        ]
+        if not kwargs["fit_dr_filenames"]:
+            raise ConfigurationError(
+                f"All {len(dr_fnames)} images are excluded from the master "
+                "photometric reference, leaving nothing to build it from!"
+            )
+        # Defined only when the pipeline configures the step.
+        kwargs["exclusion_rule"] = (
+            configuration.get("magfit_exclusion_rule") or ""
+        )
 
         _logger.info(
             "Starting iterative magfit for single photref: %s with\n\t%s",

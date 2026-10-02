@@ -60,6 +60,47 @@ def _magfit_related_files(dr_fname, single_photref=None, master_photref=None):
     return related
 
 
+def _get_exclusion_record(exclusion_rule, num_images, excluded_dr_filenames):
+    """
+    Return the header keywords and table recording images left out of masters.
+
+    Args:
+        exclusion_rule(str):    The rule that decided the exclusions, empty if
+            they were not decided by a rule.
+
+        num_images(int):    How many images were fit, excluded ones included.
+
+        excluded_dr_filenames([str]):    The DR files fit but left out of the
+            masters, as given to magnitude fitting.
+
+    Returns:
+        dict:
+            The ``QCRULE``, ``QCNIMG`` and ``QCNEXCL`` header keywords, as
+            ``(value, comment)`` tuples.
+
+        fits.BinTableHDU:
+            The ``QCEXCL`` table listing the excluded DR files.
+    """
+
+    header = {
+        "QCRULE": (exclusion_rule, "Rule excluding images from the master"),
+        "QCNIMG": (num_images, "Images fit, excluded included"),
+        "QCNEXCL": (len(excluded_dr_filenames), "Images excluded from master"),
+    }
+    max_length = max([1] + [len(fname) for fname in excluded_dr_filenames])
+    table = fits.BinTableHDU.from_columns(
+        [
+            fits.Column(
+                name="dr_fname",
+                format=f"{max_length}A",
+                array=numpy.array(excluded_dr_filenames, dtype=str),
+            )
+        ],
+        name="QCEXCL",
+    )
+    return header, table
+
+
 # Could not come up with a sensible way to simplify
 # pylint: disable=too-many-arguments
 def single_iteration(
@@ -134,13 +175,15 @@ def iterative_refit(
     mark_start,
     mark_end,
     path_substitutions,
+    excluded_dr_filenames=(),
+    exclusion_rule="",
 ):
     """
     Iteratively performa magnitude fitting/generating master until convergence.
 
     Args:
         fit_dr_filenames(str iterable):    A list of the data reduction files to
-            fit.
+            fit and build the master photometric references from.
 
         single_photref_dr_fname(str):    The name of the data reduction file of
             the single photometric reference to use to start the magnitude
@@ -192,6 +235,16 @@ def iterative_refit(
         path_substitutions(dict):     Any variables to substitute in
             ``master_photref_fname_format`` or to pass to data reduction files
             to identify components to use in the fit.
+
+        excluded_dr_filenames([str]):    Data reduction files to fit but leave
+            out of the masters. They are fit only once, against the reference
+            of the last pass, which gives them exactly the fit they would get
+            in that pass. Each pass still marks their progress along with
+            ``fit_dr_filenames``, so an interrupted run leaves them all at
+            the same status.
+
+        exclusion_rule(str):    The rule that decided the exclusions, recorded
+            in the masters; empty if they were not decided by a rule.
 
     Returns:
         str or None:
@@ -262,6 +315,7 @@ def iterative_refit(
                         configuration.mphotref_scatter_fit_terms
                     ),
                     extra_header=sphotref_header,
+                    extra_hdus=[exclusion_table],
                 )
             # Catch only the master-photref generation failure, so an
             # unrelated error inside generate_master surfaces instead of
@@ -356,6 +410,12 @@ def iterative_refit(
     num_photometries = next(iter(photref.values()))["mag"].size
 
     sphotref_header["IMAGETYP"] = "mphotref"
+    exclusion_header, exclusion_table = _get_exclusion_record(
+        exclusion_rule,
+        len(fit_dr_filenames) + len(excluded_dr_filenames),
+        excluded_dr_filenames,
+    )
+    sphotref_header.update(exclusion_header)
     while (
         photref
         and path_substitutions["magfit_iteration"]
@@ -388,18 +448,40 @@ def iterative_refit(
             mark_end=mark_end,
             magfit_stat_collector=magfit_stat_collector,
         )
+        # Keep the whole batch at one status, so that resuming an
+        # interrupted run treats the excluded images with the rest.
+        for excluded_fname in excluded_dr_filenames:
+            mark_start(
+                excluded_fname,
+                status=2 * path_substitutions["magfit_iteration"],
+            )
+            mark_end(
+                excluded_fname,
+                status=2 * path_substitutions["magfit_iteration"] + 1,
+                final=False,
+            )
+        mark_start = partial(mark_end, final=False)
 
-        photref, next_photref_fname = update_photref(
+        next_photref, next_photref_fname = update_photref(
             magfit_stat_collector=magfit_stat_collector,
             old_reference=photref,
             num_photometries=num_photometries,
             fname_substitutions=fname_substitutions,
             sphotref_header=sphotref_header,
         )
-        if photref is not None:
-            photref_fname = next_photref_fname
-        mark_start = partial(mark_end, final=False)
-    for fit_dr_fname in fit_dr_filenames:
+        if next_photref is None:
+            if excluded_dr_filenames:
+                single_iteration(
+                    excluded_dr_filenames,
+                    photref=photref,
+                    configuration=configuration,
+                    path_substitutions=path_substitutions,
+                    mark_start=mark_start,
+                    mark_end=mark_end,
+                )
+            break
+        photref, photref_fname = next_photref, next_photref_fname
+    for fit_dr_fname in list(fit_dr_filenames) + list(excluded_dr_filenames):
         mark_end(
             fit_dr_fname,
             status=2 * path_substitutions["magfit_iteration"] - 1,

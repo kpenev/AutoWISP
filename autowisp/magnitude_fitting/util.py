@@ -146,8 +146,12 @@ def get_master_photref(photref_fname):
 
     result = {}
     with fits.open(photref_fname, "readonly") as photref_fits:
-        num_photometries = len(photref_fits) - 1
-        for phot_ind, phot_reference in enumerate(photref_fits[1:]):
+        # Masters written before the tables were named have them unnamed.
+        phot_references = [
+            hdu for hdu in photref_fits[1:] if hdu.name in ("MPHOTREF", "")
+        ]
+        num_photometries = len(phot_references)
+        for phot_ind, phot_reference in enumerate(phot_references):
             if "source_id" in phot_reference.data.dtype.names:
                 source_ids = phot_reference.data["source_id"]
             else:
