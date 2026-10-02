@@ -1,7 +1,9 @@
 """Interface for performing iterative magnitude fitting."""
 
 import logging
+import os
 from functools import partial
+from tempfile import TemporaryDirectory
 
 import numpy
 from astropy.io import fits
@@ -192,7 +194,13 @@ def iterative_refit(
             to identify components to use in the fit.
 
     Returns:
-        The filename of the last master photometric reference created.
+        str or None:
+            The filename of the master photometric reference the last pass
+            was fit against, or None if every pass was against the single
+            photometric reference.
+
+        str:
+            The filename of the statistics of the last pass.
     """
 
     def update_photref(
@@ -204,7 +212,14 @@ def iterative_refit(
         sphotref_header,
     ):
         """
-        Return the next iteration photometric reference or None if converged.
+        Return the reference for the next pass, or None if this pass was last.
+
+        The master built from the pass just completed is saved only if another
+        pass is fit against it: once it agrees with the reference that pass
+        used, or the iterations run out, that reference is final and the new
+        master, used for nothing, is discarded. A pass against the single
+        photometric reference is never the last, so the final master is
+        always one that images were fit against.
 
         Args:
             magfit_stat_collector(MasterPhotrefCollector):    The object used by
@@ -214,11 +229,17 @@ def iterative_refit(
             old_reference(dict):    The photometric reference used for the last
                 magnitude fitting iteration.
 
-            source_id_parser(callable):    Should return the integers
-                identifying a source, given its string ID.
-
             num_photometries(int):    How many different photometric
                 measurements are being fit.
+
+        Returns:
+            dict or None:
+                The reference to fit the next pass against, or None if there
+                is no next pass.
+
+            str or None:
+                The file the returned reference was saved to, or None if there
+                is no next pass.
         """
 
         logger = logging.getLogger(__name__)
@@ -227,18 +248,42 @@ def iterative_refit(
                 fname_substitutions
             )
         )
-        try:
-            magfit_stat_collector.generate_master(
-                master_reference_fname=master_reference_fname,
-                catalog=catalog,
-                fit_terms_expression=configuration.mphotref_scatter_fit_terms,
-                extra_header=sphotref_header,
+        with TemporaryDirectory(
+            dir=os.path.dirname(os.path.abspath(master_reference_fname))
+        ) as candidate_dir:
+            candidate_fname = os.path.join(
+                candidate_dir, os.path.basename(master_reference_fname)
             )
-        # Catch only the master-photref generation failure, so an unrelated
-        # error inside generate_master surfaces instead of being swallowed.
-        except FitMagnitudesError:
-            return None, None
-        new_reference = get_master_photref(master_reference_fname)
+            try:
+                magfit_stat_collector.generate_master(
+                    master_reference_fname=candidate_fname,
+                    catalog=catalog,
+                    fit_terms_expression=(
+                        configuration.mphotref_scatter_fit_terms
+                    ),
+                    extra_header=sphotref_header,
+                )
+            # Catch only the master-photref generation failure, so an
+            # unrelated error inside generate_master surfaces instead of
+            # being swallowed.
+            except FitMagnitudesError:
+                return None, None
+            new_reference = get_master_photref(candidate_fname)
+
+            if (
+                fname_substitutions["magfit_iteration"]
+                >= configuration.max_magfit_iterations
+            ):
+                return None, None
+            if fname_substitutions["magfit_iteration"] > 0 and _converged(
+                old_reference, new_reference, num_photometries, logger
+            ):
+                return None, None
+            os.replace(candidate_fname, master_reference_fname)
+        return new_reference, master_reference_fname
+
+    def _converged(old_reference, new_reference, num_photometries, logger):
+        """True iff the references agree within ``max_photref_change``."""
 
         common_sources = set(new_reference) & set(old_reference)
 
@@ -282,10 +327,7 @@ def iterative_refit(
             repr(average_square_change),
         )
 
-        if average_square_change.max() <= configuration.max_photref_change:
-            return None, master_reference_fname
-
-        return new_reference, master_reference_fname
+        return average_square_change.max() <= configuration.max_photref_change
 
     path_substitutions["magfit_iteration"] = (
         configuration.continue_from_iteration - 1
@@ -302,8 +344,10 @@ def iterative_refit(
                 )
             )
             photref = get_master_photref(master_reference_fname)
+            photref_fname = master_reference_fname
         else:
             photref = get_single_photref(photref_dr, **path_substitutions)
+            photref_fname = None
 
     catalog = format_master_catalog(
         catalog_sources, photref_dr.parse_hat_source_id
@@ -311,7 +355,6 @@ def iterative_refit(
 
     num_photometries = next(iter(photref.values()))["mag"].size
 
-    photref_fname = None
     sphotref_header["IMAGETYP"] = "mphotref"
     while (
         photref
@@ -346,13 +389,15 @@ def iterative_refit(
             magfit_stat_collector=magfit_stat_collector,
         )
 
-        photref, photref_fname = update_photref(
+        photref, next_photref_fname = update_photref(
             magfit_stat_collector=magfit_stat_collector,
             old_reference=photref,
             num_photometries=num_photometries,
             fname_substitutions=fname_substitutions,
             sphotref_header=sphotref_header,
         )
+        if photref is not None:
+            photref_fname = next_photref_fname
         mark_start = partial(mark_end, final=False)
     for fit_dr_fname in fit_dr_filenames:
         mark_end(

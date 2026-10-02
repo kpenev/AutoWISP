@@ -247,14 +247,21 @@ def get_path_substitutions(configuration, sphotref_header):
         for what in ["shapefit", "srcproj", "apphot", "background", "magfit"]
     }
     if configuration["master_photref_fname"] is not None:
+        # dict() first: a header may repeat a keyword, which ** would pass
+        # to format() once per copy.
+        fname_substitutions = dict(sphotref_header)
+        fname_substitutions.update(result)
         for iteration in count():
+            fname_substitutions["magfit_iteration"] = iteration
             if (
-                configuration["master_photref_fname_format"].format(
-                    **sphotref_header, **result, magfit_iteration=iteration
+                configuration["master_photref_fname_format"].format_map(
+                    fname_substitutions
                 )
                 == configuration["master_photref_fname"]
             ):
-                result["magfit_iteration"] = iteration
+                # Master iterNNN is built after pass NNN and fit against in
+                # pass NNN + 1, so a fit against it belongs at that index.
+                result["magfit_iteration"] = iteration + 1
                 break
             if iteration >= configuration["max_magfit_iterations"]:
                 raise ValueError(
@@ -369,12 +376,7 @@ def fit_magnitudes(
                 **kwargs,
             )
         )
-        return [
-            {
-                "filename": master_photref_fname,
-                "preference_order": None,
-                "type": "master_photref",
-            },
+        new_masters = [
             {
                 "filename": magfit_stat_fname,
                 "preference_order": None,
@@ -386,6 +388,18 @@ def fit_magnitudes(
                 "type": "magfit_catalog",
             },
         ]
+        # None when no pass was fit against a master, e.g. with
+        # --max-magfit-iterations 0.
+        if master_photref_fname is not None:
+            new_masters.insert(
+                0,
+                {
+                    "filename": master_photref_fname,
+                    "preference_order": None,
+                    "type": "master_photref",
+                },
+            )
+        return new_masters
 
 
 def delete_master(filename, master_type):
