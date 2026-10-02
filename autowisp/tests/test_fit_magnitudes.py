@@ -174,27 +174,31 @@ class TestFitMagnitudes(DRTestCase):
                         err_msg=f"{excluding_fname}: {column}",
                     )
 
-    def test_exclusions_kept_out_of_master(self):
-        """Excluding images gives the master the kept images give alone.
+    def _fit_without_and_with_exclusions(self, excluded):
+        """
+        Fit the images not in ``excluded`` alone, then all excluding those.
 
-        Fits the kept images by themselves, then all images with the others
-        excluded, and compares: the masters and the kept images' fits must
-        be the same, the excluded images fit at the last pass, and the
-        exclusions recorded. The list names one input by a relative path,
-        one by an absolute path, and a file that is not among the inputs,
-        which must not be recorded. Both the new master and one written
-        before exclusions were recorded must read as their photometry tables
-        alone.
+        The list given to the second run names the first excluded file by a
+        relative path, the second by an absolute one, and adds a file that is
+        not among the inputs.
+
+        Args:
+            excluded([str]):    Two DR files, under the ``DR`` directory.
+
+        Returns:
+            int:
+                The number of images the second run fit.
+
+            str:
+                The directory holding the DR files of the first run.
+
+            str:
+                The directory the masters of the first run were moved to.
         """
 
-        self.get_inputs(["DR"])
         dr_dir = path.join(self.processing_directory, "DR")
         subset_dir = path.join(self.processing_directory, "DR_subset")
         makedirs(subset_dir)
-        excluded = [
-            path.join(dr_dir, "10-465241_2_center.h5"),
-            path.join(dr_dir, "10-465243_2_center.h5"),
-        ]
         num_images = 0
         for dr_fname in glob(path.join(dr_dir, "*.h5")):
             with h5py.File(dr_fname, "a") as dr_file:
@@ -236,7 +240,28 @@ class TestFitMagnitudes(DRTestCase):
                 dr_dir,
             ]
         )
+        return num_images, subset_dir, subset_masters_dir
 
+    def _assert_masters_built_without(
+        self, excluded, num_images, subset_masters_dir
+    ):
+        """
+        Assert the masters match the subset run's and record the exclusions.
+
+        Args:
+            excluded([str]):    The DR files excluded from the masters.
+
+            num_images(int):    The number of images fit, excluded included.
+
+            subset_masters_dir(str):    Where the masters built from the kept
+                images alone are.
+
+        Returns:
+            [str]:
+                The masters, in order of iteration.
+        """
+
+        masters_dir = path.join(self.processing_directory, "MASTERS")
         for pattern in ["mphotref_*.fits", "mfit_stat_*.txt"]:
             self.assertEqual(
                 sorted(
@@ -262,6 +287,33 @@ class TestFitMagnitudes(DRTestCase):
                 self.assertEqual(
                     sorted(master["QCEXCL"].data["dr_fname"]), sorted(excluded)
                 )
+        return masters
+
+    def test_exclusions_kept_out_of_master(self):
+        """Excluding images gives the master the kept images give alone.
+
+        Fits the kept images by themselves, then all images with the others
+        excluded, and compares: the masters and the kept images' fits must
+        be the same, the excluded images fit at the last pass, and the
+        exclusions recorded. The list names one input by a relative path,
+        one by an absolute path, and a file that is not among the inputs,
+        which must not be recorded. Both the new master and one written
+        before exclusions were recorded must read as their photometry tables
+        alone.
+        """
+
+        self.get_inputs(["DR"])
+        dr_dir = path.join(self.processing_directory, "DR")
+        excluded = [
+            path.join(dr_dir, "10-465241_2_center.h5"),
+            path.join(dr_dir, "10-465243_2_center.h5"),
+        ]
+        num_images, subset_dir, subset_masters_dir = (
+            self._fit_without_and_with_exclusions(excluded)
+        )
+        masters = self._assert_masters_built_without(
+            excluded, num_images, subset_masters_dir
+        )
 
         for subset_fname in glob(path.join(subset_dir, "*.h5")):
             dr_fname = path.join(dr_dir, path.basename(subset_fname))
