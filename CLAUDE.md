@@ -30,9 +30,9 @@ imports it, and a commit subject is not evidence about its contents.
 
 *Deliberate exclusions — do not re-raise these unasked:* `fake_image/` and
 `magnitude_fitting/tests/` have no `meson.build` at all and are not installed
-(both are also in `.coveragerc`'s omit list). `tests/generate_catalog_test_data.py`
-and `tests/update_hdf5_contents.py` are test-data tooling rather than suite
-members, and are excluded on purpose — there is a comment saying so at the top of
+(both are also in `.coveragerc`'s omit list). `tests/generate_catalog_test_data.py`,
+`tests/update_hdf5_contents.py` and `tests/compare_h5.py` are test-data tooling
+rather than suite members, and are excluded on purpose — there is a comment saying so at the top of
 `autowisp/tests/meson.build`, because an audit flags them otherwise.
 
 **Pipeline steps run the *installed* package, not your working tree.** Tests
@@ -102,12 +102,41 @@ suite collects from and the first thing CI trips over. `python -m unittest
 autowisp.tests.test_x` costs about the same and skips that entirely, so it
 passes happily while the suite cannot even start.
 
+**Leave `TestFullPipeline` out while iterating.** It runs every step through
+the engine and takes far longer than the rest, while the per-step tests
+exercise the same step code on the same data. It belongs to the full-suite
+run before a merge.
+
 **Run the whole suite, or dispatch CI, before merging into master.** CI is
 `workflow_dispatch` only, so a push runs nothing. On a feature branch the
 tests covering the change are enough before a push; the full suite, slow as
 it is, gates the merge.
 
 The `<failed_test_dir>` argument is **required** — it's where artifacts from failed tests are preserved for debugging. Tests run in a temporary directory, copy test data there, and clean up on success.
+
+**The test data comes from Zenodo**, downloaded afresh on every run from the
+record named in `tests/get_test_data.py`. `--test-data <zip or directory>`
+runs against a local copy instead, which is how a regenerated bundle is
+checked before it is published. Zenodo records are permanent: they cannot be
+unpublished or replaced. So batch bundle changes, publish one new version
+once they are final, and then point `get_test_data.py` at it.
+
+**Regenerating expected outputs cascades.** Each step test reads its inputs
+from the bundle and compares its outputs with it, and one step's outputs are
+the next step's inputs: the DR fits feed `TestCreateLightcurves`, whose
+lightcurves feed EPD, then TFA, then the statistics. After a change to a
+step's output, go down the chain one step at a time:
+
+1. Run the step's test against the bundle as updated so far (`--test-data`).
+   It fails and keeps its output in `<failed_test_dir>`.
+2. Check that only the step's own groups differ from the bundle, with
+   `tests/compare_h5.py <failed output dir> <bundle dir>`. The test's own
+   comparison stops at the first mismatch.
+3. Copy those groups into the bundle with `tests/update_hdf5_contents.py`.
+4. Rerun the test to see it pass, then move to the next step.
+
+Differences outside the step's groups that lie within the test tolerance,
+such as floating-point noise in `SkyPosition`, are left alone.
 
 Test classes (in order of pipeline dependency): `TestCalibrate` → `TestStackToMaster` → `TestFindStars` → `TestSolveAstrometry` → `TestFitStarShape` → `TestMeasureAperturePhotometry` → `TestFitSourceExtractedPSFMap` → `TestFitMagnitudes` → `TestCreateLightcurves` → `TestEPD` → `TestTFA` → `TestDetrendingStat`
 
