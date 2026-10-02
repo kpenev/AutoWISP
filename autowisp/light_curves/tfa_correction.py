@@ -514,18 +514,6 @@ class TFACorrection(Correction):
 
         return numpy.column_stack((templates, numpy.ones(templates.shape[0])))
 
-    def _get_observation_ids(self, light_curve, substitutions):
-        """Return the observation IDs from the given light curve."""
-
-        return light_curve.read_data_array(
-            {
-                str(i): (dset_key, substitutions)
-                for i, dset_key in enumerate(
-                    self._configuration["observation_id"]
-                )
-            }
-        )
-
     def read_template_data(self, light_curve, phot_dset_key, substitutions):
         """Read the data for a single photometry method in a template LC."""
 
@@ -548,8 +536,14 @@ class TFACorrection(Correction):
 
         assert selected_points.shape == phot_data.shape
         phot_data = phot_data[selected_points]
-        phot_data -= numpy.nanmedian(phot_data)
         phot_observation_ids = phot_observation_ids[selected_points]
+        # Excluded observations stay in the template, which is what corrects
+        # them, but are left out of everything derived from it.
+        phot_data -= numpy.nanmedian(
+            phot_data[
+                numpy.logical_not(self._is_qc_excluded(phot_observation_ids))
+            ]
+        )
 
         return phot_data, phot_observation_ids
 
@@ -982,7 +976,13 @@ class TFACorrection(Correction):
             None
         """
 
-        super().__init__(configuration["fit_datasets"], **iterative_fit_config)
+        super().__init__(
+            configuration["fit_datasets"],
+            observation_id=configuration["observation_id"],
+            qc_exclude_file=configuration.get("qc_exclude_file"),
+            exclusion_rule=configuration.get("exclusion_rule"),
+            **iterative_fit_config,
+        )
 
         self._configuration = configuration
 
@@ -1016,15 +1016,22 @@ class TFACorrection(Correction):
         if verify_template_data:
             self._verify_template_data()
 
+        self._template_in_fit = [
+            numpy.logical_not(self._is_qc_excluded(observation_ids))
+            for observation_ids in self._template_observation_ids
+        ]
+
         # False positive
         # pylint: disable=unexpected-keyword-arg
         self._template_qrp = [
             scipy.linalg.qr(
-                self._add_intercept(template_measurements),
+                self._add_intercept(template_measurements[in_fit]),
                 mode="economic",
                 pivoting=True,
             )
-            for template_measurements in self.template_measurements
+            for template_measurements, in_fit in zip(
+                self.template_measurements, self._template_in_fit
+            )
         ]
         # pylint: enable=unexpected-keyword-arg
 
@@ -1101,20 +1108,20 @@ class TFACorrection(Correction):
                 lc_observation_ids[fit_points].tolist(),
             )
 
-            raw_values = self._get_fit_data(
+            raw_values, fit_data = self._get_fit_data(
                 light_curve, get_fit_dataset, fit_target, fit_points
             )
-            if isinstance(raw_values, tuple):
-                raw_values, fit_data = raw_values
-            else:
-                fit_data = raw_values
 
             matched_indices = matched_indices[fit_points]
 
             matched_fit_data = numpy.full(
                 self._template_observation_ids[fit_index].shape, numpy.nan
             )
-            matched_fit_data[matched_indices] = fit_data[fit_points]
+            matched_fit_data[matched_indices] = fit_data
+            # Every point in fit_points is corrected, but the correction is
+            # derived only from the observations not excluded.
+            in_fit = self._template_in_fit[fit_index]
+            matched_fit_data = matched_fit_data[in_fit]
             matched_fit_data -= numpy.nanmedian(matched_fit_data)
 
             self._logger.debug(
@@ -1192,7 +1199,7 @@ class TFACorrection(Correction):
             # Error average specified through iterative_fit_config
             # pylint: disable=missing-kwoa
             fit_results = iterative_fit_qr(
-                fit_templates.T,
+                fit_templates[in_fit].T,
                 apply_qrp,
                 matched_fit_data,
                 **self.iterative_fit_config,
@@ -1200,7 +1207,7 @@ class TFACorrection(Correction):
             # pylint: enable=missing-kwoa
             fit_results = self._process_fit(
                 fit_results=fit_results,
-                raw_values=raw_values[fit_points],
+                raw_values=raw_values,
                 predictors=fit_templates[matched_indices, :].T,
                 fit_index=fit_index,
                 result=result,
@@ -1231,6 +1238,7 @@ class TFACorrection(Correction):
                     configuration=extended_configuration,
                     **fit_results,
                     fit_points=fit_points,
+                    qc_excluded=self._is_qc_excluded(lc_observation_ids),
                     light_curve=light_curve,
                 )
 
