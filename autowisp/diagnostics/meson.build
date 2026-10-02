@@ -2,6 +2,7 @@ py_src = [
   '__init__.py',
   'detrending.py',
   'diagnostic_types.py',
+  'exclusion_rules.py',
   'expression_library.py',
   'expression_series.py',
   'expressions.py',

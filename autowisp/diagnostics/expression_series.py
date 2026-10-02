@@ -467,8 +467,11 @@ def _diagnostic_values_query(population, names, bindings):
     return query.order_by(DiagnosticType.name, *_image_order)
 
 
-def _magfit_channels(needed):
+def get_magfit_channels(needed):
     """Return the channels *needed* reads a magfit diagnostic in, sorted.
+
+    Each needs a slot in the :class:`SeriesKey` to hold its reference, so
+    whatever builds a key asks here which those are.
 
     Args:
         needed(dict):    ``{name: set of (channels, photometries)}``, from
@@ -495,7 +498,7 @@ def _unreferenced_magfit_channels(series_key, needed):
     referenced = {channel for channel, _ in series_key.reference_pairs}
     return [
         channel
-        for channel in _magfit_channels(needed)
+        for channel in get_magfit_channels(needed)
         if channel not in referenced
     ]
 
@@ -788,7 +791,7 @@ def split_series(series_key, wanted, expressions, db_session):
     needed = get_needed_values(wanted, expressions)
     slotless = [
         channel
-        for channel in _magfit_channels(needed)
+        for channel in get_magfit_channels(needed)
         if channel not in series_key.channels
     ]
     if slotless:

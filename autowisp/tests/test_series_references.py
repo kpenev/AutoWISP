@@ -22,6 +22,7 @@ import unittest
 from datetime import datetime
 
 import numpy
+from sqlalchemy import select
 
 from autowisp.database.interface import set_project_home, start_db_session
 
@@ -199,31 +200,20 @@ class ReferenceProject(unittest.TestCase):
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
         with start_db_session() as db_session:
-            diagnostic_ids = {}
-            for name in ("bg_center", "photometry_mag_offset"):
-                diagnostic = DiagnosticType(name=name, description=name)
-                db_session.add(diagnostic)
-                db_session.flush()
-                diagnostic_ids[name] = diagnostic.id
-
-            image_type = ImageType(name="object", description="objects")
             photref_type = MasterType(
                 name="single_photref", condition_id=1, description="photref"
             )
-            session = ObservingSession(
-                observer_id=1,
-                camera_id=1,
-                telescope_id=1,
-                mount_id=1,
-                observatory_id=1,
-                target_id=1,
-                label="split_night",
-                start_time_utc=datetime(2023, 3, 1, 20, 0, 0),
-                end_time_utc=datetime(2023, 3, 1, 23, 0, 0),
+            db_session.add_all(
+                [
+                    DiagnosticType(name=name, description=name)
+                    for name in ("bg_center", "photometry_mag_offset")
+                ]
+                + [
+                    ImageType(name="object", description="objects"),
+                    photref_type,
+                ]
             )
-            db_session.add_all([image_type, photref_type, session])
             db_session.flush()
-            cls.session_id = session.id
 
             #: ``{(reference, channel): MasterFile id}``.
             cls.photref = {}
@@ -238,65 +228,138 @@ class ReferenceProject(unittest.TestCase):
                     db_session.flush()
                     cls.photref[reference, channel] = master.id
 
-            cls.image_ids = []
-            for index, background in enumerate(cls.backgrounds):
-                image = Image(
-                    raw_fname=f"/data/raw/frame_{index}.fits",
-                    image_type_id=image_type.id,
-                    observing_session_id=session.id,
-                    jd=2460005.5 + 0.05 * index,
-                )
-                db_session.add(image)
-                db_session.flush()
-                cls.image_ids.append(image.id)
-
-                db_session.add(
-                    ImageDiagnostics(
-                        image_id=image.id,
-                        channel="R",
-                        diagnostic_id=diagnostic_ids["bg_center"],
-                        value=background,
-                    )
-                )
-                for channel in cls.offsets:
-                    db_session.add_all(
-                        cls._offset_rows(
-                            image.id,
-                            index,
-                            channel,
-                            diagnostic_ids["photometry_mag_offset"],
-                        )
-                    )
-                    reference = cls.bound_to[channel][index]
-                    if reference is not None:
-                        db_session.add(
-                            ImageMasterSelection(
-                                image_id=image.id,
-                                channel=channel,
-                                master_type_id=photref_type.id,
-                                master_file_id=cls.photref[reference, channel],
-                            )
-                        )
+            cls.session_id, cls.image_ids = cls._add_night(
+                db_session,
+                "split_night",
+                day=0,
+                backgrounds=cls.backgrounds,
+                offsets=cls.offsets,
+                bound_to=cls.bound_to,
+                unrecorded=cls.unrecorded,
+            )
         # pylint: enable=not-callable
 
+    # Each argument is one thing a night holds, named at the call, and the
+    # locals are the rows it is built from.
     @classmethod
-    def _offset_rows(cls, image_id, index, channel, diagnostic_id):
-        """Return one frame's ``photometry_mag_offset`` rows in *channel*.
+    # pylint: disable-next=too-many-arguments,too-many-locals
+    def _add_night(
+        cls,
+        db_session,
+        label,
+        *,
+        day,
+        backgrounds,
+        offsets,
+        bound_to,
+        unrecorded=None,
+    ):
+        """
+        Add a night of object frames, with their diagnostics and bindings.
 
-        One per photometry, less the one :attr:`unrecorded` names.
+        The diagnostic, image and master types and the references must be in
+        the database already. Provenance foreign keys are left dangling.
+
+        Args:
+            db_session:    An active SQLAlchemy database session.
+
+            label(str):    Names the session, and its frames' files.
+
+            day(int):    How many days after the first night it is.
+
+            backgrounds(list):    ``bg_center`` in ``R`` per frame, which
+                also says how many frames there are.
+
+            offsets(dict):    ``{channel: [photometry_mag_offset, ...]}``
+                per frame in aperture 0, recorded in every photometry of
+                :attr:`shifts`, each shifted by its own amount.
+
+            bound_to(dict):    ``{channel: [reference, ...]}``: the name of
+                the reference each frame is bound to, or ``None``.
+
+            unrecorded(tuple):    ``(channel, frame, photometry)`` of an
+                offset to leave out, if any.
+
+        Returns:
+            tuple:
+                int:    The id of the session.
+
+                list:    The ids of its images, in frame order.
         """
 
-        return [
-            PhotometryDiagnostics(  # pylint: disable=not-callable
-                image_id=image_id,
-                channel=channel,
-                photometry_id=photometry,
-                diagnostic_id=diagnostic_id,
-                value=cls.offsets[channel][index] + shift,
+        # False positive: the declarative models are callable.
+        # pylint: disable=not-callable
+        session = ObservingSession(
+            observer_id=1,
+            camera_id=1,
+            telescope_id=1,
+            mount_id=1,
+            observatory_id=1,
+            target_id=1,
+            label=label,
+            start_time_utc=datetime(2023, 3, 1 + day, 20, 0, 0),
+            end_time_utc=datetime(2023, 3, 1 + day, 23, 0, 0),
+        )
+        db_session.add(session)
+        db_session.flush()
+
+        diagnostic_ids = dict(
+            db_session.execute(
+                select(DiagnosticType.name, DiagnosticType.id)
+            ).all()
+        )
+        image_type_id = db_session.scalar(
+            select(ImageType.id).where(ImageType.name == "object")
+        )
+        photref_type_id = db_session.scalar(
+            select(MasterType.id).where(MasterType.name == "single_photref")
+        )
+
+        image_ids = []
+        for index, background in enumerate(backgrounds):
+            image = Image(
+                raw_fname=f"/data/raw/{label}_{index}.fits",
+                image_type_id=image_type_id,
+                observing_session_id=session.id,
+                jd=2460005.5 + day + 0.05 * index,
             )
-            for photometry, shift in cls.shifts.items()
-            if (channel, index, photometry) != cls.unrecorded
-        ]
+            db_session.add(image)
+            db_session.flush()
+            image_ids.append(image.id)
+
+            db_session.add(
+                ImageDiagnostics(
+                    image_id=image.id,
+                    channel="R",
+                    diagnostic_id=diagnostic_ids["bg_center"],
+                    value=background,
+                )
+            )
+            for channel, channel_offsets in offsets.items():
+                db_session.add_all(
+                    PhotometryDiagnostics(
+                        image_id=image.id,
+                        channel=channel,
+                        photometry_id=photometry,
+                        diagnostic_id=diagnostic_ids["photometry_mag_offset"],
+                        value=channel_offsets[index] + shift,
+                    )
+                    for photometry, shift in cls.shifts.items()
+                    if (channel, index, photometry) != unrecorded
+                )
+                reference = bound_to[channel][index]
+                if reference is not None:
+                    db_session.add(
+                        ImageMasterSelection(
+                            image_id=image.id,
+                            channel=channel,
+                            master_type_id=photref_type_id,
+                            master_file_id=cls.photref[reference, channel],
+                        )
+                    )
+        # pylint: enable=not-callable
+
+        return session.id, image_ids
 
     def key(self, channels, *references, photometries=()):
         """Return the night's series binding *channels* to *references*.
