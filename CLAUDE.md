@@ -375,6 +375,10 @@ work being abandoned.
   of edits and corrections on top, and committing each intermediate state makes
   noise that then has to be squashed. Wait for an explicit "commit".
 
+- **Push before updating Jira about a commit.** A comment written before the
+  push can only say the work is not on the remote yet, and is stale as soon
+  as it is. Push first, then comment and transition the issue.
+
 - **A commit need not be a working version on its own.** Committing code that
   a later commit fixes is fine. And when finished work is split into a series
   of commits at once, to make it readable, don't build or test the
