@@ -16,7 +16,7 @@ originSessionId: 011dc283-565d-4673-8535-f1d1da1b0e66
 
 When the existing corrected dataset is smaller than `corrected_selection.shape`:
 
-**Case 1** – New images match `fit_points_filter_expression`: EPD ensemble is stale. Must re-run: `epd`, `generate_epd_statistics`, `tfa`, `generate_tfa_statistics`.
+**Case 1** – New images match `fit_points_filter_expression`: EPD ensemble is stale. Must re-run: `epd`, `generate_epd_statistics`, `tfa`, `generate_tfa_statistics`. This must be preceded by requesting an explicit confirmation from the user that this is acceptable and that old the current EPD and TFA points will be modified, suggesting that it may be desirable to archive the lightcurves before proceeding if they have been used for anything. **Adding this warning is not currently included in the plan**
 
 **Case 2** – New images don't match the filter: Just extend the dataset to make room. No re-processing needed.
 
