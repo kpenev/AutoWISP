@@ -3,13 +3,16 @@
 import contextlib
 import io
 import unittest
+from itertools import cycle
 from os import path
 
 import numpy
 
+from autowisp.exceptions import ConfigurationError
 from autowisp.light_curves.apply_correction import (
     recalculate_correction_statistics,
 )
+from autowisp.light_curves.correction import Correction
 from autowisp.light_curves.epd_correction import EPDCorrection
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.tests.synthetic_light_curve_test_case import (
@@ -31,6 +34,11 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
     The list also names the first channel of a frame the EPD filter does not
     select and the TFA target lacks, and an observation in no lightcurve.
     The second channel of every frame is never listed.
+
+    Every other listed observation names the photometry fit, aperture 0, and
+    the rest name none, which applies to every photometry. Some good
+    observations are listed too, under other photometries only, which must
+    not leave them out of the fit of aperture 0.
 
     Outlier rejection is off: it would otherwise discard some of the bad
     observations on its own, list or no list.
@@ -190,9 +198,19 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
         )
 
         exclude_fname = path.join(cls._project_home, "exclude.txt")
+        other_photometries = (
+            (frame_indices >= 20)
+            & (frame_indices < 25)
+            & (cls._channel_indices == 0)
+        )
         with open(exclude_fname, "w", encoding="utf-8") as exclude_file:
-            for fnum in cls._fnums[cls._listed]:
-                exclude_file.write(f"{fnum} G0\n")
+            for index, fnum in enumerate(cls._fnums[cls._listed]):
+                exclude_file.write(f"{fnum} G0{' ap0' * (index % 2)}\n")
+            for fnum, photometry in zip(
+                cls._fnums[other_photometries],
+                cycle(("ap1", "shapefit")),
+            ):
+                exclude_file.write(f"{fnum} G0 {photometry}\n")
             exclude_file.write("\n9999 G0\n")
         exclusions = {
             "qc_exclude_file": exclude_fname,
@@ -321,6 +339,18 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
         self._assert_recorded(
             result, corrected, numpy.zeros(corrected.shape, dtype=bool), ""
         )
+
+    def test_a_list_naming_no_photometry_is_refused(self):
+        """A last value that is not a photometry, or a value too many."""
+
+        exclude_fname = path.join(self._project_home, "bad_exclude.txt")
+        for line in ("101 G0 ap", "101 G0 G1", "101 G0 ap0 ap1"):
+            with self.subTest(line=line):
+                with open(exclude_fname, "w", encoding="utf-8") as bad_list:
+                    bad_list.write(line + "\n")
+                with self.assertRaises(ConfigurationError):
+                    # pylint: disable-next=protected-access
+                    Correction._read_exclusions(exclude_fname, 2)
 
 
 if __name__ == "__main__":

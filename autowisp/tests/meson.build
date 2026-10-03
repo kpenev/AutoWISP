@@ -26,6 +26,7 @@ py_src = [
   'test_diagnostic_expressions.py',
   'test_diagnostics_rules.py',
   'test_diagnostics_views.py',
+  'test_engine_exclusions.py',
   'test_epd.py',
   'test_evaluator.py',
   'test_exclusion_rules.py',

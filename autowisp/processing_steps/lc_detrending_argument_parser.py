@@ -455,7 +455,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             default=None,
             help=f"A file listing the observations to leave out of the {mode} "
             "fit, one per line, each given by the values of the "
-            "--tfa-observation-id datasets separated by white space. Excluded "
+            "--tfa-observation-id datasets separated by white space, "
+            "optionally followed by the photometry it applies to: shapefit, "
+            "or ap followed by an aperture index, e.g. ap3. A line naming no "
+            "photometry applies to every one. Excluded "
             "observations are still corrected. The pipeline writes this file "
             "from the step's exclusion rule; a stand-alone run may supply one "
             "written by hand. If unspecified, nothing is excluded.",
@@ -608,9 +611,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             type=float,
             default=1e-5,
             help="Floor on the residual scale (in the units of the fitted "
-            "quantity) used for outlier rejection. Without it, a (near-)perfect "
-            "fit has a residual ~0, collapsing the rejection threshold to ~0 so "
-            "that points get rejected on floating-point noise -- which can, "
+            "quantity) used for outlier rejection. Without it, a "
+            "(near-)perfect fit has a residual ~0, collapsing the rejection "
+            "threshold to ~0 so that points get rejected on floating-point "
+            "noise -- which can, "
             "platform-dependently, reject enough points to fail the fit. "
             "Default: %(default)s",
         )

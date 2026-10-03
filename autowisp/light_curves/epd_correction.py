@@ -256,7 +256,8 @@ class EPDCorrection(Correction):
             return predictors, fit_weights, fit_points
 
         # <++> Move out
-        def correct_one_dataset(
+        # Keyword-only after the lightcurve, each named at every call.
+        def correct_one_dataset(  # pylint: disable=too-many-arguments
             light_curve,
             *,
             predictors,
@@ -308,7 +309,7 @@ class EPDCorrection(Correction):
             )
 
             qc_excluded = self._find_qc_excluded(
-                light_curve, fit_target[1], fit_points.size
+                light_curve, fit_target, fit_points.size
             )
             # Every point in fit_points is corrected, but the correction is
             # derived only from those not excluded.

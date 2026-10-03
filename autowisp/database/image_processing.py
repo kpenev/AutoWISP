@@ -11,7 +11,10 @@ from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.processing import ProcessingManager
+from autowisp.database.processing import (
+    ProcessingManager,
+    with_exclusion_list,
+)
 from autowisp.database.interface import start_db_session, get_project_home
 from autowisp.exceptions import Component, MasterSelectionError, PipelineError
 from autowisp.error_context import capture_errors, error_context
@@ -19,6 +22,7 @@ from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.diagnostics.diagnostic_types import is_quantile_diagnostic
+from autowisp.diagnostics.exclusion_rules import get_excluded
 from autowisp.evaluator import Evaluator
 
 # False positive due to unusual importing
@@ -787,19 +791,68 @@ class ImageProcessingManager(ProcessingManager):
         if new_masters:
             self.add_masters(new_masters, step_name, image_type_name)
 
+    def _get_magfit_exclusions(self, step_name, config, batch):
+        """
+        Return the DR files of a batch to leave out of the master photref.
+
+        Decided by the ``magfit-exclusion-rule``, for the observations of the
+        batch, which are fit together: one master is built from them.
+
+        Args:
+            step_name(str):    The step about to process the batch.
+
+            config(dict):    Its configuration for the batch.
+
+            batch([str]):    The DR files it is about to process.
+
+        Returns:
+            [str] or None:
+                The excluded DR files, sorted. None if nothing is decided:
+                for any step but ``fit_magnitudes``, without a rule, and when
+                fitting against an existing master, which is not rebuilt.
+        """
+
+        if (
+            step_name != "fit_magnitudes"
+            or not config.get("magfit_exclusion_rule")
+            or config["master_photref_fname"] is not None
+        ):
+            return None
+
+        dr_fnames = {
+            (entry["image_id"], entry["channel"]): dr_fname
+            for dr_fname in batch
+            for entry in self._processed_ids[dr_fname]
+        }
+        with start_db_session() as db_session:
+            excluded = get_excluded(
+                config["magfit_exclusion_rule"],
+                dr_fnames,
+                db_session,
+                before_magfit=True,
+            )[None]
+        return sorted(
+            dr_fname
+            for member, dr_fname in dr_fnames.items()
+            if member in excluded
+        )
+
     @capture_errors(component=Component.STEP)
     def _run_step(self, batch, start_status, config, step_name):
         """Invoke the step's entry function for a batch of images."""
 
         step_module = getattr(processing_steps, step_name)
         self.check_start_status(step_module, step_name, start_status)
-        return getattr(step_module, step_name)(
-            batch,
-            start_status,
-            config,
-            self._start_processing,
-            self._end_processing,
-        )
+        with with_exclusion_list(
+            config, self._get_magfit_exclusions(step_name, config, batch)
+        ) as step_config:
+            return getattr(step_module, step_name)(
+                batch,
+                start_status,
+                step_config,
+                self._start_processing,
+                self._end_processing,
+            )
 
     def _start_processing(self, input_fname, status=0):
         """

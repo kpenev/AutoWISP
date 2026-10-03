@@ -541,7 +541,11 @@ class TFACorrection(Correction):
         # them, but are left out of everything derived from it.
         phot_data -= numpy.nanmedian(
             phot_data[
-                numpy.logical_not(self._is_qc_excluded(phot_observation_ids))
+                numpy.logical_not(
+                    self._is_qc_excluded(
+                        phot_observation_ids, phot_dset_key, substitutions
+                    )
+                )
             ]
         )
 
@@ -807,33 +811,6 @@ class TFACorrection(Correction):
                     )
                     assert (matched_indices < template_selection.sum()).all()
 
-                    #                    max_length = max(len(template_data[template_selection]),
-                    #                                     len(lc_data[lc_selection]))
-                    #                    print('{:5s}: {:32s} {:32s}'.format('Index',
-                    #                                                        'Template',
-                    #                                                        'LC'))
-                    #                    for i in range(max_length):
-                    #                        print(
-                    #                            (
-                    #                                '{:1.1s} {:5d}: ({:5d}){:25.16e} '
-                    #                                '({:5d}){:25.16e}'
-                    #                            ).format(
-                    #                                ' ' if (
-                    #                                    template_data[template_selection][i]
-                    #                                    ==
-                    #                                    lc_data[lc_selection][i]
-                    #                                ) else '*',
-                    #                                i,
-                    #                                numpy.arange(
-                    #                                    len(template_selection)
-                    #                                )[template_selection][i],
-                    #                                template_data[template_selection][i],
-                    #                                numpy.arange(
-                    #                                    len(lc_selection)
-                    #                                )[lc_selection][i],
-                    #                                lc_data[lc_selection][i]
-                    #                            )
-                    #                        )
                     print(
                         "Template data: "
                         + repr(
@@ -1017,8 +994,12 @@ class TFACorrection(Correction):
             self._verify_template_data()
 
         self._template_in_fit = [
-            numpy.logical_not(self._is_qc_excluded(observation_ids))
-            for observation_ids in self._template_observation_ids
+            numpy.logical_not(
+                self._is_qc_excluded(observation_ids, *fit_dataset[:2])
+            )
+            for observation_ids, fit_dataset in zip(
+                self._template_observation_ids, configuration["fit_datasets"]
+            )
         ]
 
         # False positive
@@ -1238,7 +1219,9 @@ class TFACorrection(Correction):
                     configuration=extended_configuration,
                     **fit_results,
                     fit_points=fit_points,
-                    qc_excluded=self._is_qc_excluded(lc_observation_ids),
+                    qc_excluded=self._is_qc_excluded(
+                        lc_observation_ids, *fit_target[:2]
+                    ),
                     light_curve=light_curve,
                 )
 

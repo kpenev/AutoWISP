@@ -117,6 +117,7 @@ from autowisp.tests.test_photref_binding import (
     TestSeparationBinding,
     TestConditionBinding,
 )
+from autowisp.tests.test_engine_exclusions import TestEngineExclusions
 from autowisp.tests.test_exception_hierarchy import (
     TestExceptionHierarchy,
     TestMigratedExceptions,

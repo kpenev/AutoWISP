@@ -4,6 +4,10 @@ import logging
 
 import numpy
 
+from autowisp.diagnostics.diagnostic_types import (
+    parse_photometry_literal,
+    shapefit_photometry,
+)
 from autowisp.exceptions import ConfigurationError
 
 
@@ -66,21 +70,41 @@ class Correction:
             num_id_values(int):    How many values identify an observation.
 
         Returns:
-            [(str, ...)]:
-                The values identifying each listed observation, as written.
+            dict:
+                ``{photometry: [(str, ...), ...]}``: the values identifying
+                each listed observation, as written, under the photometry id
+                its line names, or under None for a line naming none, which
+                applies to every photometry.
         """
 
+        result = {}
         if exclusion_fname is None:
-            return []
+            return result
         with open(exclusion_fname, encoding="utf-8") as exclusion_list:
-            result = [line.split() for line in exclusion_list if line.strip()]
-        for observation in result:
-            if len(observation) != num_id_values:
-                raise ConfigurationError(
-                    f"The exclusion list {exclusion_fname!r} gives "
-                    f"{' '.join(observation)!r} as an observation, but "
-                    f"observations are identified by {num_id_values} values."
-                )
+            for line in exclusion_list:
+                values = line.split()
+                if not values:
+                    continue
+                if len(values) == num_id_values:
+                    photometry = None
+                elif len(values) == num_id_values + 1:
+                    photometry = parse_photometry_literal(values[-1])
+                    if photometry is None:
+                        raise ConfigurationError(
+                            f"The exclusion list {exclusion_fname!r} gives "
+                            f"{values[-1]!r} as the photometry of an "
+                            "observation, where it takes 'shapefit' or 'ap' "
+                            "followed by an aperture index."
+                        )
+                    del values[-1]
+                else:
+                    raise ConfigurationError(
+                        f"The exclusion list {exclusion_fname!r} gives "
+                        f"{' '.join(values)!r} as an observation, but "
+                        f"observations are identified by {num_id_values} "
+                        "values, optionally followed by a photometry."
+                    )
+                result.setdefault(photometry, []).append(values)
         return result
 
     def _get_observation_ids(self, light_curve, substitutions):
@@ -93,53 +117,78 @@ class Correction:
             }
         )
 
-    def _find_qc_excluded(self, light_curve, substitutions, num_points):
+    def _find_qc_excluded(self, light_curve, fit_target, num_points):
         """
         Flag the points of a lightcurve to leave out of the fit.
 
         Args:
             light_curve(LightCurveFile):    The lightcurve being corrected.
 
-            substitutions(dict):    Any substitutions needed to resolve the
-                observation ID datasets.
+            fit_target(tuple):    The entry of :attr:`fit_datasets` being
+                fit: the pipeline key of the input dataset, the substitutions
+                resolving it, and the pipeline key of the output dataset. The
+                first two give the photometry, and the substitutions also
+                resolve the observation ID datasets.
 
             num_points(int):    The number of points in the lightcurve.
 
         Returns:
             numpy.array(dtype=bool):
                 For each point, whether its observation is in the exclusion
-                list.
+                list for the photometry being fit.
         """
 
         if not self._qc_exclusions:
             return numpy.zeros(num_points, dtype=bool)
         return self._is_qc_excluded(
-            self._get_observation_ids(light_curve, substitutions)
+            self._get_observation_ids(light_curve, fit_target[1]),
+            *fit_target[:2],
         )
 
-    def _is_qc_excluded(self, observation_ids):
+    @staticmethod
+    def _get_photometry(dset_key, substitutions):
         """
-        Flag the observations that are in the exclusion list.
+        Return the photometry id of a fit dataset, as exclusion lists name it.
+
+        Args:
+            dset_key(str):    The pipeline key of the dataset.
+
+            substitutions(dict):    The substitutions resolving it.
+
+        Returns:
+            int:    :data:`shapefit_photometry` for the shape fit, and the
+                aperture index for aperture photometry.
+        """
+
+        if dset_key.startswith("shapefit."):
+            return shapefit_photometry
+        if dset_key.startswith("apphot."):
+            return substitutions["aperture_index"]
+        raise ConfigurationError(
+            f"Cannot tell which photometry {dset_key!r} is, so the exclusions "
+            "listed per photometry cannot be applied to it."
+        )
+
+    def _match_exclusions(self, observation_ids, photometry):
+        """
+        Flag the observations listed under one photometry of the list.
 
         Args:
             observation_ids(structured array):    The observations to check,
                 as returned by _get_observation_ids().
 
+            photometry(int or None):    The photometry the list names them
+                under, None for the lines naming none.
+
         Returns:
             numpy.array(dtype=bool):
-                For each observation, whether it is in the exclusion list.
+                For each observation, whether it is listed there.
         """
 
-        if not self._qc_exclusions:
-            return numpy.zeros(observation_ids.shape, dtype=bool)
-
-        if self._sorted_exclusions is None:
-            exclusions = numpy.empty(
-                len(self._qc_exclusions), dtype=observation_ids.dtype
-            )
-            for name, values in zip(
-                observation_ids.dtype.names, zip(*self._qc_exclusions)
-            ):
+        if photometry not in self._sorted_exclusions:
+            listed = self._qc_exclusions[photometry]
+            exclusions = numpy.empty(len(listed), dtype=observation_ids.dtype)
+            for name, values in zip(observation_ids.dtype.names, zip(*listed)):
                 # Lightcurves give strings as bytes in object columns.
                 if observation_ids.dtype[name] == object:
                     exclusions[name] = [
@@ -149,15 +198,45 @@ class Correction:
                     exclusions[name] = numpy.array(values).astype(
                         observation_ids.dtype[name]
                     )
-            self._sorted_exclusions = numpy.sort(exclusions)
+            self._sorted_exclusions[photometry] = numpy.sort(exclusions)
 
-        matched_indices = numpy.searchsorted(
-            self._sorted_exclusions, observation_ids
-        )
-        matched_indices[matched_indices == self._sorted_exclusions.size] = 0
-        return self._sorted_exclusions[matched_indices] == observation_ids
+        sorted_exclusions = self._sorted_exclusions[photometry]
+        matched_indices = numpy.searchsorted(sorted_exclusions, observation_ids)
+        matched_indices[matched_indices == sorted_exclusions.size] = 0
+        return sorted_exclusions[matched_indices] == observation_ids
 
-    def _save_result(
+    def _is_qc_excluded(self, observation_ids, dset_key, substitutions):
+        """
+        Flag the observations the exclusion list leaves out of one dataset.
+
+        Those listed with no photometry, and those listed under the
+        photometry of the dataset.
+
+        Args:
+            observation_ids(structured array):    The observations to check,
+                as returned by _get_observation_ids().
+
+            dset_key(str):    The pipeline key of the input dataset being fit.
+
+            substitutions(dict):    The substitutions resolving it.
+
+        Returns:
+            numpy.array(dtype=bool):
+                For each observation, whether it is in the exclusion list for
+                the photometry of the dataset.
+        """
+
+        result = numpy.zeros(observation_ids.shape, dtype=bool)
+        for photometry in self._qc_exclusions:
+            if photometry is None or photometry == self._get_photometry(
+                dset_key, substitutions
+            ):
+                result |= self._match_exclusions(observation_ids, photometry)
+        return result
+
+    # Keyword-only, each named at every call, and bundling them would only
+    # move the list somewhere less visible.
+    def _save_result(  # pylint: disable=too-many-arguments
         self,
         *,
         fit_index,
@@ -250,8 +329,9 @@ class Correction:
             **substitutions,
         )
 
+    # Keyword-only, each named at every call.
     @staticmethod
-    def _process_fit(
+    def _process_fit(  # pylint: disable=too-many-arguments
         *,
         fit_results,
         raw_values,
@@ -464,7 +544,10 @@ class Correction:
             qc_exclude_file(str or None):    The observations to leave out of
                 the fit while still correcting them: one per line, each given
                 by the values of the ``observation_id`` datasets separated by
-                white space, blank lines ignored. None excludes nothing.
+                white space, blank lines ignored. A line may end with the
+                photometry it applies to, ``shapefit`` or ``ap`` followed by
+                an aperture index; without one it applies to every
+                photometry. None excludes nothing.
 
             exclusion_rule(str or None):    The rule that produced
                 ``qc_exclude_file``, recorded with the fit. None if the list
@@ -486,7 +569,9 @@ class Correction:
         self._qc_exclusions = self._read_exclusions(
             qc_exclude_file, len(observation_id or ())
         )
-        self._sorted_exclusions = None
+        # Sorted for matching, per photometry, when first needed: the dtype
+        # comes from the lightcurves' observation ids.
+        self._sorted_exclusions = {}
 
 
 # pylint: enable=too-few-public-methods
