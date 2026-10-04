@@ -68,18 +68,19 @@ def _magfit_related_files(dr_fname, single_photref=None, master_photref=None):
     return related
 
 
-def _get_exclusion_record(exclusion_rule, num_images, excluded_dr_filenames):
+def _get_population_record(exclusion_rule, dr_filenames, excluded_dr_filenames):
     """
-    Return the header keywords and table recording images left out of masters.
+    Return the header keywords and table recording what masters are built from.
 
     Args:
         exclusion_rule(str):    The rule that decided the exclusions, empty if
             they were not decided by a rule.
 
-        num_images(int):    How many images were fit, excluded ones included.
+        dr_filenames([str]):    Every DR file fit while the masters are built,
+            excluded ones included, as given to magnitude fitting.
 
-        excluded_dr_filenames([str]):    The DR files fit but left out of the
-            masters, as given to magnitude fitting.
+        excluded_dr_filenames([str]):    The DR files among ``dr_filenames``
+            fit but left out of the masters.
 
     Returns:
         dict:
@@ -87,24 +88,33 @@ def _get_exclusion_record(exclusion_rule, num_images, excluded_dr_filenames):
             ``(value, comment)`` tuples.
 
         fits.BinTableHDU:
-            The ``QCEXCL`` table listing the excluded DR files.
+            The ``INMASTER`` table listing every DR file fit, with an
+            ``included`` column flagging those the masters are built from.
     """
 
     header = {
         "QCRULE": (exclusion_rule, "Rule excluding images from the master"),
-        "QCNIMG": (num_images, "Images fit, excluded included"),
+        "QCNIMG": (len(dr_filenames), "Images fit, excluded included"),
         "QCNEXCL": (len(excluded_dr_filenames), "Images excluded from master"),
     }
-    max_length = max([1] + [len(fname) for fname in excluded_dr_filenames])
+    excluded = set(excluded_dr_filenames)
     table = fits.BinTableHDU.from_columns(
         [
             fits.Column(
                 name="dr_fname",
-                format=f"{max_length}A",
-                array=numpy.array(excluded_dr_filenames, dtype=str),
-            )
+                format=f"{max(len(fname) for fname in dr_filenames)}A",
+                array=numpy.array(dr_filenames, dtype=str),
+            ),
+            fits.Column(
+                name="included",
+                format="L",
+                array=numpy.array(
+                    [fname not in excluded for fname in dr_filenames],
+                    dtype=bool,
+                ),
+            ),
         ],
-        name="QCEXCL",
+        name="INMASTER",
     )
     return header, table
 
@@ -285,10 +295,10 @@ class MagnitudeFitting:
                 "photometric reference, leaving nothing to build it from!"
             )
 
-        exclusion_header, exclusion_table = _get_exclusion_record(
+        population_header, population_table = _get_population_record(
             # Defined only when the pipeline configures the step.
             getattr(self._configuration, "magfit_exclusion_rule", None) or "",
-            len(dr_fnames),
+            dr_fnames,
             excluded_dr_fnames,
         )
         master_inputs = SimpleNamespace(
@@ -296,10 +306,10 @@ class MagnitudeFitting:
                 catalog_sources, self._parse_source_id
             ),
             header=self.sphotref_header.copy(),
-            extra_hdus=[exclusion_table],
+            extra_hdus=[population_table],
         )
         master_inputs.header["IMAGETYP"] = "mphotref"
-        master_inputs.header.update(exclusion_header)
+        master_inputs.header.update(population_header)
 
         self._logger.info(
             "Starting iterative magfit of %d images, %d of them excluded from "

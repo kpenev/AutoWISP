@@ -23,10 +23,14 @@ class TestFitMagnitudes(DRTestCase):
         for ap_ind in range(4)
     ]
 
+    # The master photometric reference's header record of its population.
+    _qc_keywords = {"QCRULE", "QCNIMG", "QCNEXCL"}
+
     def test_fit_magnitudes(self):
         """Run the fit_magnitudes step and check the outputs."""
 
         self.run_step_test("fit_magnitudes", "DR", self._fitted_magnitudes)
+        self._assert_masters_as_expected()
 
     def _read_fits(self, dr_fname):
         """Return ``{path: (magnitudes, fit residual)}`` of every fit in DR."""
@@ -136,44 +140,43 @@ class TestFitMagnitudes(DRTestCase):
                         reference[source_id]["mag"][0, phot_ind], magnitude
                     )
 
-    def _assert_masters_match(self, subset_fname, excluding_fname):
-        """Assert two masters match, apart from the record of exclusions."""
+    def _assert_masters_match(self, expected_fname, master_fname):
+        """Assert two masters match, apart from their population record."""
 
         with (
-            fits.open(subset_fname) as subset,
-            fits.open(excluding_fname) as excluding,
+            fits.open(expected_fname) as expected,
+            fits.open(master_fname) as master,
         ):
-            qc_keywords = {"QCRULE", "QCNIMG", "QCNEXCL"}
             self.assertEqual(
                 {
                     key: value
-                    for key, value in subset[0].header.items()
-                    if key not in qc_keywords
+                    for key, value in expected[0].header.items()
+                    if key not in self._qc_keywords
                 },
                 {
                     key: value
-                    for key, value in excluding[0].header.items()
-                    if key not in qc_keywords
+                    for key, value in master[0].header.items()
+                    if key not in self._qc_keywords
                 },
             )
             self.assertEqual(
-                [hdu.name for hdu in subset], [hdu.name for hdu in excluding]
+                [hdu.name for hdu in expected], [hdu.name for hdu in master]
             )
-            for subset_hdu, excluding_hdu in zip(subset[1:], excluding[1:]):
-                if subset_hdu.name != "MPHOTREF":
+            for expected_hdu, master_hdu in zip(expected[1:], master[1:]):
+                if expected_hdu.name != "MPHOTREF":
                     continue
                 # Rows follow the order in which images finished fitting.
-                subset_data, excluding_data = (
+                expected_data, master_data = (
                     numpy.sort(hdu.data, order="source_id")
-                    for hdu in (subset_hdu, excluding_hdu)
+                    for hdu in (expected_hdu, master_hdu)
                 )
-                for column in subset_data.dtype.names:
+                for column in expected_data.dtype.names:
                     numpy.testing.assert_allclose(
-                        excluding_data[column],
-                        subset_data[column],
+                        master_data[column],
+                        expected_data[column],
                         rtol=1e-8,
                         atol=0 if column == "source_id" else 1e-8,
-                        err_msg=f"{excluding_fname}: {column}",
+                        err_msg=f"{master_fname}: {column}",
                     )
 
     def _fit_without_and_with_exclusions(self, excluded):
@@ -188,8 +191,8 @@ class TestFitMagnitudes(DRTestCase):
             excluded([str]):    Two DR files, under the ``DR`` directory.
 
         Returns:
-            int:
-                The number of images the second run fit.
+            [str]:
+                The DR files the second run fit, those the bundle has fits for.
 
             str:
                 The directory holding the DR files of the first run.
@@ -201,10 +204,11 @@ class TestFitMagnitudes(DRTestCase):
         dr_dir = path.join(self.processing_directory, "DR")
         subset_dir = path.join(self.processing_directory, "DR_subset")
         makedirs(subset_dir)
-        num_images = 0
+        fit_dr_fnames = []
         for dr_fname in glob(path.join(dr_dir, "*.h5")):
             with h5py.File(dr_fname, "a") as dr_file:
-                num_images += self._fitted_magnitudes[0] in dr_file
+                if self._fitted_magnitudes[0] in dr_file:
+                    fit_dr_fnames.append(dr_fname)
                 for group in self._fitted_magnitudes:
                     if group in dr_file:
                         del dr_file[group]
@@ -242,18 +246,111 @@ class TestFitMagnitudes(DRTestCase):
                 dr_dir,
             ]
         )
-        return num_images, subset_dir, subset_masters_dir
+        return fit_dr_fnames, subset_dir, subset_masters_dir
+
+    def _assert_population(self, master_fname, expected):
+        """Assert the master's INMASTER table holds ``{dr_fname: included}``."""
+
+        with fits.open(master_fname) as master:
+            population = master["INMASTER"].data
+            self.assertEqual(
+                dict(
+                    zip(
+                        population["dr_fname"],
+                        population["included"].tolist(),
+                    )
+                ),
+                expected,
+                master_fname,
+            )
+            self.assertEqual(len(population), len(expected), master_fname)
+
+    def _assert_magfit_stat_match(self, expected_fname, stat_fname):
+        """Assert two magfit statistics files match, in any order of rows."""
+
+        sorted_stats = []
+        for fname in (expected_fname, stat_fname):
+            source_ids = numpy.loadtxt(fname, usecols=0, dtype=numpy.uint64)
+            order = numpy.argsort(source_ids)
+            sorted_stats.append(
+                (
+                    source_ids[order],
+                    numpy.loadtxt(fname, ndmin=2)[order, 1:],
+                )
+            )
+        numpy.testing.assert_array_equal(
+            sorted_stats[1][0], sorted_stats[0][0], err_msg=stat_fname
+        )
+        numpy.testing.assert_allclose(
+            sorted_stats[1][1],
+            sorted_stats[0][1],
+            rtol=1e-8,
+            atol=1e-8,
+            err_msg=stat_fname,
+        )
+
+    def _assert_masters_as_expected(self):
+        """Assert the masters and statistics written match the test data's."""
+
+        masters_dir = path.join(self.processing_directory, "MASTERS")
+        expected_dir = path.join(self.test_directory, "MASTERS")
+        for pattern in ["mphotref_*.fits", "mfit_stat_*.txt"]:
+            self.assertEqual(
+                sorted(
+                    map(path.basename, glob(path.join(masters_dir, pattern)))
+                ),
+                sorted(
+                    map(path.basename, glob(path.join(expected_dir, pattern)))
+                ),
+            )
+
+        for stat_fname in glob(path.join(masters_dir, "mfit_stat_*.txt")):
+            self._assert_magfit_stat_match(
+                path.join(expected_dir, path.basename(stat_fname)), stat_fname
+            )
+
+        # The population lists DR files by the paths magfit was given, so it
+        # is compared by name, the test data being fit in another directory.
+        dr_dir = path.join(self.processing_directory, "DR")
+        for master_fname in glob(path.join(masters_dir, "mphotref_*.fits")):
+            expected_fname = path.join(
+                expected_dir, path.basename(master_fname)
+            )
+            self._assert_masters_match(expected_fname, master_fname)
+            with (
+                fits.open(expected_fname) as expected,
+                fits.open(master_fname) as master,
+            ):
+                for keyword in self._qc_keywords:
+                    self.assertEqual(
+                        master[0].header[keyword],
+                        expected[0].header[keyword],
+                        f"{master_fname}: {keyword}",
+                    )
+                expected_population = expected["INMASTER"].data
+                self._assert_population(
+                    master_fname,
+                    {
+                        path.join(dr_dir, path.basename(dr_fname)): included
+                        for dr_fname, included in zip(
+                            expected_population["dr_fname"],
+                            expected_population["included"].tolist(),
+                        )
+                    },
+                )
 
     def _assert_masters_built_without(
-        self, excluded, num_images, subset_masters_dir
+        self, excluded, fit_dr_fnames, subset_dir, subset_masters_dir
     ):
         """
-        Assert the masters match the subset run's and record the exclusions.
+        Assert the masters match the subset run's and record the populations.
 
         Args:
             excluded([str]):    The DR files excluded from the masters.
 
-            num_images(int):    The number of images fit, excluded included.
+            fit_dr_fnames([str]):    The DR files fit, excluded included.
+
+            subset_dir(str):    Where the DR files of the subset run are.
 
             subset_masters_dir(str):    Where the masters built from the kept
                 images alone are.
@@ -278,17 +375,31 @@ class TestFitMagnitudes(DRTestCase):
             )
         masters = sorted(glob(path.join(masters_dir, "mphotref_*.fits")))
         for master_fname in masters:
-            self._assert_masters_match(
-                path.join(subset_masters_dir, path.basename(master_fname)),
-                master_fname,
+            subset_master_fname = path.join(
+                subset_masters_dir, path.basename(master_fname)
             )
+            self._assert_masters_match(subset_master_fname, master_fname)
             with fits.open(master_fname) as master:
                 self.assertEqual(master[0].header["QCRULE"], "")
-                self.assertEqual(master[0].header["QCNIMG"], num_images)
+                self.assertEqual(master[0].header["QCNIMG"], len(fit_dr_fnames))
                 self.assertEqual(master[0].header["QCNEXCL"], len(excluded))
-                self.assertEqual(
-                    sorted(master["QCEXCL"].data["dr_fname"]), sorted(excluded)
-                )
+            self._assert_population(
+                master_fname,
+                {
+                    dr_fname: dr_fname not in excluded
+                    for dr_fname in fit_dr_fnames
+                },
+            )
+            # The subset run is given only the kept files, and no exclusion
+            # list, so it fits just those and builds from every one of them.
+            self._assert_population(
+                subset_master_fname,
+                {
+                    path.join(subset_dir, path.basename(dr_fname)): True
+                    for dr_fname in fit_dr_fnames
+                    if dr_fname not in excluded
+                },
+            )
         return masters
 
     def test_exclusions_kept_out_of_master(self):
@@ -296,12 +407,12 @@ class TestFitMagnitudes(DRTestCase):
 
         Fits the kept images by themselves, then all images with the others
         excluded, and compares: the masters and the kept images' fits must
-        be the same, the excluded images fit at the last pass, and the
-        exclusions recorded. The list names one input by a relative path,
-        one by an absolute path, and a file that is not among the inputs,
-        which must not be recorded. Both the new master and one written
-        before exclusions were recorded must read as their photometry tables
-        alone.
+        be the same, the excluded images fit at the last pass, and each
+        master must list every image fit, flagging the ones it was built
+        from. The list names one input by a relative path, one by an absolute
+        path, and a file that is not among the inputs, which must not be
+        recorded. Both the new master and one written before exclusions were
+        recorded must read as their photometry tables alone.
         """
 
         self.get_inputs(["DR"])
@@ -310,11 +421,11 @@ class TestFitMagnitudes(DRTestCase):
             path.join(dr_dir, "10-465241_2_center.h5"),
             path.join(dr_dir, "10-465243_2_center.h5"),
         ]
-        num_images, subset_dir, subset_masters_dir = (
+        fit_dr_fnames, subset_dir, subset_masters_dir = (
             self._fit_without_and_with_exclusions(excluded)
         )
         masters = self._assert_masters_built_without(
-            excluded, num_images, subset_masters_dir
+            excluded, fit_dr_fnames, subset_dir, subset_masters_dir
         )
 
         for subset_fname in glob(path.join(subset_dir, "*.h5")):
