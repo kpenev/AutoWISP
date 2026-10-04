@@ -48,12 +48,28 @@ class TestFitMagnitudes(DRTestCase):
                         )
         return result
 
+    def _assert_qc_included(self, dr_fname, included):
+        """Assert every photometry of the DR file records ``included``."""
+
+        with h5py.File(dr_fname, "r") as dr_file:
+            flags = {
+                f"{group}/{version}": fitted.attrs["QCIncluded"]
+                for group in self._fitted_magnitudes
+                if group in dr_file
+                for version, fitted in dr_file[group].items()
+            }
+        self.assertEqual(len(flags), len(self._fitted_magnitudes), dr_fname)
+        for flag_path, flag in flags.items():
+            self.assertEqual(flag, included, f"{dr_fname}: {flag_path}")
+
     def test_later_image_fit_like_master_builders(self):
         """An image fit against the final master matches its last pass.
 
         Images added after the master photometric reference exists are fit
         against it alone, and must get exactly the fit that the images which
-        built it got in their last pass, at the same iteration index.
+        built it got in their last pass, at the same iteration index. One of
+        two such images is on the exclusion list, which changes nothing about
+        its fit, only the quality flag it records.
         """
 
         self.get_inputs(["DR", "MASTERS/mphotref_*.fits"])
@@ -68,24 +84,31 @@ class TestFitMagnitudes(DRTestCase):
         )
         last_pass = int(re.search(r"iter(\d+)\.fits$", final_master)[1]) + 1
 
-        # Not the single photometric reference, and fit in every pass.
-        later_dr = path.join(
-            self.processing_directory, "DR", "10-465240_2_center.h5"
-        )
-        last_fits = {
-            fit_path: fit
-            for fit_path, fit in self._read_fits(later_dr).items()
-            if fit_path.endswith(f"/Iteration{last_pass:03d}")
-        }
-        self.assertTrue(
-            last_fits,
-            f"No pass at iteration {last_pass}: the last pass was not fit "
-            f"against the final master {final_master}.",
-        )
+        # Neither is the single photometric reference; both are fit in every
+        # pass. The second is the one on the exclusion list.
+        later_drs = [
+            path.join(self.processing_directory, "DR", fname)
+            for fname in ("10-465240_2_center.h5", "10-465244_2_center.h5")
+        ]
+        last_fits = {}
+        for dr_fname in later_drs:
+            last_fits[dr_fname] = {
+                fit_path: fit
+                for fit_path, fit in self._read_fits(dr_fname).items()
+                if fit_path.endswith(f"/Iteration{last_pass:03d}")
+            }
+            self.assertTrue(
+                last_fits[dr_fname],
+                f"No pass at iteration {last_pass} in {dr_fname}: the last "
+                f"pass was not fit against the final master {final_master}.",
+            )
+            with h5py.File(dr_fname, "a") as dr_file:
+                for group in self._fitted_magnitudes:
+                    del dr_file[group]
 
-        with h5py.File(later_dr, "a") as dr_file:
-            for group in self._fitted_magnitudes:
-                del dr_file[group]
+        exclusion_fname = path.join(self.processing_directory, "exclude.txt")
+        with open(exclusion_fname, "w", encoding="utf-8") as exclusion_list:
+            exclusion_list.write(later_drs[1] + "\n")
         self.run_step(
             [
                 "wisp-fit-magnitudes",
@@ -95,27 +118,37 @@ class TestFitMagnitudes(DRTestCase):
                 # checks: PROJHOME is "." in the test data headers.
                 "--master-photref-fname",
                 f"./MASTERS/{final_master}",
-                later_dr,
+                "--qc-exclude-file",
+                exclusion_fname,
             ]
+            + later_drs
         )
 
-        refits = self._read_fits(later_dr)
-        # The DR file links the fit to every earlier iteration as well, so
-        # that its iterations stay contiguous: only the last one is the fit.
-        self.assertEqual(
-            max(int(fit_path[-3:]) for fit_path in refits), last_pass
-        )
-        for fit_path, (magnitudes, residual) in last_fits.items():
-            numpy.testing.assert_allclose(
-                refits[fit_path][0],
-                magnitudes,
-                rtol=1e-8,
-                atol=1e-8,
-                err_msg=fit_path,
+        for dr_fname, included in zip(later_drs, (True, False)):
+            refits = self._read_fits(dr_fname)
+            # The DR file links the fit to every earlier iteration as well, so
+            # that its iterations stay contiguous: only the last one is the
+            # fit.
+            self.assertEqual(
+                max(int(fit_path[-3:]) for fit_path in refits),
+                last_pass,
+                dr_fname,
             )
-            numpy.testing.assert_allclose(
-                refits[fit_path][1], residual, rtol=1e-8, err_msg=fit_path
-            )
+            for fit_path, (magnitudes, residual) in last_fits[dr_fname].items():
+                numpy.testing.assert_allclose(
+                    refits[fit_path][0],
+                    magnitudes,
+                    rtol=1e-8,
+                    atol=1e-8,
+                    err_msg=f"{dr_fname}: {fit_path}",
+                )
+                numpy.testing.assert_allclose(
+                    refits[fit_path][1],
+                    residual,
+                    rtol=1e-8,
+                    err_msg=f"{dr_fname}: {fit_path}",
+                )
+            self._assert_qc_included(dr_fname, included)
 
     def _assert_master_reads(self, master_fname):
         """Assert the master reads as exactly its photometry tables."""
@@ -407,9 +440,10 @@ class TestFitMagnitudes(DRTestCase):
 
         Fits the kept images by themselves, then all images with the others
         excluded, and compares: the masters and the kept images' fits must
-        be the same, the excluded images fit at the last pass, and each
-        master must list every image fit, flagging the ones it was built
-        from. The list names one input by a relative path, one by an absolute
+        be the same, the excluded images fit at the last pass, each master
+        must list every image fit, flagging the ones it was built from, and
+        each image must record whether it passes the quality cut. The list
+        names one input by a relative path, one by an absolute
         path, and a file that is not among the inputs, which must not be
         recorded. Both the new master and one written before exclusions were
         recorded must read as their photometry tables alone.
@@ -443,6 +477,8 @@ class TestFitMagnitudes(DRTestCase):
                 last_pass,
                 dr_fname,
             )
+        for dr_fname in fit_dr_fnames:
+            self._assert_qc_included(dr_fname, dr_fname not in excluded)
 
         self._assert_master_reads(masters[-1])
         for legacy_master in glob(

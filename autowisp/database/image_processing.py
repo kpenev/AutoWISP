@@ -871,10 +871,12 @@ class ImageProcessingManager(ProcessingManager):
 
     def _get_magfit_exclusions(self, step_name, config, batch):
         """
-        Return the DR files of a batch to leave out of the master photref.
+        Return the DR files of a batch that fail the magfit quality cut.
 
         Decided by the ``magfit-exclusion-rule``, for the observations of the
-        batch, which are fit together: one master is built from them.
+        batch, which are fit together. They are left out of the master
+        photref built from the batch, if one is, and are flagged in their DR
+        files either way.
 
         Args:
             step_name(str):    The step about to process the batch.
@@ -886,14 +888,11 @@ class ImageProcessingManager(ProcessingManager):
         Returns:
             [str] or None:
                 The excluded DR files, sorted. None if nothing is decided:
-                for any step but ``fit_magnitudes``, without a rule, and when
-                fitting against an existing master, which is not rebuilt.
+                for any step but ``fit_magnitudes``, and without a rule.
         """
 
-        if (
-            step_name != "fit_magnitudes"
-            or not config.get("magfit_exclusion_rule")
-            or config["master_photref_fname"] is not None
+        if step_name != "fit_magnitudes" or not config.get(
+            "magfit_exclusion_rule"
         ):
             return None
 

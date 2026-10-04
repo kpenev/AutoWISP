@@ -265,6 +265,10 @@ class MagnitudeFitting:
                 against an existing master, which creates none.
         """
 
+        excluded = read_exclusions(self._configuration.qc_exclude_file)
+        # Recorded in each DR file, even where no master is built.
+        self._configuration.qc_excluded = excluded
+
         if self._configuration.master_photref_fname is not None:
             self._logger.info(
                 "Fitting %d images against existing master photometric "
@@ -278,7 +282,6 @@ class MagnitudeFitting:
             )
             return None
 
-        excluded = read_exclusions(self._configuration.qc_exclude_file)
         excluded_dr_fnames = [
             dr_fname
             for dr_fname in dr_fnames

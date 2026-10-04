@@ -349,6 +349,7 @@ def _delete_magfit(dr_file, phot_method, substitutions):
         )
     if substitutions["magfit_iteration"] == 0:
         for cfg_attr in [
+            "qc_included",
             "cfg.correction_type",
             "cfg.correction",
             "cfg.require",

@@ -159,7 +159,8 @@ class LCDataIO:
                             r"^shapefit\.global_chi2$",
                             (
                                 r"magfit\."
-                                r"(num_input_src|num_fit_src|fit_residual)$"
+                                r"(num_input_src|num_fit_src|fit_residual"
+                                r"|qc_included)$"
                             ),
                             r"^fitsheader\.(?!cfg\.)",
                             r"\.cfg_index$",
@@ -389,7 +390,7 @@ class LCDataIO:
 
             cls._classify_datasets(no_light_curve, path_substitutions.keys())
 
-            (LCDataSlice, cls.max_dimension_size["frame"]) = (
+            LCDataSlice, cls.max_dimension_size["frame"] = (
                 create_lc_data_slice_type(
                     get_dtype=no_light_curve.get_dtype,
                     dataset_dimensions=cls.dataset_dimensions,
@@ -606,7 +607,7 @@ class LCDataIO:
         return 1
 
     @classmethod
-    def _set_field_entry( # pylint: disable=too-many-arguments
+    def _set_field_entry(  # pylint: disable=too-many-arguments
         cls, quantity, value, *, frame_index, dim_values, source_index=None
     ):
         """
@@ -906,6 +907,9 @@ class LCDataIO:
             if default_value is None:
                 if quantity == "catalogue.cfg.epoch":
                     return 2451545.0
+                # Nothing was excluded before images were flagged.
+                if quantity.endswith(".magfit.qc_included"):
+                    return True
                 if (
                     h5py.check_dtype(vlen=numpy.dtype(creation_args["dtype"]))
                     is str

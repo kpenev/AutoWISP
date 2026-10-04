@@ -203,16 +203,24 @@ class TestEngineExclusions(PhotrefBindingProject):
         return sorted(self._dr_fnames[member] for member in members)
 
     def test_magfit_lists_the_dr_files_a_slot_excludes(self):
-        """Each channel is decided on its own background."""
+        """Each channel is decided on its own background.
+
+        Against an existing master too: nothing is built from the batch then,
+        but its DR files record the verdict.
+        """
 
         batch = [("near", "R"), ("near", "G"), ("far", "R"), ("far", "G")]
 
-        self.assertEqual(
-            self.magfit_excluded(
-                "bg_center[0] > 30", batch + [("longer", "R")]
-            ),
-            self.dr(("near", "G"), ("far", "R")),
-        )
+        for master in (None, "/masters/mphotref_R.fits"):
+            with self.subTest(master=master):
+                self.assertEqual(
+                    self.magfit_excluded(
+                        "bg_center[0] > 30",
+                        batch + [("longer", "R")],
+                        master=master,
+                    ),
+                    self.dr(("near", "G"), ("far", "R")),
+                )
 
     def test_magfit_lists_every_channel_of_an_image_excluded(self):
         """A rule quoting a channel decides for every channel in the batch."""
@@ -226,13 +234,12 @@ class TestEngineExclusions(PhotrefBindingProject):
         )
 
     def test_magfit_without_a_rule_to_apply_lists_nothing(self):
-        """Unset, against an existing master, or for another step."""
+        """Unset, or for another step."""
 
         batch = [("near", "R"), ("far", "R")]
         for rule, kwargs in (
             (None, {}),
             ("", {}),
-            ("bg_center[0] > 30", {"master": "/masters/mphotref_R.fits"}),
             ("bg_center[0] > 30", {"step": "fit_star_shape"}),
         ):
             with self.subTest(rule=rule, **kwargs):

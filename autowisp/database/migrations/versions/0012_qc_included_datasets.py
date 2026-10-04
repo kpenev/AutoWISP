@@ -1,20 +1,25 @@
-"""Add the lightcurve datasets recording what EPD and TFA left out of a fit.
+"""Add the datasets and attributes recording the quality cuts of the fits.
 
 EPD and TFA can be given a list of observations to leave out of the fit
 while still correcting them, and record with each detrended photometry the
-rule that produced the list, how many points it removed, and which. The
-layout of lightcurves is kept in the project database, so projects created
-before that need the three datasets added next to every detrended
-magnitude they define.
+rule that produced the list, how many points it removed, and which points
+the fit was derived from. Magnitude fitting records in each DR file, per
+photometry, whether the image passes its quality cut, and lightcurves carry
+that flag per point. The layouts of DR files and lightcurves are kept in
+the project database, so projects created before that need the rows added:
+the three EPD/TFA datasets next to every detrended magnitude, and the
+magnitude fitting flag next to every photometry's magnitude fitting
+results.
 
 They go into the structure versions that are already there. Nothing else
-about the layout changes and a lightcurve need not contain every dataset
-its structure lists, so existing lightcurves stay valid under the version
-they were written with.
+about the layout changes and a file need not contain every element its
+structure lists, so existing files stay valid under the version they were
+written with.
 
 This revision changes rows, not the schema. The definitions below are a
-copy of what ``_get_detrended_datasets`` creates for a new project, made so
-that this revision keeps doing what it did if that function changes.
+copy of what ``_get_detrended_datasets``, ``_get_magfit_attributes`` and
+``_get_data_reduction_attribute_datasets`` create for a new project, made
+so that this revision keeps doing what it did if those functions change.
 """
 
 import alembic
@@ -37,8 +42,18 @@ def _reflect(connection, table):
     )
 
 
-def _get_detrended_magnitudes(connection, datasets):
-    """Return the lightcurve datasets holding EPD or TFA corrected magnitudes.
+def _get_anchors(connection, table, product, condition, path_column):
+    """Return the rows of a product's structure that new rows go next to.
+
+    Args:
+        table(sqlalchemy.Table):    ``hdf5_datasets`` or ``hdf5_attributes``.
+
+        product(str):    The pipeline key of the HDF5 product.
+
+        condition:    Selects the rows from ``table``.
+
+        path_column(str):    The column of ``table`` saying where in the
+            file the row's element is.
 
     Returns:
         [(int, str, str)]:
@@ -49,23 +64,13 @@ def _get_detrended_magnitudes(connection, datasets):
     products = _reflect(connection, "hdf5_products")
     return connection.execute(
         sqlalchemy.select(
-            datasets.c.hdf5_structure_version_id,
-            datasets.c.pipeline_key,
-            datasets.c.abspath,
+            table.c.hdf5_structure_version_id,
+            table.c.pipeline_key,
+            table.c[path_column],
         )
-        .join(versions, datasets.c.hdf5_structure_version_id == versions.c.id)
+        .join(versions, table.c.hdf5_structure_version_id == versions.c.id)
         .join(products, versions.c.hdf5_product_id == products.c.id)
-        .where(
-            products.c.pipeline_key == "light_curve",
-            sqlalchemy.or_(
-                datasets.c.pipeline_key.endswith(
-                    ".epd.magnitude", autoescape=True
-                ),
-                datasets.c.pipeline_key.endswith(
-                    ".tfa.magnitude", autoescape=True
-                ),
-            ),
-        )
+        .where(products.c.pipeline_key == product, condition)
     ).all()
 
 
@@ -126,8 +131,99 @@ def _get_exclusion_datasets(magnitude_key, magnitude_path):
     ]
 
 
+def _get_magfit_flag(anchor_key, anchor_path, in_lightcurve):
+    """Return the magnitude fitting flag to add for one photometry.
+
+    Args:
+        anchor_key(str):    The pipeline key of the element the flag goes
+            next to: the photometry's ``magfit.fit_residual`` dataset in
+            lightcurves, its ``magfit.cfg.single_photref`` attribute in DR
+            files.
+
+        anchor_path(str):    The path of that dataset, or the parent of that
+            attribute.
+
+        in_lightcurve(bool):    Is the flag a lightcurve dataset, rather than
+            a DR attribute?
+
+    Returns:
+        dict:
+            The values of the columns to set, except the structure version.
+    """
+
+    result = {
+        "pipeline_key": anchor_key.split(".", 1)[0] + ".magfit.qc_included",
+        "dtype": "numpy.bool_",
+        "description": "Does the image pass the magnitude fitting quality "
+        "cut?",
+    }
+    if in_lightcurve:
+        result.update(
+            abspath=anchor_path.rsplit("/", 1)[0] + "/QCIncluded",
+            compression="gzip",
+            compression_options="9",
+        )
+    else:
+        result.update(parent=anchor_path, name="QCIncluded")
+    return result
+
+
+def _get_additions(connection):
+    """Return what to add to each structure version.
+
+    Returns:
+        [(sqlalchemy.Table, int, [dict])]:
+            The table, the structure version id, and the rows to add to it
+            as returned by _get_exclusion_datasets() or _get_magfit_flag().
+    """
+
+    datasets = _reflect(connection, "hdf5_datasets")
+    attributes = _reflect(connection, "hdf5_attributes")
+    result = [
+        (datasets, version_id, _get_exclusion_datasets(key, path))
+        for version_id, key, path in _get_anchors(
+            connection,
+            datasets,
+            "light_curve",
+            sqlalchemy.or_(
+                datasets.c.pipeline_key.endswith(
+                    ".epd.magnitude", autoescape=True
+                ),
+                datasets.c.pipeline_key.endswith(
+                    ".tfa.magnitude", autoescape=True
+                ),
+            ),
+            "abspath",
+        )
+    ]
+    for table, product, anchor_tail, path_column in [
+        (datasets, "light_curve", ".magfit.fit_residual", "abspath"),
+        (attributes, "data_reduction", ".magfit.cfg.single_photref", "parent"),
+    ]:
+        result.extend(
+            (
+                table,
+                version_id,
+                [_get_magfit_flag(key, path, product == "light_curve")],
+            )
+            for version_id, key, path in _get_anchors(
+                connection,
+                table,
+                product,
+                table.c.pipeline_key.in_(
+                    [
+                        photometry + anchor_tail
+                        for photometry in ("shapefit", "apphot")
+                    ]
+                ),
+                path_column,
+            )
+        )
+    return result
+
+
 def upgrade():
-    """Add the datasets that are not there yet.
+    """Add the rows that are not there yet.
 
     One can be without this revision having run: a re-run after an
     interrupted upgrade, or a project whose structure was filled by newer
@@ -135,50 +231,37 @@ def upgrade():
     """
 
     connection = alembic.op.get_bind()
-    datasets = _reflect(connection, "hdf5_datasets")
-    for version_id, magnitude_key, magnitude_path in _get_detrended_magnitudes(
-        connection, datasets
-    ):
+    for table, version_id, new_rows in _get_additions(connection):
         present = set(
             connection.scalars(
-                sqlalchemy.select(datasets.c.pipeline_key).where(
-                    datasets.c.hdf5_structure_version_id == version_id
+                sqlalchemy.select(table.c.pipeline_key).where(
+                    table.c.hdf5_structure_version_id == version_id
                 )
             )
         )
-        for new_dataset in _get_exclusion_datasets(
-            magnitude_key, magnitude_path
-        ):
-            if new_dataset["pipeline_key"] not in present:
+        for new_row in new_rows:
+            if new_row["pipeline_key"] not in present:
                 connection.execute(
-                    datasets.insert().values(
-                        hdf5_structure_version_id=version_id, **new_dataset
+                    table.insert().values(
+                        hdf5_structure_version_id=version_id, **new_row
                     )
                 )
 
 
 def downgrade():
-    """Remove the datasets from the structure, if they are there.
+    """Remove the rows from the structures, if they are there.
 
-    Lightcurves that already contain them keep the data, which nothing
-    refers to any more.
+    Files that already contain the elements keep them, though nothing
+    refers to them any more.
     """
 
     connection = alembic.op.get_bind()
-    datasets = _reflect(connection, "hdf5_datasets")
-    for version_id, magnitude_key, magnitude_path in _get_detrended_magnitudes(
-        connection, datasets
-    ):
+    for table, version_id, new_rows in _get_additions(connection):
         connection.execute(
-            datasets.delete().where(
-                datasets.c.hdf5_structure_version_id == version_id,
-                datasets.c.pipeline_key.in_(
-                    [
-                        new_dataset["pipeline_key"]
-                        for new_dataset in _get_exclusion_datasets(
-                            magnitude_key, magnitude_path
-                        )
-                    ]
+            table.delete().where(
+                table.c.hdf5_structure_version_id == version_id,
+                table.c.pipeline_key.in_(
+                    [new_row["pipeline_key"] for new_row in new_rows]
                 ),
             )
         )
