@@ -168,6 +168,12 @@ first.
 - *Don't pin behaviour for states real use cannot reach*, e.g. an image
   without astrometry reaching magnitude fitting. Asserting what happens there
   requires behaviour that is better left undefined.
+- *Compare every output a step writes with the bundle.* A step test that
+  checks only the DR or lightcurve groups leaves the step's other outputs
+  (masters, statistics files) unchecked, and the bundle's copies go stale
+  without anyone noticing: magfit's masters sat in a format from before
+  SUP-532 until SUP-553 added the comparison. Passing tests say nothing
+  about an output no test compares.
 - *Keep a fixture's data private* (`_` prefix on class attributes the tests
   read), and keep data only one method uses local to it rather than global.
 - *Never let one name mean two things* in a fixture: references named `A` and
