@@ -338,6 +338,34 @@ class MagnitudeFitting:
             {**dict(self.sphotref_header), **self._path_substitutions}
         )
 
+    def _refuse_clash(self):
+        """
+        Raise if a file this pass would write exists already.
+
+        Only the pass itself writes its files, and cleaning up an interrupted
+        run deletes the partial ones, so a file there can only belong to
+        another master: one built from a single photometric reference the
+        file name formats do not tell apart from this one, or one built
+        earlier from this reference. Either way it is not overwritten.
+        """
+
+        for option in (
+            "master_photref_fname_format",
+            "magfit_stat_fname_format",
+        ):
+            fname = self._expand(getattr(self._configuration, option))
+            if os.path.exists(fname):
+                raise ConfigurationError(
+                    f"Magnitude fitting against single photometric reference "
+                    f"{self._configuration.single_photref_dr_fname!r} would "
+                    f"overwrite {fname!r}. If it belongs to another single "
+                    "photometric reference, make --"
+                    + option.replace("_", "-")
+                    + " tell the two apart, e.g. by including {FNUM}. If it "
+                    "is an earlier master of this reference, remove that "
+                    "master's files to rebuild it: disabling it is not enough."
+                )
+
     def _fit_pass(self, dr_fnames, photref, magfit_stat_collector=None):
         """Fit the given DR files once, against the given reference."""
 
@@ -416,6 +444,7 @@ class MagnitudeFitting:
             < self._configuration.max_magfit_iterations
         ):
             self._path_substitutions["magfit_iteration"] += 1
+            self._refuse_clash()
             assert next(iter(photref.values()))["mag"].size == num_photometries
 
             stat_fname = self._expand(

@@ -1,9 +1,11 @@
 """Define test case for the fit_source_extracted_psf_map step."""
 
+import filecmp
 import re
 from glob import glob
-from os import makedirs, path
+from os import makedirs, path, remove
 from shutil import copy, move
+from subprocess import PIPE, STDOUT, run
 
 import h5py
 import numpy
@@ -336,3 +338,54 @@ class TestFitMagnitudes(DRTestCase):
             path.join(self.test_directory, "legacy_masters", "*.fits")
         ):
             self._assert_master_reads(legacy_master)
+
+    def test_existing_files_are_not_overwritten(self):
+        """A file the first pass would write stops the fit before it starts.
+
+        The master and the statistics of the first pass are each put in
+        place alone, as a master built from another single photometric
+        reference named alike would have left them. The step must fail
+        without fitting any image and leave the file as it was.
+        """
+
+        self.get_inputs(["DR"])
+        dr_fnames = glob(path.join(self.processing_directory, "DR", "*.h5"))
+        for dr_fname in dr_fnames:
+            with h5py.File(dr_fname, "a") as dr_file:
+                for group in self._fitted_magnitudes:
+                    if group in dr_file:
+                        del dr_file[group]
+
+        masters_dir = path.join(self.processing_directory, "MASTERS")
+        makedirs(masters_dir, exist_ok=True)
+        for pattern in ["mphotref_*_iter000.fits", "mfit_stat_*_iter000.txt"]:
+            (existing,) = glob(
+                path.join(self.test_directory, "MASTERS", pattern)
+            )
+            with self.subTest(existing=path.basename(existing)):
+                in_place = copy(existing, masters_dir)
+                fit = run(
+                    [
+                        "wisp-fit-magnitudes",
+                        "-c",
+                        "test.cfg",
+                        path.join(self.processing_directory, "DR"),
+                    ],
+                    cwd=self.processing_directory,
+                    check=False,
+                    stdout=PIPE,
+                    stderr=STDOUT,
+                )
+                self.assertNotEqual(
+                    fit.returncode, 0, fit.stdout.decode("utf-8")
+                )
+                self.assertTrue(filecmp.cmp(existing, in_place, shallow=False))
+                self.assertEqual(
+                    [
+                        dr_fname
+                        for dr_fname in dr_fnames
+                        if self._read_fits(dr_fname)
+                    ],
+                    [],
+                )
+                remove(in_place)
