@@ -299,8 +299,8 @@ class Correction:
         config_key_prefix = destination_key.rsplit(".", 1)[0]
         light_curve.add_corrected_dataset(
             original_key=original_key,
-            corrected_key=config_key_prefix + ".qc_excluded",
-            corrected_values=qc_excluded[fit_points],
+            corrected_key=config_key_prefix + ".qc_included",
+            corrected_values=numpy.logical_not(qc_excluded[fit_points]),
             corrected_selection=fit_points,
             **substitutions,
         )

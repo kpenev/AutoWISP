@@ -645,14 +645,16 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     ),
                 ),
                 HDF5DataSet(
-                    pipeline_key=(property_key_prefix + ".qc_excluded"),
-                    abspath=(root_path + "QCExcluded"),
+                    pipeline_key=(property_key_prefix + ".qc_included"),
+                    abspath=(root_path + "QCIncluded"),
                     dtype="numpy.bool_",
                     compression="gzip",
                     compression_options="9",
                     description=(
-                        f"Was each point left out of the {mode} fit, while "
-                        "still being corrected?"
+                        f"Was each point among those the {mode} fit was "
+                        "derived from? Points the exclusion list left out are "
+                        "still corrected; points failing the points filter "
+                        "are not."
                     ),
                 ),
             ]

@@ -204,16 +204,14 @@ def recalculate_correction_statistics(
                     values = lightcurve.get_dataset(to_dset, **substitutions)
                     # Points the fit left out are corrected, but say nothing
                     # about how well the correction works. Lightcurves
-                    # detrended before fits recorded them have none.
-                    stat_points = numpy.logical_not(
-                        numpy.broadcast_to(
-                            lightcurve.get_dataset(
-                                to_dset.rsplit(".", 1)[0] + ".qc_excluded",
-                                default_value=False,
-                                **substitutions,
-                            ),
-                            values.shape,
-                        )
+                    # detrended before fits recorded them left none out.
+                    stat_points = numpy.broadcast_to(
+                        lightcurve.get_dataset(
+                            to_dset.rsplit(".", 1)[0] + ".qc_included",
+                            default_value=True,
+                            **substitutions,
+                        ),
+                        values.shape,
                     )
                     if lc_points_filter_expression is not None:
                         stat_points = numpy.logical_and(

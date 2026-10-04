@@ -75,7 +75,7 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
                 )
                 for quantity in [
                     "magnitude",
-                    "qc_excluded",
+                    "qc_included",
                     "fit_residual",
                     "num_fit_points",
                     "num_qc_excluded_points",
@@ -285,7 +285,9 @@ class TestDetrendingExclusions(SyntheticLightCurveTestCase):
             result["statistics"]["num_finite"][0],
             (corrected & ~excluded).sum(),
         )
-        numpy.testing.assert_array_equal(result["qc_excluded"], excluded)
+        numpy.testing.assert_array_equal(
+            result["qc_included"], corrected & ~excluded
+        )
         self.assertEqual(
             result["num_qc_excluded_points"].item(), excluded.sum()
         )

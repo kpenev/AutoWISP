@@ -21,7 +21,7 @@ import alembic
 import sqlalchemy
 
 # revision identifiers, used by Alembic.
-revision = "0012_lc_qc_excluded_datasets"
+revision = "0012_qc_included_datasets"
 down_revision = "0011_diagnostic_expression"
 branch_labels = None
 depends_on = None
@@ -112,14 +112,15 @@ def _get_exclusion_datasets(magnitude_key, magnitude_path):
             ),
         },
         {
-            "pipeline_key": key_prefix + ".qc_excluded",
-            "abspath": root_path + "QCExcluded",
+            "pipeline_key": key_prefix + ".qc_included",
+            "abspath": root_path + "QCIncluded",
             "dtype": "numpy.bool_",
             "compression": "gzip",
             "compression_options": "9",
             "description": (
-                f"Was each point left out of the {mode} fit, while still "
-                "being corrected?"
+                f"Was each point among those the {mode} fit was derived "
+                "from? Points the exclusion list left out are still "
+                "corrected; points failing the points filter are not."
             ),
         },
     ]

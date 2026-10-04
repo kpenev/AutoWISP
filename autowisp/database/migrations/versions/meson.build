@@ -15,7 +15,7 @@ py_src = [
   '0009_float_columns_to_double.py',
   '0010_unique_image_type_name.py',
   '0011_diagnostic_expression.py',
-  '0012_lc_qc_excluded_datasets.py',
+  '0012_qc_included_datasets.py',
   '0013_exclusion_rule_parameters.py',
   '0014_drop_photref_merit_step.py',
   '0015_engine_set_masters.py',

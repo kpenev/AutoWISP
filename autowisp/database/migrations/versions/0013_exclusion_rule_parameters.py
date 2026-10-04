@@ -26,7 +26,7 @@ import sqlalchemy
 
 # revision identifiers, used by Alembic.
 revision = "0013_exclusion_rule_parameters"
-down_revision = "0012_lc_qc_excluded_datasets"
+down_revision = "0012_qc_included_datasets"
 branch_labels = None
 depends_on = None
 
