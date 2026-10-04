@@ -17,8 +17,8 @@ from astropy import units as astropy_units
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
-    bind_images_to_photref,
     compute_photref_candidates,
+    record_single_photref,
 )
 from autowisp.evaluator import Evaluator
 
@@ -419,15 +419,7 @@ def record_photref_selection(request, target_index, image_index):
         # pylint:enable=no-member
     ][1]
 
-    ImageProcessingManager(pipeline_run_id=None).add_masters(
-        {
-            "type": "single_photref",
-            "filename": dr_fname,
-            "preference_order": None,
-            "disable": False,
-        }
-    )
-    bind_images_to_photref(dr_fname, batch)
+    record_single_photref(dr_fname, batch)
 
     # Force full re-derivation of the photref selection list on next page load
     request.session.pop("need_photref", None)

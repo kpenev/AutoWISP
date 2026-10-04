@@ -9,6 +9,10 @@ This module hosts the non-Django half of what the BUI's
 - :func:`bind_images_to_photref` writes the ``ImageMasterSelection``
   rows for every batch image within ``max_photref_separation`` of the
   chosen photref.
+- :func:`check_photref_fnames` refuses a photref whose magnitude fitting
+  would write the same files as that of one already registered.
+- :func:`record_single_photref` checks the chosen photref, registers it,
+  and binds the batch to it.
 
 The view module calls these to populate the Django session / handle
 form submissions; the integration test calls them directly to mimic
@@ -28,6 +32,9 @@ from autowisp.database.image_processing import (
 )
 from autowisp.database.interface import start_db_session
 from autowisp.database.user_interface import get_processing_sequence
+from autowisp.evaluator import Evaluator
+from autowisp.exceptions import ConfigurationError
+from autowisp.magnitude_fitting.util import get_path_substitutions
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -306,3 +313,112 @@ def bind_images_to_photref(dr_fname, batch):
             ):
                 new_bindings.append((image_id, channel, master_file.id))
         record_photref_bindings(new_bindings, master_file.type_id, db_session)
+
+
+def _get_magfit_fnames(processing, photref_fname, db_session):
+    """
+    Return the files magnitude fitting against a single photref may write.
+
+    Args:
+        processing(ImageProcessingManager):    Gives the ``fit_magnitudes``
+            configuration that applies to the reference.
+
+        photref_fname(str):    The DR file of the single photometric
+            reference.
+
+        db_session:    The database session to read the configuration in.
+
+    Returns:
+        dict:
+            The master photometric reference and statistics file names of
+            every iteration, each mapped to the option that formats it.
+    """
+
+    with DataReductionFile(photref_fname, "r") as photref_dr:
+        header = photref_dr.get_frame_header()
+    config = processing.get_config(
+        processing.get_matched_expressions(Evaluator(header)),
+        db_session,
+        step_name="fit_magnitudes",
+    )[0]
+    # As MagnitudeFitting expands them. dict() first: a header may repeat a
+    # keyword.
+    substitutions = {**dict(header), **get_path_substitutions(config, header)}
+    return {
+        config[option].format_map(
+            dict(substitutions, magfit_iteration=iteration)
+        ): option
+        for option in (
+            "master_photref_fname_format",
+            "magfit_stat_fname_format",
+        )
+        for iteration in range(config["max_magfit_iterations"] + 1)
+    }
+
+
+def check_photref_fnames(processing, photref_fname):
+    """
+    Raise if a single photref would share magfit files with a registered one.
+
+    Compares file names rather than looking for files, so a clash is found
+    before either master is built. ``fit_magnitudes`` refuses to overwrite a
+    file as well, but only once the second master is being built.
+
+    Args:
+        processing(ImageProcessingManager):    Gives the configuration that
+            applies to each reference.
+
+        photref_fname(str):    The DR file of the single photometric
+            reference about to be registered.
+
+    Returns:
+        None
+    """
+
+    with start_db_session() as db_session:
+        new_fnames = _get_magfit_fnames(processing, photref_fname, db_session)
+        for other_fname in db_session.scalars(
+            select(MasterFile.filename)
+            .join(MasterType)
+            .where(
+                MasterType.name == "single_photref",
+                MasterFile.filename != photref_fname,
+            )
+        ).all():
+            other_fnames = _get_magfit_fnames(
+                processing, other_fname, db_session
+            )
+            clashes = sorted(new_fnames.keys() & other_fnames.keys())
+            if clashes:
+                raise ConfigurationError(
+                    f"Single photometric references {photref_fname!r} and "
+                    f"{other_fname!r} would both write {clashes[0]!r}. Make --"
+                    + new_fnames[clashes[0]].replace("_", "-")
+                    + " tell them apart, e.g. by including {FNUM}."
+                )
+
+
+def record_single_photref(dr_fname, batch):
+    """
+    Register a single photref and bind to it the batch images near it.
+
+    Args:
+        dr_fname(str):    The DR file to register as the reference.
+
+        batch:    The candidate images, as for :func:`bind_images_to_photref`.
+
+    Returns:
+        None
+    """
+
+    processing = ImageProcessingManager(pipeline_run_id=None)
+    check_photref_fnames(processing, dr_fname)
+    processing.add_masters(
+        {
+            "type": "single_photref",
+            "filename": dr_fname,
+            "preference_order": None,
+            "disable": False,
+        }
+    )
+    bind_images_to_photref(dr_fname, batch)

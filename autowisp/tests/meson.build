@@ -46,6 +46,7 @@ py_src = [
   'test_fit_star_shape.py',
   'test_full_pipeline.py',
   'test_lc_filter.py',
+  'test_master_photref_lookup.py',
   'test_measure_aperture_photometry.py',
   'test_parameter_description_length.py',
   'test_parse_config_overwrites.py',

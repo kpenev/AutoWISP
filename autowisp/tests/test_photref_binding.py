@@ -82,18 +82,20 @@ class PhotrefBindingProject(unittest.TestCase):
         set_project_home(cls._tmp.name)
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
-            overwrite_default_config=(
-                None
-                if cls._max_photref_separation is None
-                else {
-                    "max-photref-separation": [
-                        (None, str(cls._max_photref_separation))
-                    ]
-                }
-            ),
+            overwrite_default_config=cls._config_overwrites() or None,
         )
         DataReductionFile.get_file_structure()
         cls._fill_database()
+
+    @classmethod
+    def _config_overwrites(cls):
+        """Return the configuration defaults the project is created with."""
+
+        if cls._max_photref_separation is None:
+            return {}
+        return {
+            "max-photref-separation": [(None, str(cls._max_photref_separation))]
+        }
 
     @classmethod
     def tearDownClass(cls):
@@ -246,6 +248,9 @@ class PhotrefBindingProject(unittest.TestCase):
                         "CLRCHNL": "R",
                         "TARGETID": "field",
                         "EXPTIME": 30.0,
+                        # Named by the default master file name formats.
+                        "FNUM": 100,
+                        "PROJHOME": cls._tmp.name,
                     }
                 )
             )
