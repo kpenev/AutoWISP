@@ -203,6 +203,11 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
         # The default became a list; the single number means the same.
         "stamp-pixel-outlier-threshold",
         "stamp-smoothing-outlier-threshold",
+        # The iteration of an existing master is recovered by matching its
+        # file name against the format, so a project's masters stay
+        # parseable only under the format they were named by.
+        "master-photref-fname-format",
+        "magfit-stat-fname-format",
     )
     """Parameters whose default has changed since one of the releases.
 

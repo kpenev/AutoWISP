@@ -92,8 +92,8 @@ def parse_command_line(*args):
     parser.add_argument(
         "--master-photref-fname-format",
         default=(
-            "{PROJHOME}/MASTERS/mphotref_"
-            "{TARGETID}_{CLRCHNL}_{EXPTIME}sec_iter{magfit_iteration:03d}.fits"
+            "{PROJHOME}/MASTERS/mphotref_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
+            "{FNUM}_iter{magfit_iteration:03d}.fits"
         ),
         help="A format string involving a {magfit_iteration} substitution along"
         " with any variables from the header of the single photometric "
@@ -106,7 +106,7 @@ def parse_command_line(*args):
         default=(
             "{PROJHOME}/MASTERS/"
             "mfit_stat_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
-            "iter{magfit_iteration:03d}.txt"
+            "{FNUM}_iter{magfit_iteration:03d}.txt"
         ),
         help="Similar to ``master_photref_fname_format``, but defines the name"
         " to use for saving the statistics of a magnitude fitting iteration.",
