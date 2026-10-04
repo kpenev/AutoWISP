@@ -236,6 +236,14 @@ does the same to existing projects.
 - *List the revision in `versions/meson.build`.* `TestRevisionChain` checks
   that from a checkout; an installed package that lacks the newest revision
   looks valid and stamps projects at the wrong head.
+- *An unreleased revision may be renamed or rewritten freely* while its
+  branch is in development; avoiding the break is not worth extra code or
+  commits. A project already migrated by the earlier version is stamped
+  with an id the code no longer has, and fails to open with "Can't locate
+  revision identified by ...". Re-stamp it to the previous revision
+  (`UPDATE alembic_version SET version_num = '<previous>'` in its
+  `autowisp.db`) and reopen it: revisions look before they change anything,
+  so the new version runs over whatever the old one did.
 
 ### Data Flow
 
