@@ -139,8 +139,13 @@ class StepCreator:
                     "extra-config-file",
                     "split-channels",
                     "project-home",
-                    # Set by the engine for each run, never configured.
+                    # Set by the engine for each batch, never configured.
                     "qc-exclude-file",
+                    "master-bias",
+                    "master-dark",
+                    "master-flat",
+                    "single-photref-dr-fname",
+                    "master-photref-fname",
                 ]
                 and not param.endswith("-only-if")
                 and not param.endswith("-version")

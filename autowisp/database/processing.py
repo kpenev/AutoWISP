@@ -224,7 +224,6 @@ class ProcessingManager:
             comparing configurations.
         """
 
-        # TODO: exclude master options
         if db_steps is None:
             if step_names is None:
                 steps = db_session.scalars(select(Step).order_by(Step.id)).all()

@@ -18,6 +18,7 @@ py_src = [
   '0012_lc_qc_excluded_datasets.py',
   '0013_exclusion_rule_parameters.py',
   '0014_drop_photref_merit_step.py',
+  '0015_engine_set_masters.py',
 ]
 
 py.install_sources(

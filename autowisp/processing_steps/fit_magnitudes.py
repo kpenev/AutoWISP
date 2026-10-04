@@ -85,9 +85,12 @@ def parse_command_line(*args):
     parser.add_argument(
         "--master-photref-fname",
         default=None,
-        help="The name of a master photometric reference to use. If specified, "
-        "the sintgle reference is ignored and magnitude fitting proceeds "
-        "without any iterations.",
+        help="The master photometric reference to fit against, in a single "
+        "pass, instead of building one. It must have been built from the "
+        "given single photometric reference: its iteration is read from its "
+        "name, by expanding --master-photref-fname-format with that "
+        "reference's header. The pipeline sets this for each batch, to the "
+        "master built from the batch's single photometric reference, if any.",
     )
     parser.add_argument(
         "--master-photref-fname-format",
