@@ -66,7 +66,9 @@ master_info = {
         "config_name": "master-photref-dr-fname",
         "created_by": ("fit_magnitudes", "object"),
         "split_by": frozenset(),
-        "used_by": [("fit_magnitudes", "object", True)],
+        # Not an input selected by header: the engine gives fit_magnitudes
+        # the master built from the batch's single photref, if any.
+        "used_by": [],
         "description": "The master photometric reference to use for magnitude "
         "fitting if available.",
     },

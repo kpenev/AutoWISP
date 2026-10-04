@@ -16,7 +16,12 @@ from autowisp.database.processing import (
     with_exclusion_list,
 )
 from autowisp.database.interface import start_db_session, get_project_home
-from autowisp.exceptions import Component, MasterSelectionError, PipelineError
+from autowisp.exceptions import (
+    Component,
+    ConfigurationError,
+    MasterSelectionError,
+    PipelineError,
+)
 from autowisp.error_context import capture_errors, error_context
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
@@ -334,6 +339,65 @@ class ImageProcessingManager(ProcessingManager):
                 result[best_master] = [(image, channel, status)]
         return result
 
+    @staticmethod
+    def _get_built_master(single_photref_fname, db_session):
+        """
+        Return the master photometric reference built from a single photref.
+
+        A master is built by one batch of ``fit_magnitudes``, whose images
+        are all bound to one single photometric reference, and is recorded
+        with the progress of that batch. Found that way, rather than by its
+        file name, it does not depend on the file name formats.
+
+        Args:
+            single_photref_fname(str):    The single photometric reference.
+
+            db_session:    The database session to query.
+
+        Returns:
+            str or None:
+                The filename of the enabled master built from the reference,
+                or None if there is none, in which case a new one is built.
+        """
+
+        photref_id = db_session.scalar(
+            select(MasterFile.id)
+            .join(MasterType)
+            .where(
+                MasterType.name == "single_photref",
+                MasterFile.filename == single_photref_fname,
+            )
+        )
+        masters = db_session.scalars(
+            select(MasterFile.filename)
+            .join(MasterType)
+            .join(
+                ProcessedImages,
+                ProcessedImages.progress_id == MasterFile.progress_id,
+            )
+            .join(
+                ImageMasterSelection,
+                and_(
+                    ImageMasterSelection.image_id == ProcessedImages.image_id,
+                    ImageMasterSelection.channel == ProcessedImages.channel,
+                ),
+            )
+            .where(
+                MasterType.name == "master_photref",
+                MasterFile.enabled.is_(True),
+                ImageMasterSelection.master_file_id == photref_id,
+            )
+            .distinct()
+        ).all()
+        if len(masters) > 1:
+            raise ConfigurationError(
+                "Several enabled master photometric references were built "
+                f"from single photometric reference {single_photref_fname!r}: "
+                + ", ".join(repr(fname) for fname in sorted(masters))
+                + ". Disable all but the one to fit new images against."
+            )
+        return masters[0] if masters else None
+
     # Could not find good way to simplify
     # pylint: disable=too-many-locals
     def _get_batch_config(
@@ -429,6 +493,20 @@ class ImageProcessingManager(ProcessingManager):
                             (input_master_type.config_name, best_master)
                         }
                         result[config_key | key_extra] = (new_config, sub_batch)
+
+        if step.name == "fit_magnitudes":
+            for config_key, (config, sub_batch) in list(result.items()):
+                if config_key is None:
+                    continue
+                master = self._get_built_master(
+                    config["single_photref_dr_fname"], db_session
+                )
+                if master is not None:
+                    del result[config_key]
+                    result[config_key | {("master-photref-fname", master)}] = (
+                        dict(config, master_photref_fname=master),
+                        sub_batch,
+                    )
 
         return result
 
