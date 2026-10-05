@@ -256,10 +256,10 @@ def parse_command_line(*args):
             + master
             + " to apply. No "
             + master
-            + " correction is applied of not specified. Each master filename "
-            "should be preceeded by ``<channel name>:`` identifying which "
-            "channel it applies to. All channels must have a masters specified "
-            "and no channel should have multpiple.",
+            + " correction is applied if not specified. Each master filename "
+            "should be preceded by ``<channel name>:`` identifying which "
+            "channel it applies to. All channels must have a master specified "
+            "and no channel should have multiple.",
         )
     parser.add_argument(
         "--master-mask",
@@ -268,7 +268,7 @@ def parse_command_line(*args):
         action=ParseChannelDependentAction,
         help="Mask(s) to apply, indicating pixel quality. All pixels are "
         'considered "good" if no mask is specified. If multiple channel images '
-        "are being processed each master filename should be preceeded by "
+        "are being processed each master filename should be preceded by "
         "``<channel name>:`` identifying which channel it applies to. Unlike "
         "other masters, channels without mask are allowed and multiple masks "
         "may be used for each channel.",

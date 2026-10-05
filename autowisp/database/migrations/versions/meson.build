@@ -20,6 +20,7 @@ py_src = [
   '0014_drop_photref_merit_step.py',
   '0015_engine_set_masters.py',
   '0016_diagnostic_definitions.py',
+  '0017_master_mask_description.py',
 ]
 
 py.install_sources(
