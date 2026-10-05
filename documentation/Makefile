@@ -18,7 +18,8 @@ APIDOCOPTS    = --force -M --separate -o "$(SOURCEDIR)/implementation"
 APIDOCSKIP    = "$(MODULEDIR)/fake_image" \
 		"$(MODULEDIR)/magnitude_fitting/tests" \
 		"$(MODULEDIR)/tests/generate_catalog_test_data.py" \
-		"$(MODULEDIR)/tests/update_hdf5_contents.py"
+		"$(MODULEDIR)/tests/update_hdf5_contents.py" \
+		"$(MODULEDIR)/tests/compare_h5.py"
 # data_model/__init__.py re-exports every table into __all__, so the
 # package page documents all of them. Giving each module a page of its own
 # as well documents every class twice, which leaves each one with two

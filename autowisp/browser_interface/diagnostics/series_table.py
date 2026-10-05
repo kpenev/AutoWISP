@@ -410,9 +410,10 @@ class ChannelColumn(NamedTuple):
         only those of its channel.
 
         Yields:
-            tuple:    ``(session_label, session_id, image_type, option,
-                count)``, the option ``(channel, photref)``, the photref
-                ``None`` for a column binding channels alone.
+            tuple:    One per option of each session and image type,
+                ``(session_label, session_id, image_type, option, count)``,
+                the option ``(channel, photref)``, the photref ``None`` for
+                a column binding channels alone.
         """
 
         for (
@@ -455,8 +456,9 @@ class PhotometryColumn(NamedTuple):
         Each photometry the images record every one of :attr:`needed` in.
 
         Yields:
-            tuple:    ``(session_label, session_id, image_type, option,
-                count)``, the option a photometry id.
+            tuple:    One per option of each session and image type,
+                ``(session_label, session_id, image_type, option, count)``,
+                the option a photometry id.
         """
 
         yield from count_images_per_photometry(self.needed, db_session)

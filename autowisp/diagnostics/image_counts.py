@@ -343,9 +343,9 @@ def count_images_per_photometry(needed, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        list:    ``(session_label, session_id, image_type, photometry,
-            count)`` tuples, the photometry an id as ``fit_magnitudes``
-            records it.
+        list:    One tuple per photometry of each session and image type,
+            ``(session_label, session_id, image_type, photometry, count)``,
+            the photometry an id as ``fit_magnitudes`` records it.
     """
 
     if not needed:

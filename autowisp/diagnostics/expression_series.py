@@ -1048,10 +1048,10 @@ def get_custom_group_values(members, quantities, expressions, db_session):
         tuple:
             dict:    ``{quantity: array}``, one entry per member.
 
-            list:    The members the arrays run over, as ``(image_id,
-                channel)`` tuples ordered by Julian date, then image id,
-                then channel. A member whose image has no Julian date is
-                left out, as it is from every series.
+            list:    The members the arrays run over, as
+                ``(image_id, channel)`` tuples ordered by Julian date, then
+                image id, then channel. A member whose image has no Julian
+                date is left out, as it is from every series.
 
     Raises:
         PipelineError:    If a quantity takes more than one channel, or as

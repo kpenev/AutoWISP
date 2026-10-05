@@ -25,12 +25,10 @@ def parse_fname_keywords(fits_fname):
                 previous date.
     """
 
-    # pylint false positive
-    # pylint: disable=anomalous-backslash-in-string
     frame_fname_rex = re.compile(
-        "^.*/(?P<STID>[0-9]*)-(?P<NIGHT>[0-9]{8})/"
-        "(?P=STID)-(?P<FNUM>[0-9]*)_(?P<CMPOS>[0-9]*)"
-        "(_(?P<CHANNEL>[BGR][12]))?\.(fits(.fz)?|hdf5)?(.0)?$"
+        r"^.*/(?P<STID>[0-9]*)-(?P<NIGHT>[0-9]{8})/"
+        r"(?P=STID)-(?P<FNUM>[0-9]*)_(?P<CMPOS>[0-9]*)"
+        r"(_(?P<CHANNEL>[BGR][12]))?\.(fits(.fz)?|hdf5)?(.0)?$"
     )
     parsed_frame_fname = frame_fname_rex.match(fits_fname)
     assert parsed_frame_fname
