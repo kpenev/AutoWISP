@@ -27,6 +27,7 @@ from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.diagnostics.diagnostic_types import is_quantile_diagnostic
+from autowisp.fits_utilities import get_raw_fname_keyword
 from autowisp.diagnostics.exclusion_rules import get_excluded
 from autowisp.evaluator import Evaluator
 
@@ -234,6 +235,40 @@ def remove_failed_prerequisite(
             dropped.append(pending.pop(i))
 
     return dropped
+
+
+def find_raw_image_id(raw_fname_keyword, db_session):
+    """
+    Return the id of the image whose raw frame a DR header's RAWFNAME names.
+
+    Matched on what :func:`get_raw_fname_keyword` derives from each stored
+    file name, the way ``RAWFNAME`` itself was derived, rather than with a
+    path pattern: stored names carry whatever separator the system adding
+    them used, and a backslash means something different to ``LIKE`` on
+    each backend. The database is only asked for the names containing it,
+    taken literally.
+
+    Args:
+        raw_fname_keyword(str):    The ``RAWFNAME`` of a DR file's header.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        int or None:    The id of the first such image, None if none is.
+    """
+
+    for image_id, raw_fname in db_session.execute(
+        select(Image.id, Image.raw_fname)  # pylint: disable=no-member
+        .where(
+            Image.raw_fname.contains(  # pylint: disable=no-member
+                raw_fname_keyword, autoescape=True
+            )
+        )
+        .order_by(Image.id)  # pylint: disable=no-member
+    ):
+        if get_raw_fname_keyword(raw_fname) == raw_fname_keyword:
+            return image_id
+    return None
 
 
 def record_photref_bindings(bindings, photref_type_id, db_session):
@@ -1250,13 +1285,7 @@ class ImageProcessingManager(ProcessingManager):
                 try:
                     with DataReductionFile(pf.filename, "r") as dr_file:
                         header = dr_file.get_frame_header()
-                    image_id = db_session.scalar(
-                        select(Image.id).where(  # pylint: disable=no-member
-                            Image.raw_fname.like(  # pylint: disable=no-member
-                                f"%/{header['RAWFNAME']}.%"
-                            )
-                        )
-                    )
+                    image_id = find_raw_image_id(header["RAWFNAME"], db_session)
                     if image_id is None:
                         self._logger.warning(
                             "Cannot find source image for photref %s"

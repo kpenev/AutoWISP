@@ -10,10 +10,12 @@ and ``longer``.
 """
 
 import unittest
+from os import path
 
 import numpy
 from sqlalchemy import select
 
+from autowisp.database.image_processing import find_raw_image_id
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
     bind_images_to_photref,
@@ -25,6 +27,7 @@ from autowisp.database.photref_selection import (
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     Image,
+    ImageType,
     MasterType,
     ObservingSession,
 )
@@ -102,6 +105,69 @@ class TestRecordedBindings(PhotrefBindingProject):
 
         self.assertEqual(returned, [(self._image_ids["near"], "R")])
         self.assertEqual(bindings, {("near", "R"): self._photref_id})
+
+
+class TestFindRawImage(PhotrefBindingProject):
+    """Which image the RAWFNAME of a DR header names."""
+
+    #: Raw file names stored besides the fixture's, by what they test, in the
+    #: order they are added, each joined with the system's own separator (a
+    #: backslash on Windows, which a pattern assuming ``/`` never matched).
+    #: The lookalike comes first: a LIKE pattern takes ``_`` for any
+    #: character, so a lookup taking the first match of one finds it instead
+    #: of frame_1.
+    _stored = {
+        label: path.join("data", "RAW", fname)
+        for label, fname in [
+            ("lookalike", "frameX1.fits"),
+            ("extended", "frame_10.fits"),
+            ("target", "frame_1.fits.fz"),
+        ]
+    }
+
+    @classmethod
+    def _fill_database(cls):
+        """Add the images with the names above."""
+
+        super()._fill_database()
+        with start_db_session() as db_session:
+            cls._stored_ids = {}
+            for label, raw_fname in cls._stored.items():
+                # False positive: the declarative models are callable.
+                # pylint: disable-next=not-callable
+                image = Image(
+                    raw_fname=raw_fname,
+                    image_type_id=db_session.scalar(
+                        select(ImageType.id).filter_by(name="object")
+                    ),
+                    observing_session_id=db_session.scalar(
+                        select(ObservingSession.id)
+                    ),
+                    jd=2460005.5,
+                )
+                db_session.add(image)
+                db_session.flush()
+                cls._stored_ids[label] = image.id
+
+    def test_each_name_finds_its_own_image(self):
+        """Exactly the image named: not one its name is part of, or like."""
+
+        with start_db_session() as db_session:
+            found = {
+                raw_fname_keyword: find_raw_image_id(
+                    raw_fname_keyword, db_session
+                )
+                for raw_fname_keyword in ("frame_1", "frame", "nope")
+            }
+
+        self.assertEqual(
+            found,
+            {
+                "frame_1": self._stored_ids["target"],
+                "frame": None,
+                "nope": None,
+            },
+        )
 
 
 class TestPhotrefRanking(PhotrefBindingProject):

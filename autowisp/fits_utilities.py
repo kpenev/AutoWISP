@@ -117,14 +117,32 @@ def get_primary_header(fits_image, add_filename_keywords=False):
             result = hdu.header
             if add_filename_keywords:
                 result = result.copy()
-                base_fname = path.basename(fits_image.fileinfo(0)["filename"])
-                for ext in [".fz", ".fits"]:
-                    if base_fname.endswith(ext):
-                        base_fname = base_fname[: -len(ext)]
-
-                result["RAWFNAME"] = base_fname
+                result["RAWFNAME"] = get_raw_fname_keyword(
+                    fits_image.fileinfo(0)["filename"]
+                )
             return result
     raise IOError(f"No valid HDU found in {fits_image!r}!")
+
+
+def get_raw_fname_keyword(fname):
+    """
+    Return the ``RAWFNAME`` header keyword a raw frame's file name gives.
+
+    Its name without the directory and without ``.fz`` and ``.fits``. What a
+    frame is looked up by, where only its DR file's header is at hand.
+
+    Args:
+        fname(str):    The raw frame's file name, as stored in the database.
+
+    Returns:
+        str:    The value of ``RAWFNAME``.
+    """
+
+    result = path.basename(fname)
+    for ext in [".fz", ".fits"]:
+        if result.endswith(ext):
+            result = result[: -len(ext)]
+    return result
 
 
 def update_stack_header(master_header, frame_header, filename, first_time):

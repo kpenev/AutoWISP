@@ -35,6 +35,7 @@ from sqlalchemy import select
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.database.image_processing import (
     ImageProcessingManager,
+    find_raw_image_id,
     get_master_expression_ids,
     record_photref_bindings,
     remove_failed_prerequisite,
@@ -279,13 +280,7 @@ def bind_images_to_photref(dr_fname, batch):
         if master_file is None:
             return []
 
-        pf_image_id = db_session.scalar(
-            select(Image.id).where(  # pylint: disable=no-member
-                Image.raw_fname.like(  # pylint: disable=no-member
-                    f"%/{pf_rawfname}.%"
-                )
-            )
-        )
+        pf_image_id = find_raw_image_id(pf_rawfname, db_session)
         if pf_image_id is None:
             return []
         pf_diags = dict(
