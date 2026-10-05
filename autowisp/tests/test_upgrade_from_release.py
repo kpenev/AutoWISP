@@ -281,7 +281,8 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
 
         Filled the way creating a project fills it: the steps, their
         parameters and default configuration, the processing sequence, the
-        master types and the layout of the HDF5 products.
+        master types, the layout of the HDF5 products, the diagnostic types
+        and the expression library.
 
         Args:
             source(str):    The directory holding the ``autowisp`` package
@@ -316,11 +317,18 @@ class TestUpgradeFromRelease(BackendMixin, unittest.TestCase):
                 sys.executable,
                 "-c",
                 f"import sys; sys.path.insert(0, {source!r})\n"
+                "from argparse import Namespace\n"
                 "from autowisp.database.interface import set_project_home\n"
-                "from autowisp.database import defaults, initialize_database\n"
+                "from autowisp.database.initialize_database import (\n"
+                "    initialize_database\n"
+                ")\n"
                 f"set_project_home({project_home!r}{url})\n"
-                "initialize_database.init_processing(\n"
-                "    defaults.step_dependencies, defaults.master_info\n"
+                # As the browser interface creates a project.
+                "initialize_database(\n"
+                "    Namespace(\n"
+                "        drop_hdf5_structure_tables=False,\n"
+                "        drop_all_tables=True,\n"
+                "    )\n"
                 ")\n",
             ],
             cwd=project_home,
