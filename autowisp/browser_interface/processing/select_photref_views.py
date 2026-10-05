@@ -18,6 +18,9 @@ from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
     compute_photref_candidates,
+    get_group_exclusions,
+    get_offered_candidates,
+    get_photref_exclusions,
     record_single_photref,
 )
 from autowisp.evaluator import Evaluator
@@ -113,7 +116,15 @@ def _get_missing_photref(request):
 
 
 def _get_merit_data(request, target_index):
-    """Add to the session the merit information for selecting single ref."""
+    """
+    Add to the session the merit information for selecting single ref.
+
+    Only the images offered as the reference are ranked: not those the
+    magnitude fitting exclusion rule leaves out. Their rows keep the
+    positions in the group they were built at, which is what a choice is
+    mapped back through. What was held back, and why, is noted for the
+    page under ``photref_notes``.
+    """
 
     if "merit_info" not in request.session:
         request.session["merit_info"] = {}
@@ -124,16 +135,45 @@ def _get_merit_data(request, target_index):
         ]
         photref_group = [(entry[1], entry[2], entry[3]) for entry in batch]
         with start_db_session() as db_session:
-            request.session["merit_info"][str(target_index)] = (
-                get_photref_merit_info(
-                    photref_group,
-                    db_session,
-                    request.session["merit_function"],
-                )
-                .sort_values(by="merit", ascending=False)
-                .to_json()
+            merit_info = get_photref_merit_info(
+                photref_group,
+                db_session,
+                request.session["merit_function"],
             )
+            exclusions = get_group_exclusions(batch, db_session)
+        offered = get_offered_candidates(batch, exclusions)
+        request.session["merit_info"][str(target_index)] = (
+            merit_info[offered]
+            .sort_values(by="merit", ascending=False)
+            .to_json()
+        )
+        request.session.setdefault("photref_notes", {})[str(target_index)] = (
+            _describe_held_back(exclusions, len(offered) - sum(offered))
+        )
     request.session.modified = True
+
+
+def _describe_held_back(exclusions, num_held_back):
+    """Return what to say about the images not offered as the reference."""
+
+    if not exclusions:
+        return ""
+    if "error" in exclusions:
+        return (
+            "Every image is offered: the magfit exclusion rule "
+            f"{exclusions['rule']} is refused. {exclusions['error']}"
+        )
+    if num_held_back == 0:
+        return (
+            f"Every image is offered: the magfit exclusion rule "
+            f"{exclusions['rule']} excludes them all."
+            if exclusions["excluded"]
+            else ""
+        )
+    return (
+        f"{num_held_back} image(s) the magfit exclusion rule "
+        f"{exclusions['rule']} excludes are not offered."
+    )
 
 
 def create_svg(fig):
@@ -342,6 +382,9 @@ def select_photref_image(request, *, target_index, recalculate=False):
         ),
         "fits_fname": path.basename(fits_fname),
         "view_config": request.session.get("view_config", "undefined"),
+        "photref_note": request.session.get("photref_notes", {}).get(
+            str(target_index), ""
+        ),
     }
     context.update(request.session["fits_display"])
     context.update(
@@ -374,6 +417,20 @@ def select_photref_target(request, recalc=False):
         "Request master values: %s",
         repr(request.session["need_photref"]["master_values"]),
     )
+    # Recomputed on every visit, which is how a selection just recorded
+    # shows here: this page is where recording one returns to. Each group
+    # still needing a reference says what the magfit rule would exclude of
+    # it, to inform the choice; each reference selected, what every step's
+    # rule excludes of the images bound to it.
+    with start_db_session() as db_session:
+        targets = [
+            {
+                "values": target[0] + [len(target[1])],
+                "exclusions": get_group_exclusions(target[1], db_session),
+            }
+            for target in request.session["need_photref"]["master_values"]
+        ]
+        exclusion_reports = get_photref_exclusions(db_session)
     return render(
         request,
         "processing/select_photref_target.html",
@@ -381,13 +438,14 @@ def select_photref_target(request, recalc=False):
             "master_expressions": request.session["need_photref"][
                 "master_expressions"
             ]
-            + ["Num. Images"],
-            "master_values": [
-                target[0] + [len(target[1])]
-                for target in request.session["need_photref"]["master_values"]
-            ],
+            + ["Num. Images", "Excluded by magfit rule"],
+            "targets": targets,
             "merit_function": request.session["merit_function"],
             "view_config": request.body,
+            "exclusion_reports": [
+                dict(report, photref_name=path.basename(report["photref"]))
+                for report in exclusion_reports
+            ],
         },
     )
 
@@ -424,6 +482,7 @@ def record_photref_selection(request, target_index, image_index):
     # Force full re-derivation of the photref selection list on next page load
     request.session.pop("need_photref", None)
     request.session.pop("merit_info", None)
+    request.session.pop("photref_notes", None)
     request.session.modified = True
 
     return redirect("/processing/select_photref_target")

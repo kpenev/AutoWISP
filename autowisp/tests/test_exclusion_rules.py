@@ -29,16 +29,21 @@ from autowisp.database.data_model.provenance import (
 )
 
 # pylint: enable=no-name-in-module
+from autowisp.database.photref_selection import get_offered_candidates
 from autowisp.database.user_interface import count_cameras_lacking
 from autowisp.diagnostics.exclusion_rules import (
     get_excluded,
     get_rule_reads,
     preview_excluded,
+    summarize_excluded,
 )
 from autowisp.exceptions import ConfigurationError
 from autowisp.tests.test_series_references import ReferenceProject
 
 
+# One test per case of deciding and reporting exclusions, which belong
+# together however many they are.
+# pylint: disable-next=too-many-public-methods
 class TestExclusionRules(ReferenceProject):
     """What a rule excludes among observations fit together."""
 
@@ -418,6 +423,72 @@ class TestExclusionRules(ReferenceProject):
                             channel=channel,
                             photometry=None,
                         )
+
+    def test_more_than_half_excluded_is_conspicuous(self):
+        """Per photometry, of all fit together; exactly half is not more."""
+
+        self.assertEqual(
+            summarize_excluded(
+                {
+                    0: {(1, "R")},
+                    2: {(1, "R"), (2, "R")},
+                    3: {(1, "R"), (2, "R"), (3, "R")},
+                    4: set(),
+                },
+                4,
+            ),
+            [
+                {
+                    "photometry": 0,
+                    "excluded": 1,
+                    "fraction": 0.25,
+                    "conspicuous": False,
+                },
+                {
+                    "photometry": 2,
+                    "excluded": 2,
+                    "fraction": 0.5,
+                    "conspicuous": False,
+                },
+                {
+                    "photometry": 3,
+                    "excluded": 3,
+                    "fraction": 0.75,
+                    "conspicuous": True,
+                },
+                {
+                    "photometry": 4,
+                    "excluded": 0,
+                    "fraction": 0.0,
+                    "conspicuous": False,
+                },
+            ],
+        )
+
+    def test_excluded_images_are_not_offered_as_photref(self):
+        """Unless the rule decides nothing, or excludes every image.
+
+        An image excluded in another channel than its entry's is offered.
+        """
+
+        batch = [
+            ("1.fits", "1_R.h5", 1, "R"),
+            ("2.fits", "2_R.h5", 2, "R"),
+            ("3.fits", "3_G.h5", 3, "G"),
+        ]
+        for exclusions, offered in (
+            (None, [True, True, True]),
+            ({"rule": "x", "error": "refused"}, [True, True, True]),
+            ({"excluded": {(1, "R"), (3, "R")}}, [False, True, True]),
+            (
+                {"excluded": {(1, "R"), (2, "R"), (3, "G")}},
+                [True, True, True],
+            ),
+        ):
+            with self.subTest(exclusions=exclusions):
+                self.assertEqual(
+                    get_offered_candidates(batch, exclusions), offered
+                )
 
 
 if __name__ == "__main__":

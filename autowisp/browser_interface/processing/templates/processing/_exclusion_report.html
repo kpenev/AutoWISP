@@ -1,0 +1,17 @@
+{% comment %} What an exclusion rule excludes of images fit together: per
+   verdict, the fraction excluded, highlighted above what the engine warns
+   about, or "refused" with the engine's reason on hover. A dash where no rule
+   is set. Takes one context variable, `report`, as
+   `photref_selection._evaluate_rule` returns it, or None.
+{% endcomment %}
+{% if not report %}
+&mdash;
+{% elif report.error %}
+<span class="exclusion-refused" title="{{ report.error }}">refused</span>
+{% else %}
+{% for verdict in report.verdicts %}
+<div{% if verdict.conspicuous %} class="exclusion-conspicuous"{% endif %}>
+    {% if verdict.label %}{{ verdict.label }}: {% endif %}{% widthratio verdict.excluded report.num_images 100 %}% ({{ verdict.excluded }} of {{ report.num_images }})
+</div>
+{% endfor %}
+{% endif %}

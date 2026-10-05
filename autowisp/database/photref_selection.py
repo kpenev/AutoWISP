@@ -13,6 +13,11 @@ This module hosts the non-Django half of what the BUI's
   would write the same files as that of one already registered.
 - :func:`record_single_photref` checks the chosen photref, registers it,
   and binds the batch to it.
+- :func:`get_group_exclusions` reports what the magfit exclusion rule
+  leaves out of a group still needing a photref, and
+  :func:`get_offered_candidates` which of its images to offer as one.
+- :func:`get_photref_exclusions` reports what each step's exclusion rule
+  leaves out of the images bound to each photref.
 
 The view module calls these to populate the Django session / handle
 form submissions; the integration test calls them directly to mimic
@@ -32,6 +37,11 @@ from autowisp.database.image_processing import (
 )
 from autowisp.database.interface import start_db_session
 from autowisp.database.user_interface import get_processing_sequence
+from autowisp.diagnostics.diagnostic_types import photometry_literal
+from autowisp.diagnostics.exclusion_rules import (
+    get_excluded,
+    summarize_excluded,
+)
 from autowisp.evaluator import Evaluator
 from autowisp.exceptions import ConfigurationError
 from autowisp.magnitude_fitting.util import get_path_substitutions
@@ -396,6 +406,215 @@ def check_photref_fnames(processing, photref_fname):
                     + new_fnames[clashes[0]].replace("_", "-")
                     + " tell them apart, e.g. by including {FNUM}."
                 )
+
+
+def _get_rules(processing, dr_fname, db_session):
+    """
+    Return the exclusion rule each step has for the images like a DR file's.
+
+    Read from the configuration through the conditions the file's header
+    matches, as when the magnitude fitting file names of a single
+    photometric reference are checked.
+
+    Args:
+        processing(ImageProcessingManager):    Gives the configuration.
+
+        dr_fname(str):    A DR file of the images the rules are for.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        dict:    ``{step name: rule}``, in processing order, for each of
+            ``fit_magnitudes``, ``epd`` and ``tfa`` with a rule set.
+    """
+
+    with DataReductionFile(dr_fname, "r") as dr_file:
+        matched = processing.get_matched_expressions(
+            Evaluator(dr_file.get_frame_header())
+        )
+    rules = {}
+    for step_name, option in [
+        ("fit_magnitudes", "magfit_exclusion_rule"),
+        ("epd", "epd_exclusion_rule"),
+        ("tfa", "tfa_exclusion_rule"),
+    ]:
+        rule = processing.get_config(matched, db_session, step_name=step_name)[
+            0
+        ].get(option)
+        if rule:
+            rules[step_name] = rule
+    return rules
+
+
+def _evaluate_rule(rule, members, db_session, *, before_magfit):
+    """
+    Return what *rule* excludes of the given observations fit together.
+
+    Decided by the engine's own machinery, so what is reported is what the
+    step will leave out.
+
+    Args:
+        rule(str):    The exclusion rule.
+
+        members(list):    ``(image_id, channel)`` pairs fit together.
+
+        db_session:    An active SQLAlchemy database session.
+
+        before_magfit(bool):    Whether the rule is magnitude fitting's.
+
+    Returns:
+        dict:    ``rule``; ``num_images``, the observations fit together;
+            and either ``verdicts``, as :func:`summarize_excluded` returns
+            them with each photometry's ``label`` added, and ``excluded``,
+            the members any verdict excludes, or ``error``, what the engine
+            would refuse the rule with.
+    """
+
+    result = {"rule": rule, "num_images": len(members)}
+    try:
+        excluded = get_excluded(
+            rule,
+            members,
+            db_session,
+            before_magfit=before_magfit,
+            report=False,
+        )
+    except ConfigurationError as error:
+        result["error"] = str(error)
+        return result
+    except (ValueError, TypeError) as error:
+        # Raised evaluating the rule rather than refusing it.
+        result["error"] = f"{rule} failed: {error}"
+        return result
+
+    result["verdicts"] = [
+        dict(
+            verdict,
+            label=(
+                ""
+                if verdict["photometry"] is None
+                else photometry_literal(verdict["photometry"])
+            ),
+        )
+        for verdict in summarize_excluded(excluded, len(members))
+    ]
+    result["excluded"] = set().union(*excluded.values())
+    return result
+
+
+def get_group_exclusions(batch, db_session):
+    """
+    Report what the magfit exclusion rule excludes of a group needing a ref.
+
+    Reported before a reference is chosen, to inform the choice: the images
+    fit together once it is are those of the group near enough to it, so
+    the group is the estimate available when choosing. Only the magnitude
+    fitting rule applies, the single photometric reference belonging to
+    magnitude fitting.
+
+    Args:
+        batch:    The group's images, as :func:`compute_photref_candidates`
+            gives them: ``(calibrated_fname, dr_fname, image_id, channel)``.
+
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        dict or None:    As :func:`_evaluate_rule` returns, or None if no
+            magfit rule is set for the group.
+    """
+
+    rule = _get_rules(
+        ImageProcessingManager(pipeline_run_id=None), batch[0][1], db_session
+    ).get("fit_magnitudes")
+    if rule is None:
+        return None
+    return _evaluate_rule(
+        rule,
+        [(image_id, channel) for _, _, image_id, channel in batch],
+        db_session,
+        before_magfit=True,
+    )
+
+
+def get_offered_candidates(batch, exclusions):
+    """
+    Return which of a group's images to offer as its single photometric ref.
+
+    An image the magnitude fitting rule excludes is not offered: as the
+    reference it would spoil the first pass of the very fit the rule
+    protects. Every image is offered where the rule decides nothing -- it is
+    unset or refused -- or excludes them all, so that a broken or
+    overzealous rule never leaves nothing to choose from.
+
+    Args:
+        batch:    The group's images, as for :func:`get_group_exclusions`.
+
+        exclusions(dict or None):    What :func:`get_group_exclusions`
+            returned for the group.
+
+    Returns:
+        list:    Per entry of *batch*, whether to offer it.
+    """
+
+    excluded = (exclusions or {}).get("excluded", set())
+    offered = [
+        (image_id, channel) not in excluded for _, _, image_id, channel in batch
+    ]
+    if not any(offered):
+        return [True] * len(batch)
+    return offered
+
+
+def get_photref_exclusions(db_session):
+    """
+    Report what each step's exclusion rule excludes of each reference's images.
+
+    The images bound to a single photometric reference are fit together:
+    ``fit_magnitudes`` splits its batches by reference, and EPD and TFA
+    detrend the lightcurve points of one reference at once. The rule applied
+    to them is the one configured for the reference.
+
+    Args:
+        db_session:    An active SQLAlchemy database session.
+
+    Returns:
+        list:    A dict per single photometric reference with images bound
+            to it and per step with a rule set for it, by reference and then
+            in processing order: ``photref``, its DR file, ``step``, and
+            what :func:`_evaluate_rule` returns.
+    """
+
+    processing = ImageProcessingManager(pipeline_run_id=None)
+    result = []
+    for photref_id, photref_fname in db_session.execute(
+        select(MasterFile.id, MasterFile.filename)
+        .join(MasterType)
+        .where(MasterType.name == "single_photref")
+        .order_by(MasterFile.filename)
+    ).all():
+        members = db_session.execute(
+            select(
+                ImageMasterSelection.image_id, ImageMasterSelection.channel
+            ).where(ImageMasterSelection.master_file_id == photref_id)
+        ).all()
+        if not members:
+            continue
+        for step_name, rule in _get_rules(
+            processing, photref_fname, db_session
+        ).items():
+            result.append(
+                {
+                    "photref": photref_fname,
+                    "step": step_name,
+                    **_evaluate_rule(
+                        rule,
+                        members,
+                        db_session,
+                        before_magfit=step_name == "fit_magnitudes",
+                    ),
+                }
+            )
+    return result
 
 
 def record_single_photref(dr_fname, batch):

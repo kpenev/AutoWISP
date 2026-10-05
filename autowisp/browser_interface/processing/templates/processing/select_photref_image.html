@@ -44,6 +44,11 @@ Select Photometric Reference
         <div id="resize-hist" class="lcars-bar" style="height:100%;"></div>
     </div>
     <div id="hist-parent" class="lcars-col">
+        {% comment %} Which images are not offered, because the magfit
+           exclusion rule excludes them, or why every one is. {% endcomment %}
+        {% if photref_note %}
+        <div class="photref-note">{{ photref_note }}</div>
+        {% endif %}
         {% for hist in histograms %}
         {{hist|safe}}
         {% endfor %}

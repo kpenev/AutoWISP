@@ -1,0 +1,15 @@
+/* The report of what each exclusion rule leaves out of the images bound to
+   each single photometric reference, on the photref selection page. */
+
+/* More left out than the engine warns about: the red alert of the LCARS
+   palette, so a fit with little left stands out. */
+.exclusion-conspicuous {
+    color: #e10;
+    font-weight: bold;
+}
+
+/* A rule the engine would refuse: the reason is in the hover text. */
+.exclusion-refused {
+    text-decoration: underline dotted;
+    cursor: help;
+}

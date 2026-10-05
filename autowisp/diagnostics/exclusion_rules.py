@@ -328,30 +328,60 @@ def _exclude_in_population(
                 )
 
 
+#: More than this fraction of a fit left out is conspicuous: the engine logs
+#: it as a warning, and the BUI highlights it.
+conspicuous_fraction = 0.5
+
+
+def summarize_excluded(excluded, num_members):
+    """
+    Return how much of what is fit together each verdict of a rule excludes.
+
+    Args:
+        excluded(dict):    What :func:`get_excluded` returned.
+
+        num_members(int):    How many observations are fit together.
+
+    Returns:
+        list:    A dict per photometry, in order of id: ``photometry``, its
+            id, None for a rule deciding for every photometry at once;
+            ``excluded``, how many observations it excludes; ``fraction``,
+            what fraction that is of those fit together; and
+            ``conspicuous``, whether it is above
+            :data:`conspicuous_fraction`.
+    """
+
+    result = []
+    for photometry, observations in sorted(excluded.items()):
+        fraction = len(observations) / num_members if num_members else 0.0
+        result.append(
+            {
+                "photometry": photometry,
+                "excluded": len(observations),
+                "fraction": fraction,
+                "conspicuous": fraction > conspicuous_fraction,
+            }
+        )
+    return result
+
+
 def _report_fractions(rule, excluded, num_members):
     """Log how much of what is fit together *rule* excludes."""
 
-    # More than this of a fit left out is reported as a warning.
-    conspicuous_fraction = 0.5
-
-    for photometry, observations in sorted(excluded.items()):
-        fraction = len(observations) / num_members
+    for verdict in summarize_excluded(excluded, num_members):
         _logger.log(
-            (
-                logging.WARNING
-                if fraction > conspicuous_fraction
-                else logging.INFO
-            ),
+            logging.WARNING if verdict["conspicuous"] else logging.INFO,
             "The exclusion rule %r excludes %.0f%% (%d of %d) of the "
             "observations fit together%s.",
             rule,
-            100 * fraction,
-            len(observations),
+            100 * verdict["fraction"],
+            verdict["excluded"],
             num_members,
             (
                 ""
-                if photometry is None
-                else " in photometry " + photometry_literal(photometry)
+                if verdict["photometry"] is None
+                else " in photometry "
+                + photometry_literal(verdict["photometry"])
             ),
         )
 
