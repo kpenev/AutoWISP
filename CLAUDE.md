@@ -285,7 +285,10 @@ Test what decides which data is read, counted or drawn.
 `static/configuration/js/autowisp.config.tree.js`) is slated for a redesign.
 Implement config-view features against the existing tree without gold-plating
 its styling; raise the pending redesign before any substantial rework of its
-presentation.
+presentation. Until then the tree is a standalone page rather than an
+`lcars_app.html` one, so it shows no Django messages: one added while it is in
+use (e.g. the exclusion-rule warnings `save_config` gives) appears on the next
+LCARS page instead.
 
 **Configuration conditions vs versions.** Conditions (several values per
 parameter, each guarded by header expressions, first match wins) are exercised

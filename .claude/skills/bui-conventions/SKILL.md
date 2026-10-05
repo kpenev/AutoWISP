@@ -22,6 +22,16 @@ description: Conventions for BUI code
   padding:...; color:#000; font-weight:bold;">`. This is the pattern set by
   commit 542f50b5 ("Make error-page callouts full-width").
 
+- **Several `.lcars-bar` controls in one bar need the bar to be a flex row.**
+  `.lcars-bar` is `width: 100%`, so a second button or dropdown carrying it
+  wraps underneath the first. Give the containing bar `display: flex;
+  flex-direction: row`, as `#diag-selector-bar` and `#diag-footer-bar` share
+  in `diagnostics_app.css`.
+
+- **`.lcars-bar`'s `display: inline-block` overrides the `hidden` attribute**,
+  so an element carrying it stays visible when hidden. Add a rule more
+  specific than the class, e.g. `.mask-slot[hidden] { display: none; }`.
+
 - A BUI change needs `pip install .` (never `-e` — it breaks BUI styling) plus a
   browser hard-refresh (Cmd-Shift-R) to take effect. Editing CSS/JS alone will
   silently no-op against a cached stylesheet.
