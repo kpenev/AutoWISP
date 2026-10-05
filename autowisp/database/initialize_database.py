@@ -352,12 +352,15 @@ def drop_tables_matching(pattern):
         metadata.reflect(get_db_engine())
         metadata.drop_all(get_db_engine())
     else:
+        # A list, not an iterator: drop_all reads it more than once, which a
+        # one-shot iterator survives only under SQLAlchemy 2.0.
         DataModelBase.metadata.drop_all(
             get_db_engine(),
-            filter(
-                lambda table: pattern.fullmatch(table.name),
-                reversed(DataModelBase.metadata.sorted_tables),
-            ),
+            [
+                table
+                for table in reversed(DataModelBase.metadata.sorted_tables)
+                if pattern.fullmatch(table.name)
+            ],
         )
 
 
