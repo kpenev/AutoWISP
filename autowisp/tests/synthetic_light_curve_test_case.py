@@ -111,7 +111,9 @@ class SyntheticLightCurveTestCase(unittest.TestCase):
             if param.startswith("tfa_"):
                 configuration[param[4:]] = configuration.pop(param)
         configuration.update(
-            lc_fname=path.join(cls._project_home, "{:d}.h5"),
+            # Not "{:d}.h5": Windows takes "{:" for a drive, and joining a
+            # path with a drive of its own discards the directory.
+            lc_fname=path.join(cls._project_home, "{0:d}.h5"),
             fit_datasets=[cls._dataset + ("apphot.tfa.magnitude",)],
             fit_points_filter_expression=None,
             variables={},
