@@ -114,7 +114,8 @@ it is, gates the merge.
 
 **Run the full suite locally under Python 3.11 as well as 3.14 before
 dispatching the grid** (`conda activate wisp-py311`, then install and run as
-above). Syntax newer than the 3.11 floor passes everything a 3.14
+above). Run the two at the same time, each with its own failed-test
+directory. Syntax newer than the 3.11 floor passes everything a 3.14
 environment runs -- the suite, pylint and Black alike -- and fails only on
 the grid, where it breaks every import: `except A, B:` without parentheses
 (PEP 758, 3.14 only) did exactly that, costing a full grid run.
