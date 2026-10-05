@@ -112,6 +112,13 @@ run before a merge.
 tests covering the change are enough before a push; the full suite, slow as
 it is, gates the merge.
 
+**Run the full suite locally under Python 3.11 as well as 3.14 before
+dispatching the grid** (`conda activate wisp-py311`, then install and run as
+above). Syntax newer than the 3.11 floor passes everything a 3.14
+environment runs -- the suite, pylint and Black alike -- and fails only on
+the grid, where it breaks every import: `except A, B:` without parentheses
+(PEP 758, 3.14 only) did exactly that, costing a full grid run.
+
 The `<failed_test_dir>` argument is **required** — it's where artifacts from failed tests are preserved for debugging. Tests run in a temporary directory, copy test data there, and clean up on success.
 
 **The test data comes from Zenodo**, downloaded afresh on every run from the
@@ -403,6 +410,13 @@ afterwards. The epics available in `SUP`:
 Note that `SUP-37` and `SUP-128` divide by *surface*, not by subject: the
 BUI-facing half of a concern goes under `SUP-128` and its engine half under
 `SUP-37`, so one body of work can legitimately span both.
+
+**Check for `do-first` issues before starting any new work.** Query
+`project = SUP AND labels = do-first AND statusCategory != Done` and take
+each issue it returns before anything else, unless its description says it
+waits for something that has not happened yet (e.g. a branch being merged).
+This is how work deferred to "the next development" is remembered across
+machines: label the issue, and it surfaces here.
 
 Its two Done-category statuses do not mean what Jira's stock descriptions
 suggest, and the difference matters:
