@@ -19,12 +19,17 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 
 from autowisp.database.interface import start_db_session
+from autowisp.database.user_interface import count_cameras_lacking
 from autowisp.diagnostics import expression_library
 from autowisp.diagnostics.diagnostic_types import time_quantity
+from autowisp.diagnostics.exclusion_rules import get_rule_reads
 from autowisp.diagnostics.expressions import (
     check_expression,
+    get_bare_aggregates,
     get_expression_dependents,
     get_expression_names,
+    get_logical_keywords,
+    get_quoted_channel_order,
     order_expressions,
 )
 
@@ -139,6 +144,53 @@ def describe_expression(name, expressions, recorded):
     }
 
 
+def _warn_about(request, names, library):
+    """
+    Warn about what the given expressions were probably not meant to say.
+
+    None of it is refused: each is legitimate somewhere, merely unlikely
+    to be what was meant.
+
+    Args:
+        request:    The Django request to attach the warnings to.
+
+        names(iterable):    The expressions just written.
+
+        library(dict):    The library they were accepted into, themselves
+            included, ``{name: expression}``.
+    """
+
+    element_wise = {"and": "&", "or": "|", "not": "~"}
+    with start_db_session() as db_session:
+        for name in sorted(names):
+            expression = library[name]
+            for aggregate in sorted(get_bare_aggregates(expression)):
+                messages.warning(
+                    request,
+                    f"{name} calls {aggregate}(), which goes NaN as soon as "
+                    "one image of a series lacks a diagnostic. Did you mean "
+                    f"nan{aggregate}()?",
+                )
+            for keyword in sorted(get_logical_keywords(expression)):
+                messages.warning(
+                    request,
+                    f"{name} uses {keyword}, which fails on arrays. Did you "
+                    f"mean {element_wise[keyword]}?",
+                )
+            # Read through the expressions it references too: one quoting a
+            # channel fails without it, and so does anything reading it.
+            for channel, (lacking, total) in sorted(
+                count_cameras_lacking(
+                    get_quoted_channel_order(name, library), db_session
+                ).items()
+            ):
+                messages.warning(
+                    request,
+                    f"{name} quotes channel {channel}, which {lacking} of "
+                    f"{total} cameras do not have.",
+                )
+
+
 def _render_list(request, form, edit_name=""):
     """
     Render the management page around *form*, bound or blank.
@@ -169,6 +221,9 @@ def _render_list(request, form, edit_name=""):
         descriptions = expression_library.get_expression_descriptions(
             db_session
         )
+    # What to set an exclusion rule option to, to use one as a rule, so that
+    # nobody has to work out the subscripts.
+    rule_reads = get_rule_reads(expressions)
 
     return render(
         request,
@@ -180,6 +235,7 @@ def _render_list(request, form, edit_name=""):
                 dict(
                     describe_expression(name, expressions, recorded),
                     description=descriptions.get(name, ""),
+                    rule_read=rule_reads.get(name, ""),
                 )
                 for name in sorted(expressions)
             ],
@@ -266,13 +322,7 @@ def save_expression(request):
             + " to match.",
         )
 
-    for aggregate in sorted(form.bare_aggregates):
-        messages.warning(
-            request,
-            f"{name} calls {aggregate}(), which goes NaN as soon as one "
-            f"image of a series lacks a diagnostic. Did you mean "
-            f"nan{aggregate}()?",
-        )
+    _warn_about(request, [name], get_expressions())
 
     return redirect("diagnostics:list_expressions")
 
@@ -465,6 +515,7 @@ def import_expressions(request):
         messages.info(request, "That file listed no expressions.")
     if refused:
         messages.error(request, "Refused " + "; ".join(sorted(refused)) + ".")
+    _warn_about(request, fresh, library)
 
     if not clashing:
         return redirect("diagnostics:list_expressions")
@@ -535,5 +586,6 @@ def confirm_import_expressions(request):
         messages.info(request, f"Replaced {updated} expression(s).")
     if refused:
         messages.error(request, "Refused " + "; ".join(refused) + ".")
+    _warn_about(request, writable, library)
 
     return redirect("diagnostics:list_expressions")

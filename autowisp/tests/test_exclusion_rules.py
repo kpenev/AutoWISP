@@ -29,7 +29,11 @@ from autowisp.database.data_model.provenance import (
 )
 
 # pylint: enable=no-name-in-module
-from autowisp.diagnostics.exclusion_rules import get_excluded
+from autowisp.database.user_interface import count_cameras_lacking
+from autowisp.diagnostics.exclusion_rules import (
+    get_excluded,
+    get_rule_reads,
+)
 from autowisp.exceptions import ConfigurationError
 from autowisp.tests.test_series_references import ReferenceProject
 
@@ -51,8 +55,20 @@ class TestExclusionRules(ReferenceProject):
         cls._extend_database()
 
     @classmethod
-    def _add_camera(cls, db_session):
-        """Add a camera with channels ``R`` and ``B``; return its id."""
+    def _add_cameras(cls, db_session, channels, num_cameras):
+        """
+        Add a camera type with the given channels, and cameras of it.
+
+        Args:
+            db_session:    The session to add them in.
+
+            channels(iterable of str):    The names of the type's channels.
+
+            num_cameras(int):    How many cameras of the type to add.
+
+        Returns:
+            [int]:    The ids of the cameras.
+        """
 
         # False positive: the declarative models are callable.
         # pylint: disable=not-callable
@@ -66,10 +82,15 @@ class TestExclusionRules(ReferenceProject):
         )
         db_session.add(camera_type)
         db_session.flush()
-        camera = Camera(
-            camera_type_id=camera_type.id, serial_number="1", notes=""
-        )
-        db_session.add(camera)
+        cameras = [
+            Camera(
+                camera_type_id=camera_type.id,
+                serial_number=f"{camera_type.id}-{index}",
+                notes="",
+            )
+            for index in range(num_cameras)
+        ]
+        db_session.add_all(cameras)
         db_session.add_all(
             CameraChannel(
                 camera_type_id=camera_type.id,
@@ -77,11 +98,11 @@ class TestExclusionRules(ReferenceProject):
                 x_offset=offset,
                 y_offset=offset,
             )
-            for offset, name in enumerate("RB")
+            for offset, name in enumerate(channels)
         )
         # pylint: enable=not-callable
         db_session.flush()
-        return camera.id
+        return [camera.id for camera in cameras]
 
     @classmethod
     def _extend_database(cls):
@@ -104,7 +125,7 @@ class TestExclusionRules(ReferenceProject):
             )
             db_session.execute(
                 update(ObservingSession).values(
-                    camera_id=cls._add_camera(db_session)
+                    camera_id=cls._add_cameras(db_session, "RB", 1)[0]
                 )
             )
 
@@ -294,6 +315,54 @@ class TestExclusionRules(ReferenceProject):
                 self.assertEqual(
                     [record.levelname for record in logged.records], [level]
                 )
+
+    def test_cameras_lacking_a_channel_are_counted(self):
+        """Per name some camera lacks, counting cameras rather than types.
+
+        Beside the fixture's camera with ``R`` and ``B``, two cameras with
+        ``R`` and ``G0``, and a type defining ``X`` that no camera is of.
+        Added in this test's session alone and rolled back, so the other
+        tests never see them.
+        """
+
+        with start_db_session() as db_session:
+            self._add_cameras(db_session, ["R", "G0"], 2)
+            self._add_cameras(db_session, ["X"], 0)
+            self.assertEqual(
+                count_cameras_lacking(
+                    ["R", "B", "G0", "X", "Y", "B"], db_session
+                ),
+                {"B": (2, 3), "G0": (1, 3), "X": (3, 3), "Y": (3, 3)},
+            )
+            db_session.rollback()
+
+    def test_rules_are_read_with_the_slots_they_take(self):
+        """Each slot bound once; what takes more, or is broken, is no rule.
+
+        Whether one gives true or false is not known without evaluating it,
+        so one giving numbers is listed too.
+        """
+
+        self.assertEqual(
+            get_rule_reads(
+                {
+                    "quoted": "bg_center['R'] > 103",
+                    "per_channel": "bg_center[0] > 103",
+                    "per_photometry": "photometry_mag_offset['R'][0] > 1",
+                    "per_both": "photometry_mag_offset[0][0] > 1",
+                    "numbers": "bg_center[0] - 100",
+                    "two_channels": "bg_center[0] > bg_center[1]",
+                    "broken": "bg_center[0] >",
+                }
+            ),
+            {
+                "quoted": "quoted",
+                "per_channel": "per_channel[0]",
+                "per_photometry": "per_photometry[()][0]",
+                "per_both": "per_both[0][0]",
+                "numbers": "numbers[0]",
+            },
+        )
 
 
 if __name__ == "__main__":

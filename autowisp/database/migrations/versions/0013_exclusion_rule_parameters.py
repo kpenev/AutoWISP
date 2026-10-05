@@ -60,7 +60,10 @@ EXCLUSION_RULES = {
         "master photometric reference, e.g. ``(cloud[0] > 0.3) | "
         "(srcextract_mag_zeropt['G0'] < 19.5)``. A slot subscript stands for "
         "the channel being decided for, a quoted channel name for that "
-        "channel. The pipeline evaluates it to produce the exclusion list. "
+        "channel. Best written as a read of a diagnostic expression, e.g. "
+        "``cloudy[0]``, which the diagnostics page can preview; the "
+        "expressions page shows the read for each expression usable as a "
+        "rule. The pipeline evaluates it to produce the exclusion list. "
         "Excluded images are still fit. If unset, nothing is excluded.",
     ),
     "epd": (
@@ -69,8 +72,11 @@ EXCLUSION_RULES = {
         "diagnostic expressions, true for the observations to leave out of "
         "the EPD fit, e.g. ``(cloud[0] > 0.3) | (srcextract_mag_zeropt['G0'] "
         "< 19.5)``. A slot subscript stands for the channel being decided "
-        "for, a quoted channel name for that channel. The pipeline evaluates "
-        "it to produce the exclusion list. Excluded observations are still "
+        "for, a quoted channel name for that channel. Best written as a read "
+        "of a diagnostic expression, e.g. ``cloudy[0]``, which the "
+        "diagnostics page can preview; the expressions page shows the read "
+        "for each expression usable as a rule. The pipeline evaluates it to "
+        "produce the exclusion list. Excluded observations are still "
         "corrected. If unset, nothing is excluded.",
     ),
     "tfa": (
@@ -79,8 +85,11 @@ EXCLUSION_RULES = {
         "diagnostic expressions, true for the observations to leave out of "
         "the TFA fit, e.g. ``(cloud[0] > 0.3) | (srcextract_mag_zeropt['G0'] "
         "< 19.5)``. A slot subscript stands for the channel being decided "
-        "for, a quoted channel name for that channel. The pipeline evaluates "
-        "it to produce the exclusion list. Excluded observations are still "
+        "for, a quoted channel name for that channel. Best written as a read "
+        "of a diagnostic expression, e.g. ``cloudy[0]``, which the "
+        "diagnostics page can preview; the expressions page shows the read "
+        "for each expression usable as a rule. The pipeline evaluates it to "
+        "produce the exclusion list. Excluded observations are still "
         "corrected. If unset, nothing is excluded.",
     ),
 }

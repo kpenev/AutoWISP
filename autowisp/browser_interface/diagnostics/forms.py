@@ -15,10 +15,7 @@ place that adaptation happens.
 
 from django import forms
 
-from autowisp.diagnostics.expressions import (
-    check_expression,
-    get_bare_aggregates,
-)
+from autowisp.diagnostics.expressions import check_expression
 
 
 class DiagnosticExpressionForm(forms.Form):
@@ -66,12 +63,6 @@ class DiagnosticExpressionForm(forms.Form):
         self.expressions = dict(expressions or {})
         self.replacing = replacing or None
 
-        #: The NaN-propagating aggregates the accepted expression calls,
-        #: for the view to warn about.  Not an error: a deliberate
-        #: ``median`` is a legitimate thing to write, it is merely almost
-        #: never what was meant.
-        self.bare_aggregates = set()
-
     def clean(self):
         """Report what ``check_expression`` says, against the field at fault."""
 
@@ -97,8 +88,5 @@ class DiagnosticExpressionForm(forms.Form):
             self.add_error(
                 "name" if problem in name_problems else "expression", problem
             )
-
-        if not self.errors:
-            self.bare_aggregates = get_bare_aggregates(expression)
 
         return cleaned_data

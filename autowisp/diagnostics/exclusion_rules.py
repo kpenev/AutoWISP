@@ -53,13 +53,15 @@ from autowisp.diagnostics.expression_series import (
 )
 from autowisp.diagnostics.expressions import (
     check_rule,
+    get_channel_arity,
     get_channel_parameters,
     get_logical_keywords,
     get_needed_values,
+    get_photometry_arity,
     get_photometry_parameters,
     rule_quantity,
 )
-from autowisp.exceptions import ConfigurationError
+from autowisp.exceptions import ConfigurationError, PipelineError
 
 _logger = logging.getLogger(__name__)
 
@@ -432,3 +434,41 @@ def get_excluded(rule, members, db_session, *, before_magfit=False):
 
     _report_fractions(rule, excluded, len(members))
     return excluded
+
+
+def get_rule_reads(library):
+    """
+    Return the library expressions usable as exclusion rules, as configured.
+
+    A rule names a library expression by a read binding the slots it takes,
+    the channel slot to the channel being decided for and the photometry
+    slot to the photometry: ``cloudy``, ``cloudy[0]``, ``cloudy[()][0]`` or
+    ``cloudy[0][0]``. Whether an expression gives true or false is not
+    known until it is evaluated, so one giving numbers is listed too.
+
+    Args:
+        library(dict):    The project's library, ``{name: expression}``.
+
+    Returns:
+        dict:    ``{name: read}`` for each expression :func:`check_rule`
+            accepts read that way.
+    """
+
+    reads = {}
+    for name in library:
+        try:
+            num_channels = get_channel_arity(name, library)
+            num_photometries = get_photometry_arity(name, library)
+        except SyntaxError, PipelineError:
+            # Broken, which the library page says; not a rule either way.
+            continue
+        if num_channels > 1 or num_photometries > 1:
+            continue
+        read = name
+        if num_channels or num_photometries:
+            read += "[0]" if num_channels else "[()]"
+        if num_photometries:
+            read += "[0]"
+        if not check_rule(read, library):
+            reads[name] = read
+    return reads

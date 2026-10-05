@@ -120,6 +120,9 @@
                     <th>Expression</th>
                     <th>Description</th>
                     <th>Built from</th>
+                    {% comment %} What to set an exclusion rule option to, for
+                       an expression usable as one. {% endcomment %}
+                    <th>Configure as rule</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -139,6 +142,7 @@
                     <td class="expression-text">{{ row.expression }}</td>
                     <td>{{ row.description }}</td>
                     <td>{{ row.depends_on|join:", " }}</td>
+                    <td class="expression-text">{{ row.rule_read }}</td>
                     <td>
                         {% for problem in row.problems %}
                         <div class="expression-problem">{{ problem }}</div>
@@ -156,7 +160,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">
+                    <td colspan="7">
                         No expressions yet. Define one above, or import a file.
                     </td>
                 </tr>
